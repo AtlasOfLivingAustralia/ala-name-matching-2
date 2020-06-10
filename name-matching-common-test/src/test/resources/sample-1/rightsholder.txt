@@ -1,0 +1,11 @@
+datasetID	datasetName	description	rightsHolder	license
+dr2699	AFD	Australian Faunal Directory	Australian Biological Resources Study	CC-BY
+dr2700	APNI	Australian Plant Name Index entries not placed by the Australian Plant Census, given an assumed parent of Plantae	Centre for Australian National Biodiversity Research	CC-BY
+dr2703	AusMoss		Royal Botanic Gardens Victoria	CC-BY
+dr2704	CAAB	Codes for Australian Aquatic Biota	Commonwealth Scientific and Industrial Research Organisation	CC-BY
+dr5393	ALA	Atlas of living Australia Name Sources	Atlas of Living Australia	CC-BY
+dr2702	AusFungi		Royal Botanic Gardens Victoria	CC-BY
+dr2707	NZOR	New Zealand Organism Register	New Zealand Organism Register	CC-BY
+dr2705	CoL	Catalogue of Life	Catalogue of Life	CC-BY
+dr13558	ALA Inferences	Atlas of living Australia, provider of inferences from the matching algorithm	Atlas of Living Australia	CC-BY
+dr5214	APC	Australian Plant Name Index entries placed by the Australian Plant Census	Centre for Australian National Biodiversity Research	CC-BY

@@ -1,0 +1,17 @@
+{
+  "id" : "network_5",
+  "vertices" : [
+    { "id" : "A" },
+    { "id" : "B" },
+    { "id" : "C" },
+    { "id" : "D" },
+    { "id" : "E" }
+  ],
+  "edges" : [
+    { "source" : "A", "target" : "B", "edge" : { } },
+    { "source" : "A", "target" : "C", "edge" : { } },
+    { "source" : "B", "target" : "D", "edge" : { } },
+    { "source" : "C", "target" : "D", "edge" : { } },
+    { "source" : "D", "target" : "E", "edge" : { } }
+  ]
+}

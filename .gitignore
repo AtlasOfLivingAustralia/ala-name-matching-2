@@ -1,0 +1,9 @@
+/ala-linnaean/target/
+/ala-linnaean-builder/target/
+/.idea/
+/ala-name-matching-2.iml
+/name-matching-builder/target/
+/name-matching-common-test/target/
+/name-matching-core/target/
+/name-matching-lucene/target/
+/name-matching-maven-plugin/target/

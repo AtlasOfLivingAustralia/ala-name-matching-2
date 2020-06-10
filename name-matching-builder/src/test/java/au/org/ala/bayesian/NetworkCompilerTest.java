@@ -1,0 +1,91 @@
+package au.org.ala.bayesian;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+
+public class NetworkCompilerTest {
+
+    @Test
+    public void testCompile1() throws Exception {
+        Network network = Network.read(this.getClass().getResource("network-1.json"));
+        NetworkCompiler compiler = new NetworkCompiler(network);
+        compiler.analyse();
+        assertEquals("Network1Inference", compiler.getInferenceClassName());
+        assertEquals("Network1Parameters", compiler.getParameterClassName());
+        assertEquals(1, compiler.getInputs().size());
+        assertEquals("v_1", compiler.getInputs().get(0).getObservable().getId());
+        assertEquals(2, compiler.getInputSignatures().size());
+        assertEquals(1, compiler.getInputSignatures().get(0).length);
+        assertEquals(true, compiler.getInputSignatures().get(0)[0]);
+        assertEquals(1, compiler.getInputSignatures().get(1).length);
+        assertEquals(false, compiler.getInputSignatures().get(1)[0]);
+        assertEquals(1, compiler.getOutputs().size());
+        assertEquals("v_1", compiler.getOutputs().get(0).getObservable().getId());
+        assertEquals(1, compiler.getOrderedNodes().size());
+        NetworkCompiler.Node node = compiler.getOrderedNodes().get(0);
+        assertEquals("v_1", node.getObservable().getId());
+        assertEquals("e$v_1", node.getEvidence().getId());
+        assertEquals("prior_t$v_1", node.getPrior().getId());
+        assertEquals("c$v_1", node.getcE().getId());
+        assertEquals("nc$v_1", node.getcNotE().getId());
+        assertEquals(0, node.getInference().size());
+        JavaGenerator generator = new JavaGenerator();
+        // StringWriter writer = new StringWriter();
+        // JavaGenerator generator = new JavaGenerator();
+        // generator.generateParameterClass(compiler, compiler.getParameterClassName(), writer);
+        // generator.generateInferenceClass(compiler, compiler.getInferenceClassName(), writer);
+        // System.out.println(writer.toString());
+        // TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-1-inference.java.txt"), writer.toString());
+    }
+
+    @Test
+    public void testCompile2() throws Exception {
+        Network network = Network.read(this.getClass().getResource("network-2.json"));
+        NetworkCompiler compiler = new NetworkCompiler(network);
+        compiler.analyse();
+        assertEquals("Network2Inference", compiler.getInferenceClassName());
+        assertEquals("Network2Parameters", compiler.getParameterClassName());
+        assertEquals(1, compiler.getInputs().size());
+        assertEquals("v_1", compiler.getInputs().get(0).getObservable().getId());
+        assertEquals(2, compiler.getInputSignatures().size());
+        assertEquals(1, compiler.getInputSignatures().get(0).length);
+        assertEquals(true, compiler.getInputSignatures().get(0)[0]);
+        assertEquals(1, compiler.getInputSignatures().get(1).length);
+        assertEquals(false, compiler.getInputSignatures().get(1)[0]);
+        assertEquals(1, compiler.getOutputs().size());
+        assertEquals("v_2", compiler.getOutputs().get(0).getObservable().getId());
+        assertEquals(2, compiler.getOrderedNodes().size());
+        NetworkCompiler.Node node = compiler.getOrderedNodes().get(0);
+        assertEquals("v_1", node.getObservable().getId());
+        assertEquals("e$v_1", node.getEvidence().getId());
+        assertEquals("prior_t$v_1", node.getPrior().getId());
+        assertEquals("c$v_1", node.getcE().getId());
+        assertEquals("nc$v_1", node.getcNotE().getId());
+        assertEquals(0, node.getInference().size());
+        node = compiler.getOrderedNodes().get(1);
+        assertEquals("v_2", node.getObservable().getId());
+        assertEquals("e$v_2", node.getEvidence().getId());
+        assertNull(node.getPrior());
+        assertEquals("c$v_2", node.getcE().getId());
+        assertEquals("nc$v_2", node.getcNotE().getId());
+        assertEquals(4, node.getInference().size());
+        InferenceParameter parameter = node.getInference().get(0);
+        assertEquals(1, parameter.getContributors().size());
+        assertEquals(true, parameter.getContributors().get(0).isMatch());
+        assertEquals(1, parameter.getContributors().size());
+        assertEquals("v_1", parameter.getContributors().get(0).getObservable().getId());
+        parameter = node.getInference().get(1);
+        assertEquals(1, parameter.getContributors().size());
+        assertEquals(true, parameter.getContributors().get(0).isMatch());
+        assertEquals("v_1", parameter.getContributors().get(0).getObservable().getId());
+        // StringWriter writer = new StringWriter();
+        // JavaGenerator generator = new JavaGenerator();
+        // generator.generateParameterClass(compiler, compiler.getParameterClassName(), writer);
+        // generator.generateInferenceClass(compiler, compiler.getInferenceClassName(), writer);
+        // System.out.println(writer.toString());
+        // TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-1-inference.java.txt"), writer.toString());
+    }
+}

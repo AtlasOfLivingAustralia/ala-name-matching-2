@@ -1,0 +1,24 @@
+{
+  "id" : "network_8",
+  "vertices" : [
+    { "id" : "A" },
+    { "id" : "B" },
+    { "id" : "C" },
+    { "id" : "D" },
+    { "id" : "E" },
+    { "id" : "F" },
+    { "id" : "G" },
+    { "id" : "H" }
+  ],
+  "edges" : [
+    { "source" : "A", "target" : "B", "edge" : { } },
+    { "source" : "A", "target" : "C", "edge" : { } },
+    { "source" : "B", "target" : "D", "edge" : { } },
+    { "source" : "C", "target" : "D", "edge" : { } },
+    { "source" : "D", "target" : "E", "edge" : { } },
+    { "source" : "D", "target" : "F", "edge" : { } },
+    { "source" : "E", "target" : "G", "edge" : { } },
+    { "source" : "F", "target" : "G", "edge" : { } },
+    { "source" : "G", "target" : "H", "edge" : { } }
+  ]
+}

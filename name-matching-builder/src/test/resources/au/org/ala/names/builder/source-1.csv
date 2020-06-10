@@ -1,0 +1,12 @@
+taxonID,parentNameUsageID,acceptedNameUsageID,scientificName,scientificNameAuthorship,taxonRank,taxonomicStatus
+K-1,,,Animalia,,kingdom,accepted
+P-1,K-1,,Arthropoda,,phylum,accepted
+SP-1,P-1,,Crustacea,,subphylum,accepted
+C-1,SP-1,,BRANCHIOPODA,"Latreille, 1817",class,accepted
+SC-1,C-1,,SARSOSTRACA,"Tasch, 1969",subclass,accepted
+O-1,SC-1,,ANOSTRACA,"Sars, 1867",order,accepted
+F-1,O-1,,ARTEMIIDAE,"Grochowski, 1896",family,accepted
+G-1,F-1,,Artemia,"Leach, 1819",genus,accepted
+S-1,G-1,,Artemia franciscana,"Kellogg, 1906",species,accepted
+S-2,G-1,,Artemia parthenogenetica,"Bowen & Stirling, 1978",species,accepted
+S-S-1,,S-1,Artemia salina,"Kellogg, 1906",species,synonym

@@ -1,0 +1,64 @@
+package au.org.ala.bayesian.generated;
+
+public class Network1Inference {
+  public Parameters parameters;
+
+  public void infer(Result result, Evidence evidence) {
+    if (evidence.e$v_1 != null) {
+      if (evidence.e$v_1.booleanValue())
+        np$v_1 = 0.0;
+      else
+        p$v_1 = 0.0;
+    }
+    p$v_2 =
+      this.parameters.i$t$v_2 * result.p$v_1 +
+      this.parameters.i$f$v_2 * result.np$v_1;
+    np$v_2 = 1.0 - p$v_2;
+    if (evidence.e$v_2 != null) {
+      if (evidence.e$v_2.booleanValue())
+        np$v_2 = 0.0;
+      else
+        p$v_2 = 0.0;
+    }
+  }
+
+  public double probability(Evidence evidence) {
+    Result result = new Result();
+    double p = 0.0;
+    double ph = 0.0;
+    double sph = 0.0;
+
+    result.p$v_1 = 1.0;
+    result.np$v_1 = 0.0;
+    p = i$$v_1;
+    this.infer(result, evidence);
+    p *= p$v_2;
+    ph = p;
+    sph += p;
+    result.p$v_1 = 0.0;
+    result.np$v_1 = 1.0;
+    p = (1.0 - i$$v_1);
+    this.infer(result, evidence);
+    p *= p$v_2;
+    sph += p;
+    return sph == 0.0 ? 0.0 : ph /sph;
+  }
+
+  public static class Result {
+    public double p$v_1; // v_1 positive probability
+    public double np$v_1; // v_1 negative probability
+    public double p$v_2; // v_2 positive probability
+    public double np$v_2; // v_2 negative probability
+  }
+
+  public static class Evidence {
+    public Boolean e$v_1;
+    public Boolean e$v_2;
+  }
+
+  public static class Parameters {
+    public double i$$v_1; // v_1 prior probability
+    public double i$t$v_2; // p(v_2 | v_1) conditional probability
+    public double i$f$v_2; // p(v_2 | !v_1) conditional probability
+  }
+}

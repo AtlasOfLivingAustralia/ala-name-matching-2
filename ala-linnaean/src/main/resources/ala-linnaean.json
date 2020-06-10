@@ -1,0 +1,400 @@
+{
+  "id": "ALA:Linnaean",
+  "description": "A Linnaean heirarchy containing all evidence, used by the ALA",
+  "vertices": [
+    {
+      "id": "taxonID",
+      "uri": "http://rs.tdwg.org/dwc/terms/taxonID",
+      "properties": {
+        "taxonID": true
+      }
+    },
+    {
+      "id": "taxonRank",
+      "uri": "http://rs.tdwg.org/dwc/terms/taxonRank"
+    },
+    {
+      "id": "scientificName",
+      "uri": "http://rs.tdwg.org/dwc/terms/scientificName",
+      "properties": {
+        "scientificName": true
+      }
+    },
+    {
+      "id": "soundexScientificName",
+      "uri": "http://id.ala.org.au/terms/1.0/soundexScientificName",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "source": "scientificName"
+      }
+    },
+    {
+      "id": "specificEpithet",
+      "uri": "http://rs.tdwg.org/dwc/terms/specificEpithet"
+    },
+    {
+      "id": "soundexSpecificEpithet",
+      "uri": "http://id.ala.org.au/terms/1.0/soundexSpecifcEpithet",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "source": "specificEpithet"
+      }
+    },
+    {
+      "id": "speciesID",
+      "uri": "http://id.ala.org.au/terms/1.0/speciesID"
+    },
+    {
+      "id": "genus",
+      "uri": "http://rs.tdwg.org/dwc/terms/genus",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "scientificName",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "genus"
+        }
+      }
+    },
+    {
+      "id": "soundexGenus",
+      "uri": "http://id.ala.org.au/terms/1.0/soundexGenus",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "source": "genus"
+      }
+    },
+    {
+      "id": "genusID",
+      "uri": "http://id.ala.org.au/terms/1.0/genusID",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "taxonID",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "genus"
+        }
+      }
+    },
+    {
+      "id": "family",
+      "uri": "http://rs.tdwg.org/dwc/terms/family",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "scientificName",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "family"
+        }
+      }
+    },
+    {
+      "id": "soundexFamily",
+      "uri": "http://id.ala.org.au/terms/1.0/soundexFamily",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "source": "family"
+      }
+    },
+    {
+      "id": "familyID",
+      "uri": "http://id.ala.org.au/terms/1.0/familyID",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "taxonID",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "family"
+        }
+      }
+    },
+    {
+      "id": "order",
+      "uri": "http://rs.tdwg.org/dwc/terms/order",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "scientificName",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "order"
+        }
+      }
+    },
+    {
+      "id": "soundexOrder",
+      "uri": "http://id.ala.org.au/terms/1.0/soundexOrder",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "source": "order"
+      }
+    },
+    {
+      "id": "orderID",
+      "uri": "http://id.ala.org.au/terms/1.0/orderID",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "taxonID",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "order"
+        }
+      }
+    },
+    {
+      "id": "class",
+      "uri": "http://rs.tdwg.org/dwc/terms/class",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "scientificName",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "class"
+        }
+      }
+    },
+    {
+      "id": "soundexClass",
+      "uri": "http://id.ala.org.au/terms/1.0/soundexClass",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "source": "class"
+      }
+    },
+    {
+      "id": "classID",
+      "uri": "http://id.ala.org.au/terms/1.0/classID",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "taxonID",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "class"
+        }
+      }
+    },
+    {
+      "id": "phylum",
+      "uri": "http://rs.tdwg.org/dwc/terms/phylum",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "scientificName",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "phylum"
+        }
+      }
+    },
+    {
+      "id": "soundexPhylum",
+      "uri": "http://id.ala.org.au/terms/1.0/soundexPylum",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "source": "phylum"
+      }
+    },
+    {
+      "id": "phylumID",
+      "uri": "http://id.ala.org.au/terms/1.0/phylumID",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "taxonID",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "phylum"
+        }
+      }
+    },
+    {
+      "id": "kingdom",
+      "uri": "http://rs.tdwg.org/dwc/terms/kingdom",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "scientificName",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "kingdom"
+        }
+      }
+    },
+    {
+      "id": "soundexKingdom",
+      "uri": "http://id.ala.org.au/terms/1.0/soundexKingdom",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "source": "kingdom"
+      }
+    },
+    {
+      "id": "kingdomID",
+      "uri": "http://id.ala.org.au/terms/1.0/kingdomID",
+      "properties": {
+        "copy": true
+      },
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "source": "taxonID",
+        "condition": {
+          "positive": true,
+          "observable": "taxonRank",
+          "value": "kingdom"
+        }
+      }
+    },
+    {
+      "id": "scientificNameAuthorship",
+      "uri": "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"
+    },
+    {
+      "id": "stateOrProvince",
+      "uri": "http://rs.tdwg.org/dwc/terms/stateOrProvince"
+    },
+    {
+      "id": "country",
+      "uri": "http://rs.tdwg.org/dwc/terms/country"
+    },
+    {
+      "id": "nomenclaturalCode",
+      "uri": "http://rs.tdwg.org/dwc/terms/nomenclaturalCode"
+    },
+    {
+      "id": "weight",
+      "uri": "http://id.ala.org.au/terms/1.0/weight",
+      "properties": {
+        "weight": true
+      }
+    },
+    {
+      "id": "parentNameUsageID",
+      "uri": "http://rs.tdwg.org/dwc/terms/parentNameUsageID",
+      "properties": {
+        "parent": true
+      }
+    },
+    {
+      "id": "acceptedNameUsageID",
+      "uri": "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
+      "properties": {
+        "accepted": true
+      }
+    },
+    {
+      "id": "altScientificName",
+      "uri": "http://id.ala.org.au/terms/1.0/altScientificName",
+      "properties": {
+        "altScientificName": true
+      }
+    }
+  ],
+  "vertices": [
+    "taxonID",
+    "taxonRank",
+    "scientificName",
+    "soundexScientificName",
+    "specificEpithet",
+    "soundexSpecificEpithet",
+    "genus",
+    "soundexGenus",
+    "genusID",
+    "family",
+    "soundexFamily",
+    "familyID",
+    "order",
+    "soundexOrder",
+    "orderID",
+    "class",
+    "soundexClass",
+    "classID",
+    "phylum",
+    "soundexPhylum",
+    "phylumID",
+    "kingdom",
+    "soundexKingdom",
+    "kingdomID",
+    "scientificNameAuthorship",
+    "stateOrProvince",
+    "country",
+    "nomenclaturalCode"
+  ],
+  "edges": [
+    { "source": "taxonID", "target": "scientificName",  "edge": { } },
+    { "source": "taxonID", "target": "taxonRank",  "edge": { } },
+    { "source": "taxonID", "target": "scientificNameAuthorship",  "edge": { } },
+    { "source": "taxonID", "target": "stateOrProvince",  "edge": { } },
+    { "source": "taxonID", "target": "nomenclaturalCode",  "edge": { } },
+    { "source": "scientificName", "target": "soundexScientificName",  "edge": { } },
+    { "source": "scientificName", "target": "specificEpithet",  "edge": { } },
+    { "source": "scientificName", "target": "genus",  "edge": { } },
+    { "source": "soundexScientificName", "target": "genus",  "edge": { } },
+    { "source": "specificEpithet", "target": "genus",  "edge": { } },
+    { "source": "specificEpithet", "target": "soundexSpecificEpithet",  "edge": { } },
+    { "source": "soundexSpecificEpithet", "target": "genus",  "edge": { } },
+    { "source": "genus", "target": "soundexGenus",  "edge": { } },
+    { "source": "genus", "target": "genusID",  "edge": { } },
+    { "source": "soundexGenus", "target": "genusID",  "edge": { } },
+    { "source": "genusID", "target": "family",  "edge": { } },
+    { "source": "family", "target": "soundexFamily",  "edge": { } },
+    { "source": "family", "target": "familyID",  "edge": { } },
+    { "source": "soundexFamily", "target": "familyID",  "edge": { } },
+    { "source": "familyID", "target": "order",  "edge": { } },
+    { "source": "order", "target": "soundexOrder",  "edge": { } },
+    { "source": "soundexOrder", "target": "orderID",  "edge": { } },
+    { "source": "order", "target": "orderID",  "edge": { } },
+    { "source": "orderID", "target": "class",  "edge": { } },
+    { "source": "class", "target": "classID",  "edge": { } },
+    { "source": "class", "target": "soundexClass",  "edge": { } },
+    { "source": "soundexClass", "target": "classID",  "edge": { } },
+    { "source": "classID", "target": "phylum",  "edge": { } },
+    { "source": "phylum", "target": "phylumID",  "edge": { } },
+    { "source": "phylum", "target": "soundexPhylum",  "edge": { } },
+    { "source": "soundexPhylum", "target": "phylumID",  "edge": { } },
+    { "source": "phylumID", "target": "kingdom",  "edge": { } },
+    { "source": "kingdom", "target": "kingdomID",  "edge": { } },
+    { "source": "kingdom", "target": "soundexKingdom",  "edge": { } },
+    { "source": "soundexKingdom", "target": "kingdomID",  "edge": { } },
+    { "source": "stateOrProvince", "target": "country",  "edge": { } }
+  ]
+}

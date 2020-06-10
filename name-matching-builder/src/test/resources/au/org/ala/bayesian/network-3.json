@@ -1,0 +1,14 @@
+{
+  "id" : "network_3",
+  "observables" : [
+    { "id" : "v_1" },
+    { "id" : "v_2" },
+    { "id" : "v_3" }
+  ],
+  "vertices" : [ "v_1", "v_2", "v_3" ],
+  "edges" : [
+    { "source" : "v_1", "target" : "v_2", "edge" : { } },
+    { "source" : "v_1", "target" : "v_3", "edge" : { } },
+    { "source" : "v_2", "target" : "v_3", "edge" : { } }
+  ]
+}

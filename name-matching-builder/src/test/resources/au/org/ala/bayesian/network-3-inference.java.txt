@@ -1,0 +1,71 @@
+package au.org.ala.bayesian.generated;
+
+public class Network3Inference {
+  public Network3Parameters parameters;
+
+  public double infer(Evidence evidence, double c$v_1) {
+    double nc$v_1 = 1.0 - c$v_1;
+    double c$v_2 = evidence.isT$v_2();
+    double nc$v_2 = evidence.isF$v_2();
+    double c$v_3 = 0;
+    double nc$v_3 = 0;
+    // Ignoring non-base v_2
+    if (evidence.e$v_3 == null || evidence.e$v_3) {
+      c$v_3 += this.parameters.derived_t_tt$v_3 * c$v_2 * c$v_1;
+      c$v_3 += this.parameters.derived_t_tf$v_3 * c$v_2 * nc$v_1;
+      c$v_3 += this.parameters.derived_t_ft$v_3 * nc$v_2 * c$v_1;
+      c$v_3 += this.parameters.derived_t_ff$v_3 * nc$v_2 * nc$v_1;
+    }
+    if (evidence.e$v_3 == null || !evidence.e$v_3) {
+      nc$v_3 += this.parameters.derived_f_tt$v_3 * c$v_2 * c$v_1;
+      nc$v_3 += this.parameters.derived_f_tf$v_3 * c$v_2 * nc$v_1;
+      nc$v_3 += this.parameters.derived_f_ft$v_3 * nc$v_2 * c$v_1;
+      nc$v_3 += this.parameters.derived_f_ff$v_3 * nc$v_2 * nc$v_1;
+    }
+    return (c$v_3 + nc$v_3) * (this.parameters.prior_t$v_1 * c$v_1 + this.parameters.prior_f$v_1 * nc$v_1);
+  }
+
+  public double probability(Evidence evidence) {
+    double p;
+    double ph = 0.0;
+    double pe = 0.0;
+
+    p = evidence.isT$v_1() * this.infer(evidence, 1.0);
+    ph += p;
+    pe += p;
+    p = evidence.isF$v_1() * this.infer(evidence, 0.0);
+    pe += p;
+    return pe == 0.0 ? 0.0 : ph / pe;
+  }
+
+  public static class Evidence {
+    public Boolean e$v_1;
+    public Boolean e$v_2;
+    public Boolean e$v_3;
+
+    public double isT$v_1() {
+      return this.e$v_1 == null || this.e$v_1 ? 1.0 : 0.0;
+    }
+
+    public double isF$v_1() {
+      return this.e$v_1 == null || !this.e$v_1 ? 1.0 : 0.0;
+    }
+
+    public double isT$v_2() {
+      return this.e$v_2 == null || this.e$v_2 ? 1.0 : 0.0;
+    }
+
+    public double isF$v_2() {
+      return this.e$v_2 == null || !this.e$v_2 ? 1.0 : 0.0;
+    }
+
+    public double isT$v_3() {
+      return this.e$v_3 == null || this.e$v_3 ? 1.0 : 0.0;
+    }
+
+    public double isF$v_3() {
+      return this.e$v_3 == null || !this.e$v_3 ? 1.0 : 0.0;
+    }
+
+  }
+}

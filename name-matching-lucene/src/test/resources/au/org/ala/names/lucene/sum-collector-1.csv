@@ -1,0 +1,5 @@
+type,name,weight
+insect,Ant,100.0
+mammal,Deer,1.0
+insect,beetle,10.0
+fish,trout,12.0

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>ala-name-matching-2</artifactId>
+        <groupId>au.org.ala</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>au.org.ala</groupId>
+    <artifactId>ala-linnaean</artifactId>
+<!--    <version>${project.parent.version}</version>-->
+
+    <name>ALA Linnaean Name Matching</name>
+    <description>
+        Name matching implementation and index builder that follows the Darwin Core terms and Linnaean classification scheme
+    </description>
+
+    <dependencies>
+    <dependency>
+        <groupId>au.org.ala</groupId>
+        <artifactId>name-matching-core</artifactId>
+        <version>${project.parent.version}</version>
+    </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>au.org.ala.maven</groupId>
+                <artifactId>name-matching-maven-plugin</artifactId>
+                <version>${project.parent.version}</version>
+                <executions>
+                    <execution>
+                        <id>ala-network</id>
+                        <goals>
+                            <goal>generate-network</goal>
+                        </goals>
+                        <configuration>
+                            <source>${project.basedir}/src/main/resources/ala-linnaean.json</source>
+                            <outputPackage>au.org.ala.names</outputPackage>
+                            <generateBuilder>false</generateBuilder>
+                            <generateInferencer>true</generateInferencer>
+                            <generateParameters>true</generateParameters>
+                        </configuration>
+                    </execution>
+                 </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

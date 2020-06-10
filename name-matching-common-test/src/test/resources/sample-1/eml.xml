@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml.xsd"
+        packageId=""  system="http://gbif.org" scope="system"
+  xml:lang="en">
+
+<dataset>
+        <alternateIdentifier>ALA-Combined</alternateIdentifier>
+    <title>ALA Combined Taxonomy</title>
+    <creator>
+<organizationName>Atlas of Living Australia</organizationName><electronicMailAddress>data_management@ala.org.au</electronicMailAddress>    </creator>
+    <associatedParty>
+<organizationName>Atlas of Living Australia</organizationName><electronicMailAddress>data_management@ala.org.au</electronicMailAddress>    <role>PROCESSOR</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Atlas of Living Australia</organizationName><electronicMailAddress>data_management@ala.org.au</electronicMailAddress>    <role>PROCESSOR</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Royal Botanic Gardens, Melbourne</organizationName>    <address>
+<city>Melbourne</city><administrativeArea>VIC</administrativeArea><country>AUSTRALIA</country>    </address>
+<electronicMailAddress>niels.klazenga@rbg.vic.gov.au</electronicMailAddress>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>The Australian Plant Census</organizationName><onlineUrl>https://www.anbg.gov.au/chah/apc/</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Australian Faunal Directory</organizationName><electronicMailAddress>australianfaunaldirectory@environment.gov.au</electronicMailAddress><onlineUrl>http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/home</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>The Australian Plant Name Index</organizationName><onlineUrl>http://www.cpbr.gov.au/apni/index.htm</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>The Atlas of Living Australia</organizationName>    <address>
+<deliveryPoint>GPO Box 1700</deliveryPoint><city>Canberra</city><administrativeArea>ACT</administrativeArea><postalCode>2601</postalCode><country>AUSTRALIA</country>    </address>
+<electronicMailAddress>info@ala.org.au</electronicMailAddress><onlineUrl>http://www.ala.org.au</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+      <pubDate>
+      2020-05-27
+      </pubDate>
+    <language>en</language>
+    <abstract>
+        <para>Resolved taxonomy built from AusFungi, AusMoss, AFD, APNI/APC, NZOR, CAAB, Catalogue of Life and ALA species lists</para>
+    </abstract>
+      <additionalInfo>
+          <para>Created by combining source taxonomies using the ala-name-matching algorithms. See https://github.com/AtlasOfLivingAustralia/ala-name-matching for more information.</para>
+      </additionalInfo>
+
+</dataset>
+
+<additionalMetadata>
+    <metadata>
+      <gbif>
+        <dateStamp>2020-05-27T05:13:16Z</dateStamp>
+      <citation identifier="ALA-Combined">ALA Combined Taxonomy</citation>
+              <bibliography>
+      <citation identifier="AFD-20191231">Atlas of Living Australia &amp; ABRS 2009. Australian Faunal Directory. Australian Biological Resources Study, Canberra. 2018-10-03</citation>
+      <citation identifier="APC-20200330">Atlas of Living Australia,  Australian Plant Name Index &amp; Australian Plant Census 2018-10-18</citation>
+      <citation identifier="AusFungi-20181102">Atlas of Living Australia &amp; AusFungi 2015-10-26</citation>
+      <citation identifier="AusMoss-20200330">Atlas of Living Australia &amp; AusMoss 2018-10-18</citation>
+      <citation identifier="dr2699">AFD, Australian Biological Resources Study</citation>
+      <citation identifier="dr2700">APNI, Centre for Australian National Biodiversity Research</citation>
+      <citation identifier="dr2703">AusMoss, Royal Botanic Gardens Victoria</citation>
+      <citation identifier="dr2704">CAAB, Commonwealth Scientific and Industrial Research Organisation</citation>
+      <citation identifier="dr5393">ALA, Atlas of Living Australia</citation>
+      <citation identifier="dr2702">AusFungi, Royal Botanic Gardens Victoria</citation>
+      <citation identifier="dr2707">NZOR, New Zealand Organism Register</citation>
+      <citation identifier="dr2705">CoL, Catalogue of Life</citation>
+      <citation identifier="dr13558">ALA Inferences, Atlas of Living Australia</citation>
+      <citation identifier="dr5214">APC, Centre for Australian National Biodiversity Research</citation>
+              </bibliography>
+        </gbif>
+    </metadata>
+</additionalMetadata>
+
+</eml:eml>

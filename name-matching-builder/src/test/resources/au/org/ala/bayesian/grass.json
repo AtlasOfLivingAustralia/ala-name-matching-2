@@ -1,0 +1,35 @@
+{
+  "id": "grass",
+  "description": "Example bayesian network based on wet grass. Hyptohesis is that it is raining. Eveidence is that the srinkler is on and the grass is wet",
+  "vertices": [
+    {
+      "id": "wet",
+      "description": "The grass is wet"
+    },
+    {
+      "id": "sprinkler",
+      "description": "The sprinkler is on"
+    },
+    {
+      "id": "rain",
+      "description": "It is raining"
+    }
+  ],
+  "edges": [
+    {
+      "source": "rain",
+      "target": "wet",
+      "edge": { }
+    },
+    {
+      "source": "sprinkler",
+      "target": "wet",
+      "edge": { }
+    },
+    {
+      "source": "rain",
+      "target": "sprinkler",
+      "edge": { }
+    }
+  ]
+}

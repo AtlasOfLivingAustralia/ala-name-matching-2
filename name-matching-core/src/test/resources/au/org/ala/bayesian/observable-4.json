@@ -1,0 +1,9 @@
+{
+  "id" : "test_1",
+  "properties" : {
+    "property_1" : true,
+    "property_2" : 1.0,
+    "property_3" : 11,
+    "property_4" : "Hello"
+  }
+}

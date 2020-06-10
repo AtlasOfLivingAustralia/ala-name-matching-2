@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>au.org.ala.maven</groupId>
+    <artifactId>network-generator-unit-test</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>Test Network Generator Mojo</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>au.org.ala.maven</groupId>
+                <artifactId>name-matching-maven-plugin</artifactId>
+                <configuration>
+                    <source>src/test/resources/au/org/ala/maven/network-1.json</source>
+                    <output>target/test-harness/graph-generator-unit-test/network-1.dot</output>
+                </configuration>
+                <goals>
+                    <goal>generate-graph</goal>
+                </goals>
+             </plugin>
+        </plugins>
+    </build>
+</project>

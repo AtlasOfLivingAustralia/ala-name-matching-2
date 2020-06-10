@@ -1,0 +1,41 @@
+package au.org.ala.bayesian.generated;
+
+import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.ParameterAnalyser;
+import au.org.ala.bayesian.Parameters;
+
+public class Network2Parameters extends Parameters {
+  public double prior_t$v_1; // v_1 prior probability
+  public double prior_f$v_1; // 1 - v_1 prior probability
+  public double inf_t_t$v_2; // p(v_2 | v_1) conditional probability
+  public double inf_f_t$v_2; // p(¬v_2 | v_1) =  1 - p(v_2 | v_1) conditional probability
+  public double inf_t_f$v_2; // p(v_2 | ¬v_1) conditional probability
+  public double inf_f_f$v_2; // p(¬v_2 | ¬v_1) =  1 - p(v_2 | ¬v_1) conditional probability
+
+  public Network2Parameters() {
+  }
+
+  @Override
+  public void load(double[] vector) {
+    this.prior_t$v_1 = vector[0];
+    this.inf_t_t$v_2 = vector[1];
+    this.inf_t_f$v_2 = vector[2];
+    this.build();
+  }
+
+  @Override
+  public double[] store() {
+    double[] vector = new double[3];
+
+    vector[0] = this.prior_t$v_1;
+    vector[1] = this.inf_t_t$v_2;
+    vector[2] = this.inf_t_f$v_2;
+    return vector;
+  }
+
+  public void build() {
+    this.prior_f$v_1 = 1.0 - this.prior_t$v_1;
+    this.inf_f_t$v_2 = 1.0 - inf_t_t$v_2;
+    this.inf_f_f$v_2 = 1.0 - inf_t_f$v_2;
+  }
+}

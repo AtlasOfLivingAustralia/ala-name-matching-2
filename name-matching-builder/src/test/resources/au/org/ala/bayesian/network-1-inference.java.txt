@@ -1,0 +1,36 @@
+package au.org.ala.bayesian.generated;
+
+public class Network1Inference {
+  public Network1Parameters parameters;
+
+  public double infer(Evidence evidence, double c$v_1) {
+    double nc$v_1 = 1.0 - c$v_1;
+    return (c$v_1 + nc$v_1) * (this.parameters.prior_t$v_1 * c$v_1 + this.parameters.prior_f$v_1 * nc$v_1);
+  }
+
+  public double probability(Evidence evidence) {
+    double p;
+    double ph = 0.0;
+    double pe = 0.0;
+
+    p = evidence.isT$v_1() * this.infer(evidence, 1.0);
+    ph += p;
+    pe += p;
+    p = evidence.isF$v_1() * this.infer(evidence, 0.0);
+    pe += p;
+    return pe == 0.0 ? 0.0 : ph / pe;
+  }
+
+  public static class Evidence {
+    public Boolean e$v_1;
+
+    public double isT$v_1() {
+      return this.e$v_1 == null || this.e$v_1 ? 1.0 : 0.0;
+    }
+
+    public double isF$v_1() {
+      return this.e$v_1 == null || !this.e$v_1 ? 1.0 : 0.0;
+    }
+
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id" : "network_1",
+  "observables" : [
+    {
+      "id" : "v_1"
+    }
+   ],
+  "vertices" : [
+    "v_1"
+  ],
+  "edges" : [
+  ]
+}

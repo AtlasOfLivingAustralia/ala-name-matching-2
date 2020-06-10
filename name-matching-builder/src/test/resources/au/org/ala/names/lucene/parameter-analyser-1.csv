@@ -1,0 +1,7 @@
+dwc_http://rs.tdwg.org/dwc/terms/TaxonID,_type,dwc_scientificName,dwc_scientificNameAuthorship,dwc_specificEpithet,dwc_genus,dwc_family,dwc_order,dwc_class,dwc_phylum,dwc_kingdom,ala_weight
+ID-1,http://rs.tdwg.org/dwc/terms/Taxon,Osphranter rufus,"Desmarest, 1822",rufus,Osphranter,Macropodidae,Diprotodontia,Mammalia,Chordata,Animalia,70
+ID-2,http://rs.tdwg.org/dwc/terms/Taxon,Acacia dealbata,Link,dealbata,Acacia,Fabaceae,Fabales,Equisetopsida,Charophyta,Plantae,100
+ID-3,http://rs.tdwg.org/dwc/terms/Taxon,Acacia abbreviata,Maslin,abbreviata,Acacia,Fabaceae,Fabales,Equisetopsida,Charophyta,Plantae,20
+ID-4,http://rs.tdwg.org/dwc/terms/Taxon,Montitega dealbata,(R.Br.) C.M.Weiller,dealbata,Montitega,Ericaceae,Ericales,Equisetopsida,Charophyta,Plantae,30
+ID-5,http://rs.tdwg.org/dwc/terms/Taxon,Agathis atropurpurea,B.Hyland,atropurpurea,Agathis,Araucariaceae,Pinales,Equisetopsida,Charophyta,Plantae,10
+ID-6,http://rs.tdwg.org/dwc/terms/Taxon,Agathis,"Latreille, 1804",,Agathis,Braconidae,Hymenoptera,Insecta,Arthropoda,Animalia,20

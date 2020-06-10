@@ -1,0 +1,4 @@
+{
+  "work" : "/tmp",
+  "loadStoreClass" : "au.org.ala.names.builder.TestLoadStore"
+}

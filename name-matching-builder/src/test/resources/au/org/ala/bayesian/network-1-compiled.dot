@@ -1,0 +1,5 @@
+strict digraph "network_1" {
+  subgraph clusterNetwork {
+    "v_1" [ label = "v_1"  shape = doublecircle  ]
+  }
+}

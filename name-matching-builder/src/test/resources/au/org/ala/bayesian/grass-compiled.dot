@@ -1,0 +1,10 @@
+strict digraph "grass" {
+  subgraph clusterNetwork {
+    "rain" [ label = "rain"  shape = doublecircle  ]
+    "sprinkler" [ label = "sprinkler"  ]
+    "wet" [ label = "wet"  ]
+    "sprinkler" -> "wet"
+    "rain" -> "wet"
+    "rain" -> "sprinkler"
+  }
+}
