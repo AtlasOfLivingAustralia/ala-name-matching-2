@@ -116,9 +116,12 @@ public class LuceneParameterAnalyser extends ParameterAnalyser<Document> {
     public double computeConditional(Observation observation, Observation... inputs) throws InferenceException {
         if (totalWeight <= 0.0)
             return 0.0;
+        if (observation.isBlank())
+            return 1.0;
         BooleanQuery.Builder conditionalBuilder = this.queryUtils.createBuilder(this.taxonQuery);
         for (int i = 0; i < inputs.length; i++) {
-            conditionalBuilder.add(this.queryUtils.asClause(inputs[i]));
+            if (!inputs[i].isBlank())
+                conditionalBuilder.add(this.queryUtils.asClause(inputs[i]));
         }
         double priorWeight = this.sum(conditionalBuilder.build());
         if (priorWeight < MINIMUM_PROBABILITY)

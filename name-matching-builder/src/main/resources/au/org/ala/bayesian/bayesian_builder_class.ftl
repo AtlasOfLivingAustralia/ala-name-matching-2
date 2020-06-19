@@ -38,8 +38,11 @@ public class ${className} extends Builder<${parameterClassName}> {
   <#assign observable = node.observable >
   <#if observable?? && observable.derivation??>
     <#assign derivation = observable.derivation>
+    <#if derivation.extra??>
+    String e_${node?index} = ${derivation.getExtra("document")};
+    </#if>
     for (String v: ${derivation.getValues("document")}) {
-      String d = ${derivation.getTransform("v", "document")};
+      String d = ${derivation.getTransform("v", "e_${node?index}", "document")};
       document.add(new StringField("${observable.field}", d, Store.YES));
     }
   </#if>
@@ -65,9 +68,12 @@ public class ${className} extends Builder<${parameterClassName}> {
     }
     </#if>
     if (${docVar} != null){
+    <#if derivation.extra??>
+      String e_${node?index} = ${derivation.getExtra("document")};
+    </#if>
       for(String v: ${derivation.getValues("${docVar}")}){
-        String d= ${derivation.getTransform("v", "document")};
-        document.add(new StringField("${observable.field}" ,d,Store.YES));
+        String d = ${derivation.getTransform("v", "e_${node?index}", "document")};
+        document.add(new StringField("${observable.field}", d ,Store.YES));
       }
     }
   </#if>

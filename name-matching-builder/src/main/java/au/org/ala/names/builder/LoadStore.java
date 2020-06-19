@@ -9,8 +9,13 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.search.Query;
 import org.gbif.dwc.terms.Term;
 
+import javax.print.Doc;
 import java.net.URI;
+import java.util.List;
+import java.util.Spliterators;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * A store of loaded but un-structured name data.
@@ -78,7 +83,7 @@ abstract public class LoadStore {
     abstract public Document get(Term type, Observable observable, String value) throws StoreException;
 
     /**
-     * Get a list of all terms that match a particular value
+     * Get a stream of all terms that match a particular value
      *
      * @param type The type of entry to get
      * @param values The list of conditions that must be met
@@ -88,6 +93,20 @@ abstract public class LoadStore {
      * @throws StoreException if unable to read the store
      */
     abstract public Iterable<Document> getAll(Term type, Observation... values) throws StoreException;
+
+    /**
+     * Get a list of all terms that match a particular value
+     *
+     * @param type The type of entry to get
+     * @param values The list of conditions that must be met
+     *
+     * @return The matching values as a collection
+     *
+     * @throws StoreException if unable to read the store
+     */
+    public List<Document> getAllDocs(Term type, Observation... values) throws StoreException {
+        return StreamSupport.stream(this.getAll(type, values).spliterator(), false).collect(Collectors.toList());
+    }
 
     /**
      * Commit any currently pending stores.

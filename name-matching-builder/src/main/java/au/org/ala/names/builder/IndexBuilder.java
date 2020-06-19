@@ -125,6 +125,23 @@ public class IndexBuilder implements Annotator {
     }
 
     /**
+     * Get the underlying network for this builder.
+     * @return
+     */
+    public Network getNetwork() {
+        return this.network;
+    }
+
+    /**
+     * Get the store for loading/processing
+     *
+     * @return The store that holds intermediate information about the index
+     */
+    public LoadStore getLoadStore() {
+        return this.loadStore;
+    }
+
+    /**
      * Load a source into the index builder.
      *
      * @param source The source to load
@@ -134,6 +151,7 @@ public class IndexBuilder implements Annotator {
     public void load(Source source) throws BuilderException {
         source.load(this.loadStore);
     }
+
 
     /**
      * Build the index once the data has been loaded.
@@ -175,7 +193,8 @@ public class IndexBuilder implements Annotator {
         int count = 0;
         int index = 1;
         Observation isRoot = new Observation(true, this.annotation, this.getAnnotationValue(ALATerm.isRoot));
-        Iterable<Document> top = this.loadStore.getAll(DwcTerm.Taxon, isRoot);
+        List<Document> top = this.loadStore.getAllDocs(DwcTerm.Taxon, isRoot); // Keep across commits
+
         for (Document doc: top) {
             if (count++ % this.config.getLogInterval() == 0)
                 LOGGER.info("Processing top-level document " + doc.get(this.taxonId.getField()));

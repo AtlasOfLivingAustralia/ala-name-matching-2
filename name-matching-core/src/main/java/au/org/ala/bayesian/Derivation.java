@@ -1,5 +1,6 @@
 package au.org.ala.bayesian;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.Collection;
@@ -23,6 +24,7 @@ abstract public class Derivation {
      *
      * @return The instance variables needed to implement this derivation
      */
+    @JsonIgnore
     public Collection<Variable> getBuilderVariables() {
         return Collections.EMPTY_LIST;
     }
@@ -41,6 +43,27 @@ abstract public class Derivation {
     }
 
     /**
+     * Get any extra observable needed to compute things.
+     *
+     * @return The extra variable, or null for none (defaults to null)
+     */
+    @JsonIgnore
+    public Observable getExtra() {
+        return null;
+    }
+
+    /**
+     * Generate the piece of code that represents an extra variable.
+     *
+     * @param documentVar The document variable
+     *
+     * @return The ancillary variable generator
+     */
+    public String getExtra(String documentVar) {
+        return "null";
+    }
+
+    /**
      * Generate the piece of code that generates the values required
      * for derivation.
      *
@@ -55,11 +78,12 @@ abstract public class Derivation {
      * for derivation.
      *
      * @param var The variable that holds the value to be transformed
+     * @param extra The (nullable) variable that holds any extra context information
      * @param documentVar The name of the document variable (a lucene document)
      *
      * @return The code to get the values
      */
-    abstract public String getTransform(String var, String documentVar);
+    abstract public String getTransform(String var, String extra, String documentVar);
 
     /**
      * Used to model required instance variables.

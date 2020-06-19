@@ -34,10 +34,7 @@
           "id" : "taxonRank",
           "uri" : "http://rs.tdwg.org/dwc/terms/taxonRank"
         },
-        "value" : "class",
-        "values" : [ "class" ],
-        "singleton" : true,
-        "present" : false
+        "value" : "class"
       },
       "builderVariables" : [ ]
     }
@@ -53,10 +50,7 @@
       "condition" : {
         "positive" : true,
         "observable" : "taxonRank",
-        "value" : "family",
-        "values" : [ "family" ],
-        "singleton" : true,
-        "present" : false
+        "value" : "family"
       },
       "builderVariables" : [ ]
     }
@@ -72,10 +66,7 @@
       "condition" : {
         "positive" : true,
         "observable" : "taxonRank",
-        "value" : "genus",
-        "values" : [ "genus" ],
-        "singleton" : true,
-        "present" : false
+        "value" : "genus"
       },
       "builderVariables" : [ ]
     }
@@ -91,10 +82,7 @@
       "condition" : {
         "positive" : true,
         "observable" : "taxonRank",
-        "value" : "kingdom",
-        "values" : [ "kingdom" ],
-        "singleton" : true,
-        "present" : false
+        "value" : "kingdom"
       },
       "builderVariables" : [ ]
     }
@@ -110,10 +98,7 @@
       "condition" : {
         "positive" : true,
         "observable" : "taxonRank",
-        "value" : "order",
-        "values" : [ "order" ],
-        "singleton" : true,
-        "present" : false
+        "value" : "order"
       },
       "builderVariables" : [ ]
     }
@@ -135,10 +120,7 @@
       "condition" : {
         "positive" : true,
         "observable" : "taxonRank",
-        "value" : "phylum",
-        "values" : [ "phylum" ],
-        "singleton" : true,
-        "present" : false
+        "value" : "phylum"
       },
       "builderVariables" : [ ]
     }

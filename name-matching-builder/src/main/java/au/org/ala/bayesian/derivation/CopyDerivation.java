@@ -57,11 +57,12 @@ public class CopyDerivation extends Derivation {
      * Copy simply assigns the value variable.
      *
      * @param var         The variable that holds the value to be transformed
+     * @param extra       The variable that holds extra data
      * @param documentVar The name of the document variable (a lucene document)
      * @return The code to get the values
      */
     @Override
-    public String getTransform(String var, String documentVar) {
+    public String getTransform(String var, String extra, String documentVar) {
         return var;
     }
 }

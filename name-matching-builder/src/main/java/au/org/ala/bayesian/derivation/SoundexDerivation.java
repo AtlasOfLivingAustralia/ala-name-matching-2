@@ -15,6 +15,10 @@ public class SoundexDerivation extends CopyDerivation {
     /** The name of the instance variable for the soundex object */
     public static final String INSTANCE_VAR = "soundex";
 
+    /** The rank observable for context */
+    @JsonProperty
+    private Observable rank;
+
     /**
      * Construct a new derivation.
      */
@@ -30,14 +34,35 @@ public class SoundexDerivation extends CopyDerivation {
         super(source);
     }
 
+    /**
+     * Get any extra observable needed to compute things.
+     *
+     * @return The extra variable, or null for none (defaults to null)
+     */
+    @Override
+    public Observable getExtra() {
+        return this.rank;
+    }
+
+    /**
+     * Generate the piece of code that represents getting the extra rank information
+     *
+     * @param documentVar The document variable
+     * @return The ancillary variable generator
+     */
+    @Override
+    public String getExtra(String documentVar) {
+        return documentVar + ".get(\"" + this.rank.getField() + "\")";
+    }
+
     @Override
     public Collection<Variable> getBuilderVariables() {
         return Arrays.asList(new Variable(TaxonNameSoundEx.class, INSTANCE_VAR));
     }
 
     @Override
-    public String getTransform(String var, String documentVar) {
-        return "this." + INSTANCE_VAR + ".soundEx(" + var + ")";
+    public String getTransform(String var, String extra, String documentVar) {
+        return "this." + INSTANCE_VAR + ".treatWord(" + var + ", " + extra + ")";
     }
 
 }

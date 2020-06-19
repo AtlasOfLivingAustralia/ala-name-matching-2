@@ -1,5 +1,6 @@
 package au.org.ala.vocab;
 
+import org.gbif.dwc.terms.AlternativeNames;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 
@@ -29,6 +30,8 @@ public enum ALATerm implements Term {
     nameComplete,
     /** The name and authorship, formatted in some way, usually HTML */
     nameFormatted,
+    /** A soundex of the specific epithet */
+    soundexSpecificEpithet,
     /** An identifier for non-scientific names */
     nameID,
     /** The status of a piece of information (current, superseeded, etc.) */
@@ -41,26 +44,38 @@ public enum ALATerm implements Term {
     kingdomID,
     /** An alternate name for a kingdom */
     altKingdom,
+    /** A soundex of the kingdom */
+    soundexKingdom,
     /** A taxon identifier for the phylum */
     phylumID,
     /** An alternate name for a phylum */
     altPhylum,
+    /** A soundex of the phylum */
+    soundexPhylum,
     /** A taxon identifier for the class */
     classID,
     /** An alternate name for a class */
     altClass,
+    /** A soundex of the class */
+    soundexClass,
     /** A taxon identifier for the order */
     orderID,
     /** An alternate name for an order */
     altOrder,
+    /** A soundex of the order */
+    soundexOrder,
     /** A taxon identifier for the family */
     familyID,
     /** An alternate name for a family */
     altFamily,
+    /** A soundex of the family */
+    soundexFamily,
     /** A taxon identifier for the genus */
     genusID,
     /** An alternate name for a genus */
     altGenus,
+    /** A soundex of the genus */
+    soundexGenus,
     /** A taxon identifier for the species */
     speciesID,
     /** The subphylum classification */

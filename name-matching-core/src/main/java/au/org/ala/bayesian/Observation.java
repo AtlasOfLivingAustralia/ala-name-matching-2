@@ -1,5 +1,6 @@
 package au.org.ala.bayesian;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -71,6 +72,7 @@ public class Observation {
      *
      * @return True if this represents a state that is true, false if not
      */
+    @JsonIgnore
     public boolean isPositive() {
         return positive;
     }
@@ -89,6 +91,7 @@ public class Observation {
      *
      * @return True if this is a singleton
      */
+    @JsonIgnore
     public boolean isPresent() {
         return this.value == null && (this.values == null || this.values.size() == 0);
     }
@@ -98,9 +101,21 @@ public class Observation {
      *
      * @return True if this is a singleton
      */
+    @JsonIgnore
     public boolean isSingleton() {
         return this.value != null || this.values != null && this.values.size() == 1;
     }
+
+    /**
+     * Is this a blank observation (no values)
+     *
+     * @return True if this is a blank
+     */
+    @JsonIgnore
+    public boolean isBlank() {
+        return this.value == null && (this.values == null || this.values.size() == 0);
+    }
+
 
     /**
      * Get the singleton value.
@@ -112,6 +127,7 @@ public class Observation {
      *
      * @throws IllegalStateException if a singleton is not available
      */
+    @JsonIgnore
     public String getValue() throws IllegalStateException {
         if (this.value != null)
             return this.value;
@@ -125,6 +141,7 @@ public class Observation {
      *
      * @return
      */
+    @JsonIgnore
     public Set<String> getValues() {
         if (this.values != null)
             return this.values;

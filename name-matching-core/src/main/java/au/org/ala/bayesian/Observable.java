@@ -2,10 +2,12 @@ package au.org.ala.bayesian;
 
 import au.org.ala.names.model.ExternalContext;
 import au.org.ala.names.model.Identifiable;
+import au.org.ala.vocab.ALATerm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
 
 import java.net.URI;
 
@@ -21,6 +23,11 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Derivation base;
+
+    // Ensure ALA Term vocabulary is properly loaded
+    static {
+        ALATerm.values();
+    }
 
     /**
      * Default constructor.
@@ -121,6 +128,22 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @JsonIgnore
     public String getField() {
         return this.getExternal(ExternalContext.LUCENE);
+    }
+
+    /**
+     * Get the java variable name for this observable.
+     * <p>
+     * Variable names are suitable base names for using in java code and corresponds to
+     * <code>this.getExternal(ExternalContext.JAVA_VARIABLE)</code>
+     * </p>
+     *
+     * @return The java variable name
+     *
+     * @see #getExternal
+     */
+    @JsonIgnore
+    public String getJavaVariable() {
+        return this.getExternal(ExternalContext.JAVA_VARIABLE);
     }
 
     /**
