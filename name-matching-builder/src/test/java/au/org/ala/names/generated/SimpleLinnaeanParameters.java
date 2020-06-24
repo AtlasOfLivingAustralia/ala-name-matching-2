@@ -5,8 +5,8 @@ import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 
 public class SimpleLinnaeanParameters extends Parameters {
-  public double prior_t$taxonID; // taxonID prior probability
-  public double prior_f$taxonID; // 1 - taxonID prior probability
+  public double prior_t$taxonId; // taxonID prior probability
+  public double prior_f$taxonId; // 1 - taxonID prior probability
   public double inf_t_t$taxonRank; // p(taxonRank | taxonID) conditional probability
   public double inf_f_t$taxonRank; // p(¬taxonRank | taxonID) =  1 - p(taxonRank | taxonID) conditional probability
   public double inf_t_f$taxonRank; // p(taxonRank | ¬taxonID) conditional probability
@@ -63,10 +63,10 @@ public class SimpleLinnaeanParameters extends Parameters {
   public double inf_f_t$order; // p(¬order | family) =  1 - p(order | family) conditional probability
   public double inf_t_f$order; // p(order | ¬family) conditional probability
   public double inf_f_f$order; // p(¬order | ¬family) =  1 - p(order | ¬family) conditional probability
-  public double inf_t_t$class; // p(class | order) conditional probability
-  public double inf_f_t$class; // p(¬class | order) =  1 - p(class | order) conditional probability
-  public double inf_t_f$class; // p(class | ¬order) conditional probability
-  public double inf_f_f$class; // p(¬class | ¬order) =  1 - p(class | ¬order) conditional probability
+  public double inf_t_t$class_; // p(class | order) conditional probability
+  public double inf_f_t$class_; // p(¬class | order) =  1 - p(class | order) conditional probability
+  public double inf_t_f$class_; // p(class | ¬order) conditional probability
+  public double inf_f_f$class_; // p(¬class | ¬order) =  1 - p(class | ¬order) conditional probability
   public double inf_t_t$phylum; // p(phylum | class) conditional probability
   public double inf_f_t$phylum; // p(¬phylum | class) =  1 - p(phylum | class) conditional probability
   public double inf_t_f$phylum; // p(phylum | ¬class) conditional probability
@@ -81,7 +81,7 @@ public class SimpleLinnaeanParameters extends Parameters {
 
   @Override
   public void load(double[] vector) {
-    this.prior_t$taxonID = vector[0];
+    this.prior_t$taxonId = vector[0];
     this.inf_t_t$taxonRank = vector[1];
     this.inf_t_f$taxonRank = vector[2];
     this.inf_t_t$specificEpithet = vector[3];
@@ -102,8 +102,8 @@ public class SimpleLinnaeanParameters extends Parameters {
     this.inf_t_f$family = vector[18];
     this.inf_t_t$order = vector[19];
     this.inf_t_f$order = vector[20];
-    this.inf_t_t$class = vector[21];
-    this.inf_t_f$class = vector[22];
+    this.inf_t_t$class_ = vector[21];
+    this.inf_t_f$class_ = vector[22];
     this.inf_t_t$phylum = vector[23];
     this.inf_t_f$phylum = vector[24];
     this.inf_t_t$kingdom = vector[25];
@@ -115,7 +115,7 @@ public class SimpleLinnaeanParameters extends Parameters {
   public double[] store() {
     double[] vector = new double[27];
 
-    vector[0] = this.prior_t$taxonID;
+    vector[0] = this.prior_t$taxonId;
     vector[1] = this.inf_t_t$taxonRank;
     vector[2] = this.inf_t_f$taxonRank;
     vector[3] = this.inf_t_t$specificEpithet;
@@ -136,8 +136,8 @@ public class SimpleLinnaeanParameters extends Parameters {
     vector[18] = this.inf_t_f$family;
     vector[19] = this.inf_t_t$order;
     vector[20] = this.inf_t_f$order;
-    vector[21] = this.inf_t_t$class;
-    vector[22] = this.inf_t_f$class;
+    vector[21] = this.inf_t_t$class_;
+    vector[22] = this.inf_t_f$class_;
     vector[23] = this.inf_t_t$phylum;
     vector[24] = this.inf_t_f$phylum;
     vector[25] = this.inf_t_t$kingdom;
@@ -146,7 +146,7 @@ public class SimpleLinnaeanParameters extends Parameters {
   }
 
   public void build() {
-    this.prior_f$taxonID = 1.0 - this.prior_t$taxonID;
+    this.prior_f$taxonId = 1.0 - this.prior_t$taxonId;
     this.inf_f_t$taxonRank = 1.0 - inf_t_t$taxonRank;
     this.inf_f_f$taxonRank = 1.0 - inf_t_f$taxonRank;
     this.inf_f_t$specificEpithet = 1.0 - inf_t_t$specificEpithet;
@@ -183,8 +183,8 @@ public class SimpleLinnaeanParameters extends Parameters {
     this.inf_f_f$family = 1.0 - inf_t_f$family;
     this.inf_f_t$order = 1.0 - inf_t_t$order;
     this.inf_f_f$order = 1.0 - inf_t_f$order;
-    this.inf_f_t$class = 1.0 - inf_t_t$class;
-    this.inf_f_f$class = 1.0 - inf_t_f$class;
+    this.inf_f_t$class_ = 1.0 - inf_t_t$class_;
+    this.inf_f_f$class_ = 1.0 - inf_t_f$class_;
     this.inf_f_t$phylum = 1.0 - inf_t_t$phylum;
     this.inf_f_f$phylum = 1.0 - inf_t_f$phylum;
     this.inf_f_t$kingdom = 1.0 - inf_t_t$kingdom;

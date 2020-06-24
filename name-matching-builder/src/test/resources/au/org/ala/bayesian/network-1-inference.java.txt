@@ -3,9 +3,9 @@ package au.org.ala.bayesian.generated;
 public class Network1Inference {
   public Network1Parameters parameters;
 
-  public double infer(Evidence evidence, double c$v_1) {
-    double nc$v_1 = 1.0 - c$v_1;
-    return (c$v_1 + nc$v_1) * (this.parameters.prior_t$v_1 * c$v_1 + this.parameters.prior_f$v_1 * nc$v_1);
+  public double infer(Evidence evidence, double c$v1) {
+    double nc$v1 = 1.0 - c$v1;
+    return (c$v1 + nc$v1) * (this.parameters.prior_t$v1 * c$v1 + this.parameters.prior_f$v1 * nc$v1);
   }
 
   public double probability(Evidence evidence) {
@@ -22,14 +22,14 @@ public class Network1Inference {
   }
 
   public static class Evidence {
-    public Boolean e$v_1;
+    public Boolean e$v1;
 
     public double isT$v_1() {
-      return this.e$v_1 == null || this.e$v_1 ? 1.0 : 0.0;
+      return this.e$v1 == null || this.e$v1 ? 1.0 : 0.0;
     }
 
     public double isF$v_1() {
-      return this.e$v_1 == null || !this.e$v_1 ? 1.0 : 0.0;
+      return this.e$v1 == null || !this.e$v1 ? 1.0 : 0.0;
     }
 
   }

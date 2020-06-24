@@ -2,10 +2,9 @@ package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.names.lucene.LuceneClassifier;
+import au.org.ala.names.model.ExternalContext;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
 import org.gbif.dwc.terms.Term;
 
 import java.util.*;
@@ -15,32 +14,53 @@ import java.util.stream.Collectors;
 /**
  * A test load store that just keeps a
  */
-public class TestLoadStore extends LoadStore {
-    private Map<String, Document> store;
+public class TestLoadStore extends LoadStore<LuceneClassifier> {
+    private Map<String, LuceneClassifier> store;
 
     public TestLoadStore(Annotator annotator) throws StoreException {
         super(annotator);
         this.store = new HashMap<>();
     }
 
-    public List<Document> getStore() {
+    /**
+     * Get the observation that allows us to find annotations.
+     *
+     * @param annotation
+     * @return The annotation observable
+     */
+    @Override
+    public Observation getAnnotationObservation(Term annotation) {
+        return new Observation(true, new Observable(LuceneClassifier.ANNOTATION_FIELD), annotation.qualifiedName());
+    }
+
+    /**
+     * Create a new, empty classifier
+     *
+     * @return The new classifier
+     */
+    @Override
+    public LuceneClassifier newClassifier() {
+        return new LuceneClassifier();
+    }
+
+    public List<LuceneClassifier> getStore() {
         return new ArrayList<>(store.values());
     }
 
     @Override
-    public void store(Document document, Term type) throws StoreException {
-        String id = this.annotator.identify(document);
-        this.annotator.type(document, type);
-        this.annotator.annotate(document);
-        this.store.put(id, document);
+    public void store(LuceneClassifier classifier, Term type) throws StoreException {
+        String id = classifier.identify();
+        classifier.setType(type);
+        this.annotator.annotate(classifier);
+        this.store.put(id, classifier);
     }
 
     @Override
-    public void update(Document document) throws StoreException {
-        String id = this.annotator.getIdentifier(document);
+    public void update(LuceneClassifier classifier) throws StoreException {
+        String id = classifier.getIdentifier();
         if (id == null)
-            throw new StoreException("No identifier for " + document);
-        this.store.put(id, document);
+            throw new StoreException("No identifier for " + classifier);
+        this.store.put(id, classifier);
     }
 
     /**
@@ -52,8 +72,8 @@ public class TestLoadStore extends LoadStore {
      * @return The parameter analyser
      */
     @Override
-    public ParameterAnalyser<Document> getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws InferenceException, StoreException {
-        return new ParameterAnalyser<Document>() {
+    public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws InferenceException, StoreException {
+        return new ParameterAnalyser() {
             @Override
             public double getTotalWeight() {
                 return 1.0;
@@ -68,31 +88,27 @@ public class TestLoadStore extends LoadStore {
             public double computeConditional(Observation observation, Observation... inputs) throws InferenceException {
                 return 1.0;
             }
-
-            @Override
-            public Observation getObservation(boolean positive, String id, Document document) throws InferenceException {
-                return null;
-            }
         };
     }
 
     @Override
-    public Document get(Term type, Observable observable, String value) throws StoreException {
-        final String field = observable.getField();
+    public LuceneClassifier get(Term type, Observable observable, String value) throws StoreException {
+        final String field = observable.getExternal(ExternalContext.LUCENE);
         final String typeValue = type.qualifiedName();
-        Predicate<Document> test = doc -> Objects.equals(doc.get(this.annotator.getTypeField()), typeValue) && Objects.equals(doc.get(field), value);
+        Predicate<LuceneClassifier> test = classifier -> Objects.equals(classifier.getDocument().get(LuceneClassifier.TYPE_FIELD), typeValue) && Objects.equals(classifier.getDocument().get(field), value);
         return this.store.values().stream().filter(test).findAny().orElse(null);
     }
 
     @Override
-    public Iterable<Document> getAll(Term type, Observation... values) throws StoreException {
+    public Iterable<LuceneClassifier> getAll(Term type, Observation... values) throws StoreException {
         final String typeValue = type.qualifiedName();
-        Predicate<Document> test = doc -> Objects.equals(doc.get(this.annotator.getTypeField()), typeValue);
+        Predicate<LuceneClassifier> test = classifier -> Objects.equals(classifier.getDocument().get(LuceneClassifier.TYPE_FIELD), typeValue);
         for (Observation ob: values) {
+            String field = ob.getObservable().getExternal(ExternalContext.LUCENE);
             if (ob.isPositive())
-                test = test.and(doc -> Objects.equals(doc.get(ob.getObservable().getField()), ob.getValue()));
+                test = test.and(classifier -> Objects.equals(classifier.getDocument().get(field), ob.getValue()));
             else
-                test = test.and(doc -> !Objects.equals(doc.get(ob.getObservable().getField()), ob.getValue()));
+                test = test.and(classifier -> !Objects.equals(classifier.getDocument().get(ob.getObservable().getField()), ob.getValue()));
         }
         return this.store.values().stream().filter(test).collect(Collectors.toList());
     }

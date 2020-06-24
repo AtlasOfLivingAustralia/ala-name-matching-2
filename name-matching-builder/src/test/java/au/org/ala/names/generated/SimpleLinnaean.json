@@ -35,8 +35,7 @@
           "uri" : "http://rs.tdwg.org/dwc/terms/taxonRank"
         },
         "value" : "class"
-      },
-      "builderVariables" : [ ]
+      }
     }
   }, {
     "id" : "family",
@@ -51,8 +50,7 @@
         "positive" : true,
         "observable" : "taxonRank",
         "value" : "family"
-      },
-      "builderVariables" : [ ]
+      }
     }
   }, {
     "id" : "genus",
@@ -67,8 +65,7 @@
         "positive" : true,
         "observable" : "taxonRank",
         "value" : "genus"
-      },
-      "builderVariables" : [ ]
+      }
     }
   }, {
     "id" : "kingdom",
@@ -83,8 +80,7 @@
         "positive" : true,
         "observable" : "taxonRank",
         "value" : "kingdom"
-      },
-      "builderVariables" : [ ]
+      }
     }
   }, {
     "id" : "order",
@@ -99,8 +95,7 @@
         "positive" : true,
         "observable" : "taxonRank",
         "value" : "order"
-      },
-      "builderVariables" : [ ]
+      }
     }
   }, {
     "id" : "parentNameUsageID",
@@ -121,8 +116,7 @@
         "positive" : true,
         "observable" : "taxonRank",
         "value" : "phylum"
-      },
-      "builderVariables" : [ ]
+      }
     }
   }, "scientificName", {
     "id" : "scientificNameAuthorship",
@@ -133,10 +127,7 @@
     "derivation" : {
       "@class" : "au.org.ala.bayesian.derivation.SoundexDerivation",
       "source" : "scientificName",
-      "builderVariables" : [ {
-        "clazz" : "au.org.ala.util.TaxonNameSoundEx",
-        "name" : "soundex"
-      } ]
+      "rank" : "taxonRank"
     }
   }, {
     "id" : "specificEpithet",

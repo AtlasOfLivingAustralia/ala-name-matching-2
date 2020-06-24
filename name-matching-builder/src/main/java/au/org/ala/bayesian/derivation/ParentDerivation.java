@@ -37,14 +37,15 @@ public class ParentDerivation extends CopyDerivation {
      * Test to see whether the found document matches the condition.
      *
      * @param foundVar The variable containing the test document
-     * @param documentVar The variable containing the original document
+     * @param classifierVar The variable containing the original document
+     * @param observablesClass The class holding observables definitions
      * @param parentsVar The parent list variable
      *
      * @return code for testing the document.
      */
     @Override
-    public String getCondition(String foundVar, String documentVar, String parentsVar) {
-        return (this.condition.isPositive() ? "" : "!") + "Arrays.stream(" + foundVar + ".getValues(\"" + this.condition.getObservable().getField() + "\")).anyMatch(x -> \"" + this.condition.getValue() + "\".equals(x))";
+    public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) {
+        return (this.condition.isPositive() ? "" : "!") + foundVar + ".getAll(" + observablesClass + "." + this.condition.getObservable().getJavaVariable() + ").stream().anyMatch(x -> \"" + this.condition.getValue() + "\".equals(x))";
     }
 
 }

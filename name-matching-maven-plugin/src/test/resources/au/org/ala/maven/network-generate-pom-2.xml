@@ -30,7 +30,10 @@
                      <outputDirectory>target/test-harness/network-generator-unit-test-2</outputDirectory>
                      <generateInferencer>false</generateInferencer>
                      <generateParameters>false</generateParameters>
+                     <generateClassification>false</generateClassification>
+                     <generateObservables>false</generateObservables>
                      <generateBuilder>true</generateBuilder>
+                     <generateCli>true</generateCli>
                  </configuration>
                 <goals>
                     <goal>generate-network</goal>

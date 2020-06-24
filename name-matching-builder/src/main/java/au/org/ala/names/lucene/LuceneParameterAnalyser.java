@@ -2,7 +2,7 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.Annotator;
-import au.org.ala.names.builder.StoreException;
+import au.org.ala.bayesian.StoreException;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.*;
@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class LuceneParameterAnalyser extends ParameterAnalyser<Document> {
+public class LuceneParameterAnalyser extends ParameterAnalyser {
     /** The minimum probability we can get to. This is defined so that #MAXIMUM_PROBABILITY does not evaluate to 1 */
     public static final double MINIMUM_PROBABILITY = 1.0e-9;
     /** The maximum probability we can get to, 1 - #MINIMUM_PROABILITY This must be (just) less than 1. */
@@ -45,14 +45,14 @@ public class LuceneParameterAnalyser extends ParameterAnalyser<Document> {
      * @param weight The weight observable
      * @param defaultWeight The weight to use when a value is unavailable
      */
-    public LuceneParameterAnalyser(Network network, Annotator annotator, IndexSearcher searcher, Observable weight, double defaultWeight) throws InferenceException, StoreException {
+    public LuceneParameterAnalyser(Network network, Annotator annotator, IndexSearcher searcher, Observable weight, double defaultWeight) throws InferenceException {
         this.network = network;
         this.annotator = annotator;
         this.searcher = searcher;
         this.weight = weight;
         this.defaultWeight = defaultWeight;
         this.queryUtils = new QueryUtils();
-        this.taxonQuery = this.queryUtils.createBuilder().add(this.queryUtils.asClause(this.annotator.getTypeField(), this.annotator.getTypeValue(DwcTerm.Taxon))).build();
+        this.taxonQuery = this.queryUtils.createBuilder().add(LuceneClassifier.getTypeClause(DwcTerm.Taxon)).build();
         this.totalWeight = this.sum(this.taxonQuery);
     }
 
@@ -129,23 +129,5 @@ public class LuceneParameterAnalyser extends ParameterAnalyser<Document> {
         conditionalBuilder.add(this.queryUtils.asClause(observation));
         double conditionalWeight = this.sum(conditionalBuilder.build());
         return Math.max(MINIMUM_PROBABILITY, Math.min(MAXIMUM_PROBABILITY, conditionalWeight / priorWeight));
-    }
-
-    /**
-     * Get an observation from a lucene document.
-     *
-     * @param positive A positive or negative fact
-     * @param id The node identifier
-     * @param document The document to get results from
-     *
-     * @return The associated observation
-     */
-    public Observation getObservation(boolean positive, String id, Document document) {
-        Observable observable = this.network.getObservable(id);
-        if (observable == null)
-            throw new IllegalArgumentException("Observable " + id + " does not exist");
-        IndexableField[] fields = document.getFields(observable.getField());
-        Set<String> values = Arrays.stream(fields).map(f -> f.stringValue()).collect(Collectors.toSet());
-        return new Observation(positive, observable, values);
     }
 }

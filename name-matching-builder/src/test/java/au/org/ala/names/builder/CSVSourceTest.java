@@ -2,8 +2,8 @@ package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Network;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.util.TestUtils;
-import org.apache.lucene.document.Document;
 import org.gbif.dwc.terms.DwcTerm;
 import org.junit.After;
 import org.junit.Before;
@@ -46,10 +46,10 @@ public class CSVSourceTest {
         source.load(this.store);
 
         assertEquals(11, this.store.getStore().size());
-        Document value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "S-1");
+        LuceneClassifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "S-1");
         assertNotNull(value);
-        assertEquals("Artemia franciscana", value.get(SCIENTIFIC_NAME_OBS.getField()));
-        assertEquals("species", value.get(TAXON_RANK_OBS.getField()));
+        assertEquals("Artemia franciscana", value.get(SCIENTIFIC_NAME_OBS));
+        assertEquals("species", value.get(TAXON_RANK_OBS));
         source.close();
     }
 
@@ -60,10 +60,10 @@ public class CSVSourceTest {
         source.load(this.store);
 
         assertEquals(11, this.store.getStore().size());
-        Document value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "S-1");
+        LuceneClassifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "S-1");
         assertNotNull(value);
-        assertEquals("Artemia franciscana", value.get(SCIENTIFIC_NAME_OBS.getField()));
-        assertEquals("species", value.get(TAXON_RANK_OBS.getField()));
+        assertEquals("Artemia franciscana", value.get(SCIENTIFIC_NAME_OBS));
+        assertEquals("species", value.get(TAXON_RANK_OBS));
         source.close();
     }
 }

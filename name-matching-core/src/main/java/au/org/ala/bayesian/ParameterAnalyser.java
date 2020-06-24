@@ -7,10 +7,8 @@ import java.io.IOException;
  * <p>
  * This abstract class forms the base of actual parameter analysers.
  * </p>
- *
- * @param <D> The type of document to use as an analysis base
  */
-abstract public class ParameterAnalyser<D> {
+abstract public class ParameterAnalyser {
 
     /**
      * Default constructor
@@ -55,16 +53,18 @@ abstract public class ParameterAnalyser<D> {
     abstract public double computeConditional(Observation observation, Observation... inputs) throws InferenceException;
 
     /**
-     * Get a fact from the base document element that this
+     * Get a fact from a classifier
      *
      * @param positive A positive or negative fact
-     * @param id The node identifier
-     * @param document The document to get results from
+     * @param observable The onservable
+     * @param classifier The classifier to get results from
      *
      * @return The associated fact.
      *
      * @throws InferenceException if unable to get the observation data
      */
-    abstract public Observation getObservation(boolean positive, String id, D document) throws InferenceException;
+    public Observation getObservation(boolean positive, Observable observable, Classifier classifier) {
+        return new Observation(positive, observable, classifier.getAll(observable));
+    }
 
 }

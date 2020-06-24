@@ -5,15 +5,15 @@ import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 
 public class Network1Parameters extends Parameters {
-  public double prior_t$v_1; // v_1 prior probability
-  public double prior_f$v_1; // 1 - v_1 prior probability
+  public double prior_t$v1; // v_1 prior probability
+  public double prior_f$v1; // 1 - v_1 prior probability
 
   public Network1Parameters() {
   }
 
   @Override
   public void load(double[] vector) {
-    this.prior_t$v_1 = vector[0];
+    this.prior_t$v1 = vector[0];
     this.build();
   }
 
@@ -21,11 +21,12 @@ public class Network1Parameters extends Parameters {
   public double[] store() {
     double[] vector = new double[1];
 
-    vector[0] = this.prior_t$v_1;
+    vector[0] = this.prior_t$v1;
     return vector;
   }
 
   public void build() {
-    this.prior_f$v_1 = 1.0 - this.prior_t$v_1;
+    this.prior_f$v1 = 1.0 - this.prior_t$v1;
   }
+
 }

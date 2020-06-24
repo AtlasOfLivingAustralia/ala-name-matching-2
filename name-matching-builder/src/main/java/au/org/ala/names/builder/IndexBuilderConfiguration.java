@@ -1,15 +1,14 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.TermDeserializer;
 import au.org.ala.util.TermSerializer;
-import au.org.ala.vocab.ALATerm;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
 import java.io.File;
@@ -18,8 +17,6 @@ import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class IndexBuilderConfiguration {

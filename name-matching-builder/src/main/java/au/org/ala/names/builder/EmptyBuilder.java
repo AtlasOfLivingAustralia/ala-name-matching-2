@@ -1,9 +1,9 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
-import org.apache.lucene.document.Document;
 
 import java.util.Deque;
 
@@ -20,20 +20,20 @@ public class EmptyBuilder extends Builder<EmptyBuilder.EmptyParameters> {
     /**
      * Null inference
      *
-     * @param document The document
+     * @param classifier The classifier
      */
     @Override
-    public void infer(Document document) {
+    public void infer(Classifier<?> classifier) {
     }
 
     /**
      * Null expansion
      *
-     * @param document The document
-     * @param parents  The documents parents
+     * @param classifier The classifier
+     * @param parents  The classifiers parents
      */
     @Override
-    public void expand(Document document, Deque<Document> parents) {
+    public void expand(Classifier<?> classifier, Deque<Classifier<?>> parents) {
     }
 
     /**
@@ -51,11 +51,11 @@ public class EmptyBuilder extends Builder<EmptyBuilder.EmptyParameters> {
      *
      * @param parameters The parameters to fill out
      * @param analyser   The parameter analyser
-     * @param document   The document
+     * @param classifier   The classifier
      * @throws InferenceException if unable to calculate the parameters
      */
     @Override
-    public void calculate(EmptyParameters parameters, ParameterAnalyser<Document> analyser, Document document) throws InferenceException {
+    public void calculate(EmptyParameters parameters, ParameterAnalyser analyser, Classifier<?> classifier) throws InferenceException {
     }
 
     public static class EmptyParameters extends Parameters {

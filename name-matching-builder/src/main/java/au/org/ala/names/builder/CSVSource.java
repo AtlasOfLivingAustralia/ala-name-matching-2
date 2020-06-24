@@ -1,11 +1,10 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Observable;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexableField;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
@@ -94,13 +93,13 @@ public class CSVSource extends Source {
 
         try {
             while ((line = this.reader.readNext()) != null) {
-                Document document = new Document();
+                Classifier classifier = store.newClassifier();
                 for (int i = 0; i < this.header.length; i++) {
-                    IndexableField field = store.convert(this.header[i], i < line.length ? line[i] : null);
-                    if (field != null)
-                        document.add(field);
+                    String value = line[i];
+                    if (value != null && !value.isEmpty())
+                        classifier.add(header[i], value);
                 }
-                store.store(document, this.type);
+                store.store(classifier, this.type);
             }
         } catch (Exception ex) {
             throw new BuilderException("Unable to read CSV file", ex);

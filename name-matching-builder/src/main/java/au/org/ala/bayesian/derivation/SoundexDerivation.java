@@ -3,6 +3,7 @@ package au.org.ala.bayesian.derivation;
 import au.org.ala.bayesian.Derivation;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.util.TaxonNameSoundEx;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Arrays;
@@ -35,6 +36,15 @@ public class SoundexDerivation extends CopyDerivation {
     }
 
     /**
+     * Get the observable that determines the rank of the source.
+     *
+     * @return The rank
+     */
+    public Observable getRank() {
+        return rank;
+    }
+
+    /**
      * Get any extra observable needed to compute things.
      *
      * @return The extra variable, or null for none (defaults to null)
@@ -44,24 +54,15 @@ public class SoundexDerivation extends CopyDerivation {
         return this.rank;
     }
 
-    /**
-     * Generate the piece of code that represents getting the extra rank information
-     *
-     * @param documentVar The document variable
-     * @return The ancillary variable generator
-     */
-    @Override
-    public String getExtra(String documentVar) {
-        return documentVar + ".get(\"" + this.rank.getField() + "\")";
-    }
-
     @Override
     public Collection<Variable> getBuilderVariables() {
         return Arrays.asList(new Variable(TaxonNameSoundEx.class, INSTANCE_VAR));
     }
 
     @Override
-    public String getTransform(String var, String extra, String documentVar) {
+    public String generateTransform(String var, String extra, String documentVar) {
+        if (this.rank == null)
+            extra = "\"species\"";
         return "this." + INSTANCE_VAR + ".treatWord(" + var + ", " + extra + ")";
     }
 

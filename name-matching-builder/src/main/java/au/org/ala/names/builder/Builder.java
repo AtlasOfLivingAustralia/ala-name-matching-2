@@ -1,9 +1,6 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.ParameterAnalyser;
-import au.org.ala.bayesian.Parameters;
-import org.apache.lucene.document.Document;
+import au.org.ala.bayesian.*;
 
 import java.util.Deque;
 
@@ -16,26 +13,32 @@ import java.util.Deque;
  */
 abstract public class Builder<P extends Parameters> {
     /**
-     * Infer from a document during building.
+     * Infer from a classifier during building.
      * <p>
-     * This method creates all the derived values from the incoming document
+     * This method creates all the derived values from the incoming classifier
      * and the stack of parent documents.
      * </p>
      *
-     * @param document The document
+     * @param classifier The document
+     *
+     * @throws InferenceException if unable to calculate the inference
+     * @throws StoreException if unable to retrieve inference data
      */
-    abstract public void infer(Document document);
+    abstract public void infer(Classifier<?> classifier) throws InferenceException, StoreException;
 
     /**
-     * Expand a document during building.
+     * Expand a classifier during building.
      * <p>
-     * This method inserts new values from the document and the stack of parent documents
+     * This method inserts new values from the classifier and the stack of parent classifiers
      * </p>
      *
-     * @param document The document
-     * @param parents The documents parents
-     */
-    abstract public void expand(Document document, Deque<Document> parents);
+     * @param document The classifier
+     * @param parents The classifier's parents
+     *
+     * @throws InferenceException if unable to calculate the expansion
+     * @throws StoreException if unable to retrieve expansion data
+    */
+    abstract public void expand(Classifier<?> document, Deque<Classifier<?>> parents) throws InferenceException, StoreException;
 
     /**
      * Create an empty parameter set to be filled.
@@ -52,6 +55,7 @@ abstract public class Builder<P extends Parameters> {
      * @param document The document
      *
      * @throws InferenceException if unable to calculate the parameters
+     * @throws StoreException if unable to retrieve parameter data
      */
-    abstract public void calculate(P parameters, ParameterAnalyser<Document> analyser, Document document) throws InferenceException;
+    abstract public void calculate(P parameters, ParameterAnalyser analyser, Classifier<?> document) throws InferenceException, StoreException;
 }

@@ -49,8 +49,8 @@ public class CopyDerivation extends Derivation {
      * @return The code to get the values
      */
     @Override
-    public String getValues(String documentVar) {
-        return documentVar + ".getValues(\"" + this.source.getField() + "\")";
+    public String generateValues(String documentVar, String observablesClass) {
+        return documentVar + ".getAll(" + observablesClass + "." + this.source.getJavaVariable() + ")";
     }
 
     /**
@@ -62,7 +62,7 @@ public class CopyDerivation extends Derivation {
      * @return The code to get the values
      */
     @Override
-    public String getTransform(String var, String extra, String documentVar) {
+    public String generateTransform(String var, String extra, String documentVar) {
         return var;
     }
 }

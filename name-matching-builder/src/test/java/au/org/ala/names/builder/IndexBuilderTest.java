@@ -1,5 +1,6 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.names.generated.SimpleLinnaeanBuilder;
 import au.org.ala.names.generated.SimpleLinnaeanParameters;
@@ -54,10 +55,10 @@ public class IndexBuilderTest {
         CSVSource source = new CSVSource(surl);
         this.builder.load(source);
         this.builder.expandTree();
-        Document doc = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-1");
-        assertEquals("ARTEMIIDAE", doc.get(family.getField()));
-        assertEquals("Animalia", doc.get(kingdom.getField()));
-        IndexableField[] indexes = doc.getFields(this.builder.getIndexField());
+        Classifier classifier = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-1");
+        assertEquals("ARTEMIIDAE", classifier.get(family));
+        assertEquals("Animalia", classifier.get(kingdom));
+        int[] indexes = classifier.getIndex();
         assertEquals(2, indexes.length);
     }
 
@@ -71,9 +72,9 @@ public class IndexBuilderTest {
         this.builder.load(source);
         this.builder.expandTree();
         this.builder.expandSynonyms();
-        Document doc = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-S-1");
-        assertEquals("ARTEMIIDAE", doc.get(family.getField()));
-        assertEquals("Animalia", doc.get(kingdom.getField()));
+        Classifier classifier = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-S-1");
+        assertEquals("ARTEMIIDAE", classifier.get(family));
+        assertEquals("Animalia", classifier.get(kingdom));
     }
 
     @Test
@@ -85,10 +86,10 @@ public class IndexBuilderTest {
         this.builder.expandTree();
         this.builder.expandSynonyms();
         this.builder.buildParameters();
-        Document doc = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-S-1");
+        Classifier classifier = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-S-1");
         SimpleLinnaeanParameters parameters = new SimpleLinnaeanParameters();
-        parameters.loadFromBytes(doc.getField(this.builder.getParametersField()).binaryValue().bytes);
-        assertEquals(0.0909, parameters.prior_t$taxonID, 0.0001);
+        classifier.loadParameters(parameters);
+        assertEquals(0.0909, parameters.prior_t$taxonId, 0.0001);
         assertEquals(0.0, parameters.inf_f_t$kingdom, 0.0001);
         assertEquals(0.5, parameters.inf_t_f$phylum, 0.0001);
     }

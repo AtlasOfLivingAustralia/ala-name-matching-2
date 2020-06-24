@@ -32,8 +32,6 @@ public class NetworkCompiler {
     protected List<Node> outputs;
     /** The list of input signatures */
     protected List<boolean[]> inputSignatures;
-    /** The identifier converter for class names */
-    protected IdentifierConverter classConverter;
     /** The identifier converter for variable names */
     protected IdentifierConverter variableConverter;
 
@@ -43,8 +41,7 @@ public class NetworkCompiler {
      */
     public NetworkCompiler(Network network) {
         this.network = network;
-        this.classConverter = new SimpleIdentifierConverter(SimpleIdentifierConverter.Style.CAMEL_CASE, true);
-        this.variableConverter = new SimpleIdentifierConverter(SimpleIdentifierConverter.Style.CAMEL_CASE, false);
+        this.variableConverter = SimpleIdentifierConverter.JAVA_VARIABLE;
         ALATerm.weight.toString(); // Ensure loaded
     }
 
@@ -70,33 +67,6 @@ public class NetworkCompiler {
 
     public List<Node> getOutputs() {
         return outputs;
-    }
-
-    /**
-     * Get the name of the class that holds parameters
-     *
-     * @return A name constructed from the network
-     */
-    public String getParameterClassName() {
-        return this.classConverter.convert(this.network) + "Parameters";
-    }
-
-    /**
-     * Get the name of the class for generating inferences.
-     *
-     * @return A name constructed from the network
-     */
-    public String getInferenceClassName() {
-        return this.classConverter.convert(this.network) + "Inference";
-    }
-
-    /**
-     * Get the name of the class for building indexes.
-     *
-     * @return A name constructed from the network
-     */
-    public String getBuilderClassName() {
-        return this.classConverter.convert(this.network) + "Builder";
     }
 
     /**
@@ -150,6 +120,7 @@ public class NetworkCompiler {
     }
 
     protected void analyse(Node node) throws InferenceException {
+        node.classifier = new ClassifierVariable(node.observable);
         node.evidence = new EvidenceVariable(node.observable);
         node.cE = new ResultVariable("c", node.observable);
         node.cNotE = new ResultVariable("nc", node.observable);
@@ -244,6 +215,8 @@ public class NetworkCompiler {
     public class Node {
         /** The associated observable */
         private Observable observable;
+        /** The variable that holds the matchiung classification value for this variable (if any) */
+        private Variable classifier;
         /** The variable that holds the matchiung evidence for this variable (if any) */
         private Variable evidence;
         /** The variable that holds the conditional probability of seeing positive evidence **/
@@ -269,6 +242,10 @@ public class NetworkCompiler {
 
         public Observable getObservable() {
             return this.observable;
+        }
+
+        public Variable getClassifier() {
+            return this.classifier;
         }
 
         public Variable getEvidence() {

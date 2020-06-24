@@ -12,7 +12,7 @@ import au.org.ala.util.TermIdentifierConverter;
  */
 public enum ExternalContext {
     LUCENE(new TermIdentifierConverter("[a-zA-Z0-9_]", "_", true)),
-    JAVA_VARIABLE(new SimpleIdentifierConverter(SimpleIdentifierConverter.Style.CAMEL_CASE, false));
+    JAVA_VARIABLE(SimpleIdentifierConverter.JAVA_VARIABLE);
 
     /** How to convert whatever identifier into something acceptable to the external system */
     private IdentifierConverter converter;

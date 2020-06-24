@@ -20,14 +20,14 @@ public class InferenceParameter extends Variable {
     }
 
     public InferenceParameter(String prefix, Contributor outcome, List<Contributor> contributors) {
-        super(prefix + "_" + (outcome.isMatch() ? "t" : "f") + (contributors.isEmpty() ? "" : "_") + signatureTrace(contributors) + "$" + outcome.getObservable().getId());
+        super(prefix + "_" + (outcome.isMatch() ? "t" : "f") + (contributors.isEmpty() ? "" : "_") + signatureTrace(contributors) + "$" + outcome.getObservable().getJavaVariable());
         this.outcome = outcome;
         this.contributors = contributors;
         this.inverted = false;
     }
 
     public InferenceParameter(String prefix, Contributor outcome, List<Contributor> contributors, List<InferenceParameter> derivedFrom, boolean inverted) {
-        super(prefix + "_" + (outcome.isMatch() ? "t" : "f") + (contributors.isEmpty() ? "" : "_")  + signatureTrace(contributors) + "$" + outcome.getObservable().getId());
+        super(prefix + "_" + (outcome.isMatch() ? "t" : "f") + (contributors.isEmpty() ? "" : "_")  + signatureTrace(contributors) + "$" + outcome.getObservable().getJavaVariable());
         this.outcome = outcome;
         this.contributors = contributors;
         this.derivedFrom = derivedFrom;

@@ -6,26 +6,43 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SimpleIdentifierConverter implements IdentifierConverter {
-    public static final IdentifierConverter JAVA_CLASS = new SimpleIdentifierConverter(Style.CAMEL_CASE, true);
-    public static final IdentifierConverter JAVA_VARIABLE = new SimpleIdentifierConverter(Style.CAMEL_CASE, false);
-    public static final IdentifierConverter LUCENE_FIELD = new SimpleIdentifierConverter(Style.UNDERSCORE, false);
+    public static final IdentifierConverter JAVA_CLASS = new SimpleIdentifierConverter(Style.CAMEL_CASE, true, false);
+    public static final IdentifierConverter JAVA_VARIABLE = new SimpleIdentifierConverter(Style.CAMEL_CASE, false, true);
+    public static final IdentifierConverter LUCENE_FIELD = new SimpleIdentifierConverter(Style.UNDERSCORE, false, false);
+
+    private static final Set<String> RESERVED_WORDS = new HashSet<>(Arrays.asList(
+            "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
+            "class", "const", "continue", "default", "double", "do", "else", "enum",
+            "extends", "false", "final", "finally", "float", "for", "goto", "if",
+            "implements", "import", "instanceof", "int", "interface", "long", "native", "new",
+            "null", "package", "private", "protected", "public", "return", "short", "static",
+            "strictfp", "super", "switch", "synchronized", "this", "throw", "throws",
+            "transient", "true", "try", "void", "volatile", "while"
+    ));
 
     /** The style to use when converting */
     private Style style;
     /** Should the first letter be captialised */
     private boolean firstLetterUpperCase;
+    /** Should java keywords be avoided */
+    private boolean noKeywords;
 
     /**
      * Identifier converter
      *
      * @param style The style for work separation, etc.
      * @param firstLetterUpperCase Is the first letter upper case?
+     * @param noKeywords True to avoid generating java keywords
      */
-    public SimpleIdentifierConverter(Style style, boolean firstLetterUpperCase) {
+    public SimpleIdentifierConverter(Style style, boolean firstLetterUpperCase, boolean noKeywords) {
         this.style = style;
         this.firstLetterUpperCase = firstLetterUpperCase;
+        this.noKeywords = noKeywords;
     }
 
     /**
@@ -83,6 +100,10 @@ public class SimpleIdentifierConverter implements IdentifierConverter {
             }
         } catch (IOException e) {
             w.append("Error");
+        }
+        if (this.noKeywords) {
+            while (RESERVED_WORDS.contains(w.toString().toLowerCase()))
+                w.append('_');
         }
         return w.toString();
     }

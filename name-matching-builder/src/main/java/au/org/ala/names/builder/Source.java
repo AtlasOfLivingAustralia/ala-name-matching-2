@@ -1,6 +1,8 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.StoreException;
 import com.opencsv.exceptions.CsvValidationException;
+import org.apache.lucene.document.Field;
 import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.File;
@@ -21,8 +23,9 @@ abstract public class Source {
      * @param store The store to load into
      *
      * @throws BuilderException If there is an error in loading
+     * @throws StoreException If there is an error in storing the retrieved data
      */
-    abstract public void load(LoadStore store) throws BuilderException;
+    abstract public void load(LoadStore store) throws BuilderException, StoreException;
 
     /**
      * Close this source after loading
@@ -52,6 +55,8 @@ abstract public class Source {
             if (file.exists() && file.isDirectory())
                 return new DwCASource(source);
         }
+        if (source.getProtocol().equals("jar") || source.getProtocol().equals("http") || source.getProtocol().equals("https"))
+            return new DwCASource(source);
         throw new BuilderException("Unable to to deduce source type for " + source);
     }
 }

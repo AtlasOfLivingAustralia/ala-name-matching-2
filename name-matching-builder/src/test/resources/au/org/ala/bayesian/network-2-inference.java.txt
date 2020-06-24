@@ -1,21 +1,21 @@
 package au.org.ala.bayesian.generated;
 
 public class Network2Inference {
-  public Network2Parameters parameters;
+  public Network1Parameters parameters;
 
-  public double infer(Evidence evidence, double c$v_1) {
-    double nc$v_1 = 1.0 - c$v_1;
-    double c$v_2 = 0;
-    double nc$v_2 = 0;
-    if (evidence.e$v_2 == null || evidence.e$v_2) {
-      c$v_2 += this.parameters.inf_t_t$v_2 * c$v_1;
-      c$v_2 += this.parameters.inf_t_f$v_2 * nc$v_1;
+  public double infer(Evidence evidence, double c$v1) {
+    double nc$v1 = 1.0 - c$v1;
+    double c$v2 = 0;
+    double nc$v2 = 0;
+    if (evidence.e$v2 == null || evidence.e$v2) {
+      c$v2 += this.parameters.inf_t_t$v2 * c$v1;
+      c$v2 += this.parameters.inf_t_f$v2 * nc$v1;
     }
-    if (evidence.e$v_2 == null || !evidence.e$v_2) {
-      nc$v_2 += this.parameters.inf_f_t$v_2 * c$v_1;
-      nc$v_2 += this.parameters.inf_f_f$v_2 * nc$v_1;
+    if (evidence.e$v2 == null || !evidence.e$v2) {
+      nc$v2 += this.parameters.inf_f_t$v2 * c$v1;
+      nc$v2 += this.parameters.inf_f_f$v2 * nc$v1;
     }
-    return (c$v_2 + nc$v_2) * (this.parameters.prior_t$v_1 * c$v_1 + this.parameters.prior_f$v_1 * nc$v_1);
+    return (c$v2 + nc$v2) * (this.parameters.prior_t$v1 * c$v1 + this.parameters.prior_f$v1 * nc$v1);
   }
 
   public double probability(Evidence evidence) {
@@ -32,23 +32,23 @@ public class Network2Inference {
   }
 
   public static class Evidence {
-    public Boolean e$v_1;
-    public Boolean e$v_2;
+    public Boolean e$v1;
+    public Boolean e$v2;
 
     public double isT$v_1() {
-      return this.e$v_1 == null || this.e$v_1 ? 1.0 : 0.0;
+      return this.e$v1 == null || this.e$v1 ? 1.0 : 0.0;
     }
 
     public double isF$v_1() {
-      return this.e$v_1 == null || !this.e$v_1 ? 1.0 : 0.0;
+      return this.e$v1 == null || !this.e$v1 ? 1.0 : 0.0;
     }
 
     public double isT$v_2() {
-      return this.e$v_2 == null || this.e$v_2 ? 1.0 : 0.0;
+      return this.e$v2 == null || this.e$v2 ? 1.0 : 0.0;
     }
 
     public double isF$v_2() {
-      return this.e$v_2 == null || !this.e$v_2 ? 1.0 : 0.0;
+      return this.e$v2 == null || !this.e$v2 ? 1.0 : 0.0;
     }
 
   }

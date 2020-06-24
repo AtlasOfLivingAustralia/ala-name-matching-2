@@ -23,6 +23,10 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Derivation base;
+    /** The base of the values for this observable, if this is not directly supplied, a string if null */
+    @JsonProperty
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Class<?> type;
 
     // Ensure ALA Term vocabulary is properly loaded
     static {
@@ -112,6 +116,25 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      */
     public void setBase(Derivation base) {
         this.base = base;
+    }
+
+    /**
+     * Get the type of this observable
+     *
+     * @return The type (defaults to {@link String} if null)
+     */
+    @JsonIgnore // Just the field, ma'am
+    public Class<?> getType() {
+        return this.type == null ? String.class : this.type;
+    }
+
+    /**
+     * Set the type of this observable
+     *
+     * @param type The new type
+     */
+    public void setType(Class<?> type) {
+        this.type = type;
     }
 
     /**

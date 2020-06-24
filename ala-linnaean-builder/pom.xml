@@ -64,8 +64,11 @@
                             <source>../ala-linnaean/src/main/resources/ala-linnaean.json</source>
                             <outputPackage>au.org.ala.names</outputPackage>
                             <generateBuilder>true</generateBuilder>
+                            <generateCli>true</generateCli>
                             <generateInferencer>false</generateInferencer>
                             <generateParameters>false</generateParameters>
+                            <generateClassification>false</generateClassification>
+                            <generateObserables>false</generateObserables>
                         </configuration>
                     </execution>
                 </executions>

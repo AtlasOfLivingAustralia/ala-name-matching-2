@@ -33,13 +33,23 @@ abstract public class Derivation {
      * Get a condition for searching parent documents.
      *
      * @param foundVar The variable containing the test document
-     * @param documentVar The variable containing the original document
+     * @param classifierVar The variable containing the original classifier
+     * @param observablesClass The class holding observable defintions
      * @param parentsVar The parent list variable
      *
      * @return The code for a finder test, or null for no test
      */
-    public String getCondition(String foundVar, String documentVar, String parentsVar) {
+    public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) {
         return null;
+    }
+
+    /**
+     * Test to see whether we have any extra observable needed
+     *
+     * @return The extra observables needed
+     */
+    public boolean hasExtra() {
+        return this.getExtra() != null;
     }
 
     /**
@@ -55,23 +65,27 @@ abstract public class Derivation {
     /**
      * Generate the piece of code that represents an extra variable.
      *
-     * @param documentVar The document variable
+     * @param classifierVar The classifier variable
+     * @param observablesClass The class that holds observable definitions
      *
      * @return The ancillary variable generator
      */
-    public String getExtra(String documentVar) {
-        return "null";
+    public String generateExtra(String classifierVar, String observablesClass) {
+        Observable extra = this.getExtra();
+
+        return extra == null ? "null" : classifierVar + ".get(" + observablesClass + "." + extra.getJavaVariable() + ")";
     }
 
     /**
      * Generate the piece of code that generates the values required
      * for derivation.
      *
-     * @param documentVar The name of the document variable (a lucene document)
+     * @param classifierVar The name of the classifier variable
+     * @param observablesClass The class that holds observable definfitions
      *
      * @return The code to get the values
      */
-    abstract public String getValues(String documentVar);
+    abstract public String generateValues(String classifierVar, String observablesClass);
 
     /**
      * Generate the piece of code that transforms the values required
@@ -79,11 +93,11 @@ abstract public class Derivation {
      *
      * @param var The variable that holds the value to be transformed
      * @param extra The (nullable) variable that holds any extra context information
-     * @param documentVar The name of the document variable (a lucene document)
+     * @param classifierVar The name of the classifier variable
      *
      * @return The code to get the values
      */
-    abstract public String getTransform(String var, String extra, String documentVar);
+    abstract public String generateTransform(String var, String extra, String classifierVar);
 
     /**
      * Used to model required instance variables.

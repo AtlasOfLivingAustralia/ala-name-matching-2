@@ -54,11 +54,6 @@
           <artifactId>jackson-databind</artifactId>
         <version>${com.fasterxml.jackson.version}</version>
       </dependency>
-    <dependency>
-      <groupId>com.opencsv</groupId>
-      <artifactId>opencsv</artifactId>
-      <version>5.0</version>
-    </dependency>
   </dependencies>
 
   <build>

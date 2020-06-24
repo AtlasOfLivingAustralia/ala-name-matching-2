@@ -3,13 +3,12 @@ package au.org.ala.names.lucene;
 import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.Annotator;
 import au.org.ala.names.builder.LoadStore;
-import au.org.ala.names.builder.StoreException;
+import au.org.ala.bayesian.StoreException;
+import au.org.ala.names.model.ExternalContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -23,9 +22,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
-import java.util.UUID;
 
-public class LuceneLoadStore extends LoadStore {
+public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     /** The default batch size for getting results. Assumes a smallish size */
     public static final int DEFAULT_BATCH_SIZE = 256;
 
@@ -45,6 +43,8 @@ public class LuceneLoadStore extends LoadStore {
     private int batchSize;
     /** Delete this store on closing */
     private boolean temporary;
+    /** The annotation observable */
+    private Observable annotationObservable;
 
 
     /**
@@ -83,6 +83,8 @@ public class LuceneLoadStore extends LoadStore {
             throw new StoreException("Unable to make index in " + directory, ex);
         }
         this.batchSize = DEFAULT_BATCH_SIZE;
+        this.annotationObservable = new Observable(LuceneClassifier.ANNOTATION_FIELD);
+        this.annotationObservable.setExternal(ExternalContext.LUCENE, LuceneClassifier.ANNOTATION_FIELD);
     }
 
     /**
@@ -117,38 +119,58 @@ public class LuceneLoadStore extends LoadStore {
     }
 
     /**
+     * Get the observable that allows us to find annotations.
+     *
+     * @return The annotation observable
+     */
+    @Override
+    public Observation getAnnotationObservation(Term annotation) {
+        return new Observation(true, this.annotationObservable, LuceneClassifier.getAnnotationValue(annotation));
+    }
+
+    /**
+     * Create a new, empty classifier
+     *
+     * @return The new classifier
+     */
+    @Override
+    public LuceneClassifier newClassifier() {
+        return new LuceneClassifier();
+    }
+
+    /**
      * Store an entry in the load store
      *
-     * @param document The collection of information that makes up the entry
+     * @param classifier The collection of information that makes up the entry
      * @param type The document type
      */
     @Override
-    public void store(Document document, Term type) throws StoreException {
-        try {
-            this.annotator.identify(document);
-            this.annotator.type(document, type);
-            this.annotator.annotate(document);
-            this.writer.addDocument(document);
+    public void store(LuceneClassifier classifier, Term type) throws StoreException {
+         try {
+            classifier.identify();
+            classifier.setType(type);
+            this.annotator.annotate(classifier);
+            this.writer.addDocument(classifier.getDocument());
         } catch (IOException ex) {
-            throw new StoreException("Unable to store " + document, ex);
+            throw new StoreException("Unable to store " + classifier, ex);
         }
     }
 
     /**
      * Update an entry in the load store
      *
-     * @param document The collection of information that makes up the entry
+     * @param classifier The collection of information that makes up the entry
      */
     @Override
-    public void update(Document document) throws StoreException {
+    public void update(LuceneClassifier classifier) throws StoreException {
         try {
-            String id = this.annotator.getIdentifier(document);
+            String id = classifier.getIdentifier();
             if (id == null || id.isEmpty())
-                throw new StoreException("No identifier for " + document);
-            org.apache.lucene.index.Term term = new org.apache.lucene.index.Term(this.annotator.getIdentifierField(), id);
-            this.writer.updateDocument(term, document);
+                throw new StoreException("No identifier for " + classifier);
+            org.apache.lucene.index.Term term = new org.apache.lucene.index.Term(LuceneClassifier.ID_FIELD, id);
+            this.writer.updateDocument(term, classifier.getDocument());
         } catch (IOException ex) {
-            throw new StoreException("Unable to store " + document, ex);
+            throw new StoreException("Unable to store " + classifier, ex);
         }
     }
 
@@ -163,11 +185,11 @@ public class LuceneLoadStore extends LoadStore {
      * @throws StoreException
      */
     @Override
-    public Document get(Term type, Observable observable, String value) throws StoreException {
+    public LuceneClassifier get(Term type, Observable observable, String value) throws StoreException {
         this.ensureReader();
         try {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            builder.add(this.queryUtils.asClause(this.annotator.getTypeField(), this.annotator.getTypeValue(type)));
+            builder.add(LuceneClassifier.getTypeClause(type));
             builder.add(this.queryUtils.asClause(observable, value));
             Query query = builder.build();
             TopDocs docs = this.searcher.search(query, 1);
@@ -175,7 +197,7 @@ public class LuceneLoadStore extends LoadStore {
                 return null;
             if (docs.totalHits.value > 1)
                 throw new StoreException("More than one answer for " + observable.getId() + " = " + value);
-            return this.searcher.doc(docs.scoreDocs[0].doc);
+            return new LuceneClassifier(this.searcher.doc(docs.scoreDocs[0].doc));
         } catch (IOException ex) {
             throw new StoreException("Unable to search for " + observable.getId() + " = " + value, ex);
         }
@@ -192,11 +214,11 @@ public class LuceneLoadStore extends LoadStore {
      * @throws StoreException
      */
     @Override
-    public Iterable<Document> getAll(Term type, Observation... values) throws StoreException {
+    public Iterable<LuceneClassifier> getAll(Term type, Observation... values) throws StoreException {
          this.ensureReader();
         try {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            builder.add(this.queryUtils.asClause(this.annotator.getTypeField(), this.annotator.getTypeValue(type)));
+            builder.add(LuceneClassifier.getTypeClause(type));
             for (Observation o: values) {
                 builder.add(this.queryUtils.asClause(o));
             }
@@ -212,7 +234,7 @@ public class LuceneLoadStore extends LoadStore {
      * @return The parameter analyser
      */
     @Override
-    public ParameterAnalyser<Document> getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws InferenceException, StoreException {
+    public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws InferenceException, StoreException {
         this.ensureReader();
         return new LuceneParameterAnalyser(network, this.annotator, this.searcher, weight, defaultWeight);
     }
@@ -276,7 +298,7 @@ public class LuceneLoadStore extends LoadStore {
         }
     }
 
-    protected class LuceneIterator implements Iterable<Document>, Iterator<Document> {
+    protected class LuceneIterator implements Iterable<LuceneClassifier>, Iterator<LuceneClassifier> {
         /** The query to iterate over */
         private Query query;
          /** The current index into the results */
@@ -303,7 +325,7 @@ public class LuceneLoadStore extends LoadStore {
         }
 
         @Override
-        public Document next() {
+        public LuceneClassifier next() {
             try {
                 if (this.resultIndex >= this.topDocs.scoreDocs.length) {
                     this.resultIndex = 0;
@@ -312,14 +334,14 @@ public class LuceneLoadStore extends LoadStore {
                         throw new IndexOutOfBoundsException("Expecting another document");
                 }
                 this.index++;
-                return LuceneLoadStore.this.searcher.doc(this.topDocs.scoreDocs[this.resultIndex++].doc);
+                return new LuceneClassifier(LuceneLoadStore.this.searcher.doc(this.topDocs.scoreDocs[this.resultIndex++].doc));
             } catch (Exception ex) {
                 throw new IllegalStateException("Unable to get next document", ex);
              }
         }
 
         @Override
-        public Iterator<Document> iterator() {
+        public Iterator<LuceneClassifier> iterator() {
             return this;
         }
     }

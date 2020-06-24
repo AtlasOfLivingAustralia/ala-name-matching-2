@@ -47,6 +47,18 @@ public class NetworkGeneratorMojo extends AbstractMojo {
     @Parameter(property="generateInferencer", defaultValue = "true")
     private boolean generateInferencer = true;
 
+    /** Generate the classification? */
+    @Parameter(property="generateClassification", defaultValue = "true")
+    private boolean generateClassification = true;
+
+    /** Generate the observables? */
+    @Parameter(property="generateObservables", defaultValue = "true")
+    private boolean generateObservables = true;
+
+    /** Generate the command line interface? */
+    @Parameter(property="generateCli", defaultValue = "true")
+    private boolean generateCli = true;
+
     /**
      * Run the goal.
      * <p>
@@ -79,6 +91,9 @@ public class NetworkGeneratorMojo extends AbstractMojo {
             generator.setGenerateBuilder(this.generateBuilder);
             generator.setGenerateInferencer(this.generateInferencer);
             generator.setGenerateParameters(this.generateParameters);
+            generator.setGenerateClassification(this.generateClassification);
+            generator.setGenerateObservables(this.generateObservables);
+            generator.setGenerateCli(this.generateCli);
             generator.setArtifactName(this.project.getArtifactId());
             generator.generate(compiler);
         } catch (MojoExecutionException ex) {

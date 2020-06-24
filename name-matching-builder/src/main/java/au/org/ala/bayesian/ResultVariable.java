@@ -11,7 +11,7 @@ public class ResultVariable extends Variable {
     }
 
     public ResultVariable(String prefix, Observable observable) {
-        super(prefix + "$" + observable.getId());
+        super(prefix + "$" + observable.getJavaVariable());
         this.observable = observable;
     }
 }

@@ -1,9 +1,9 @@
-package au.org.ala.names.builder;
+package au.org.ala.bayesian;
 
 /**
- * An exception that indicates one of the name builder stores has encountered a problem.
+ * An exception that indicates one of the information stores has encountered a problem.
  */
-public class StoreException extends BuilderException {
+public class StoreException extends Exception {
     /**
      * Consurct with a message.
      *

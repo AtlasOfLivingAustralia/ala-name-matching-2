@@ -3,7 +3,6 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneLoadStore;
-import au.org.ala.names.model.ExternalContext;
 import au.org.ala.util.CleanedScientificName;
 import au.org.ala.vocab.ALATerm;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,9 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.cli.*;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StoredField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexableField;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
@@ -23,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -88,12 +83,8 @@ public class IndexBuilder implements Annotator {
     protected Optional<Observable> scientificNameAuthorship;
     /** The complete, propertly formatted name/author pair */
     protected Optional<Observable> nameComplete;
-    /** The annotation observable */
-    protected Observable annotation;
     /** The set of terms to copy from an accepted taxon to a synonym */
     protected Set<Observable> synonymCopy;
-    /** The set of fields to copy from an accepted taxon to a synonym */
-    protected Set<String> synonymCopyFields;
     /** The load-store. Used to store semi-structured information before building the complete index. */
     protected LoadStore loadStore;
 
@@ -118,10 +109,7 @@ public class IndexBuilder implements Annotator {
         this.scientificNameAuthorship = this.network.findObservable(SCIENTIFIC_NAME_AUTHORSHIP_PROPERTY, true);
         this.nameComplete = this.network.findObservable(NAME_COMPLETE_PROPERTY, true);
         this.altScientificName = this.network.findObservable(ALT_SCIENTIFIC_NAME_PROPERTY, true);
-        this.annotation = new Observable(this.getAnnodationField());
-        this.annotation.setExternal(ExternalContext.LUCENE, this.getAnnodationField());
         this.synonymCopy = new HashSet<>(this.network.findObservables(COPY_PROPERTY, true));
-        this.synonymCopyFields = this.synonymCopy.stream().map(observable -> observable.getField()).collect(Collectors.toSet());
     }
 
     /**
@@ -147,8 +135,9 @@ public class IndexBuilder implements Annotator {
      * @param source The source to load
      *
      * @throws BuilderException if something foes wrong
+     * @throws StoreException if the store fails during loading
      */
-    public void load(Source source) throws BuilderException {
+    public void load(Source source) throws BuilderException, StoreException {
         source.load(this.loadStore);
     }
 
@@ -162,8 +151,9 @@ public class IndexBuilder implements Annotator {
      *
      * @throws BuilderException if unable to store information in the index
      * @throws InferenceException if unable to build the inference parameters
+     * @throws StoreException if unable to store intermediate documents
      */
-    public void build() throws BuilderException, InferenceException {
+    public void build() throws BuilderException, InferenceException, StoreException {
         this.expandTree();
         this.expandSynonyms();
         this.buildParameters();
@@ -187,57 +177,55 @@ public class IndexBuilder implements Annotator {
      * and fill out information about the
      *
      * @throws BuilderException if unable to traverse the tree
+     * @throws StoreException if unable to store data property
      */
-    public void expandTree() throws BuilderException {
+    public void expandTree() throws BuilderException, InferenceException, StoreException {
         LOGGER.info("Expanding accepted concept tree");
         int count = 0;
         int index = 1;
-        Observation isRoot = new Observation(true, this.annotation, this.getAnnotationValue(ALATerm.isRoot));
-        List<Document> top = this.loadStore.getAllDocs(DwcTerm.Taxon, isRoot); // Keep across commits
+        Observation isRoot = this.loadStore.getAnnotationObservation(ALATerm.isRoot);
+        List<Classifier> top = this.loadStore.getAllClassifiers(DwcTerm.Taxon, isRoot); // Keep across commits
 
-        for (Document doc: top) {
+        for (Classifier classifier: top) {
             if (count++ % this.config.getLogInterval() == 0)
-                LOGGER.info("Processing top-level document " + doc.get(this.taxonId.getField()));
-            index = this.expandTree(doc, new LinkedList<Document>(), index);
+                LOGGER.info("Processing top-level document " + classifier.get(this.taxonId));
+            index = this.expandTree(classifier, new LinkedList<Classifier>(), index);
             this.loadStore.commit();
         }
     }
 
-    public int expandTree(Document document, Deque<Document> parents, int index) throws StoreException {
+    public int expandTree(Classifier classifier, Deque<Classifier> parents, int index) throws InferenceException, StoreException {
         int left = index;
         // Perform all derivations
-        this.builder.expand(document, parents);
-        String id = document.get(this.taxonId.getField());
+        this.builder.expand(classifier, parents);
+        String id = classifier.get(this.taxonId);
         Set<String> allNames = new HashSet<>();
         Set<String> altNames = new HashSet<>();
 
-        String name = document.get(this.scientificName.getField());
+        String name = classifier.get(this.scientificName);
         CleanedScientificName n = new CleanedScientificName(name);
         allNames.add(n.getName());
         allNames.add(n.getBasic());
         allNames.add(n.getNormalised());
         // Ensure that the normalised version of the name is used.
         if (!name.equals(n.getNormalised())) {
-            document.removeFields(this.scientificName.getField());
-            document.add(new StringField(this.scientificName.getField(), n.getNormalised(), Field.Store.YES));
+            classifier.replace(this.scientificName, n.getNormalised());
         }
 
-        Optional<String> authorship = this.scientificNameAuthorship.map(sna -> document.get(sna.getField()));
-        String nameComplete = this.nameComplete.map(nc -> document.get(nc.getField())).orElseGet(() -> (name + " " + authorship.orElse("")).trim());
+        Optional<String> authorship = this.scientificNameAuthorship.map(sna -> classifier.get(sna));
+        String nameComplete = this.nameComplete.map(nc -> classifier.get(nc)).orElseGet(() -> (name + " " + authorship.orElse("")).trim());
         CleanedScientificName nc = new CleanedScientificName(nameComplete);
         allNames.add(nc.getName());
         allNames.add(nc.getBasic());
         allNames.add(nc.getNormalised());
 
-        for (String nm : allNames) {
-            document.add(new StringField(this.getNamesField(), nm, Field.Store.YES));
-        }
+        classifier.setNames(allNames);
 
         if (this.altScientificName.isPresent()) {
             if (this.accepted.isPresent()) {
-                Iterable<Document> synonyms = this.loadStore.getAll(DwcTerm.Taxon, new Observation(true, this.accepted.get(), id));
-                for (Document synonym : synonyms) {
-                    String syn = synonym.get(this.scientificName.getField());
+                Iterable<Classifier> synonyms = this.loadStore.getAll(DwcTerm.Taxon, new Observation(true, this.accepted.get(), id));
+                for (Classifier synonym : synonyms) {
+                    String syn = synonym.get(this.scientificName);
                     CleanedScientificName s = new CleanedScientificName(syn);
                     altNames.add(s.getName());
                     altNames.add(s.getBasic());
@@ -245,20 +233,20 @@ public class IndexBuilder implements Annotator {
                 }
             }
             for (String nm : altNames) {
-                document.add(new StringField(this.altScientificName.get().getField(), nm, Field.Store.YES));
+                classifier.add(this.altScientificName.get(), nm);
             }
         }
-        this.builder.infer(document);
+        this.builder.infer(classifier);
         if (this.parent != null) {
-            parents.push(document);
-            Iterable<Document> children = this.loadStore.getAll(DwcTerm.Taxon, new Observation(true, this.parent, id));
-            for (Document child : children) {
+            parents.push(classifier);
+            Iterable<Classifier> children = this.loadStore.getAll(DwcTerm.Taxon, new Observation(true, this.parent, id));
+            for (Classifier child : children) {
                 index = this.expandTree(child, parents, index);
             }
             parents.pop();
         }
-        this.setIndex(document, left, index);
-        this.loadStore.update(document);
+        classifier.setIndex(left, index);
+        this.loadStore.update(classifier);
         return index + 1;
     }
 
@@ -267,17 +255,17 @@ public class IndexBuilder implements Annotator {
      *
      * @throws StoreException if unable to manage the updates
      */
-    public void expandSynonyms() throws StoreException {
+    public void expandSynonyms() throws InferenceException, StoreException {
         LOGGER.info("Expanding synonyms");
         int count = 0;
-        Observation isSynonym = new Observation(true, this.annotation, this.getAnnotationValue(ALATerm.isSynonym));
-        Iterable<Document> synonyms = this.loadStore.getAll(DwcTerm.Taxon, isSynonym);
-        for (Document doc: synonyms) {
-            String id = doc.get(this.taxonId.getField());
+        Observation isSynonym = this.loadStore.getAnnotationObservation(ALATerm.isSynonym);
+        Iterable<Classifier> synonyms = this.loadStore.getAll(DwcTerm.Taxon, isSynonym);
+        for (Classifier classifier: synonyms) {
+            String id = classifier.get(this.taxonId);
             if (count++ % this.config.getLogInterval() == 0)
                 LOGGER.info("Processing synonym " + id);
-            Optional<String> aid = this.accepted.map(acc -> doc.get(acc.getField()));
-            Optional<Document> acpt = Optional.empty();
+            Optional<String> aid = this.accepted.map(acc -> classifier.get(acc));
+            Optional<Classifier> acpt = Optional.empty();
             if (!aid.isPresent()) {
                 LOGGER.error("Synonym document " + id + " does not have an accepted taxon id");
             } else {
@@ -286,7 +274,7 @@ public class IndexBuilder implements Annotator {
                     LOGGER.error("Taxon " + id + " with accepted id " + aid + " does not have a matching accepted taxon");
                 }
             }
-            this.expandSynonym(doc, acpt);
+            this.expandSynonym(classifier, acpt);
         }
         this.loadStore.commit();
     }
@@ -298,39 +286,36 @@ public class IndexBuilder implements Annotator {
      * such as the rank and higher taxonomy from the parent.
      * </p>
      *
-     * @param document The synonym document
+     * @param classifier The synonym classifier
      * @param accepted The accepted taxon document
      *
      * @throws StoreException if unable to write the updated document
      */
-    public void expandSynonym(Document document, Optional<Document> accepted) throws StoreException {
+    public void expandSynonym(Classifier classifier, Optional<Classifier> accepted) throws InferenceException, StoreException {
         Set<String> allNames = new HashSet<>();
-        String name = document.get(this.scientificName.getField());
+        String name = classifier.get(this.scientificName);
         CleanedScientificName n = new CleanedScientificName(name);
         allNames.add(n.getName());
         allNames.add(n.getBasic());
         allNames.add(n.getNormalised());
         // Ensure that the normalised version of the name is used.
         if (!name.equals(n.getNormalised())) {
-            document.removeFields(this.scientificName.getField());
-            document.add(new StringField(this.scientificName.getField(), n.getNormalised(), Field.Store.YES));
+             classifier.replace(this.scientificName, n.getNormalised());
         }
         if (this.altScientificName.isPresent()) {
             for (String nm : allNames) {
-                document.add(new StringField(this.altScientificName.get().getField(), nm, Field.Store.YES));
+                classifier.add(this.altScientificName.get(), nm);
             }
         }
         if (accepted.isPresent()){
-            Set<String> known = document.getFields().stream().map(f -> f.name()).collect(Collectors.toSet());
-            for (String field : this.synonymCopyFields) {
-                if (!known.contains(field)) {
-                    for (IndexableField f : accepted.get().getFields(field))
-                        document.add(f);
-                }
+            Classifier acc = accepted.get();
+            for (Observable obs: this.synonymCopy) {
+                if (!classifier.has(obs))
+                    classifier.addAll(obs, acc);
             }
         }
-        this.builder.infer(document);
-        this.loadStore.update(document);
+        this.builder.infer(classifier);
+        this.loadStore.update(classifier);
     }
 
     /**
@@ -342,16 +327,16 @@ public class IndexBuilder implements Annotator {
     public void buildParameters() throws StoreException, InferenceException {
         LOGGER.info("Building parameter sets");
         int count = 0;
-        ParameterAnalyser<Document> analyser = this.loadStore.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight());
-        Iterable<Document> taxa = this.loadStore.getAll(DwcTerm.Taxon);
-        for (Document doc : taxa) {
-            String id = doc.get(this.taxonId.getField());
+        ParameterAnalyser analyser = this.loadStore.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight());
+        Iterable<Classifier> taxa = this.loadStore.getAll(DwcTerm.Taxon);
+        for (Classifier classifier : taxa) {
+            String id = classifier.get(this.taxonId);
             if (count++ % this.config.getLogInterval() == 0)
                 LOGGER.info("Processing parameters " + id);
             Parameters parameters = this.builder.createParameters();
-            this.builder.calculate(parameters, analyser, doc);
-            this.setParameters(doc, parameters);
-            this.loadStore.update(doc);
+            this.builder.calculate(parameters, analyser, classifier);
+            classifier.storeParameters(parameters);
+            this.loadStore.update(classifier);
         }
         this.loadStore.commit();
 
@@ -370,12 +355,12 @@ public class IndexBuilder implements Annotator {
             throw new IllegalArgumentException("Unable to create " + output);
         LoadStore index = new LuceneLoadStore(this, output, false);
         // Copy taxa across
-        Iterable<Document> taxa = this.loadStore.getAll(DwcTerm.Taxon);
-        for (Document doc : taxa) {
-            index.update(doc);
+        Iterable<Classifier> taxa = this.loadStore.getAll(DwcTerm.Taxon);
+        for (Classifier classifier : taxa) {
+            index.update(classifier);
         }
         // Insert metadata document
-        Document metadata = this.createMetadata();
+        Classifier metadata = this.createMetadata();
         index.store(metadata, ALATerm.Metadata);
 
         index.commit();
@@ -389,8 +374,8 @@ public class IndexBuilder implements Annotator {
      *
      * @throws StoreException if unable to construct the document
      */
-    public Document createMetadata() throws StoreException {
-        Document metadata = new Document();
+    public Classifier createMetadata() throws StoreException {
+        Classifier metadata = this.loadStore.newClassifier();
         Observable creator = new Observable(DcTerm.creator);
         Observable created = new Observable(DcTerm.created);
         Observable description = new Observable(DcTerm.description);
@@ -403,15 +388,15 @@ public class IndexBuilder implements Annotator {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        metadata.add(new StoredField(identifier.getField(), UUID.randomUUID().toString()));
-        metadata.add(new StoredField(title.getField(), this.network.getId()));
-        metadata.add(new StoredField(description.getField(), this.network.getDescription()));
-        metadata.add(new StoredField(creator.getField(), System.getProperty("user.name", "unknown")));
-        metadata.add(new StoredField(created.getField(), TIMESTAMP.format(timestamp)));
-        metadata.add(new StoredField(builderClass.getField(), this.config.getBuilderClass().getName()));
-        metadata.add(new StoredField(version.getField(), this.getClass().getPackage().getSpecificationVersion()));
+        metadata.add(identifier, UUID.randomUUID().toString());
+        metadata.add(title, this.network.getId());
+        metadata.add(description, this.network.getDescription());
+        metadata.add(creator, System.getProperty("user.name", "unknown"));
+        metadata.add(created, TIMESTAMP.format(timestamp));
+        metadata.add(builderClass, this.config.getBuilderClass().getName());
+        metadata.add(version, this.getClass().getPackage().getSpecificationVersion());
         try {
-            metadata.add(new StoredField(source.getField(), mapper.writeValueAsString(this.network)));
+            metadata.add(source, mapper.writeValueAsString(this.network));
         } catch (JsonProcessingException ex) {
             throw new StoreException("Unable to write network condfiguration", ex);
         }
@@ -419,7 +404,7 @@ public class IndexBuilder implements Annotator {
     }
 
     /**
-     * Annotate a document with additional information.
+     * Annotate a classifier with additional information.
      * <p>
      * If the document does not have a parent or an accepted taxon
      * then annotate it as {@link ALATerm#isRoot}.
@@ -427,18 +412,18 @@ public class IndexBuilder implements Annotator {
      * then annotate it as {@link ALATerm#isSynonym}
      * </p>
      *
-     * @param document The document
+     * @param classifier The classifier
      * @throws StoreException If unable to create an annotation for some reason.
      */
     @Override
-    public void annotate(Document document) throws StoreException {
-        String p = document.get(this.parent.getField());
-        String a = this.accepted.isPresent() ? document.get(this.accepted.get().getField()) : null;
+    public void annotate(Classifier classifier) throws StoreException {
+        String p = classifier.get(this.parent);
+        String a = this.accepted.isPresent() ? classifier.get(this.accepted.get()) : null;
 
         if (( p == null || p.isEmpty()) && (a == null || a.isEmpty()))
-            this.annotate(document, ALATerm.isRoot);
+            classifier.annotate(ALATerm.isRoot);
         if ((p == null || p.isEmpty()) && (a != null && !a.isEmpty()))
-            this.annotate(document, ALATerm.isSynonym);
+            classifier.annotate(ALATerm.isSynonym);
     }
 
     /**
