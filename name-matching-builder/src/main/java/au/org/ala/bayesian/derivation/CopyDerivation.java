@@ -4,6 +4,7 @@ import au.org.ala.bayesian.Derivation;
 import au.org.ala.bayesian.Observable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.naming.OperationNotSupportedException;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -54,6 +55,20 @@ public class CopyDerivation extends Derivation {
     }
 
     /**
+     * Generate the piece of code that transforms the values required
+     * for derivation.
+     * <p>
+     * This throws an {@link UnsupportedOperationException} since it is not possible to copy for a classification.
+     * </p>
+     *
+     * @return The code to get the values
+     */
+    @Override
+    public String generateClassificationTransform() {
+        throw new UnsupportedOperationException("Copy derivations do not apply to classifications");
+    }
+
+    /**
      * Copy simply assigns the value variable.
      *
      * @param var         The variable that holds the value to be transformed
@@ -62,7 +77,7 @@ public class CopyDerivation extends Derivation {
      * @return The code to get the values
      */
     @Override
-    public String generateTransform(String var, String extra, String documentVar) {
+    public String generateBuilderTransform(String var, String extra, String documentVar) {
         return var;
     }
 }

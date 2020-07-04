@@ -1,6 +1,7 @@
 {
   "id" : "grass",
   "description" : "Example bayesian network based on wet grass. Hyptohesis is that it is raining. Eveidence is that the srinkler is on and the grass is wet",
+  "normalisers" : [ ],
   "observables" : [ {
     "id" : "rain",
     "description" : "It is raining"

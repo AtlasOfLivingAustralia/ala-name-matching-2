@@ -1,0 +1,9 @@
+{
+  "@class" : "au.org.ala.util.BasicNormaliser",
+  "id" : "normaliser_1",
+  "normaliseSpaces" : true,
+  "normalisePunctuation" : true,
+  "normaliseSymbols" : true,
+  "normaliseAccents" : true,
+  "normaliseCase" : false
+}

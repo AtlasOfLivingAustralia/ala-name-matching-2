@@ -73,11 +73,22 @@ public class ObservableTest {
     }
 
     @Test
+    public void testToJson6() throws Exception {
+        Observable observable = new Observable("test_6");
+        observable.setRequired(true);
+        ObjectMapper mapper = TestUtils.createMapper();
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, observable);
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "observable-6.json"), writer.toString());
+    }
+
+    @Test
     public void testFromJson1() throws Exception {
         ObjectMapper mapper = TestUtils.createMapper();
         Observable observable = mapper.readValue(TestUtils.getResource(this.getClass(), "observable-1.json"), Observable.class);
         assertEquals("test_1", observable.getId());
         assertNull(observable.getDescription());
+        assertFalse(observable.isRequired());
     }
 
     @Test
@@ -118,6 +129,14 @@ public class ObservableTest {
         Observable observable = mapper.readValue(TestUtils.getResource(this.getClass(), "observable-5.json"), Observable.class);
         assertEquals("test_5", observable.getId());
         assertEquals(Integer.class, observable.getType());
+    }
+
+    @Test
+    public void testFromJson6() throws Exception {
+        ObjectMapper mapper = TestUtils.createMapper();
+        Observable observable = mapper.readValue(TestUtils.getResource(this.getClass(), "observable-6.json"), Observable.class);
+        assertEquals("test_6", observable.getId());
+        assertTrue(observable.isRequired());
     }
 
     @Test

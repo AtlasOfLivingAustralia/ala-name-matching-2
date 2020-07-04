@@ -8,6 +8,10 @@ import au.org.ala.names.model.ExternalContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
+import org.apache.lucene.analysis.core.KeywordTokenizer;
+import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -29,8 +33,6 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
 
     /** The query utilities */
     private QueryUtils queryUtils;
-    /** Analyser to use for load analysis */
-    private Analyzer analyzer;
     /** The temporary directory for the loading index */
     private Path dir;
     /** The load writer */
@@ -61,11 +63,12 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
         super(annotator);
         this.temporary = temporary;
         this.queryUtils = new QueryUtils();
-        this.analyzer = new KeywordAnalyzer();
         FSDirectory directory = null;
         if (!temporary && dir ==  null)
             throw new IllegalArgumentException("Non-temporary store must have a directory supplied.");
         try {
+            if (dir != null && !dir.exists())
+                dir.mkdirs();
             if (temporary) {
                 this.dir = dir == null ? Files.createTempDirectory("Load") : Files.createTempDirectory(dir.toPath(), "Load");
             } else {
@@ -75,7 +78,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
         } catch (IOException ex) {
             throw new StoreException("Unable to get store directory", ex);
         }
-        IndexWriterConfig config = new IndexWriterConfig(this.analyzer);
+        IndexWriterConfig config = new IndexWriterConfig(this.queryUtils.getAnalyzer());
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         try {
             this.writer = new IndexWriter(directory, config);
@@ -168,7 +171,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
             if (id == null || id.isEmpty())
                 throw new StoreException("No identifier for " + classifier);
             org.apache.lucene.index.Term term = new org.apache.lucene.index.Term(LuceneClassifier.ID_FIELD, id);
-            this.writer.updateDocument(term, classifier.getDocument());
+            this.writer.updateDocument(term, classifier.makeDocumentCopy());
         } catch (IOException ex) {
             throw new StoreException("Unable to store " + classifier, ex);
         }

@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collection;
 
 /**
  * Load from a CSV file
@@ -35,11 +36,13 @@ public class CSVSource extends Source {
      *
      * @param type The type of information in the CSV file
      * @param reader The CSV reader
+     * @param observables Any klnown observables
      *
      * @throws IOException when reading the CSV file
      * @throws CsvValidationException if not a CSV file
      */
-    public CSVSource(Term type, Reader reader) throws IOException, CsvValidationException {
+    public CSVSource(Term type, Reader reader, Collection<Observable> observables) throws IOException, CsvValidationException {
+        super(observables);
         this.type = type;
         this.reader = new CSVReaderBuilder(reader).build();
         this.buildHeader();
@@ -54,11 +57,13 @@ public class CSVSource extends Source {
      *
      * @param type The record type
      * @param source The record source
+     * @param observables Any known observables
      *
      * @throws IOException if unable to get the data
      * @throws CsvValidationException If the file is invalid
      */
-    public CSVSource(Term type, URL source) throws IOException, CsvValidationException {
+    public CSVSource(Term type, URL source, Collection<Observable> observables) throws IOException, CsvValidationException {
+        super(observables);
         this.type = type;
         URLConnection connection = source.openConnection();
         String encoding = connection.getContentEncoding();
@@ -71,14 +76,15 @@ public class CSVSource extends Source {
      * Construct for a default {@link DwcTerm#Taxon} source type.
      *
      * @param source The source CSV file
+     * @param observables Any known observables
      *
      * @throws IOException if uable to get the data
      * @throws CsvValidationException if the data is not a CSV file
      *
-     * @see #CSVSource(Term, URL)
+     * @see #CSVSource(Term, URL, Collection)
      */
-    public CSVSource(URL source) throws IOException, CsvValidationException {
-        this(DwcTerm.Taxon, source);
+    public CSVSource(URL source, Collection<Observable> observables) throws IOException, CsvValidationException {
+        this(DwcTerm.Taxon, source, observables);
     }
 
     /**
@@ -90,7 +96,6 @@ public class CSVSource extends Source {
     @Override
     public void load(LoadStore store) throws BuilderException {
         String[] line;
-
         try {
             while ((line = this.reader.readNext()) != null) {
                 Classifier classifier = store.newClassifier();
@@ -121,7 +126,7 @@ public class CSVSource extends Source {
 
         this.header = new Observable[head.length];
         for (int i = 0; i < head.length; i++) {
-            this.header[i] = new Observable(TermFactory.instance().findTerm(head[i]));
+            this.header[i] = this.getObservable(TermFactory.instance().findTerm(head[i]));
         }
     }
 }

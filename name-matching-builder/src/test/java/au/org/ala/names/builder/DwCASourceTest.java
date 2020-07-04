@@ -3,16 +3,12 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Network;
 import au.org.ala.bayesian.Observable;
-import au.org.ala.util.TestUtils;
-import org.apache.lucene.document.Document;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.Reader;
 import java.net.URL;
 
 import static org.junit.Assert.*;
@@ -45,7 +41,7 @@ public class DwCASourceTest {
     @Test
     public void testLoad1() throws Exception {
         URL sample = this.getClass().getResource("/sample-1.zip");
-        DwCASource source = new DwCASource(sample);
+        DwCASource source = new DwCASource(sample, this.network.getObservables());
         source.load(this.store);
 
         assertEquals(710, this.store.getStore().size());

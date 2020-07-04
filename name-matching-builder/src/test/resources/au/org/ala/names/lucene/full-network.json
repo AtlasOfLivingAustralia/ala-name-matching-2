@@ -1,7 +1,27 @@
 {
   "id": "linnaean",
   "description": "A Linnaean heirarchy containing all evidence",
-  "vertices": [
+  "normalisers": [
+    {
+      "@class" : "au.org.ala.util.BasicNormaliser",
+      "id" : "simple_normaliser",
+      "normaliseSpaces" : true,
+      "normalisePunctuation" : true,
+      "normaliseSymbols" : true,
+      "normaliseAccents" : true,
+      "normaliseCase" : false
+    },
+    {
+      "@class" : "au.org.ala.util.BasicNormaliser",
+      "id" : "lower_case_normaliser",
+      "normaliseSpaces" : true,
+      "normalisePunctuation" : true,
+      "normaliseSymbols" : true,
+      "normaliseAccents" : true,
+      "normaliseCase" : true
+    }
+  ],
+  "observables": [
     {
       "id": "taxonID",
       "uri": "http://rs.tdwg.org/dwc/terms/taxonID",
@@ -11,14 +31,16 @@
     },
     {
       "id": "taxonRank",
-      "uri": "http://rs.tdwg.org/dwc/terms/taxonRank"
+      "uri": "http://rs.tdwg.org/dwc/terms/taxonRank",
+      "normaliser": "lower_case_normaliser"
     },
     {
       "id": "scientificName",
       "uri": "http://rs.tdwg.org/dwc/terms/scientificName",
       "properties": {
         "scientificName": true
-      }
+      },
+      "normaliser": "simple_normaliser"
     },
     {
       "id": "soundexScientificName",
@@ -26,11 +48,12 @@
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "source": "scientificName"
-      }
+      },
     },
     {
       "id": "specificEpithet",
-      "uri": "http://rs.tdwg.org/dwc/terms/specificEpithet"
+      "uri": "http://rs.tdwg.org/dwc/terms/specificEpithet",
+      "normaliser": "simple_normaliser"
     },
     {
       "id": "soundexSpecificEpithet",
@@ -50,6 +73,7 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -90,6 +114,7 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -130,6 +155,7 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -170,6 +196,7 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -210,6 +237,7 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -250,6 +278,7 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -286,23 +315,28 @@
     },
     {
       "id": "scientificNameAuthorship",
-      "uri": "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"
+      "uri": "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship",
+      "normaliser": "simple_normaliser"
     },
     {
       "id": "stateOrProvince",
-      "uri": "http://rs.tdwg.org/dwc/terms/stateOrProvince"
+      "uri": "http://rs.tdwg.org/dwc/terms/stateOrProvince",
+      "normaliser": "simple_normaliser"
     },
     {
       "id": "country",
-      "uri": "http://rs.tdwg.org/dwc/terms/country"
+      "uri": "http://rs.tdwg.org/dwc/terms/country",
+      "normaliser": "simple_normaliser"
     },
     {
       "id": "nomenclaturalCode",
-      "uri": "http://rs.tdwg.org/dwc/terms/nomenclaturalCode"
+      "uri": "http://rs.tdwg.org/dwc/terms/nomenclaturalCode",
+      "normaliser": "simple_normaliser"
     },
     {
       "id": "weight",
       "uri": "http://id.ala.org.au/terms/1.0/weight",
+      "type": "java.lang.Double",
       "properties": {
         "weight": true
       }

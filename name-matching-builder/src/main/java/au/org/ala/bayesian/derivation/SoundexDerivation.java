@@ -60,10 +60,21 @@ public class SoundexDerivation extends CopyDerivation {
     }
 
     @Override
-    public String generateTransform(String var, String extra, String documentVar) {
+    public Collection<Variable> getClassificationVariables() {
+        return Arrays.asList(new Variable(TaxonNameSoundEx.class, INSTANCE_VAR));
+    }
+
+    @Override
+    public String generateBuilderTransform(String var, String extra, String documentVar) {
         if (this.rank == null)
             extra = "\"species\"";
         return "this." + INSTANCE_VAR + ".treatWord(" + var + ", " + extra + ")";
+    }
+
+    @Override
+    public String generateClassificationTransform() {
+        String extra = this.rank == null ? "\"species\"" : "this." + this.rank.getJavaVariable();
+        return "this." + INSTANCE_VAR + ".treatWord(this." + this.getSource().getJavaVariable() + ", " + extra + ")";
     }
 
 }

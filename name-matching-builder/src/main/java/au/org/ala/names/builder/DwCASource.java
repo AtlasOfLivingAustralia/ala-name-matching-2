@@ -4,8 +4,6 @@ import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.StoreException;
 import org.apache.commons.io.FileUtils;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexableField;
 import org.gbif.dwc.Archive;
 import org.gbif.dwc.ArchiveFile;
 import org.gbif.dwc.DwcFiles;
@@ -21,9 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,11 +38,13 @@ public class DwCASource extends Source {
      * Construct with DwCA directory
      *
      * @param source The location of the DwCA
+     * @param observables The list of observables expected
      *
      * @throws IOException when attempting to open the archive
      * @throws UnsupportedArchiveException if the archive is invalid
      */
-    public DwCASource(URL source) throws IOException, UnsupportedArchiveException {
+    public DwCASource(URL source, Collection<Observable> observables) throws IOException, UnsupportedArchiveException {
+        super(observables);
         this.cleanup = new ArrayList<>();
         if (source.getProtocol().equals("file")) {
             File file = new File(source.getPath());
@@ -116,7 +114,7 @@ public class DwCASource extends Source {
      */
     protected void loadArchiveFile(ArchiveFile file, LoadStore store) throws StoreException {
         Term type = file.getRowType();
-        Set<Observable> terms = file.getTerms().stream().map(t -> new Observable(t)).collect(Collectors.toSet());
+        Set<Observable> terms = file.getTerms().stream().map(t -> this.getObservable(t)).collect(Collectors.toSet());
         for (Record record: file) {
             Classifier classifier = store.newClassifier();
             for (Observable term: terms) {

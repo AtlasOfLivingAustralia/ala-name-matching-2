@@ -3,6 +3,7 @@ package au.org.ala.names.lucene;
 import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.Annotator;
 import au.org.ala.bayesian.StoreException;
+import au.org.ala.names.model.ExternalContext;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.*;
@@ -12,6 +13,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static au.org.ala.names.model.ExternalContext.LUCENE;
 
 public class LuceneParameterAnalyser extends ParameterAnalyser {
     /** The minimum probability we can get to. This is defined so that #MAXIMUM_PROBABILITY does not evaluate to 1 */
@@ -45,7 +48,7 @@ public class LuceneParameterAnalyser extends ParameterAnalyser {
      * @param weight The weight observable
      * @param defaultWeight The weight to use when a value is unavailable
      */
-    public LuceneParameterAnalyser(Network network, Annotator annotator, IndexSearcher searcher, Observable weight, double defaultWeight) throws InferenceException {
+    public LuceneParameterAnalyser(Network network, Annotator annotator, IndexSearcher searcher, Observable weight, double defaultWeight) throws InferenceException, StoreException {
         this.network = network;
         this.annotator = annotator;
         this.searcher = searcher;
@@ -74,7 +77,7 @@ public class LuceneParameterAnalyser extends ParameterAnalyser {
      */
     protected double sum(Query query) throws InferenceException {
         try {
-            SumCollector collector = new SumCollector(this.searcher, this.weight.getField(), this.defaultWeight);
+            SumCollector collector = new SumCollector(this.searcher, this.weight.getExternal(LUCENE), this.defaultWeight);
             this.searcher.search(query, collector);
             return collector.getSum();
         } catch (IOException ex) {

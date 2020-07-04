@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * information to things like an index builder.
  * </p>
  */
-@JsonPropertyOrder({"id", "description", "uri", "observables", "vertices", "edges"})
+@JsonPropertyOrder({"id", "description", "uri", "normalisers", "observables", "vertices", "edges"})
 public class Network extends Identifiable {
     /** The vertex id map */
     private SortedMap<String, Observable> idMap;
@@ -96,6 +96,14 @@ public class Network extends Identifiable {
         return this.getObservable(URI.create(term.qualifiedName()));
     }
 
+    @JsonProperty("normalisers")
+    public List<Normaliser> getNormalisers() {
+        Set<Normaliser> norms = this.getVertices().stream().map(Observable::getNormaliser).filter(n -> n != null).collect(Collectors.toSet());
+        List<Normaliser> normalisers = new ArrayList<>(norms);
+        normalisers.sort((n1, n2) -> n1.getId().compareTo(n2.getId()));
+        return normalisers;
+    }
+
     /**
      * Get the network vertices.
      *
@@ -136,13 +144,25 @@ public class Network extends Identifiable {
 
 
     /**
-     * Get the network vertices.
+     * Get the network observables.
      *
-     * @return The vertices in breadth-first order, followed by additional vertices.
+     * @return The observables in network toplogical order, followed by additional observables.
      */
     @JsonProperty("observables")
     public Collection<Observable> getObservables() {
         return this.idMap.values();
+    }
+
+    /**
+     * Get the network observables sorted by identifier.
+     *
+     * @return The vertices in breadth-first order, followed by additional vertices.
+     */
+    @JsonIgnore
+    public List<Observable> getObservablesById() {
+        List<Observable> observables = new ArrayList<>(this.idMap.values());
+        observables.sort((o1, o2) -> o1.getId().compareTo(o2.getId()));
+        return observables;
     }
 
     /**

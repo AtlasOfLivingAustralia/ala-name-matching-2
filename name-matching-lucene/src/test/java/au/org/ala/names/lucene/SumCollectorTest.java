@@ -7,6 +7,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 
 public class SumCollectorTest {
@@ -22,7 +24,7 @@ public class SumCollectorTest {
 
     @Test
     public void testSumCollector1() throws Exception {
-        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv");
+        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST);
         SumCollector collector = new SumCollector(this.lucene.getSearcher(), "weight", 1.0);
         Query query = new TermQuery(new Term("type", "insect"));
         this.lucene.getSearcher().search(query, collector);
@@ -31,7 +33,7 @@ public class SumCollectorTest {
 
     @Test
     public void testSumCollector2() throws Exception {
-        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv");
+        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST);
         SumCollector collector = new SumCollector(this.lucene.getSearcher(), "weight", 1.0);
         Query query = new TermQuery(new Term("type", "invalid"));
         this.lucene.getSearcher().search(query, collector);
@@ -40,7 +42,7 @@ public class SumCollectorTest {
 
     @Test
     public void testSumCollector3() throws Exception {
-        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv");
+        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST);
         SumCollector collector = new SumCollector(this.lucene.getSearcher(), "weight", 1.0);
         Query query = new TermQuery(new Term("name", "Ant"));
         this.lucene.getSearcher().search(query, collector);

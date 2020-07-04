@@ -27,7 +27,7 @@ public class LuceneParameterAnalyserTest {
         this.network = Network.read(this.getClass().getResource("simple-network.json"));
         this.weight = this.network.findObservable(IndexBuilder.WEIGHT_PROPERTY, true).get();
         this.annotator = new TestAnnotator();
-        this.lucene = new LuceneUtils(LuceneParameterAnalyser.class, "parameter-analyser-1.csv");
+        this.lucene = new LuceneUtils(LuceneParameterAnalyser.class, "parameter-analyser-1.csv", this.network.getObservables());
         ALATerm.weight.toString(); // Ensure loaded
     }
 

@@ -68,7 +68,7 @@
                             <generateInferencer>false</generateInferencer>
                             <generateParameters>false</generateParameters>
                             <generateClassification>false</generateClassification>
-                            <generateObserables>false</generateObserables>
+                            <generateObservables>false</generateObservables>
                         </configuration>
                     </execution>
                 </executions>

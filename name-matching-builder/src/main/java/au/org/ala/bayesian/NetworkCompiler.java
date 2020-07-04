@@ -91,6 +91,28 @@ public class NetworkCompiler {
         return variables;
     }
 
+    /**
+     * Get the variables required to create a classification for this network.
+     * <p>
+     * These represent utility classes that can be used to generate something.
+     * </p>
+     *
+     * @return The variables
+     */
+    public Set<Derivation.Variable> getClassificationVariables() {
+        Set<Derivation.Variable> variables = new HashSet<>();
+
+        for (Observable observable: this.network.getVertices()) {
+            if (observable.getDerivation() != null) {
+                variables.addAll(observable.getDerivation().getClassificationVariables());
+            }
+            if (observable.getBase() != null) {
+                variables.addAll(observable.getBase().getClassificationVariables());
+            }
+        }
+        return variables;
+    }
+
     public void analyse() throws InferenceException {
         this.sources = new DirectedAcyclicGraph<>(Dependency.class);
         Graphs.addGraphReversed(this.sources, this.network.getGraph());
@@ -120,7 +142,6 @@ public class NetworkCompiler {
     }
 
     protected void analyse(Node node) throws InferenceException {
-        node.classifier = new ClassifierVariable(node.observable);
         node.evidence = new EvidenceVariable(node.observable);
         node.cE = new ResultVariable("c", node.observable);
         node.cNotE = new ResultVariable("nc", node.observable);
@@ -215,8 +236,6 @@ public class NetworkCompiler {
     public class Node {
         /** The associated observable */
         private Observable observable;
-        /** The variable that holds the matchiung classification value for this variable (if any) */
-        private Variable classifier;
         /** The variable that holds the matchiung evidence for this variable (if any) */
         private Variable evidence;
         /** The variable that holds the conditional probability of seeing positive evidence **/
@@ -242,10 +261,6 @@ public class NetworkCompiler {
 
         public Observable getObservable() {
             return this.observable;
-        }
-
-        public Variable getClassifier() {
-            return this.classifier;
         }
 
         public Variable getEvidence() {

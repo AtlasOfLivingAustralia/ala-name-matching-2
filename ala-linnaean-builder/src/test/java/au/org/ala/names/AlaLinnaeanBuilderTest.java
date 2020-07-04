@@ -52,7 +52,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Observable genus = this.builder.getNetwork().getObservable(DwcTerm.genus);
         Observable genusID = this.builder.getNetwork().getObservable(ALATerm.genusID);
         Observable soundex = this.builder.getNetwork().getObservable(ALATerm.soundexScientificName);
-        Source source = Source.create(this.getClass().getResource("/sample-1.zip"));
+        Source source = Source.create(this.getClass().getResource("/sample-1.zip"), this.builder.getNetwork().getObservables());
         this.builder.load(source);
         LoadStore store = this.builder.getLoadStore();
         Classifier doc = store.get(DwcTerm.Taxon, taxonID, "urn:lsid:indexfungorum.org:names:90156");

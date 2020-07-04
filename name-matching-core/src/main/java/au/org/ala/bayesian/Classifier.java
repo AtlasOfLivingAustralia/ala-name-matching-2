@@ -48,6 +48,10 @@ abstract public class Classifier<C extends Classifier> {
 
     /**
      * Add a value to the classifier.
+     * <p>
+     * Note, the classifier needs to parse and normalise any values before
+     * adding them to the classifier.
+     * </p>
      *
      * @param observable The observable to store
      * @param value The value to store
@@ -59,6 +63,9 @@ abstract public class Classifier<C extends Classifier> {
 
     /**
      * Copy all values from another classifier
+     * <p>
+     * Parsing and normalisation has assumed to have already taken place.
+     * </p>
      *
      * @param observable The observable for the values
      * @param classifier The classifier to copy from

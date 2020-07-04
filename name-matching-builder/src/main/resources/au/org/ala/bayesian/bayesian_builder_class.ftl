@@ -36,7 +36,7 @@ public class ${className} extends Builder<${parametersClassName}> {
     String e_${node?index} = ${derivation.generateExtra("classifier", observablesClassName)};
     </#if>
     for (String v: ${derivation.generateValues("classifier", observablesClassName)}) {
-      String d = ${derivation.generateTransform("v", "e_${node?index}", "classifier")};
+      String d = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
       classifier.add(${observablesClassName}.${observable.javaVariable}, d);
     }
   </#if>
@@ -59,7 +59,7 @@ public class ${className} extends Builder<${parametersClassName}> {
       String e_${node?index} = ${derivation.generateExtra("classifier", observablesClassName)};
     </#if>
       for(String v: ${derivation.generateValues("${docVar}.get()", observablesClassName)}){
-        String d = ${derivation.generateTransform("v", "e_${node?index}", "classifier")};
+        String d = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
         classifier.add(${observablesClassName}.${observable.javaVariable}, d);
       }
     }

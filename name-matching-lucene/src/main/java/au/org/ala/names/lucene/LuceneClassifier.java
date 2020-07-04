@@ -1,11 +1,12 @@
 package au.org.ala.names.lucene;
 
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Observable;
-import au.org.ala.bayesian.Parameters;
-import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.*;
+
 import static au.org.ala.names.model.ExternalContext.LUCENE;
+
+import au.org.ala.bayesian.Observable;
 import org.apache.lucene.document.*;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.Query;
@@ -65,6 +66,44 @@ public class LuceneClassifier extends Classifier<LuceneClassifier> {
      */
     public Document getDocument() {
         return document;
+    }
+
+    /**
+     * Make a copy of the document with all new fields.
+     * <p>
+     * This is a bit disgusting but needed to stop the index from doing odd things to
+     * read document information. Sigh.
+     * </p>
+     */
+    public Document makeDocumentCopy() {
+        Document copy = new Document();
+        for (IndexableField field: this.document) {
+            if (field.fieldType().indexOptions() == IndexOptions.NONE) {
+                if (field.binaryValue() != null)
+                    copy.add(new StoredField(field.name(), field.binaryValue()));
+                else if (field.numericValue() != null) {
+                    Number number = field.numericValue();
+                    if (number instanceof Integer || number instanceof Short || number instanceof Byte)
+                        copy.add(new StoredField(field.name(), number.intValue()));
+                    else if (number instanceof Long)
+                        copy.add(new StoredField(field.name(), number.longValue()));
+                    else if (number instanceof Float)
+                        copy.add(new StoredField(field.name(), number.floatValue()));
+                    else
+                        copy.add(new StoredField(field.name(), number.doubleValue()));
+                } else if (field.stringValue() != null)
+                    copy.add(new StoredField(field.name(), field.stringValue()));
+                else
+                    throw new IllegalStateException("Unable to copy field :" + field);
+            } else if (field.fieldType().indexOptions() == IndexOptions.DOCS)
+                if (field.stringValue() != null)
+                    copy.add(new StringField(field.name(), field.stringValue(), Field.Store.YES));
+                else
+                    throw new IllegalStateException("Unable to copy field :" + field);
+            else
+                copy.add(field);
+        }
+        return copy;
     }
 
     /**
@@ -318,8 +357,6 @@ public class LuceneClassifier extends Classifier<LuceneClassifier> {
         this.document.removeFields(INDEX_FIELD);
         this.document.add(new StoredField(INDEX_FIELD, left));
         this.document.add(new StoredField(INDEX_FIELD, right));
-        this.document.add(new IntRange(INDEX_FIELD, new int[] { left }, new int[] { right }));
-
     }
 
     /**
@@ -349,7 +386,7 @@ public class LuceneClassifier extends Classifier<LuceneClassifier> {
     public void setNames(Collection<String> names) throws StoreException {
         this.document.removeFields(NAMES_FIELD);
         for (String name: names)
-            document.add(new StringField(NAMES_FIELD, name, Field.Store.YES));
+            document.add(new TextField(NAMES_FIELD, name, Field.Store.YES));
     }
 
     /**
@@ -370,7 +407,18 @@ public class LuceneClassifier extends Classifier<LuceneClassifier> {
             return new StoredField(field, ((Number) value).intValue());
         else if (value instanceof Number)
             return new StoredField(field, ((Number) value).doubleValue());
-        else
-            return new StringField(field, value.toString(), Field.Store.YES);
+        else {
+            String val = value.toString();
+            Normaliser normaliser = observable.getNormaliser();
+            if (normaliser != null)
+                val = normaliser.normalise(val);
+            switch (observable.getStyle()) {
+                case IDENTIFIER:
+                case CANONICAL:
+                    return new StringField(field, val, Field.Store.YES);
+                default:
+                    return new TextField(field, val, Field.Store.YES);
+            }
+        }
     }
 }

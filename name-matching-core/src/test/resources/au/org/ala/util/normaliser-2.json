@@ -1,0 +1,6 @@
+{
+  "@class" : "au.org.ala.util.BasicNormaliser",
+  "id" : "normaliser_2",
+  "normaliseSpaces" : false,
+  "normaliseCase" : false
+}

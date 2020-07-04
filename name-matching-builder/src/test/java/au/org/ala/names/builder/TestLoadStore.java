@@ -11,6 +11,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static au.org.ala.names.model.ExternalContext.LUCENE;
+
 /**
  * A test load store that just keeps a
  */
@@ -93,7 +95,7 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
 
     @Override
     public LuceneClassifier get(Term type, Observable observable, String value) throws StoreException {
-        final String field = observable.getExternal(ExternalContext.LUCENE);
+        final String field = observable.getExternal(LUCENE);
         final String typeValue = type.qualifiedName();
         Predicate<LuceneClassifier> test = classifier -> Objects.equals(classifier.getDocument().get(LuceneClassifier.TYPE_FIELD), typeValue) && Objects.equals(classifier.getDocument().get(field), value);
         return this.store.values().stream().filter(test).findAny().orElse(null);
@@ -104,11 +106,11 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
         final String typeValue = type.qualifiedName();
         Predicate<LuceneClassifier> test = classifier -> Objects.equals(classifier.getDocument().get(LuceneClassifier.TYPE_FIELD), typeValue);
         for (Observation ob: values) {
-            String field = ob.getObservable().getExternal(ExternalContext.LUCENE);
+            String field = ob.getObservable().getExternal(LUCENE);
             if (ob.isPositive())
                 test = test.and(classifier -> Objects.equals(classifier.getDocument().get(field), ob.getValue()));
             else
-                test = test.and(classifier -> !Objects.equals(classifier.getDocument().get(ob.getObservable().getField()), ob.getValue()));
+                test = test.and(classifier -> !Objects.equals(classifier.getDocument().get(ob.getObservable().getExternal(LUCENE)), ob.getValue()));
         }
         return this.store.values().stream().filter(test).collect(Collectors.toList());
     }

@@ -1,6 +1,23 @@
 {
   "id" : "simple-linnaean",
   "description" : "A simple Linnaean heirarchy for test purposes",
+  "normalisers" : [ {
+    "@class" : "au.org.ala.util.BasicNormaliser",
+    "id" : "lower_case_normaliser",
+    "normaliseSpaces" : true,
+    "normalisePunctuation" : true,
+    "normaliseSymbols" : true,
+    "normaliseAccents" : true,
+    "normaliseCase" : true
+  }, {
+    "@class" : "au.org.ala.util.BasicNormaliser",
+    "id" : "simple_normaliser",
+    "normaliseSpaces" : true,
+    "normalisePunctuation" : true,
+    "normaliseSymbols" : true,
+    "normaliseAccents" : true,
+    "normaliseCase" : false
+  } ],
   "observables" : [ {
     "id" : "acceptedNameUsageID",
     "uri" : "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
@@ -26,17 +43,20 @@
         "uri" : "http://rs.tdwg.org/dwc/terms/scientificName",
         "properties" : {
           "scientificName" : true
-        }
+        },
+        "normaliser" : "simple_normaliser"
       },
       "condition" : {
         "positive" : true,
         "observable" : {
           "id" : "taxonRank",
-          "uri" : "http://rs.tdwg.org/dwc/terms/taxonRank"
+          "uri" : "http://rs.tdwg.org/dwc/terms/taxonRank",
+          "normaliser" : "lower_case_normaliser"
         },
         "value" : "class"
       }
-    }
+    },
+    "normaliser" : "simple_normaliser"
   }, {
     "id" : "family",
     "uri" : "http://rs.tdwg.org/dwc/terms/family",
@@ -51,7 +71,8 @@
         "observable" : "taxonRank",
         "value" : "family"
       }
-    }
+    },
+    "normaliser" : "simple_normaliser"
   }, {
     "id" : "genus",
     "uri" : "http://rs.tdwg.org/dwc/terms/genus",
@@ -66,7 +87,8 @@
         "observable" : "taxonRank",
         "value" : "genus"
       }
-    }
+    },
+    "normaliser" : "simple_normaliser"
   }, {
     "id" : "kingdom",
     "uri" : "http://rs.tdwg.org/dwc/terms/kingdom",
@@ -81,7 +103,8 @@
         "observable" : "taxonRank",
         "value" : "kingdom"
       }
-    }
+    },
+    "normaliser" : "simple_normaliser"
   }, {
     "id" : "order",
     "uri" : "http://rs.tdwg.org/dwc/terms/order",
@@ -96,7 +119,8 @@
         "observable" : "taxonRank",
         "value" : "order"
       }
-    }
+    },
+    "normaliser" : "simple_normaliser"
   }, {
     "id" : "parentNameUsageID",
     "uri" : "http://rs.tdwg.org/dwc/terms/parentNameUsageID",
@@ -117,10 +141,12 @@
         "observable" : "taxonRank",
         "value" : "phylum"
       }
-    }
+    },
+    "normaliser" : "simple_normaliser"
   }, "scientificName", {
     "id" : "scientificNameAuthorship",
-    "uri" : "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"
+    "uri" : "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship",
+    "normaliser" : "simple_normaliser"
   }, {
     "id" : "soundexScientificName",
     "uri" : "http://id.ala.org.au/terms/1.0/soundexScientificName",
@@ -131,7 +157,8 @@
     }
   }, {
     "id" : "specificEpithet",
-    "uri" : "http://rs.tdwg.org/dwc/terms/specificEpithet"
+    "uri" : "http://rs.tdwg.org/dwc/terms/specificEpithet",
+    "normaliser" : "simple_normaliser"
   }, {
     "id" : "taxonID",
     "uri" : "http://rs.tdwg.org/dwc/terms/taxonID",
@@ -143,7 +170,8 @@
     "uri" : "http://id.ala.org.au/terms/1.0/weight",
     "properties" : {
       "weight" : true
-    }
+    },
+    "type" : "java.lang.Double"
   } ],
   "vertices" : [ "taxonID", "taxonRank", "specificEpithet", "scientificNameAuthorship", "scientificName", "soundexScientificName", "genus", "family", "order", "class", "phylum", "kingdom" ],
   "edges" : [ {

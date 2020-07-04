@@ -1,24 +1,48 @@
 {
   "id": "ALA:Linnaean",
   "description": "A Linnaean heirarchy containing all evidence, used by the ALA",
-  "vertices": [
+  "normalisers": [
+    {
+      "@class" : "au.org.ala.util.BasicNormaliser",
+      "id" : "simple_normaliser",
+      "normaliseSpaces" : true,
+      "normalisePunctuation" : true,
+      "normaliseSymbols" : true,
+      "normaliseAccents" : true,
+      "normaliseCase" : false
+    },
+    {
+      "@class" : "au.org.ala.util.BasicNormaliser",
+      "id" : "lower_case_normaliser",
+      "normaliseSpaces" : true,
+      "normalisePunctuation" : true,
+      "normaliseSymbols" : true,
+      "normaliseAccents" : true,
+      "normaliseCase" : true
+    }
+  ],
+  "observables": [
     {
       "id": "taxonID",
       "uri": "http://rs.tdwg.org/dwc/terms/taxonID",
       "properties": {
         "taxonID": true
-      }
+      },
+      "style": "IDENTIFIER"
     },
     {
       "id": "taxonRank",
-      "uri": "http://rs.tdwg.org/dwc/terms/taxonRank"
+      "uri": "http://rs.tdwg.org/dwc/terms/taxonRank",
+      "normaliser": "lower_case_normaliser"
     },
     {
       "id": "scientificName",
       "uri": "http://rs.tdwg.org/dwc/terms/scientificName",
       "properties": {
         "scientificName": true
-      }
+      },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE"
     },
     {
       "id": "soundexScientificName",
@@ -31,7 +55,9 @@
     },
     {
       "id": "specificEpithet",
-      "uri": "http://rs.tdwg.org/dwc/terms/specificEpithet"
+      "uri": "http://rs.tdwg.org/dwc/terms/specificEpithet",
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE"
     },
     {
       "id": "soundexSpecificEpithet",
@@ -48,6 +74,7 @@
       "properties": {
         "copy": true
       },
+      "style": "IDENTIFIER",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "taxonID",
@@ -64,6 +91,8 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -89,6 +118,7 @@
       "properties": {
         "copy": true
       },
+      "style": "IDENTIFIER",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "taxonID",
@@ -105,6 +135,8 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -130,6 +162,7 @@
       "properties": {
         "copy": true
       },
+      "style": "IDENTIFIER",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "taxonID",
@@ -146,6 +179,8 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -171,6 +206,7 @@
       "properties": {
         "copy": true
       },
+      "style": "IDENTIFIER",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "taxonID",
@@ -187,6 +223,8 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -212,6 +250,7 @@
       "properties": {
         "copy": true
       },
+      "style": "IDENTIFIER",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "taxonID",
@@ -228,6 +267,8 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -253,6 +294,7 @@
       "properties": {
         "copy": true
       },
+      "style": "IDENTIFIER",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "taxonID",
@@ -269,6 +311,8 @@
       "properties": {
         "copy": true
       },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "scientificName",
@@ -294,6 +338,7 @@
       "properties": {
         "copy": true
       },
+      "style": "IDENTIFIER",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "source": "taxonID",
@@ -306,15 +351,21 @@
     },
     {
       "id": "scientificNameAuthorship",
-      "uri": "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"
+      "uri": "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship",
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE"
     },
     {
       "id": "stateOrProvince",
-      "uri": "http://rs.tdwg.org/dwc/terms/stateOrProvince"
+      "uri": "http://rs.tdwg.org/dwc/terms/stateOrProvince",
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE"
     },
     {
       "id": "country",
-      "uri": "http://rs.tdwg.org/dwc/terms/country"
+      "uri": "http://rs.tdwg.org/dwc/terms/country",
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE"
     },
     {
       "id": "nomenclaturalCode",
@@ -332,21 +383,25 @@
       "uri": "http://rs.tdwg.org/dwc/terms/parentNameUsageID",
       "properties": {
         "parent": true
-      }
+      },
+      "style": "IDENTIFIER"
     },
     {
       "id": "acceptedNameUsageID",
       "uri": "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
       "properties": {
         "accepted": true
-      }
+      },
+      "style": "IDENTIFIER"
     },
     {
       "id": "altScientificName",
       "uri": "http://id.ala.org.au/terms/1.0/altScientificName",
       "properties": {
         "altScientificName": true
-      }
+      },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE"
     }
   ],
   "vertices": [

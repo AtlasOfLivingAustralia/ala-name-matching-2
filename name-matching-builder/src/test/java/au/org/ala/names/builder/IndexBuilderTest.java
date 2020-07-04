@@ -13,6 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.Reader;
 import java.net.URL;
 import java.util.List;
@@ -26,7 +27,7 @@ public class IndexBuilderTest {
     @Before
     public void setUp() throws Exception {
         this.config = new IndexBuilderConfiguration();
-        this.config.setWork(null);
+        this.config.setWork(new File("target/test-work"));
         this.config.setBuilderClass(SimpleLinnaeanBuilder.class);
         this.config.setLoadStoreClass(LuceneLoadStore.class);
         this.config.setNetwork(this.getClass().getResource("../lucene/simple-network.json"));
@@ -42,7 +43,7 @@ public class IndexBuilderTest {
     @Test
     public void testLoad1() throws Exception {
         URL surl = this.getClass().getResource("source-1.csv");
-        CSVSource source = new CSVSource(surl);
+        CSVSource source = new CSVSource(surl, this.builder.getNetwork().getObservables());
         this.builder.load(source);
     }
 
@@ -52,7 +53,7 @@ public class IndexBuilderTest {
         Observable family = this.builder.network.getObservable(DwcTerm.family);
         Observable kingdom = this.builder.network.getObservable(DwcTerm.kingdom);
         URL surl = this.getClass().getResource("source-1.csv");
-        CSVSource source = new CSVSource(surl);
+        CSVSource source = new CSVSource(surl, this.builder.getNetwork().getObservables());
         this.builder.load(source);
         this.builder.expandTree();
         Classifier classifier = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-1");
@@ -68,7 +69,7 @@ public class IndexBuilderTest {
         Observable family = this.builder.network.getObservable(DwcTerm.family);
         Observable kingdom = this.builder.network.getObservable(DwcTerm.kingdom);
         URL surl = this.getClass().getResource("source-1.csv");
-        CSVSource source = new CSVSource(surl);
+        CSVSource source = new CSVSource(surl, this.builder.getNetwork().getObservables());
         this.builder.load(source);
         this.builder.expandTree();
         this.builder.expandSynonyms();
@@ -81,7 +82,7 @@ public class IndexBuilderTest {
     public void testBuildParameters1() throws Exception {
         Observable taxonID = this.builder.network.getObservable(DwcTerm.taxonID);
         URL surl = this.getClass().getResource("source-1.csv");
-        CSVSource source = new CSVSource(surl);
+        CSVSource source = new CSVSource(surl, this.builder.getNetwork().getObservables());
         this.builder.load(source);
         this.builder.expandTree();
         this.builder.expandSynonyms();

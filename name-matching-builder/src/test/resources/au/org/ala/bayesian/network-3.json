@@ -1,5 +1,7 @@
 {
   "id" : "network_3",
+  "normalisers" : [
+  ],
   "observables" : [
     { "id" : "v_1" },
     { "id" : "v_2" },

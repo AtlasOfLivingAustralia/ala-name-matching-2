@@ -17,7 +17,7 @@ import java.util.Objects;
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
 abstract public class Derivation {
     /**
-     * Get the variables that this builder/derivation.
+     * Get the variables that this builder/derivation uses.
      * <p>
      * By default, this is an empty list.
      * </p>
@@ -26,6 +26,18 @@ abstract public class Derivation {
      */
     @JsonIgnore
     public Collection<Variable> getBuilderVariables() {
+        return Collections.EMPTY_LIST;
+    }
+    /**
+     * Get the variables that this classification/derivation uses.
+     * <p>
+     * By default, this is an empty list.
+     * </p>
+     *
+     * @return The instance variables needed to implement this derivation
+     */
+    @JsonIgnore
+    public Collection<Variable> getClassificationVariables() {
         return Collections.EMPTY_LIST;
     }
 
@@ -97,7 +109,15 @@ abstract public class Derivation {
      *
      * @return The code to get the values
      */
-    abstract public String generateTransform(String var, String extra, String classifierVar);
+    abstract public String generateBuilderTransform(String var, String extra, String classifierVar);
+
+    /**
+     * Generate the piece of code that transforms the values required
+     * for derivation.
+     *
+     * @return The code to get the values
+     */
+    abstract public String generateClassificationTransform();
 
     /**
      * Used to model required instance variables.

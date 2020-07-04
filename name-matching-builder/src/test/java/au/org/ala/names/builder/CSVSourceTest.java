@@ -42,7 +42,7 @@ public class CSVSourceTest {
     @Test
     public void testLoad1() throws Exception {
         Reader reader = TestUtils.getResourceReader(this.getClass(), "source-1.csv");
-        CSVSource source = new CSVSource(DwcTerm.Taxon, reader);
+        CSVSource source = new CSVSource(DwcTerm.Taxon, reader, this.network.getObservables());
         source.load(this.store);
 
         assertEquals(11, this.store.getStore().size());
@@ -56,7 +56,7 @@ public class CSVSourceTest {
     @Test
     public void testLoad2() throws Exception {
         URL url = this.getClass().getResource("source-1.csv");
-        CSVSource source = new CSVSource(DwcTerm.Taxon, url);
+        CSVSource source = new CSVSource(DwcTerm.Taxon, url, this.network.getObservables());
         source.load(this.store);
 
         assertEquals(11, this.store.getStore().size());

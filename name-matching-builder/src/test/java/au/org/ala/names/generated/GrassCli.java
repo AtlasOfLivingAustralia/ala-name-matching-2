@@ -50,7 +50,7 @@ public class GrassCli {
      for (String input: cmd.getArgs()) {
        URL in = new URL(input);
        Source source = null;
-       source = Source.create(in);
+       source = Source.create(in, builder.getNetwork().getObservables());
        builder.load(source);
        source.close();
      }

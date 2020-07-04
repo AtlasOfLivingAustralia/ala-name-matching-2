@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.cli.*;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexableField;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.slf4j.Logger;
@@ -22,7 +20,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Build a name matching index.
@@ -139,6 +136,7 @@ public class IndexBuilder implements Annotator {
      */
     public void load(Source source) throws BuilderException, StoreException {
         source.load(this.loadStore);
+        this.loadStore.commit();
     }
 
 
@@ -491,7 +489,7 @@ public class IndexBuilder implements Annotator {
                 System.exit(1);
             }
             if (input.endsWith(".csv")) {
-                source = new CSVSource(DwcTerm.Taxon, new FileReader(in));
+                source = new CSVSource(DwcTerm.Taxon, new FileReader(in), builder.getNetwork().getObservables());
             } else {
                 System.err.println("Unable to determine the type of " + in);
             }
