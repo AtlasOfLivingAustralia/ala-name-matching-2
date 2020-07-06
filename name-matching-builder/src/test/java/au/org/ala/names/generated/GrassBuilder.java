@@ -17,11 +17,11 @@ public class GrassBuilder extends Builder<GrassParameters> {
   }
 
   @Override
-  public void infer(Classifier<?> classifier) throws InferenceException, StoreException {
+  public void infer(Classifier classifier) throws InferenceException, StoreException {
   }
 
     @Override
-    public void expand(Classifier<?> classifier, Deque<Classifier<?>> parents) throws InferenceException, StoreException {
+    public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
   }
 
   @Override
@@ -30,7 +30,7 @@ public class GrassBuilder extends Builder<GrassParameters> {
   }
 
   @Override
-  public void calculate(GrassParameters parameters, ParameterAnalyser analyser, Classifier<?> classifier) throws InferenceException, StoreException {
+  public void calculate(GrassParameters parameters, ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
     parameters.prior_t$rain = analyser.computePrior(analyser.getObservation(true, GrassObservables.rain, classifier));
     parameters.inf_t_t$sprinkler = analyser.computeConditional(analyser.getObservation(true, GrassObservables.sprinkler, classifier) , analyser.getObservation(true, GrassObservables.rain, classifier));
     parameters.inf_t_f$sprinkler = analyser.computeConditional(analyser.getObservation(true, GrassObservables.sprinkler, classifier) , analyser.getObservation(false, GrassObservables.rain, classifier));

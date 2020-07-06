@@ -24,7 +24,7 @@ import java.util.*;
  * The classifier is backed by a lucene document that can be stored/retrieved as required.
  * </p>
  */
-public class LuceneClassifier extends Classifier<LuceneClassifier> {
+public class LuceneClassifier extends Classifier {
     /** The default field name for identifiers */
     public static final String ID_FIELD = "_id";
     /** The default field name for types */
@@ -72,7 +72,10 @@ public class LuceneClassifier extends Classifier<LuceneClassifier> {
      * Make a copy of the document with all new fields.
      * <p>
      * This is a bit disgusting but needed to stop the index from doing odd things to
-     * read document information. Sigh.
+     * read-in document information.
+     * In particular, fields that should not be analysed get analysed when stored, read and
+     * stored again.
+     * Sigh.
      * </p>
      */
     public Document makeDocumentCopy() {
@@ -119,6 +122,58 @@ public class LuceneClassifier extends Classifier<LuceneClassifier> {
     }
 
     /**
+     * Does this classifier have a matching term for an observable?
+     * <p>
+     * Integer types and double types are directly compared.
+     * String types are compared according to the normalisation and style rules specified by the observable.
+     * </p>
+     *
+     * @param observable The observable to match
+     * @param value      The value to match against (may be null)
+     * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
+     * @throws InferenceException if there was a problem matching the result
+     */
+    @Override
+    public Boolean match(Observable observable, Object value) throws InferenceException {
+        if (value == null)
+            return null;
+        IndexableField[] fields = this.document.getFields(observable.getExternal(LUCENE));
+        if (fields.length == 0)
+            return false;
+
+        if (observable.getType() == Integer.class || observable.getType() == Short.class || observable.getType() == Byte.class) {
+            if (!(value instanceof Number))
+                return false;
+            int val = ((Number) value).intValue();
+            for (IndexableField field: fields)
+                if (field.numericValue() != null && field.numericValue().intValue() == val)
+                    return true;
+        } else if (observable.getType() == Double.class || observable.getType() == Float.class) {
+            if (!(value instanceof Number))
+                return false;
+            double val = ((Number) value).doubleValue();
+            for (IndexableField field: fields)
+                if (field.numericValue() != null && field.numericValue().doubleValue() == val)
+                    return true;
+        } else {
+            String val = value.toString();
+            Normaliser normaliser = observable.getNormaliser();
+            if (normaliser != null)
+                val = normaliser.normalise(val);
+            for (IndexableField field: this.document.getFields(observable.getExternal(LUCENE))) {
+                switch (observable.getStyle()) {
+                    case IDENTIFIER:
+                    case CANONICAL:
+                        return val.equals(field.stringValue());
+                    default:
+                        return val.equalsIgnoreCase(field.stringValue());
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Add a value to the classifier.
      *
      * @param observable The observable to store
@@ -139,8 +194,10 @@ public class LuceneClassifier extends Classifier<LuceneClassifier> {
      * @throws StoreException if unable to add this variable to the classifier
      */
     @Override
-    public void addAll(Observable observable, LuceneClassifier classifier) throws StoreException {
-        for (IndexableField field: classifier.document.getFields(observable.getExternal(LUCENE)))
+    public void addAll(Observable observable, Classifier classifier) throws StoreException {
+        if (!(classifier instanceof LuceneClassifier))
+            throw new IllegalArgumentException("Expecting instnce of LuceneClassifier");
+        for (IndexableField field: ((LuceneClassifier) classifier).document.getFields(observable.getExternal(LUCENE)))
             this.document.add(field);
     }
 

@@ -23,7 +23,7 @@ public class EmptyBuilder extends Builder<EmptyBuilder.EmptyParameters> {
      * @param classifier The classifier
      */
     @Override
-    public void infer(Classifier<?> classifier) {
+    public void infer(Classifier classifier) {
     }
 
     /**
@@ -33,7 +33,7 @@ public class EmptyBuilder extends Builder<EmptyBuilder.EmptyParameters> {
      * @param parents  The classifiers parents
      */
     @Override
-    public void expand(Classifier<?> classifier, Deque<Classifier<?>> parents) {
+    public void expand(Classifier classifier, Deque<Classifier> parents) {
     }
 
     /**
@@ -55,7 +55,7 @@ public class EmptyBuilder extends Builder<EmptyBuilder.EmptyParameters> {
      * @throws InferenceException if unable to calculate the parameters
      */
     @Override
-    public void calculate(EmptyParameters parameters, ParameterAnalyser analyser, Classifier<?> classifier) throws InferenceException {
+    public void calculate(EmptyParameters parameters, ParameterAnalyser analyser, Classifier classifier) throws InferenceException {
     }
 
     public static class EmptyParameters extends Parameters {

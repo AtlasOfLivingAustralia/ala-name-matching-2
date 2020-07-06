@@ -1,128 +1,137 @@
 package au.org.ala.names.generated;
 
-public class SimpleLinnaeanInference {
-  public SimpleLinnaeanParameters parameters;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Inferencer;
 
-  public double infer(Evidence evidence, double c$taxonId) {
+public class SimpleLinnaeanInference extends Inferencer<SimpleLinnaeanClassification, SimpleLinnaeanParameters> {
+
+  public double infer(Evidence evidence, SimpleLinnaeanParameters parameters, double c$taxonId) {
     double nc$taxonId = 1.0 - c$taxonId;
-    double c$taxonRank = 0;
-    double nc$taxonRank = 0;
-    double c$specificEpithet = evidence.isT$specificEpithet();
-    double nc$specificEpithet = evidence.isF$specificEpithet();
-    double c$scientificNameAuthorship = 0;
-    double nc$scientificNameAuthorship = 0;
-    double c$scientificName = 0;
-    double nc$scientificName = 0;
-    double c$soundexScientificName = evidence.isT$soundexScientificName();
-    double nc$soundexScientificName = evidence.isF$soundexScientificName();
-    double c$genus = 0;
-    double nc$genus = 0;
-    double c$family = 0;
-    double nc$family = 0;
-    double c$order = 0;
-    double nc$order = 0;
-    double c$class_ = 0;
-    double nc$class_ = 0;
-    double c$phylum = 0;
-    double nc$phylum = 0;
-    double c$kingdom = 0;
-    double nc$kingdom = 0;
-    if (evidence.e$taxonRank == null || evidence.e$taxonRank) {
-      c$taxonRank += this.parameters.inf_t_t$taxonRank * c$taxonId;
-      c$taxonRank += this.parameters.inf_t_f$taxonRank * nc$taxonId;
+    double c$taxonRank = 0.0;
+    double nc$taxonRank = 0.0;
+    double c$specificEpithet = evidence.isT$e$specificEpithet() ? 1.0 : 0.0;
+    double nc$specificEpithet = evidence.isF$e$specificEpithet() ? 1.0 : 0.0;
+    double c$scientificNameAuthorship = 0.0;
+    double nc$scientificNameAuthorship = 0.0;
+    double c$scientificName = 0.0;
+    double nc$scientificName = 0.0;
+    double c$soundexScientificName = evidence.isT$e$soundexScientificName() ? 1.0 : 0.0;
+    double nc$soundexScientificName = evidence.isF$e$soundexScientificName() ? 1.0 : 0.0;
+    double c$genus = 0.0;
+    double nc$genus = 0.0;
+    double c$family = 0.0;
+    double nc$family = 0.0;
+    double c$order = 0.0;
+    double nc$order = 0.0;
+    double c$class_ = 0.0;
+    double nc$class_ = 0.0;
+    double c$phylum = 0.0;
+    double nc$phylum = 0.0;
+    double c$kingdom = 0.0;
+    double nc$kingdom = 0.0;
+    if (evidence.isT$e$taxonRank()) {
+      c$taxonRank += parameters.inf_t_t$taxonRank * c$taxonId;
+      c$taxonRank += parameters.inf_t_f$taxonRank * nc$taxonId;
     }
-    if (evidence.e$taxonRank == null || !evidence.e$taxonRank) {
-      nc$taxonRank += this.parameters.inf_f_t$taxonRank * c$taxonId;
-      nc$taxonRank += this.parameters.inf_f_f$taxonRank * nc$taxonId;
+    if (evidence.isF$e$taxonRank()) {
+      nc$taxonRank += parameters.inf_f_t$taxonRank * c$taxonId;
+      nc$taxonRank += parameters.inf_f_f$taxonRank * nc$taxonId;
     }
     // Ignoring non-base specificEpithet
-    if (evidence.e$scientificNameAuthorship == null || evidence.e$scientificNameAuthorship) {
-      c$scientificNameAuthorship += this.parameters.inf_t_t$scientificNameAuthorship * c$taxonId;
-      c$scientificNameAuthorship += this.parameters.inf_t_f$scientificNameAuthorship * nc$taxonId;
+    if (evidence.isT$e$scientificNameAuthorship()) {
+      c$scientificNameAuthorship += parameters.inf_t_t$scientificNameAuthorship * c$taxonId;
+      c$scientificNameAuthorship += parameters.inf_t_f$scientificNameAuthorship * nc$taxonId;
     }
-    if (evidence.e$scientificNameAuthorship == null || !evidence.e$scientificNameAuthorship) {
-      nc$scientificNameAuthorship += this.parameters.inf_f_t$scientificNameAuthorship * c$taxonId;
-      nc$scientificNameAuthorship += this.parameters.inf_f_f$scientificNameAuthorship * nc$taxonId;
+    if (evidence.isF$e$scientificNameAuthorship()) {
+      nc$scientificNameAuthorship += parameters.inf_f_t$scientificNameAuthorship * c$taxonId;
+      nc$scientificNameAuthorship += parameters.inf_f_f$scientificNameAuthorship * nc$taxonId;
     }
-    if (evidence.e$scientificName == null || evidence.e$scientificName) {
-      c$scientificName += this.parameters.derived_t_tt$scientificName * c$specificEpithet * c$taxonId;
-      c$scientificName += this.parameters.derived_t_tf$scientificName * c$specificEpithet * nc$taxonId;
-      c$scientificName += this.parameters.derived_t_ft$scientificName * nc$specificEpithet * c$taxonId;
-      c$scientificName += this.parameters.derived_t_ff$scientificName * nc$specificEpithet * nc$taxonId;
+    if (evidence.isT$e$scientificName()) {
+      c$scientificName += parameters.derived_t_tt$scientificName * c$specificEpithet * c$taxonId;
+      c$scientificName += parameters.derived_t_tf$scientificName * c$specificEpithet * nc$taxonId;
+      c$scientificName += parameters.derived_t_ft$scientificName * nc$specificEpithet * c$taxonId;
+      c$scientificName += parameters.derived_t_ff$scientificName * nc$specificEpithet * nc$taxonId;
     }
-    if (evidence.e$scientificName == null || !evidence.e$scientificName) {
-      nc$scientificName += this.parameters.derived_f_tt$scientificName * c$specificEpithet * c$taxonId;
-      nc$scientificName += this.parameters.derived_f_tf$scientificName * c$specificEpithet * nc$taxonId;
-      nc$scientificName += this.parameters.derived_f_ft$scientificName * nc$specificEpithet * c$taxonId;
-      nc$scientificName += this.parameters.derived_f_ff$scientificName * nc$specificEpithet * nc$taxonId;
+    if (evidence.isF$e$scientificName()) {
+      nc$scientificName += parameters.derived_f_tt$scientificName * c$specificEpithet * c$taxonId;
+      nc$scientificName += parameters.derived_f_tf$scientificName * c$specificEpithet * nc$taxonId;
+      nc$scientificName += parameters.derived_f_ft$scientificName * nc$specificEpithet * c$taxonId;
+      nc$scientificName += parameters.derived_f_ff$scientificName * nc$specificEpithet * nc$taxonId;
     }
     // Ignoring non-base soundexScientificName
-    if (evidence.e$genus == null || evidence.e$genus) {
-      c$genus += this.parameters.derived_t_tt$genus * c$soundexScientificName * c$scientificName;
-      c$genus += this.parameters.derived_t_tf$genus * c$soundexScientificName * nc$scientificName;
-      c$genus += this.parameters.derived_t_ft$genus * nc$soundexScientificName * c$scientificName;
-      c$genus += this.parameters.derived_t_ff$genus * nc$soundexScientificName * nc$scientificName;
+    if (evidence.isT$e$genus()) {
+      c$genus += parameters.derived_t_tt$genus * c$soundexScientificName * c$scientificName;
+      c$genus += parameters.derived_t_tf$genus * c$soundexScientificName * nc$scientificName;
+      c$genus += parameters.derived_t_ft$genus * nc$soundexScientificName * c$scientificName;
+      c$genus += parameters.derived_t_ff$genus * nc$soundexScientificName * nc$scientificName;
     }
-    if (evidence.e$genus == null || !evidence.e$genus) {
-      nc$genus += this.parameters.derived_f_tt$genus * c$soundexScientificName * c$scientificName;
-      nc$genus += this.parameters.derived_f_tf$genus * c$soundexScientificName * nc$scientificName;
-      nc$genus += this.parameters.derived_f_ft$genus * nc$soundexScientificName * c$scientificName;
-      nc$genus += this.parameters.derived_f_ff$genus * nc$soundexScientificName * nc$scientificName;
+    if (evidence.isF$e$genus()) {
+      nc$genus += parameters.derived_f_tt$genus * c$soundexScientificName * c$scientificName;
+      nc$genus += parameters.derived_f_tf$genus * c$soundexScientificName * nc$scientificName;
+      nc$genus += parameters.derived_f_ft$genus * nc$soundexScientificName * c$scientificName;
+      nc$genus += parameters.derived_f_ff$genus * nc$soundexScientificName * nc$scientificName;
     }
-    if (evidence.e$family == null || evidence.e$family) {
-      c$family += this.parameters.inf_t_t$family * c$genus;
-      c$family += this.parameters.inf_t_f$family * nc$genus;
+    if (evidence.isT$e$family()) {
+      c$family += parameters.inf_t_t$family * c$genus;
+      c$family += parameters.inf_t_f$family * nc$genus;
     }
-    if (evidence.e$family == null || !evidence.e$family) {
-      nc$family += this.parameters.inf_f_t$family * c$genus;
-      nc$family += this.parameters.inf_f_f$family * nc$genus;
+    if (evidence.isF$e$family()) {
+      nc$family += parameters.inf_f_t$family * c$genus;
+      nc$family += parameters.inf_f_f$family * nc$genus;
     }
-    if (evidence.e$order == null || evidence.e$order) {
-      c$order += this.parameters.inf_t_t$order * c$family;
-      c$order += this.parameters.inf_t_f$order * nc$family;
+    if (evidence.isT$e$order()) {
+      c$order += parameters.inf_t_t$order * c$family;
+      c$order += parameters.inf_t_f$order * nc$family;
     }
-    if (evidence.e$order == null || !evidence.e$order) {
-      nc$order += this.parameters.inf_f_t$order * c$family;
-      nc$order += this.parameters.inf_f_f$order * nc$family;
+    if (evidence.isF$e$order()) {
+      nc$order += parameters.inf_f_t$order * c$family;
+      nc$order += parameters.inf_f_f$order * nc$family;
     }
-    if (evidence.e$class_ == null || evidence.e$class_) {
-      c$class_ += this.parameters.inf_t_t$class_ * c$order;
-      c$class_ += this.parameters.inf_t_f$class_ * nc$order;
+    if (evidence.isT$e$class_()) {
+      c$class_ += parameters.inf_t_t$class_ * c$order;
+      c$class_ += parameters.inf_t_f$class_ * nc$order;
     }
-    if (evidence.e$class_ == null || !evidence.e$class_) {
-      nc$class_ += this.parameters.inf_f_t$class_ * c$order;
-      nc$class_ += this.parameters.inf_f_f$class_ * nc$order;
+    if (evidence.isF$e$class_()) {
+      nc$class_ += parameters.inf_f_t$class_ * c$order;
+      nc$class_ += parameters.inf_f_f$class_ * nc$order;
     }
-    if (evidence.e$phylum == null || evidence.e$phylum) {
-      c$phylum += this.parameters.inf_t_t$phylum * c$class_;
-      c$phylum += this.parameters.inf_t_f$phylum * nc$class_;
+    if (evidence.isT$e$phylum()) {
+      c$phylum += parameters.inf_t_t$phylum * c$class_;
+      c$phylum += parameters.inf_t_f$phylum * nc$class_;
     }
-    if (evidence.e$phylum == null || !evidence.e$phylum) {
-      nc$phylum += this.parameters.inf_f_t$phylum * c$class_;
-      nc$phylum += this.parameters.inf_f_f$phylum * nc$class_;
+    if (evidence.isF$e$phylum()) {
+      nc$phylum += parameters.inf_f_t$phylum * c$class_;
+      nc$phylum += parameters.inf_f_f$phylum * nc$class_;
     }
-    if (evidence.e$kingdom == null || evidence.e$kingdom) {
-      c$kingdom += this.parameters.inf_t_t$kingdom * c$phylum;
-      c$kingdom += this.parameters.inf_t_f$kingdom * nc$phylum;
+    if (evidence.isT$e$kingdom()) {
+      c$kingdom += parameters.inf_t_t$kingdom * c$phylum;
+      c$kingdom += parameters.inf_t_f$kingdom * nc$phylum;
     }
-    if (evidence.e$kingdom == null || !evidence.e$kingdom) {
-      nc$kingdom += this.parameters.inf_f_t$kingdom * c$phylum;
-      nc$kingdom += this.parameters.inf_f_f$kingdom * nc$phylum;
+    if (evidence.isF$e$kingdom()) {
+      nc$kingdom += parameters.inf_f_t$kingdom * c$phylum;
+      nc$kingdom += parameters.inf_f_f$kingdom * nc$phylum;
     }
-    return (c$taxonRank + nc$taxonRank) * (c$scientificNameAuthorship + nc$scientificNameAuthorship) * (c$kingdom + nc$kingdom) * (this.parameters.prior_t$taxonId * c$taxonId + this.parameters.prior_f$taxonId * nc$taxonId);
+    return (c$taxonRank + nc$taxonRank) * (c$scientificNameAuthorship + nc$scientificNameAuthorship) * (c$kingdom + nc$kingdom) * (parameters.prior_t$taxonId * c$taxonId + parameters.prior_f$taxonId * nc$taxonId);
   }
 
-  public double probability(Evidence evidence) {
+  public double probability(Evidence evidence, SimpleLinnaeanParameters parameters) {
     double p;
     double ph = 0.0;
     double pe = 0.0;
 
-    p = evidence.isT$taxonID() * this.infer(evidence, 1.0);
+    p = (evidence.isT$e$taxonId() ? 1.0 : 0.0) * this.infer(evidence, parameters, 1.0);
     ph += p;
     pe += p;
-    p = evidence.isF$taxonID() * this.infer(evidence, 0.0);
+    p = (evidence.isF$e$taxonId() ? 1.0 : 0.0) * this.infer(evidence, parameters, 0.0);
     pe += p;
     return pe == 0.0 ? 0.0 : ph / pe;
+  }
+
+  @Override
+  public double probability(SimpleLinnaeanClassification classification, Classifier classifier, SimpleLinnaeanParameters parameters) throws InferenceException {
+    Evidence evidence = classification.match(classifier);
+    return this.probability(evidence, parameters);
   }
 
   public static class Evidence {
@@ -139,100 +148,100 @@ public class SimpleLinnaeanInference {
     public Boolean e$phylum;
     public Boolean e$kingdom;
 
-    public double isT$taxonID() {
-      return this.e$taxonId == null || this.e$taxonId ? 1.0 : 0.0;
+    public boolean isT$e$taxonId() {
+      return this.e$taxonId == null || this.e$taxonId;
     }
 
-    public double isF$taxonID() {
-      return this.e$taxonId == null || !this.e$taxonId ? 1.0 : 0.0;
+    public boolean isF$e$taxonId() {
+      return this.e$taxonId == null || !this.e$taxonId;
     }
 
-    public double isT$taxonRank() {
-      return this.e$taxonRank == null || this.e$taxonRank ? 1.0 : 0.0;
+    public boolean isT$e$taxonRank() {
+      return this.e$taxonRank == null || this.e$taxonRank;
     }
 
-    public double isF$taxonRank() {
-      return this.e$taxonRank == null || !this.e$taxonRank ? 1.0 : 0.0;
+    public boolean isF$e$taxonRank() {
+      return this.e$taxonRank == null || !this.e$taxonRank;
     }
 
-    public double isT$specificEpithet() {
-      return this.e$specificEpithet == null || this.e$specificEpithet ? 1.0 : 0.0;
+    public boolean isT$e$specificEpithet() {
+      return this.e$specificEpithet == null || this.e$specificEpithet;
     }
 
-    public double isF$specificEpithet() {
-      return this.e$specificEpithet == null || !this.e$specificEpithet ? 1.0 : 0.0;
+    public boolean isF$e$specificEpithet() {
+      return this.e$specificEpithet == null || !this.e$specificEpithet;
     }
 
-    public double isT$scientificNameAuthorship() {
-      return this.e$scientificNameAuthorship == null || this.e$scientificNameAuthorship ? 1.0 : 0.0;
+    public boolean isT$e$scientificNameAuthorship() {
+      return this.e$scientificNameAuthorship == null || this.e$scientificNameAuthorship;
     }
 
-    public double isF$scientificNameAuthorship() {
-      return this.e$scientificNameAuthorship == null || !this.e$scientificNameAuthorship ? 1.0 : 0.0;
+    public boolean isF$e$scientificNameAuthorship() {
+      return this.e$scientificNameAuthorship == null || !this.e$scientificNameAuthorship;
     }
 
-    public double isT$scientificName() {
-      return this.e$scientificName == null || this.e$scientificName ? 1.0 : 0.0;
+    public boolean isT$e$scientificName() {
+      return this.e$scientificName == null || this.e$scientificName;
     }
 
-    public double isF$scientificName() {
-      return this.e$scientificName == null || !this.e$scientificName ? 1.0 : 0.0;
+    public boolean isF$e$scientificName() {
+      return this.e$scientificName == null || !this.e$scientificName;
     }
 
-    public double isT$soundexScientificName() {
-      return this.e$soundexScientificName == null || this.e$soundexScientificName ? 1.0 : 0.0;
+    public boolean isT$e$soundexScientificName() {
+      return this.e$soundexScientificName == null || this.e$soundexScientificName;
     }
 
-    public double isF$soundexScientificName() {
-      return this.e$soundexScientificName == null || !this.e$soundexScientificName ? 1.0 : 0.0;
+    public boolean isF$e$soundexScientificName() {
+      return this.e$soundexScientificName == null || !this.e$soundexScientificName;
     }
 
-    public double isT$genus() {
-      return this.e$genus == null || this.e$genus ? 1.0 : 0.0;
+    public boolean isT$e$genus() {
+      return this.e$genus == null || this.e$genus;
     }
 
-    public double isF$genus() {
-      return this.e$genus == null || !this.e$genus ? 1.0 : 0.0;
+    public boolean isF$e$genus() {
+      return this.e$genus == null || !this.e$genus;
     }
 
-    public double isT$family() {
-      return this.e$family == null || this.e$family ? 1.0 : 0.0;
+    public boolean isT$e$family() {
+      return this.e$family == null || this.e$family;
     }
 
-    public double isF$family() {
-      return this.e$family == null || !this.e$family ? 1.0 : 0.0;
+    public boolean isF$e$family() {
+      return this.e$family == null || !this.e$family;
     }
 
-    public double isT$order() {
-      return this.e$order == null || this.e$order ? 1.0 : 0.0;
+    public boolean isT$e$order() {
+      return this.e$order == null || this.e$order;
     }
 
-    public double isF$order() {
-      return this.e$order == null || !this.e$order ? 1.0 : 0.0;
+    public boolean isF$e$order() {
+      return this.e$order == null || !this.e$order;
     }
 
-    public double isT$class() {
-      return this.e$class_ == null || this.e$class_ ? 1.0 : 0.0;
+    public boolean isT$e$class_() {
+      return this.e$class_ == null || this.e$class_;
     }
 
-    public double isF$class() {
-      return this.e$class_ == null || !this.e$class_ ? 1.0 : 0.0;
+    public boolean isF$e$class_() {
+      return this.e$class_ == null || !this.e$class_;
     }
 
-    public double isT$phylum() {
-      return this.e$phylum == null || this.e$phylum ? 1.0 : 0.0;
+    public boolean isT$e$phylum() {
+      return this.e$phylum == null || this.e$phylum;
     }
 
-    public double isF$phylum() {
-      return this.e$phylum == null || !this.e$phylum ? 1.0 : 0.0;
+    public boolean isF$e$phylum() {
+      return this.e$phylum == null || !this.e$phylum;
     }
 
-    public double isT$kingdom() {
-      return this.e$kingdom == null || this.e$kingdom ? 1.0 : 0.0;
+    public boolean isT$e$kingdom() {
+      return this.e$kingdom == null || this.e$kingdom;
     }
 
-    public double isF$kingdom() {
-      return this.e$kingdom == null || !this.e$kingdom ? 1.0 : 0.0;
+    public boolean isF$e$kingdom() {
+      return this.e$kingdom == null || !this.e$kingdom;
     }
 
   }

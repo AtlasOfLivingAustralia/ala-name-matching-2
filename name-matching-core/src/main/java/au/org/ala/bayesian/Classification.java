@@ -51,5 +51,5 @@ abstract public class Classification {
      *
      * @throws InferenceException
      */
-    abstract public void populate(Classifier<?> classifier, boolean overwrite) throws InferenceException;
+    abstract public void populate(Classifier classifier, boolean overwrite) throws InferenceException;
 }

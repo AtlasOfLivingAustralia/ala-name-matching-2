@@ -34,6 +34,8 @@ public class NetworkGeneratorMojoTest {
         assertTrue(builder.exists());
         File classification = new File(base, "Network1Classification.java");
         assertTrue(classification.exists());
+        File matcher = new File(base, "Network1Matcher.java");
+        assertTrue(matcher.exists());
         File observables = new File(base, "Network1Observables.java");
         assertTrue(observables.exists());
         File cli = new File(base, "Network1Cli.java");
@@ -63,6 +65,8 @@ public class NetworkGeneratorMojoTest {
         assertTrue(builder.exists());
         File classification = new File(base, "Network1Classification.java");
         assertFalse(classification.exists());
+        File matcher = new File(base, "Network1Matcher.java");
+        assertFalse(matcher.exists());
         File observables = new File(base, "Network1Observables.java");
         assertFalse(observables.exists());
         File cli = new File(base, "Network1Cli.java");

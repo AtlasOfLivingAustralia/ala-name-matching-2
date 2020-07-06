@@ -12,7 +12,7 @@ import java.util.Set;
  * For example, for a lucene index a classifier is just a wrapper around a lucene document.
  * </p>
  */
-abstract public class Classifier<C extends Classifier> {
+abstract public class Classifier {
     /**
      * Construct an empty classifier.
      */
@@ -47,6 +47,22 @@ abstract public class Classifier<C extends Classifier> {
     abstract public boolean has(Observable observable);
 
     /**
+     * Does this classifier have a matching term for an observable?
+     * <p>
+     * If the observable has any combination of a type, normaliser and style,
+     * the match should respect the appropriate rules.
+     * </p>
+     *
+     * @param observable The observable to match
+     * @param value The value to match against (may be null)
+     *
+     * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
+     *
+     * @throws InferenceException if there was a problem matching the result
+     */
+    abstract public Boolean match(Observable observable, Object value) throws InferenceException;
+
+    /**
      * Add a value to the classifier.
      * <p>
      * Note, the classifier needs to parse and normalise any values before
@@ -72,7 +88,7 @@ abstract public class Classifier<C extends Classifier> {
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    abstract public void addAll(Observable observable, C classifier) throws StoreException;
+    abstract public void addAll(Observable observable, Classifier classifier) throws StoreException;
 
     /**
      * Set a value in the classifier.
@@ -121,8 +137,6 @@ abstract public class Classifier<C extends Classifier> {
      *
      * @param type The new type
      *
-     * @return The document type
-     *
      * @throws StoreException If unable to create a type for some reason.
      */
     abstract public void setType(Term type) throws StoreException;
@@ -167,8 +181,6 @@ abstract public class Classifier<C extends Classifier> {
     /**
      * Load the inference parameters in a classifier
      *
-     * @return The parameters
-     *
      * @throws StoreException if unable to retrieve the parameters
      */
     abstract public void loadParameters(Parameters parameters) throws StoreException;
@@ -212,7 +224,7 @@ abstract public class Classifier<C extends Classifier> {
      *
      * @return The names list
      *
-     * @throws StoreException
+     * @throws StoreException if unable to get the names list
      */
     abstract public Collection<String> getNames() throws StoreException;
 

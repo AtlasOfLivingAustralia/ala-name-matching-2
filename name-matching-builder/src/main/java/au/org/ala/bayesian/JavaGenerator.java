@@ -17,6 +17,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Compile a network into java code.
@@ -30,8 +33,10 @@ public class JavaGenerator extends Generator {
     private static final String INFERENCE_CLASS_TEMPLATE = "bayesian_inference_class.ftl";
     /** The name of the inference class template */
     private static final String PARAMETERS_CLASS_TEMPLATE = "bayesian_parameter_class.ftl";
-    /** The name of the builder class template */
+    /** The name of the classification class template */
     private static final String CLASSIFICATION_CLASS_TEMPLATE = "bayesian_classification_class.ftl";
+    /** The name of the matcher class template */
+    private static final String MATCHER_CLASS_TEMPLATE = "bayesian_matcher_class.ftl";
     /** The name of the builder class template */
     private static final String BUILDER_CLASS_TEMPLATE = "bayesian_builder_class.ftl";
     /** The name of the observables class template */
@@ -58,6 +63,8 @@ public class JavaGenerator extends Generator {
     private Template parametersTemplate;
     /** The template to use for the classification class */
     private Template classificationTemplate;
+    /** The template to use for the classification matcher class */
+    private Template matcherTemplate;
     /** The template to use for the builder class */
     private Template builderTemplate;
     /** The template to use for the observables class */
@@ -72,6 +79,8 @@ public class JavaGenerator extends Generator {
     private boolean generateParameters;
     /** Generate the classification */
     private boolean generateClassification;
+    /** Generate the classification matcher */
+    private boolean generateMatcher;
     /** Generate the inferencer? */
     private boolean generateInferencer;
     /** Generate the observables? */
@@ -97,6 +106,7 @@ public class JavaGenerator extends Generator {
         this.inferenceTemplate = config.getTemplate(INFERENCE_CLASS_TEMPLATE);
         this.parametersTemplate = config.getTemplate(PARAMETERS_CLASS_TEMPLATE);
         this.classificationTemplate = config.getTemplate(CLASSIFICATION_CLASS_TEMPLATE);
+        this.matcherTemplate = config.getTemplate(MATCHER_CLASS_TEMPLATE);
         this.builderTemplate = config.getTemplate(BUILDER_CLASS_TEMPLATE);
         this.observablesTemplate = config.getTemplate(OBSERVABLES_CLASS_TEMPLATE);
         this.cliTemplate = config.getTemplate(CLI_CLASS_TEMPLATE);
@@ -105,6 +115,7 @@ public class JavaGenerator extends Generator {
         this.generateBuilder = true;
         this.generateParameters = true;
         this.generateClassification = true;
+        this.generateMatcher = true;
         this.generateInferencer = true;
         this.generateObservables = true;
         this.generateCli = true;
@@ -171,6 +182,24 @@ public class JavaGenerator extends Generator {
      */
     public void setGenerateClassification(boolean generateClassification) {
         this.generateClassification = generateClassification;
+    }
+
+    /**
+     * Generate the matcher class?
+     *
+     * @return True if the matcher should be generated
+     */
+    public boolean isGenerateMatcher() {
+        return generateMatcher;
+    }
+
+    /**
+     * Set the generate classification matcher class flag.
+     *
+     * @param generateMatcher True if the classification matcher class is to be generated
+     */
+    public void setGenerateMatcher(boolean generateMatcher) {
+        this.generateMatcher = generateMatcher;
     }
 
     /**
@@ -262,12 +291,14 @@ public class JavaGenerator extends Generator {
         String classBase = this.classConverter.convert(compiler.getNetwork());
         File javaTarget = this.javaTargetDir;
         File resourceTarget = this.resourceTargetDir;
-        String inferencerName = classBase + "Inference";
+        String inferenceName = classBase + "Inference";
         String parametersName = classBase + "Parameters";
         String classificationName = classBase + "Classification";
+        String matcherName = classBase + "Matcher";
         String builderName = classBase + "Builder";
         String observablesName = classBase + "Observables";
         String cliName = classBase + "Cli";
+        String networkFileName = classBase + ".json";
         Writer writer;
 
         for (String p: this.packageName.split("\\.")) {
@@ -281,44 +312,74 @@ public class JavaGenerator extends Generator {
         if (!resourceTarget.exists())
             throw new IOException("Unable to create " + resourceTarget);
 
+        // Common context
+        Properties context = new Properties();
+        context.put("inferenceClassName", inferenceName);
+        context.put("parametersClassName", parametersName);
+        context.put("classificationClassName", classificationName);
+        context.put("matcherClassName", matcherName);
+        context.put("builderClassName", builderName);
+        context.put("observablesClassName", observablesName);
+        context.put("cliClassName", cliName);
+        context.put("artifactName", this.artifactName);
+        context.put("packageName", this.packageName);
+        context.put("networkFile", networkFileName);
+
         // Generate inference class
         if (this.isGenerateInferencer()) {
-            writer = new FileWriter(new File(javaTarget, inferencerName + ".java"));
-            this.generateInferenceClass(compiler, inferencerName, parametersName, writer);
+            writer = new FileWriter(new File(javaTarget, inferenceName + ".java"));
+            this.generateInferenceClass(compiler, inferenceName, context, writer);
             writer.close();
         }
         // Generate parameters class
         if (this.isGenerateParameters()) {
             writer = new FileWriter(new File(javaTarget, parametersName + ".java"));
-            this.generateParameterClass(compiler, parametersName, observablesName, writer);
+            this.generateParameterClass(compiler, parametersName, context, writer);
             writer.close();
         }
         // Generate classification class
         if (this.isGenerateClassification()) {
             writer = new FileWriter(new File(javaTarget, classificationName + ".java"));
-            this.generateClassificationClass(compiler, classificationName, observablesName, writer);
+            this.generateClassificationClass(compiler, classificationName, context, writer);
+            writer.close();
+        }
+        // Generate matcher class
+        if (this.isGenerateMatcher()) {
+            writer = new FileWriter(new File(javaTarget, matcherName + ".java"));
+            this.generateMatcherClass(compiler, matcherName, context, writer);
             writer.close();
         }
         // Generate observables class
         if (this.isGenerateObservables()) {
             writer = new FileWriter(new File(javaTarget, observablesName + ".java"));
-            this.generateObservablesClass(compiler, observablesName, writer);
+            this.generateObservablesClass(compiler, observablesName, context, writer);
             writer.close();
         }
 
         // Generate builder class
         if (this.isGenerateBuilder()) {
             writer = new FileWriter(new File(javaTarget, builderName + ".java"));
-            this.generateBuilderClass(compiler, builderName, parametersName, observablesName, writer);
+            this.generateBuilderClass(compiler, builderName, context, writer);
             writer.close();
         }
         if (this.isGenerateCli()) {
-            String networkFileName = classBase + ".json";
             writer = new FileWriter(new File(javaTarget, cliName + ".java"));
-            this.generateCliClass(compiler, cliName, builderName, networkFileName, writer);
+            this.generateCliClass(compiler, cliName, context, writer);
             writer.close();
             writer = new FileWriter(new File(resourceTarget, networkFileName));
-            this.generateNetworkFile(compiler, writer);
+            this.generateNetworkFile(compiler, context, writer);
+        }
+    }
+
+    /**
+     * Populate the template environnment with commobn values.
+     *
+     * @param environment The environmwent to populate
+     * @param context The properties map
+     */
+    protected void populate(Environment environment, Properties context) {
+        for (String name: context.stringPropertyNames()) {
+            environment.setVariable(name, new StringModel(context.getProperty(name), this.wrapper));
         }
     }
 
@@ -327,11 +388,10 @@ public class JavaGenerator extends Generator {
      *
      * @param compiler The compiler/analyser
      */
-    protected void generateInferenceClass(NetworkCompiler compiler, String name, String parametersName, Writer writer) throws IOException, TemplateException {
+    protected void generateInferenceClass(NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
         Environment env = this.inferenceTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("packageName", new StringModel(this.packageName, this.wrapper));
         env.setVariable("className", new StringModel(name, this.wrapper));
-        env.setVariable("parameterClassName", new StringModel(parametersName, this.wrapper));
+        this.populate(env, context);
         env.process();
     }
 
@@ -340,11 +400,10 @@ public class JavaGenerator extends Generator {
      *
      * @param compiler The compiler/analyser
      */
-    protected void generateParameterClass(NetworkCompiler compiler, String name, String observablesName, Writer writer) throws IOException, TemplateException {
+    protected void generateParameterClass(NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
         Environment env = this.parametersTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("packageName", new StringModel(this.packageName, this.wrapper));
         env.setVariable("className", new StringModel(name, this.wrapper));
-        env.setVariable("observablesClassName", new StringModel(observablesName, this.wrapper));
+        this.populate(env, context);
         env.process();
     }
 
@@ -353,11 +412,22 @@ public class JavaGenerator extends Generator {
      *
      * @param compiler The compiler/analyser
      */
-    protected void generateClassificationClass(NetworkCompiler compiler, String name, String observablesName, Writer writer) throws IOException, TemplateException {
+    protected void generateClassificationClass(NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
         Environment env = this.classificationTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("packageName", new StringModel(this.packageName, this.wrapper));
         env.setVariable("className", new StringModel(name, this.wrapper));
-        env.setVariable("observablesClassName", new StringModel(observablesName, this.wrapper));
+        this.populate(env, context);
+        env.process();
+    }
+
+    /**
+     * Generate code for the matcher class
+     *
+     * @param compiler The compiler/analyser
+     */
+    protected void generateMatcherClass(NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
+        Environment env = this.matcherTemplate.createProcessingEnvironment(compiler, writer);
+        env.setVariable("className", new StringModel(name, this.wrapper));
+        this.populate(env, context);
         env.process();
     }
 
@@ -366,10 +436,10 @@ public class JavaGenerator extends Generator {
      *
      * @param compiler The compiler/analyser
      */
-    protected void generateObservablesClass(NetworkCompiler compiler, String name, Writer writer) throws IOException, TemplateException {
+    protected void generateObservablesClass(NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
         Environment env = this.observablesTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("packageName", new StringModel(this.packageName, this.wrapper));
         env.setVariable("className", new StringModel(name, this.wrapper));
+        this.populate(env, context);
         env.setVariable("externalContexts", new CollectionModel(Arrays.asList(ExternalContext.LUCENE), this.wrapper));
         env.process();
     }
@@ -380,13 +450,10 @@ public class JavaGenerator extends Generator {
      *
      * @param compiler The compiler/analyser
      */
-    protected void generateBuilderClass(NetworkCompiler compiler, String name, String parametersName, String observablesName, Writer writer) throws IOException, TemplateException {
+    protected void generateBuilderClass(NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
         Environment env = this.builderTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("packageName", new StringModel(this.packageName, this.wrapper));
         env.setVariable("className", new StringModel(name, this.wrapper));
-        env.setVariable("parametersClassName", new StringModel(parametersName, this.wrapper));
-        env.setVariable("observablesClassName", new StringModel(observablesName, this.wrapper));
-        env.setVariable("artifactName", new StringModel(this.artifactName, this.wrapper));
+        this.populate(env, context);
         env.process();
     }
 
@@ -395,13 +462,10 @@ public class JavaGenerator extends Generator {
      *
      * @param compiler The compiler/analyser
      */
-    protected void generateCliClass(NetworkCompiler compiler, String name, String builderName, String networkFile, Writer writer) throws IOException, TemplateException {
+    protected void generateCliClass(NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
         Environment env = this.cliTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("packageName", new StringModel(this.packageName, this.wrapper));
         env.setVariable("className", new StringModel(name, this.wrapper));
-        env.setVariable("builderClassName", new StringModel(builderName, this.wrapper));
-        env.setVariable("networkFile", new StringModel(networkFile, this.wrapper));
-        env.setVariable("artifactName", new StringModel(this.artifactName, this.wrapper));
+        this.populate(env, context);
         env.process();
     }
 
@@ -409,11 +473,12 @@ public class JavaGenerator extends Generator {
      * Generate a readable version of the network for the builder class
      *
      * @param compiler The compiler/analyser
+     * @param context The context to use
      * @param writer The writer to write to
      *
      * @throws IOException if unable to write the network
      */
-    protected void generateNetworkFile(NetworkCompiler compiler, Writer writer) throws IOException {
+    protected void generateNetworkFile(NetworkCompiler compiler, Properties context, Writer writer) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);

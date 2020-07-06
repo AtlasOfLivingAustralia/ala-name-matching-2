@@ -1,41 +1,50 @@
 package au.org.ala.bayesian.generated;
 
-public class Network3Inference {
-  public Network1Parameters parameters;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Inferencer;
 
-  public double infer(Evidence evidence, double c$v1) {
+public class Network3Inference extends Inferencer<Network3Classification, Network3Parameters> {
+
+  public double infer(Evidence evidence, Network3Parameters parameters, double c$v1) {
     double nc$v1 = 1.0 - c$v1;
-    double c$v2 = evidence.isT$v_2();
-    double nc$v2 = evidence.isF$v_2();
-    double c$v3 = 0;
-    double nc$v3 = 0;
+    double c$v2 = evidence.isT$e$v2() ? 1.0 : 0.0;
+    double nc$v2 = evidence.isF$e$v2() ? 1.0 : 0.0;
+    double c$v3 = 0.0;
+    double nc$v3 = 0.0;
     // Ignoring non-base v_2
-    if (evidence.e$v3 == null || evidence.e$v3) {
-      c$v3 += this.parameters.derived_t_tt$v3 * c$v2 * c$v1;
-      c$v3 += this.parameters.derived_t_tf$v3 * c$v2 * nc$v1;
-      c$v3 += this.parameters.derived_t_ft$v3 * nc$v2 * c$v1;
-      c$v3 += this.parameters.derived_t_ff$v3 * nc$v2 * nc$v1;
+    if (evidence.isT$e$v3()) {
+      c$v3 += parameters.derived_t_tt$v3 * c$v2 * c$v1;
+      c$v3 += parameters.derived_t_tf$v3 * c$v2 * nc$v1;
+      c$v3 += parameters.derived_t_ft$v3 * nc$v2 * c$v1;
+      c$v3 += parameters.derived_t_ff$v3 * nc$v2 * nc$v1;
     }
-    if (evidence.e$v3 == null || !evidence.e$v3) {
-      nc$v3 += this.parameters.derived_f_tt$v3 * c$v2 * c$v1;
-      nc$v3 += this.parameters.derived_f_tf$v3 * c$v2 * nc$v1;
-      nc$v3 += this.parameters.derived_f_ft$v3 * nc$v2 * c$v1;
-      nc$v3 += this.parameters.derived_f_ff$v3 * nc$v2 * nc$v1;
+    if (evidence.isF$e$v3()) {
+      nc$v3 += parameters.derived_f_tt$v3 * c$v2 * c$v1;
+      nc$v3 += parameters.derived_f_tf$v3 * c$v2 * nc$v1;
+      nc$v3 += parameters.derived_f_ft$v3 * nc$v2 * c$v1;
+      nc$v3 += parameters.derived_f_ff$v3 * nc$v2 * nc$v1;
     }
-    return (c$v3 + nc$v3) * (this.parameters.prior_t$v1 * c$v1 + this.parameters.prior_f$v1 * nc$v1);
+    return (c$v3 + nc$v3) * (parameters.prior_t$v1 * c$v1 + parameters.prior_f$v1 * nc$v1);
   }
 
-  public double probability(Evidence evidence) {
+  public double probability(Evidence evidence, Network3Parameters parameters) {
     double p;
     double ph = 0.0;
     double pe = 0.0;
 
-    p = evidence.isT$v_1() * this.infer(evidence, 1.0);
+    p = (evidence.isT$e$v1() ? 1.0 : 0.0) * this.infer(evidence, parameters, 1.0);
     ph += p;
     pe += p;
-    p = evidence.isF$v_1() * this.infer(evidence, 0.0);
+    p = (evidence.isF$e$v1() ? 1.0 : 0.0) * this.infer(evidence, parameters, 0.0);
     pe += p;
     return pe == 0.0 ? 0.0 : ph / pe;
+  }
+
+  @Override
+  public double probability(Network3Classification classification, Classifier classifier, Network3Parameters parameters) throws InferenceException {
+    Evidence evidence = classification.match(classifier);
+    return this.probability(evidence, parameters);
   }
 
   public static class Evidence {
@@ -43,28 +52,28 @@ public class Network3Inference {
     public Boolean e$v2;
     public Boolean e$v3;
 
-    public double isT$v_1() {
-      return this.e$v1 == null || this.e$v1 ? 1.0 : 0.0;
+    public boolean isT$e$v1() {
+      return this.e$v1 == null || this.e$v1;
     }
 
-    public double isF$v_1() {
-      return this.e$v1 == null || !this.e$v1 ? 1.0 : 0.0;
+    public boolean isF$e$v1() {
+      return this.e$v1 == null || !this.e$v1;
     }
 
-    public double isT$v_2() {
-      return this.e$v2 == null || this.e$v2 ? 1.0 : 0.0;
+    public boolean isT$e$v2() {
+      return this.e$v2 == null || this.e$v2;
     }
 
-    public double isF$v_2() {
-      return this.e$v2 == null || !this.e$v2 ? 1.0 : 0.0;
+    public boolean isF$e$v2() {
+      return this.e$v2 == null || !this.e$v2;
     }
 
-    public double isT$v_3() {
-      return this.e$v3 == null || this.e$v3 ? 1.0 : 0.0;
+    public boolean isT$e$v3() {
+      return this.e$v3 == null || this.e$v3;
     }
 
-    public double isF$v_3() {
-      return this.e$v3 == null || !this.e$v3 ? 1.0 : 0.0;
+    public boolean isF$e$v3() {
+      return this.e$v3 == null || !this.e$v3;
     }
 
   }

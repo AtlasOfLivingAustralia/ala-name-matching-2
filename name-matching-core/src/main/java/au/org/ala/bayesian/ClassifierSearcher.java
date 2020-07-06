@@ -1,4 +1,4 @@
-package au.org.ala.names.search;
+package au.org.ala.bayesian;
 
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
@@ -8,14 +8,14 @@ import au.org.ala.bayesian.StoreException;
 import java.util.List;
 
 /**
- * A searcher for names.
+ * A searcher for classifiers that fit a classification.
  * <p>
  * The searcher looks for names and provides a selection of candidates.
  * </p>
  *
  * @param <C> The type of classification used to search
  */
-abstract public class NameSearcher<C extends Classifier> {
+abstract public class ClassifierSearcher<C extends Classifier> {
     /**
      * Search for a set of possible candidate classifiers that match the supplied classification.
      *

@@ -24,7 +24,7 @@ abstract public class Builder<P extends Parameters> {
      * @throws InferenceException if unable to calculate the inference
      * @throws StoreException if unable to retrieve inference data
      */
-    abstract public void infer(Classifier<?> classifier) throws InferenceException, StoreException;
+    abstract public void infer(Classifier classifier) throws InferenceException, StoreException;
 
     /**
      * Expand a classifier during building.
@@ -38,7 +38,7 @@ abstract public class Builder<P extends Parameters> {
      * @throws InferenceException if unable to calculate the expansion
      * @throws StoreException if unable to retrieve expansion data
     */
-    abstract public void expand(Classifier<?> document, Deque<Classifier<?>> parents) throws InferenceException, StoreException;
+    abstract public void expand(Classifier document, Deque<Classifier> parents) throws InferenceException, StoreException;
 
     /**
      * Create an empty parameter set to be filled.
@@ -57,5 +57,5 @@ abstract public class Builder<P extends Parameters> {
      * @throws InferenceException if unable to calculate the parameters
      * @throws StoreException if unable to retrieve parameter data
      */
-    abstract public void calculate(P parameters, ParameterAnalyser analyser, Classifier<?> document) throws InferenceException, StoreException;
+    abstract public void calculate(P parameters, ParameterAnalyser analyser, Classifier document) throws InferenceException, StoreException;
 }

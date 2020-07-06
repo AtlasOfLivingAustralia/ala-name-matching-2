@@ -30,9 +30,10 @@ public class ${className} extends Classification {
 </#list>
   }
 
-  public ${className}(Classifier<?> classifier) throws InferenceException {
+  public ${className}(Classifier classifier) throws InferenceException {
     this();
     this.populate(classifier, true);
+    this.infer();
   }
 
   @Override
@@ -66,12 +67,20 @@ public class ${className} extends Classification {
 
 
   @Override
-  public void populate(Classifier<?> classifier, boolean overwrite) throws InferenceException {
+  public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
 <#list orderedNodes as node>
     if (overwrite || this.${node.observable.javaVariable} == null) {
       this.${node.observable.javaVariable} = classifier.get(${observablesClassName}.${node.observable.javaVariable});
     }
 </#list>
+  }
+
+  public ${inferenceClassName}.Evidence match(Classifier classifier) throws InferenceException {
+    ${inferenceClassName}.Evidence evidence = new ${inferenceClassName}.Evidence();
+<#list orderedNodes as node>
+    evidence.${node.evidence.id} = classifier.match(${observablesClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
+</#list>
+    return evidence;
   }
 
 }

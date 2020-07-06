@@ -16,14 +16,14 @@ public class GrassTest {
             0.01 // Wet if !rain and !sprinkler
     };
 
+    private GrassParameters parameters;
     private GrassInference inference;
 
     @Before
     public void setUp() {
-        GrassParameters parameters = new GrassParameters();
+        this.parameters = new GrassParameters();
         parameters.load(PARAMS);
         this.inference = new GrassInference();
-        this.inference.parameters = parameters;
     }
 
     /**
@@ -33,7 +33,7 @@ public class GrassTest {
     public void testNoneNone() {
         GrassInference.Evidence evidence = new GrassInference.Evidence();
 
-        assertEquals(0.2, this.inference.probability(evidence), 0.0001);
+        assertEquals(0.2, this.inference.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -50,7 +50,7 @@ public class GrassTest {
         GrassInference.Evidence evidence = new GrassInference.Evidence();
 
         evidence.e$sprinkler = false;
-        assertEquals(0.2920, this.inference.probability(evidence), 0.0001);
+        assertEquals(0.2920, this.inference.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -67,7 +67,7 @@ public class GrassTest {
         GrassInference.Evidence evidence = new GrassInference.Evidence();
 
         evidence.e$sprinkler = true;
-        assertEquals(0.0062, this.inference.probability(evidence), 0.0001);
+        assertEquals(0.0062, this.inference.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -84,7 +84,7 @@ public class GrassTest {
         GrassInference.Evidence evidence = new GrassInference.Evidence();
 
         evidence.e$wet = false;
-        assertEquals(0.0724, this.inference.probability(evidence), 0.0001);
+        assertEquals(0.0724, this.inference.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -101,7 +101,7 @@ public class GrassTest {
         GrassInference.Evidence evidence = new GrassInference.Evidence();
 
         evidence.e$wet = true;
-        assertEquals(0.3539, this.inference.probability(evidence), 0.0001);
+        assertEquals(0.3539, this.inference.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -119,7 +119,7 @@ public class GrassTest {
 
         evidence.e$wet = true;
         evidence.e$sprinkler = false;
-        assertEquals(0.9706, this.inference.probability(evidence), 0.0001);
+        assertEquals(0.9706, this.inference.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -138,7 +138,7 @@ public class GrassTest {
 
         evidence.e$wet = false;
         evidence.e$sprinkler = true;
-        assertEquals(0.0006, this.inference.probability(evidence), 0.0001);
+        assertEquals(0.0006, this.inference.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -157,6 +157,6 @@ public class GrassTest {
 
         evidence.e$wet = true;
         evidence.e$sprinkler = true;
-        assertEquals(0.0069, this.inference.probability(evidence), 0.0001);
+        assertEquals(0.0069, this.inference.probability(evidence, this.parameters), 0.0001);
     }
 }

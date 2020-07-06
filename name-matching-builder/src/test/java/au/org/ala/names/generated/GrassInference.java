@@ -1,41 +1,50 @@
 package au.org.ala.names.generated;
 
-public class GrassInference {
-  public GrassParameters parameters;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Inferencer;
 
-  public double infer(Evidence evidence, double c$rain) {
+public class GrassInference extends Inferencer<GrassClassification, GrassParameters> {
+
+  public double infer(Evidence evidence, GrassParameters parameters, double c$rain) {
     double nc$rain = 1.0 - c$rain;
-    double c$sprinkler = evidence.isT$sprinkler();
-    double nc$sprinkler = evidence.isF$sprinkler();
-    double c$wet = 0;
-    double nc$wet = 0;
+    double c$sprinkler = evidence.isT$e$sprinkler() ? 1.0 : 0.0;
+    double nc$sprinkler = evidence.isF$e$sprinkler() ? 1.0 : 0.0;
+    double c$wet = 0.0;
+    double nc$wet = 0.0;
     // Ignoring non-base sprinkler
-    if (evidence.e$wet == null || evidence.e$wet) {
-      c$wet += this.parameters.derived_t_tt$wet * c$sprinkler * c$rain;
-      c$wet += this.parameters.derived_t_tf$wet * c$sprinkler * nc$rain;
-      c$wet += this.parameters.derived_t_ft$wet * nc$sprinkler * c$rain;
-      c$wet += this.parameters.derived_t_ff$wet * nc$sprinkler * nc$rain;
+    if (evidence.isT$e$wet()) {
+      c$wet += parameters.derived_t_tt$wet * c$sprinkler * c$rain;
+      c$wet += parameters.derived_t_tf$wet * c$sprinkler * nc$rain;
+      c$wet += parameters.derived_t_ft$wet * nc$sprinkler * c$rain;
+      c$wet += parameters.derived_t_ff$wet * nc$sprinkler * nc$rain;
     }
-    if (evidence.e$wet == null || !evidence.e$wet) {
-      nc$wet += this.parameters.derived_f_tt$wet * c$sprinkler * c$rain;
-      nc$wet += this.parameters.derived_f_tf$wet * c$sprinkler * nc$rain;
-      nc$wet += this.parameters.derived_f_ft$wet * nc$sprinkler * c$rain;
-      nc$wet += this.parameters.derived_f_ff$wet * nc$sprinkler * nc$rain;
+    if (evidence.isF$e$wet()) {
+      nc$wet += parameters.derived_f_tt$wet * c$sprinkler * c$rain;
+      nc$wet += parameters.derived_f_tf$wet * c$sprinkler * nc$rain;
+      nc$wet += parameters.derived_f_ft$wet * nc$sprinkler * c$rain;
+      nc$wet += parameters.derived_f_ff$wet * nc$sprinkler * nc$rain;
     }
-    return (c$wet + nc$wet) * (this.parameters.prior_t$rain * c$rain + this.parameters.prior_f$rain * nc$rain);
+    return (c$wet + nc$wet) * (parameters.prior_t$rain * c$rain + parameters.prior_f$rain * nc$rain);
   }
 
-  public double probability(Evidence evidence) {
+  public double probability(Evidence evidence, GrassParameters parameters) {
     double p;
     double ph = 0.0;
     double pe = 0.0;
 
-    p = evidence.isT$rain() * this.infer(evidence, 1.0);
+    p = (evidence.isT$e$rain() ? 1.0 : 0.0) * this.infer(evidence, parameters, 1.0);
     ph += p;
     pe += p;
-    p = evidence.isF$rain() * this.infer(evidence, 0.0);
+    p = (evidence.isF$e$rain() ? 1.0 : 0.0) * this.infer(evidence, parameters, 0.0);
     pe += p;
     return pe == 0.0 ? 0.0 : ph / pe;
+  }
+
+  @Override
+  public double probability(GrassClassification classification, Classifier classifier, GrassParameters parameters) throws InferenceException {
+    Evidence evidence = classification.match(classifier);
+    return this.probability(evidence, parameters);
   }
 
   public static class Evidence {
@@ -43,28 +52,28 @@ public class GrassInference {
     public Boolean e$sprinkler;
     public Boolean e$wet;
 
-    public double isT$rain() {
-      return this.e$rain == null || this.e$rain ? 1.0 : 0.0;
+    public boolean isT$e$rain() {
+      return this.e$rain == null || this.e$rain;
     }
 
-    public double isF$rain() {
-      return this.e$rain == null || !this.e$rain ? 1.0 : 0.0;
+    public boolean isF$e$rain() {
+      return this.e$rain == null || !this.e$rain;
     }
 
-    public double isT$sprinkler() {
-      return this.e$sprinkler == null || this.e$sprinkler ? 1.0 : 0.0;
+    public boolean isT$e$sprinkler() {
+      return this.e$sprinkler == null || this.e$sprinkler;
     }
 
-    public double isF$sprinkler() {
-      return this.e$sprinkler == null || !this.e$sprinkler ? 1.0 : 0.0;
+    public boolean isF$e$sprinkler() {
+      return this.e$sprinkler == null || !this.e$sprinkler;
     }
 
-    public double isT$wet() {
-      return this.e$wet == null || this.e$wet ? 1.0 : 0.0;
+    public boolean isT$e$wet() {
+      return this.e$wet == null || this.e$wet;
     }
 
-    public double isF$wet() {
-      return this.e$wet == null || !this.e$wet ? 1.0 : 0.0;
+    public boolean isF$e$wet() {
+      return this.e$wet == null || !this.e$wet;
     }
 
   }

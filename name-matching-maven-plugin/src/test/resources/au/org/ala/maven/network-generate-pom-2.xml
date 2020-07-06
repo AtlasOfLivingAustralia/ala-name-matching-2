@@ -31,6 +31,7 @@
                      <generateInferencer>false</generateInferencer>
                      <generateParameters>false</generateParameters>
                      <generateClassification>false</generateClassification>
+                     <generateMatcher>false</generateMatcher>
                      <generateObservables>false</generateObservables>
                      <generateBuilder>true</generateBuilder>
                      <generateCli>true</generateCli>

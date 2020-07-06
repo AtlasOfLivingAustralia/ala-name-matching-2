@@ -12,38 +12,38 @@ import java.util.Optional;
 
 import au.org.ala.util.TaxonNameSoundEx;
 
-public class Network1Builder extends Builder<Network1Parameters> {
+public class Network9Builder extends Builder<Network9Parameters> {
   private TaxonNameSoundEx soundex;
 
-  public Network1Builder() {
+  public Network9Builder() {
     this.soundex = new TaxonNameSoundEx();
   }
 
   @Override
-  public void infer(Classifier<?> classifier) throws InferenceException, StoreException {
-    for (String v: classifier.getAll(Network1Observables.v1)) {
+  public void infer(Classifier classifier) throws InferenceException, StoreException {
+    for (String v: classifier.getAll(Network9Observables.v1)) {
       String d = this.soundex.treatWord(v, "species");
-      classifier.add(Network1Observables.v2, d);
+      classifier.add(Network9Observables.v2, d);
     }
   }
 
     @Override
-    public void expand(Classifier<?> classifier, Deque<Classifier<?>> parents) throws InferenceException, StoreException {
+    public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
   }
 
   @Override
-  public Network1Parameters createParameters() {
-      return new Network1Parameters();
+  public Network9Parameters createParameters() {
+      return new Network9Parameters();
   }
 
   @Override
-  public void calculate(Network1Parameters parameters, ParameterAnalyser analyser, Classifier<?> classifier) throws InferenceException, StoreException {
-    parameters.prior_t$v1 = analyser.computePrior(analyser.getObservation(true, Network1Observables.v1, classifier));
-    parameters.inf_t_t$v2 = analyser.computeConditional(analyser.getObservation(true, Network1Observables.v2, classifier) , analyser.getObservation(true, Network1Observables.v1, classifier));
-    parameters.inf_t_f$v2 = analyser.computeConditional(analyser.getObservation(true, Network1Observables.v2, classifier) , analyser.getObservation(false, Network1Observables.v1, classifier));
-    parameters.inf_t_tt$v3 = analyser.computeConditional(analyser.getObservation(true, Network1Observables.v3, classifier) , analyser.getObservation(true, Network1Observables.v1, classifier), analyser.getObservation(true, Network1Observables.v2, classifier));
-    parameters.inf_t_tf$v3 = analyser.computeConditional(analyser.getObservation(true, Network1Observables.v3, classifier) , analyser.getObservation(true, Network1Observables.v1, classifier), analyser.getObservation(false, Network1Observables.v2, classifier));
-    parameters.inf_t_ft$v3 = analyser.computeConditional(analyser.getObservation(true, Network1Observables.v3, classifier) , analyser.getObservation(false, Network1Observables.v1, classifier), analyser.getObservation(true, Network1Observables.v2, classifier));
-    parameters.inf_t_ff$v3 = analyser.computeConditional(analyser.getObservation(true, Network1Observables.v3, classifier) , analyser.getObservation(false, Network1Observables.v1, classifier), analyser.getObservation(false, Network1Observables.v2, classifier));
+  public void calculate(Network9Parameters parameters, ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
+    parameters.prior_t$v1 = analyser.computePrior(analyser.getObservation(true, Network9Observables.v1, classifier));
+    parameters.inf_t_t$v2 = analyser.computeConditional(analyser.getObservation(true, Network9Observables.v2, classifier) , analyser.getObservation(true, Network9Observables.v1, classifier));
+    parameters.inf_t_f$v2 = analyser.computeConditional(analyser.getObservation(true, Network9Observables.v2, classifier) , analyser.getObservation(false, Network9Observables.v1, classifier));
+    parameters.inf_t_tt$v3 = analyser.computeConditional(analyser.getObservation(true, Network9Observables.v3, classifier) , analyser.getObservation(true, Network9Observables.v1, classifier), analyser.getObservation(true, Network9Observables.v2, classifier));
+    parameters.inf_t_tf$v3 = analyser.computeConditional(analyser.getObservation(true, Network9Observables.v3, classifier) , analyser.getObservation(true, Network9Observables.v1, classifier), analyser.getObservation(false, Network9Observables.v2, classifier));
+    parameters.inf_t_ft$v3 = analyser.computeConditional(analyser.getObservation(true, Network9Observables.v3, classifier) , analyser.getObservation(false, Network9Observables.v1, classifier), analyser.getObservation(true, Network9Observables.v2, classifier));
+    parameters.inf_t_ff$v3 = analyser.computeConditional(analyser.getObservation(true, Network9Observables.v3, classifier) , analyser.getObservation(false, Network9Observables.v1, classifier), analyser.getObservation(false, Network9Observables.v2, classifier));
   }
 }

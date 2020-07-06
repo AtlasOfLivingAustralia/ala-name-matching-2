@@ -1,35 +1,44 @@
 package au.org.ala.bayesian.generated;
 
-public class Network1Inference {
-  public Network1Parameters parameters;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Inferencer;
 
-  public double infer(Evidence evidence, double c$v1) {
+public class Network1Inference extends Inferencer<Network1Classification, Network1Parameters> {
+
+  public double infer(Evidence evidence, Network1Parameters parameters, double c$v1) {
     double nc$v1 = 1.0 - c$v1;
-    return (c$v1 + nc$v1) * (this.parameters.prior_t$v1 * c$v1 + this.parameters.prior_f$v1 * nc$v1);
+    return (c$v1 + nc$v1) * (parameters.prior_t$v1 * c$v1 + parameters.prior_f$v1 * nc$v1);
   }
 
-  public double probability(Evidence evidence) {
+  public double probability(Evidence evidence, Network1Parameters parameters) {
     double p;
     double ph = 0.0;
     double pe = 0.0;
 
-    p = evidence.isT$v_1() * this.infer(evidence, 1.0);
+    p = (evidence.isT$e$v1() ? 1.0 : 0.0) * this.infer(evidence, parameters, 1.0);
     ph += p;
     pe += p;
-    p = evidence.isF$v_1() * this.infer(evidence, 0.0);
+    p = (evidence.isF$e$v1() ? 1.0 : 0.0) * this.infer(evidence, parameters, 0.0);
     pe += p;
     return pe == 0.0 ? 0.0 : ph / pe;
+  }
+
+  @Override
+  public double probability(Network1Classification classification, Classifier classifier, Network1Parameters parameters) throws InferenceException {
+    Evidence evidence = classification.match(classifier);
+    return this.probability(evidence, parameters);
   }
 
   public static class Evidence {
     public Boolean e$v1;
 
-    public double isT$v_1() {
-      return this.e$v1 == null || this.e$v1 ? 1.0 : 0.0;
+    public boolean isT$e$v1() {
+      return this.e$v1 == null || this.e$v1;
     }
 
-    public double isF$v_1() {
-      return this.e$v1 == null || !this.e$v1 ? 1.0 : 0.0;
+    public boolean isF$e$v1() {
+      return this.e$v1 == null || !this.e$v1;
     }
 
   }

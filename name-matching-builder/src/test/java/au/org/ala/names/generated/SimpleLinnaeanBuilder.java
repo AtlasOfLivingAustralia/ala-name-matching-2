@@ -20,7 +20,7 @@ public class SimpleLinnaeanBuilder extends Builder<SimpleLinnaeanParameters> {
   }
 
   @Override
-  public void infer(Classifier<?> classifier) throws InferenceException, StoreException {
+  public void infer(Classifier classifier) throws InferenceException, StoreException {
     String e_5 = classifier.get(SimpleLinnaeanObservables.taxonRank);
     for (String v: classifier.getAll(SimpleLinnaeanObservables.scientificName)) {
       String d = this.soundex.treatWord(v, e_5);
@@ -29,43 +29,43 @@ public class SimpleLinnaeanBuilder extends Builder<SimpleLinnaeanParameters> {
   }
 
     @Override
-    public void expand(Classifier<?> classifier, Deque<Classifier<?>> parents) throws InferenceException, StoreException {
-    Optional<Classifier<?>> d_6 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "genus".equals(x))).findFirst();
+    public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
+    Optional<Classifier> d_6 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "genus".equals(x))).findFirst();
     if (d_6.isPresent()){
       for(String v: d_6.get().getAll(SimpleLinnaeanObservables.scientificName)){
         String d = v;
         classifier.add(SimpleLinnaeanObservables.genus, d);
       }
     }
-    Optional<Classifier<?>> d_7 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "family".equals(x))).findFirst();
+    Optional<Classifier> d_7 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "family".equals(x))).findFirst();
     if (d_7.isPresent()){
       for(String v: d_7.get().getAll(SimpleLinnaeanObservables.scientificName)){
         String d = v;
         classifier.add(SimpleLinnaeanObservables.family, d);
       }
     }
-    Optional<Classifier<?>> d_8 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "order".equals(x))).findFirst();
+    Optional<Classifier> d_8 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "order".equals(x))).findFirst();
     if (d_8.isPresent()){
       for(String v: d_8.get().getAll(SimpleLinnaeanObservables.scientificName)){
         String d = v;
         classifier.add(SimpleLinnaeanObservables.order, d);
       }
     }
-    Optional<Classifier<?>> d_9 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "class".equals(x))).findFirst();
+    Optional<Classifier> d_9 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "class".equals(x))).findFirst();
     if (d_9.isPresent()){
       for(String v: d_9.get().getAll(SimpleLinnaeanObservables.scientificName)){
         String d = v;
         classifier.add(SimpleLinnaeanObservables.class_, d);
       }
     }
-    Optional<Classifier<?>> d_10 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "phylum".equals(x))).findFirst();
+    Optional<Classifier> d_10 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "phylum".equals(x))).findFirst();
     if (d_10.isPresent()){
       for(String v: d_10.get().getAll(SimpleLinnaeanObservables.scientificName)){
         String d = v;
         classifier.add(SimpleLinnaeanObservables.phylum, d);
       }
     }
-    Optional<Classifier<?>> d_11 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "kingdom".equals(x))).findFirst();
+    Optional<Classifier> d_11 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanObservables.taxonRank).stream().anyMatch(x -> "kingdom".equals(x))).findFirst();
     if (d_11.isPresent()){
       for(String v: d_11.get().getAll(SimpleLinnaeanObservables.scientificName)){
         String d = v;
@@ -80,7 +80,7 @@ public class SimpleLinnaeanBuilder extends Builder<SimpleLinnaeanParameters> {
   }
 
   @Override
-  public void calculate(SimpleLinnaeanParameters parameters, ParameterAnalyser analyser, Classifier<?> classifier) throws InferenceException, StoreException {
+  public void calculate(SimpleLinnaeanParameters parameters, ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
     parameters.prior_t$taxonId = analyser.computePrior(analyser.getObservation(true, SimpleLinnaeanObservables.taxonId, classifier));
     parameters.inf_t_t$taxonRank = analyser.computeConditional(analyser.getObservation(true, SimpleLinnaeanObservables.taxonRank, classifier) , analyser.getObservation(true, SimpleLinnaeanObservables.taxonId, classifier));
     parameters.inf_t_f$taxonRank = analyser.computeConditional(analyser.getObservation(true, SimpleLinnaeanObservables.taxonRank, classifier) , analyser.getObservation(false, SimpleLinnaeanObservables.taxonId, classifier));

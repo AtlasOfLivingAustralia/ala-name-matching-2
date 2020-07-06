@@ -21,9 +21,10 @@ public class GrassClassification extends Classification {
   public GrassClassification() {
   }
 
-  public GrassClassification(Classifier<?> classifier) throws InferenceException {
+  public GrassClassification(Classifier classifier) throws InferenceException {
     this();
     this.populate(classifier, true);
+    this.infer();
   }
 
   @Override
@@ -50,7 +51,7 @@ public class GrassClassification extends Classification {
 
 
   @Override
-  public void populate(Classifier<?> classifier, boolean overwrite) throws InferenceException {
+  public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
     if (overwrite || this.rain == null) {
       this.rain = classifier.get(GrassObservables.rain);
     }
@@ -60,6 +61,14 @@ public class GrassClassification extends Classification {
     if (overwrite || this.wet == null) {
       this.wet = classifier.get(GrassObservables.wet);
     }
+  }
+
+  public GrassInference.Evidence match(Classifier classifier) throws InferenceException {
+    GrassInference.Evidence evidence = new GrassInference.Evidence();
+    evidence.e$rain = classifier.match(GrassObservables.rain, this.rain);
+    evidence.e$sprinkler = classifier.match(GrassObservables.sprinkler, this.sprinkler);
+    evidence.e$wet = classifier.match(GrassObservables.wet, this.wet);
+    return evidence;
   }
 
 }

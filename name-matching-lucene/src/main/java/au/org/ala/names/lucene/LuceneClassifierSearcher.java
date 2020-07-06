@@ -4,7 +4,7 @@ import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.StoreException;
-import au.org.ala.names.search.NameSearcher;
+import au.org.ala.bayesian.ClassifierSearcher;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * A searcher that searches a lucene index for possible candidates
  */
-public class LuceneSearcher extends NameSearcher<LuceneClassifier> {
+public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifier> {
     /** The maximum number of results to return */
     private int limit;
     /** The location of the lucene index */
@@ -41,7 +41,7 @@ public class LuceneSearcher extends NameSearcher<LuceneClassifier> {
      *
      * @throws StoreException if unable to open the index
      */
-    public LuceneSearcher(Path path) throws StoreException {
+    public LuceneClassifierSearcher(Path path) throws StoreException {
         try {
             this.directory = FSDirectory.open(path);
             this.indexReader = DirectoryReader.open(this.directory);
@@ -60,7 +60,7 @@ public class LuceneSearcher extends NameSearcher<LuceneClassifier> {
      *
      * @throws StoreException if unable to open the index
      */
-    public LuceneSearcher(File file) throws StoreException {
+    public LuceneClassifierSearcher(File file) throws StoreException {
         this(file.toPath());
     }
 

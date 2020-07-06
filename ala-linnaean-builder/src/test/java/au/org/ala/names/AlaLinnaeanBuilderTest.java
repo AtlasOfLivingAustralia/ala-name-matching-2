@@ -67,27 +67,26 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         AlaLinnaeanParameters params = new AlaLinnaeanParameters();
         doc.loadParameters(params);
         AlaLinnaeanInference inference = new AlaLinnaeanInference();
-        inference.parameters = params;
         AlaLinnaeanInference.Evidence evidence = new AlaLinnaeanInference.Evidence();
         evidence.e$scientificName = true;
-        double prob = inference.probability(evidence);
+        double prob = inference.probability(evidence, params);
         assertEquals(1.0, prob, 0.00001);
         evidence.e$genus = false;
-        prob = inference.probability(evidence);
+        prob = inference.probability(evidence, params);
         assertEquals(1.0, prob, 0.00001);
         evidence.e$soundexGenus = true;
-        prob = inference.probability(evidence);
+        prob = inference.probability(evidence, params);
         assertEquals(1.0, prob, 0.00001);
         evidence.e$soundexGenus = false;
-        prob = inference.probability(evidence);
+        prob = inference.probability(evidence, params);
         assertEquals(1.0, prob, 0.00001);
         evidence.e$scientificName = false;
-        prob = inference.probability(evidence);
+        prob = inference.probability(evidence, params);
         assertEquals(0.0, prob, 0.00001);
         evidence.e$scientificName = null;
         evidence.e$genus = true;
         evidence.e$soundexGenus = true;
-        prob = inference.probability(evidence);
+        prob = inference.probability(evidence, params);
         assertEquals(0.33333, prob, 0.00001);
     }
 }

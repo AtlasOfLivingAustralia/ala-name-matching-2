@@ -33,9 +33,10 @@ public class SimpleLinnaeanClassification extends Classification {
     this.soundex = new TaxonNameSoundEx();
   }
 
-  public SimpleLinnaeanClassification(Classifier<?> classifier) throws InferenceException {
+  public SimpleLinnaeanClassification(Classifier classifier) throws InferenceException {
     this();
     this.populate(classifier, true);
+    this.infer();
   }
 
   @Override
@@ -83,7 +84,7 @@ public class SimpleLinnaeanClassification extends Classification {
 
 
   @Override
-  public void populate(Classifier<?> classifier, boolean overwrite) throws InferenceException {
+  public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
     if (overwrite || this.taxonId == null) {
       this.taxonId = classifier.get(SimpleLinnaeanObservables.taxonId);
     }
@@ -120,6 +121,23 @@ public class SimpleLinnaeanClassification extends Classification {
     if (overwrite || this.kingdom == null) {
       this.kingdom = classifier.get(SimpleLinnaeanObservables.kingdom);
     }
+  }
+
+  public SimpleLinnaeanInference.Evidence match(Classifier classifier) throws InferenceException {
+    SimpleLinnaeanInference.Evidence evidence = new SimpleLinnaeanInference.Evidence();
+    evidence.e$taxonId = classifier.match(SimpleLinnaeanObservables.taxonId, this.taxonId);
+    evidence.e$taxonRank = classifier.match(SimpleLinnaeanObservables.taxonRank, this.taxonRank);
+    evidence.e$specificEpithet = classifier.match(SimpleLinnaeanObservables.specificEpithet, this.specificEpithet);
+    evidence.e$scientificNameAuthorship = classifier.match(SimpleLinnaeanObservables.scientificNameAuthorship, this.scientificNameAuthorship);
+    evidence.e$scientificName = classifier.match(SimpleLinnaeanObservables.scientificName, this.scientificName);
+    evidence.e$soundexScientificName = classifier.match(SimpleLinnaeanObservables.soundexScientificName, this.soundexScientificName);
+    evidence.e$genus = classifier.match(SimpleLinnaeanObservables.genus, this.genus);
+    evidence.e$family = classifier.match(SimpleLinnaeanObservables.family, this.family);
+    evidence.e$order = classifier.match(SimpleLinnaeanObservables.order, this.order);
+    evidence.e$class_ = classifier.match(SimpleLinnaeanObservables.class_, this.class_);
+    evidence.e$phylum = classifier.match(SimpleLinnaeanObservables.phylum, this.phylum);
+    evidence.e$kingdom = classifier.match(SimpleLinnaeanObservables.kingdom, this.kingdom);
+    return evidence;
   }
 
 }

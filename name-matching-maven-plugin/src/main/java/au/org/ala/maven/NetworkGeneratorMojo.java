@@ -51,6 +51,10 @@ public class NetworkGeneratorMojo extends AbstractMojo {
     @Parameter(property="generateClassification", defaultValue = "true")
     private boolean generateClassification = true;
 
+    /** Generate the matcher? */
+    @Parameter(property="generateMatcher", defaultValue = "true")
+    private boolean generateMatcher = true;
+
     /** Generate the observables? */
     @Parameter(property="generateObservables", defaultValue = "true")
     private boolean generateObservables = true;
@@ -92,6 +96,7 @@ public class NetworkGeneratorMojo extends AbstractMojo {
             generator.setGenerateInferencer(this.generateInferencer);
             generator.setGenerateParameters(this.generateParameters);
             generator.setGenerateClassification(this.generateClassification);
+            generator.setGenerateMatcher(this.generateMatcher);
             generator.setGenerateObservables(this.generateObservables);
             generator.setGenerateCli(this.generateCli);
             generator.setArtifactName(this.project.getArtifactId());

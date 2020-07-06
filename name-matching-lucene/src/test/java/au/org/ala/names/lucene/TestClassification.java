@@ -58,7 +58,7 @@ public class TestClassification extends Classification {
     }
 
     @Override
-    public void populate(Classifier<?> classifier, boolean overwrite) throws InferenceException {
+    public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
         if (overwrite || this.class_ == null)
             this.class_ = classifier.get(CLASS_);
         if (overwrite || this.scientificName == null)

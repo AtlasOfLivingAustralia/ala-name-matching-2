@@ -27,7 +27,7 @@ public class ${className} extends Builder<${parametersClassName}> {
   }
 
   @Override
-  public void infer(Classifier<?> classifier) throws InferenceException, StoreException {
+  public void infer(Classifier classifier) throws InferenceException, StoreException {
 <#list orderedNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.derivation??>
@@ -44,7 +44,7 @@ public class ${className} extends Builder<${parametersClassName}> {
   }
 
     @Override
-    public void expand(Classifier<?> classifier, Deque<Classifier<?>> parents) throws InferenceException, StoreException {
+    public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
 <#list orderedNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.base??>
@@ -53,7 +53,7 @@ public class ${className} extends Builder<${parametersClassName}> {
     <#assign condition = derivation.generateCondition("c", "classifier", observablesClassName, "parents")>
     <#if condition??>
       <#assign docVar = "d_${node?index}">
-    Optional<Classifier<?>> ${docVar} = parents.stream().filter(c -> ${condition}).findFirst();
+    Optional<Classifier> ${docVar} = parents.stream().filter(c -> ${condition}).findFirst();
     if (${docVar}.isPresent()){
     <#if derivation.hasExtra()>
       String e_${node?index} = ${derivation.generateExtra("classifier", observablesClassName)};
@@ -74,7 +74,7 @@ public class ${className} extends Builder<${parametersClassName}> {
   }
 
   @Override
-  public void calculate(${parametersClassName} parameters, ParameterAnalyser analyser, Classifier<?> classifier) throws InferenceException, StoreException {
+  public void calculate(${parametersClassName} parameters, ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
     <#list inputs as inc>
     parameters.${inc.prior.id} = analyser.computePrior(analyser.getObservation(true, ${observablesClassName}.${inc.observable.javaVariable}, classifier));
     </#list>

@@ -10,7 +10,7 @@ import java.net.URL;
 
 import au.org.ala.util.TaxonNameSoundEx;
 
-public class Network1Builder {
+public class Network9Cli {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
      Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
@@ -36,8 +36,8 @@ public class Network1Builder {
        config = IndexBuilderConfiguration.read(((URL) cmd.getParsedOptionValue(configOption.getOpt())));
      } else {
        config = new IndexBuilderConfiguration();
-       config.setBuilderClass(Network1Builder.class);
-       config.setNetwork(Network1Builder.class.getResource("Network1Builder.json"));
+       config.setBuilderClass(Network9Builder.class);
+       config.setNetwork(Network9Builder.class.getResource("Network9Builder.json"));
      }
      if (cmd.hasOption(workOption.getOpt())) {
        config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));
