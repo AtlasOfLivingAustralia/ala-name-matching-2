@@ -1,6 +1,8 @@
 package au.org.ala.names.model;
 
 import com.fasterxml.jackson.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 
@@ -26,14 +28,19 @@ abstract public class Identifiable {
 
     /** The identifier */
     @JsonProperty
+    @Getter
     private String id;
     /** The description */
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @Getter
+    @Setter
     private String description;
     /** A URI describing the concept that this noderepresents */
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @Getter
+    @Setter
     private URI uri;
     /** A GBIF term corresponding to the URI/identifier */
     @JsonIgnore
@@ -89,51 +96,6 @@ abstract public class Identifiable {
      */
     public Identifiable(URI uri) {
         this(makeIdFromURI(uri), uri);
-    }
-
-    /**
-     * Get the node identifier
-     *
-     * @return The identifier
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Get any node description
-     *
-     * @return The deacription
-     */
-    public String getDescription() {
-        return this.description;
-    }
-
-    /**
-     * Copy the object description.
-     *
-     * @param description The description
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * Get the URI that corresponds to the concept this node represents
-     *
-     * @return The node URI
-     */
-    public URI getUri() {
-        return this.uri;
-    }
-
-    /**
-     * Copy the concept URI
-     *
-     * @param uri The new concept URI
-     */
-    public void setUri(URI uri) {
-        this.uri = uri;
     }
 
     /**

@@ -6,6 +6,8 @@ import au.org.ala.vocab.ALATerm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 
@@ -18,21 +20,33 @@ import java.net.URI;
 public class Observable extends Identifiable implements Comparable<Observable> {
     /** The derivation of this observable, if this is a derived value */
     @JsonProperty
+    @Getter
+    @Setter
     private Derivation derivation;
     /** The base of the values for this observable, if this is not directly supplied */
     @JsonProperty
+    @Getter
+    @Setter
     private Derivation base;
     /** The base of the values for this observable, if this is not directly supplied, a string if null */
     @JsonProperty
+    @Getter
+    @Setter
     private Class<?> type = String.class;
     /** the style of this observable. How to treat searching and canonicity */
     @JsonProperty
+    @Getter
+    @Setter
     private Style style = Style.CANONICAL;
     /** Is this a required observable, meaning that it must be present to proceed? */
     @JsonProperty
+    @Getter
+    @Setter
     private boolean required = false;
    /** The normaliser, if required */
     @JsonProperty
+    @Getter
+    @Setter
     private Normaliser normaliser;
 
     // Ensure ALA Term vocabulary is properly loaded
@@ -109,121 +123,6 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      */
     public Observable(Term term, Class<?> type, Style style, Normaliser normaliser, boolean required) {
         this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, required);
-    }
-
-    /**
-     * Get the derivation for this observable
-     *
-     * @return The derivartion
-     */
-    public Derivation getDerivation() {
-        return this.derivation;
-    }
-
-    /**
-     * Set the derivation for this observable
-     *
-     * @param derivation The derivation
-     */
-    public void setDerivation(Derivation derivation) {
-        this.derivation = derivation;
-    }
-
-    /**
-     * Get the base of derived values
-     *
-     * @return The base of derived values
-     */
-    public Derivation getBase() {
-        return base;
-    }
-
-    /**
-     * Set the base of derived values
-     *
-     * @param base The base of derived values
-     */
-    public void setBase(Derivation base) {
-        this.base = base;
-    }
-
-    /**
-     * Get the type of this observable
-     *
-     * @return The type (defaults to {@link String})
-     */
-    public Class<?> getType() {
-        return this.type;
-    }
-
-    /**
-     * Set the type of this observable
-     *
-     * @param type The new type
-     */
-    public void setType(Class<?> type) {
-        this.type = type;
-    }
-
-    /**
-     * Get the style of information contained in this observable.
-     * <p>
-     * Styles describe how tight or sloppy searches for terms and equality
-     * should be handles.
-     * </p>
-     *
-     * @return The style of the observable
-     */
-    public Style getStyle() {
-        return style;
-    }
-
-    /**
-     * Set the style of the observable
-     *
-     * @param style
-     */
-    public void setStyle(Style style) {
-        this.style = style;
-    }
-
-    /**
-     * Is this a required variable for querying.
-     *
-     * @return True if the variable is required
-     */
-    public boolean isRequired() {
-        return this.required;
-    }
-
-    /**
-     * Set the required flag.
-     *
-     * @param required True if this is a required variable
-     */
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
-
-    /**
-     * Get any normaliser associated with this observable.
-     * <p>
-     * Normalisers define how a value needs to be treated to get into canonical form.
-     * </p>
-     *
-     * @return The normaliser or null for not used
-     */
-    public Normaliser getNormaliser() {
-        return this.normaliser;
-    }
-
-    /**
-     * Set the normaliser.
-     *
-     * @param normaliser The new normaliser
-     */
-    public void setNormaliser(Normaliser normaliser) {
-        this.normaliser = normaliser;
     }
 
     /**

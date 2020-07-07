@@ -5,6 +5,7 @@ import au.org.ala.bayesian.*;
 import static au.org.ala.names.model.ExternalContext.LUCENE;
 
 import au.org.ala.bayesian.Observable;
+import lombok.Getter;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
@@ -38,6 +39,8 @@ public class LuceneClassifier extends Classifier {
     /** The default field name for the left value */
     public static final String INDEX_FIELD = "_index";
 
+    /** The underlying lucene document */
+    @Getter
     private Document document;
 
     /**
@@ -57,15 +60,6 @@ public class LuceneClassifier extends Classifier {
     public LuceneClassifier(Document document) {
         super();
         this.document = document;
-    }
-
-    /**
-     * Get the underlying document.
-     *
-     * @return The lucene document
-     */
-    public Document getDocument() {
-        return document;
     }
 
     /**

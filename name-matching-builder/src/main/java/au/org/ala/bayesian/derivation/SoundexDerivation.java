@@ -5,6 +5,7 @@ import au.org.ala.bayesian.Observable;
 import au.org.ala.util.TaxonNameSoundEx;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,6 +19,7 @@ public class SoundexDerivation extends CopyDerivation {
 
     /** The rank observable for context */
     @JsonProperty
+    @Getter
     private Observable rank;
 
     /**
@@ -33,15 +35,6 @@ public class SoundexDerivation extends CopyDerivation {
      */
     public SoundexDerivation(Observable source) {
         super(source);
-    }
-
-    /**
-     * Get the observable that determines the rank of the source.
-     *
-     * @return The rank
-     */
-    public Observable getRank() {
-        return rank;
     }
 
     /**

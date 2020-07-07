@@ -1,5 +1,7 @@
 package au.org.ala.bayesian;
 
+import lombok.Getter;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -7,12 +9,16 @@ import java.util.stream.IntStream;
 
 public class InferenceParameter extends Variable {
     /** The observable this inference is associated with */
+    @Getter
     private Contributor outcome;
     /** The list of incoming contributions */
+    @Getter
     private List<Contributor> contributors;
     /** The variables that this parameter is derived from */
+    @Getter
     private List<InferenceParameter> derivedFrom;
     /** Is this an inverted derivation */
+    @Getter
     private boolean inverted;
 
     public InferenceParameter(String prefix, Contributor outcome, List<Observable> sources, boolean[] signature) {
@@ -32,24 +38,6 @@ public class InferenceParameter extends Variable {
         this.contributors = contributors;
         this.derivedFrom = derivedFrom;
         this.inverted = inverted;
-    }
-
-    /**
-     * Get the observable for this parameter.
-     *
-     * @return The observable
-     */
-    public Contributor getOutcome() {
-        return this.outcome;
-    }
-
-    /**
-     * Get the incoming contributors for this parameter
-     *
-     * @return The list of incoming contributors
-     */
-    public List<Contributor> getContributors() {
-        return this.contributors;
     }
 
     /**
@@ -74,29 +62,6 @@ public class InferenceParameter extends Variable {
      */
     public boolean isDerived() {
         return this.derivedFrom != null && !this.derivedFrom.isEmpty();
-    }
-
-    /**
-     * Get the parameters this parameter is derived from.
-     * <p>
-     * This variable is used in the case of inference prameters that are pre-calculated
-     * from more basic inference parameters.
-     * </p>
-     */
-    public List<InferenceParameter> getDerivedFrom() {
-        return this.derivedFrom;
-    }
-
-    /**
-     * Is this an inverted derivation?
-     * <p>
-     * Inverted derivations are 1 - \Pi derivedFrom
-     * </p>
-     *
-     * @return True if an inverted derivation
-     */
-    public boolean isInverted() {
-        return inverted;
     }
 
     /**

@@ -5,6 +5,8 @@ import au.org.ala.names.builder.Annotator;
 import au.org.ala.names.builder.LoadStore;
 import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.model.ExternalContext;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
@@ -42,6 +44,8 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     /** The load searcher */
     private IndexSearcher searcher;
     /** The batch size for gind all queries */
+    @Getter
+    @Setter
     private int batchSize;
     /** Delete this store on closing */
     private boolean temporary;
@@ -101,24 +105,6 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      */
     public LuceneLoadStore(Annotator annotator, File work) throws StoreException {
         this(annotator, work, true);
-    }
-
-    /**
-     * Get the batch size for multiple results
-     *
-     * @return The batch size
-     */
-    public int getBatchSize() {
-        return batchSize;
-    }
-
-    /**
-     * Set the match size for returning multiple results.
-     *
-     * @param batchSize The new batch size
-     */
-    public void setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
     }
 
     /**

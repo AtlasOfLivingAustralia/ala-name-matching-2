@@ -2,10 +2,12 @@ package au.org.ala.bayesian;
 
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
+import lombok.Value;
 
 /**
  * A classification match.
  */
+@Value
 public class Match<C extends Classification> {
     private C match;
     private Classifier candidate;
@@ -22,23 +24,5 @@ public class Match<C extends Classification> {
         this.match = match;
         this.candidate = candidate;
         this.probability = probability;
-    }
-
-    /**
-     * Get the matching classification
-     *
-     * @return The classification
-     */
-    public C getMatch() {
-        return match;
-    }
-
-    /**
-     * Get the probability of the match
-     *
-     * @return The match probability
-     */
-    public double getProbability() {
-        return probability;
     }
 }

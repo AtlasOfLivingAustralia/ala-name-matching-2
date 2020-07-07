@@ -3,6 +3,7 @@ package au.org.ala.util;
 import au.org.ala.bayesian.Normaliser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Value;
 
 import java.util.HashMap;
 import java.util.Map;

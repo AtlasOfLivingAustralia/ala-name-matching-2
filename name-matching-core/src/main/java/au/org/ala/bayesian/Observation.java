@@ -3,6 +3,8 @@ package au.org.ala.bayesian;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Value;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,9 +16,11 @@ import java.util.Set;
 public class Observation {
     /** Is this fact true or false */
     @JsonProperty
+    @Getter
     private boolean positive;
     /** The observable this fact is associated with */
     @JsonProperty
+    @Getter
     private Observable observable;
     /** A single value (optimisation so that we don't bother with a singleton collection) */
     @JsonProperty
@@ -65,25 +69,6 @@ public class Observation {
             this.values = new HashSet<>(values.length);
             Collections.addAll(this.values, values);
         }
-    }
-
-    /**
-     * Is this a positive observation.
-     *
-     * @return True if this represents a state that is true, false if not
-     */
-    @JsonIgnore
-    public boolean isPositive() {
-        return positive;
-    }
-
-    /**
-     * Get the underlying observable.
-     *
-     * @return The observable
-     */
-    public Observable getObservable() {
-        return observable;
     }
 
     /**

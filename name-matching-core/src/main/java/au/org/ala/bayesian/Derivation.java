@@ -28,6 +28,7 @@ abstract public class Derivation {
     public Collection<Variable> getBuilderVariables() {
         return Collections.EMPTY_LIST;
     }
+
     /**
      * Get the variables that this classification/derivation uses.
      * <p>

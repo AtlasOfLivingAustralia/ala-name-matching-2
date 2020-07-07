@@ -3,6 +3,7 @@ package au.org.ala.bayesian.derivation;
 import au.org.ala.bayesian.Derivation;
 import au.org.ala.bayesian.Observable;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
 import javax.naming.OperationNotSupportedException;
 import java.util.Collection;
@@ -18,6 +19,7 @@ import java.util.Collections;
 public class CopyDerivation extends Derivation {
     /** The source observable for this derivation */
     @JsonProperty
+    @Getter
     private Observable source;
 
     /**
@@ -32,15 +34,6 @@ public class CopyDerivation extends Derivation {
      */
     public CopyDerivation(Observable source) {
         this.source = source;
-    }
-
-    /**
-     * Get the source observable.
-     *
-     * @return The source
-     */
-    public Observable getSource() {
-        return this.source;
     }
 
     /**

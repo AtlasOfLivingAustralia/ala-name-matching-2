@@ -3,6 +3,7 @@ package au.org.ala.names.model;
 import au.org.ala.util.IdentifierConverter;
 import au.org.ala.util.SimpleIdentifierConverter;
 import au.org.ala.util.TermIdentifierConverter;
+import lombok.Getter;
 
 /**
  * Different source of external content.
@@ -15,6 +16,7 @@ public enum ExternalContext {
     JAVA_VARIABLE(SimpleIdentifierConverter.JAVA_VARIABLE);
 
     /** How to convert whatever identifier into something acceptable to the external system */
+    @Getter
     private IdentifierConverter converter;
 
     /**
@@ -24,14 +26,5 @@ public enum ExternalContext {
      */
     ExternalContext(IdentifierConverter converter) {
         this.converter = converter;
-    }
-
-    /**
-     * Get the identifier converter for this source
-     *
-     * @return The converter
-     */
-    public IdentifierConverter getConverter() {
-        return converter;
     }
 }

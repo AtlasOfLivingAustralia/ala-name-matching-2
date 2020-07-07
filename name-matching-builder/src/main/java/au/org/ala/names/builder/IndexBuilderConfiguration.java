@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.Getter;
+import lombok.Setter;
 import org.gbif.dwc.terms.Term;
 
 import java.io.File;
@@ -22,21 +24,33 @@ import java.net.URL;
 public class IndexBuilderConfiguration {
     /** The working area directory to use, null for the general temparay directory */
     @JsonProperty
+    @Getter
+    @Setter
     private File work;
     /** The network description file */
     @JsonProperty("network")
+    @Getter
+    @Setter
     private URL network;
     /** The class of the builder */
     @JsonProperty
+    @Getter
+    @Setter
     private Class<? extends Builder> builderClass;
     /** The class of the load store */
     @JsonProperty
+    @Getter
+    @Setter
     private Class<? extends LoadStore> loadStoreClass;
     /** The default weight to use for an unweighted taxon */
     @JsonProperty
+    @Getter
+    @Setter
     private double defaultWeight;
     /** The log interval */
     @JsonProperty
+    @Getter
+    @Setter
     private int logInterval;
 
     public IndexBuilderConfiguration() {
@@ -44,101 +58,6 @@ public class IndexBuilderConfiguration {
         this.loadStoreClass = LuceneLoadStore.class;
         this.defaultWeight = 1.0;
         this.logInterval = 100;
-    }
-
-    /**
-     * Get the working directory.
-     *
-     * @return The directory used to create temporary work files and directories.
-     */
-    public File getWork() {
-        return this.work;
-    }
-
-    /**
-     * Set the working directory.
-     *
-     * @param work The new working directory for temporary storage
-     */
-    public void setWork(File work) {
-        this.work = work;
-    }
-
-    /**
-     * Get the network URL
-     *
-     * @return The URL of the source network
-     */
-    public URL getNetwork() {
-        return this.network;
-    }
-
-    /**
-     * Set the network URL
-     * <p>
-     * The network will be re-read after this is set.
-     * </p>
-     *
-     * @param network The URL of the source network
-     */
-    public void setNetwork(URL network) {
-        this.network = network;
-    }
-
-    /**
-     * Get the class of the load-store implementation.
-     *
-     * @return The load-store class.
-     *
-     * @see LoadStore
-     */
-    public Class<? extends LoadStore> getLoadStoreClass() {
-        return loadStoreClass;
-    }
-
-    /**
-     * Set the class of the load-store.
-     *
-     * @param loadStoreClass The new load-store class.
-     */
-    public void setLoadStoreClass(Class<? extends LoadStore> loadStoreClass) {
-        this.loadStoreClass = loadStoreClass;
-    }
-
-    /**
-     * Get the builder class.
-     *
-     * @return The class which calculates builder information for this network.
-     */
-    public Class<? extends Builder> getBuilderClass() {
-        return builderClass;
-    }
-
-    /**
-     * Set the builder class.
-     *
-     * @param builderClass The new builder class
-     */
-    public void setBuilderClass(Class<? extends Builder> builderClass) {
-        this.builderClass = builderClass;
-    }
-
-    /**
-     * Get the default weight to assign to an unweighted entry.
-     *
-     * @return The default weight
-     */
-    public double getDefaultWeight() {
-        return defaultWeight;
-    }
-
-    /**
-     * Set the default weight.
-     *
-     * @param defaultWeight The new default weight.
-     */
-    public void setDefaultWeight(double defaultWeight) {
-        this.defaultWeight = defaultWeight;
     }
 
     /**
@@ -214,28 +133,6 @@ public class IndexBuilderConfiguration {
         } catch (Exception ex) {
         }
         throw new StoreException("Unable to construct builder for " + this.builderClass);
-    }
-
-    /**
-     * Get the number of elements to skip before issuing a log update.
-     * <p>
-     * By default 100. Increasing or decreasing this value reduces or
-     * increases the log verbosity.
-     * </p>
-     *
-     * @return The log interval
-     */
-    public int getLogInterval() {
-        return this.logInterval;
-    }
-
-    /**
-     * Set the log interval.
-     *
-     * @param logInterval The new log interval
-     */
-    public void setLogInterval(int logInterval) {
-        this.logInterval = logInterval;
     }
 
     /**

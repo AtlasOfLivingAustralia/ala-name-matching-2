@@ -10,6 +10,8 @@ import freemarker.ext.beans.BeansWrapper;
 import freemarker.ext.beans.StringModel;
 import freemarker.ext.beans.CollectionModel;
 import freemarker.template.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.cli.*;
 
 import java.io.File;
@@ -52,8 +54,11 @@ public class JavaGenerator extends Generator {
     /** The resources target directory */
     private File resourceTargetDir;
     /** The package to use */
+    @Getter
     private String packageName;
     /** The artifact name to use */
+    @Getter
+    @Setter
     private String artifactName;
     /** The object wrapper to use */
     private BeansWrapper wrapper;
@@ -74,18 +79,32 @@ public class JavaGenerator extends Generator {
     /** The identifier converter for creating class names */
     private IdentifierConverter classConverter;
     /** Generate the builder? */
+    @Getter
+    @Setter
     private boolean generateBuilder;
     /** Generate the parameters? */
+    @Getter
+    @Setter
     private boolean generateParameters;
     /** Generate the classification */
+    @Getter
+    @Setter
     private boolean generateClassification;
     /** Generate the classification matcher */
+    @Getter
+    @Setter
     private boolean generateMatcher;
     /** Generate the inferencer? */
+    @Getter
+    @Setter
     private boolean generateInferencer;
     /** Generate the observables? */
+    @Getter
+    @Setter
     private boolean generateObservables;
     /** Generate the CLI? */
+    @Getter
+    @Setter
     private boolean generateCli;
 
     /**
@@ -128,150 +147,6 @@ public class JavaGenerator extends Generator {
      */
     public JavaGenerator() throws IOException {
         this(new File("."), new File("."), DEFAULT_PACKAGE);
-    }
-
-    /**
-     * Generate the builder class?
-     *
-     * @return True if the builder should be generated
-     */
-    public boolean isGenerateBuilder() {
-        return generateBuilder;
-    }
-
-    /**
-     * Set the generate builder class flag.
-     *
-     * @param generateBuilder True if the builder is to be generated
-     */
-    public void setGenerateBuilder(boolean generateBuilder) {
-        this.generateBuilder = generateBuilder;
-    }
-
-    /**
-     * Generate the parameters class?
-     *
-     * @return True if the builder should be generated
-     */
-    public boolean isGenerateParameters() {
-        return generateParameters;
-    }
-
-    /**
-     * Set the generate parameters class flag.
-     *
-     * @param generateParameters True if the parameters class is to be generated
-     */
-    public void setGenerateParameters(boolean generateParameters) {
-        this.generateParameters = generateParameters;
-    }
-
-    /**
-     * Generate the classification class?
-     *
-     * @return True if the classification should be generated
-     */
-    public boolean isGenerateClassification() {
-        return generateClassification;
-    }
-
-    /**
-     * Set the generate classification class flag.
-     *
-     * @param generateClassification True if the classification class is to be generated
-     */
-    public void setGenerateClassification(boolean generateClassification) {
-        this.generateClassification = generateClassification;
-    }
-
-    /**
-     * Generate the matcher class?
-     *
-     * @return True if the matcher should be generated
-     */
-    public boolean isGenerateMatcher() {
-        return generateMatcher;
-    }
-
-    /**
-     * Set the generate classification matcher class flag.
-     *
-     * @param generateMatcher True if the classification matcher class is to be generated
-     */
-    public void setGenerateMatcher(boolean generateMatcher) {
-        this.generateMatcher = generateMatcher;
-    }
-
-    /**
-     * Generate the inferencer class?
-     *
-     * @return True if the builder should be generated
-     */
-    public boolean isGenerateInferencer() {
-        return generateInferencer;
-    }
-
-    /**
-     * Set the generate inferencer class flag.
-     *
-     * @param generateInferencer True if the inferencer is to be generated
-     */
-    public void setGenerateInferencer(boolean generateInferencer) {
-        this.generateInferencer = generateInferencer;
-    }
-
-    /**
-     * Generate the observables class?
-     *
-     * @return True if the observable enumeration should be generated
-     */
-    public boolean isGenerateObservables() {
-        return generateObservables;
-    }
-
-    /**
-     * Set the observables generator flag
-     *
-     * @param generateObservables The new flag
-     */
-    public void setGenerateObservables(boolean generateObservables) {
-        this.generateObservables = generateObservables;
-    }
-
-    /**
-     * Generate the CLI class?
-     *
-     * @return True if the CLI class is to be generated
-     */
-    public boolean isGenerateCli() {
-        return generateCli;
-    }
-
-    /**
-     * Set the genearte CLI flag.
-     *
-     * @param generateCli The new generator flag
-     */
-    public void setGenerateCli(boolean generateCli) {
-        this.generateCli = generateCli;
-    }
-
-    /**
-     * Get the artifact name.
-     *
-     * @return The name of the artifact (jar, package, etc) that holds this code
-     */
-    public String getArtifactName() {
-        return artifactName;
-    }
-
-    /**
-     * Set the artifact name.
-     *
-     * @param artifactName The new artifact name
-     */
-    public void setArtifactName(String artifactName) {
-        this.artifactName = artifactName;
     }
 
     /**

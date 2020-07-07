@@ -6,18 +6,18 @@ import au.org.ala.bayesian.Inferencer;
 
 public class ${className} extends Inferencer<${classificationClassName}, ${parametersClassName}> {
 
-  public double infer(Evidence evidence, ${parametersClassName} parameters<#list inputs as inp>, double ${inp.cE}</#list>) {
+  public double infer(Evidence evidence, ${parametersClassName} parameters<#list inputs as inp>, double ${inp.CE}</#list>) {
 <#list orderedNodes as node>
     <#if node.source>
         <#if node.inference?size == 0>
-    double ${node.cNotE} = 1.0 - ${node.cE};
+    double ${node.CNotE} = 1.0 - ${node.CE};
         <#else>
-    double ${node.cE} = 0.0;
-    double ${node.cNotE} = 0.0;
+    double ${node.CE} = 0.0;
+    double ${node.CNotE} = 0.0;
         </#if>
     <#else>
-    double ${node.cE} = evidence.isT$${node.evidence.id}() ? 1.0 : 0.0;
-    double ${node.cNotE} = evidence.isF$${node.evidence.id}() ? 1.0 : 0.0;
+    double ${node.CE} = evidence.isT$${node.evidence.id}() ? 1.0 : 0.0;
+    double ${node.CNotE} = evidence.isF$${node.evidence.id}() ? 1.0 : 0.0;
     </#if>
 </#list>
 <#list orderedNodes as node>
@@ -27,14 +27,14 @@ public class ${className} extends Inferencer<${classificationClassName}, ${param
     if (evidence.isT$${node.evidence.id}()) {
         <#list node.interior as inf>
             <#if inf.outcome.match>
-      ${node.cE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.cE}<#else>${base.cNotE}</#if></#list>;
+      ${node.CE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
             </#if>
         </#list>
     }
     if (evidence.isF$${node.evidence.id}()) {
       <#list node.interior as inf>
             <#if !inf.outcome.match>
-      ${node.cNotE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.cE}<#else>${base.cNotE}</#if></#list>;
+      ${node.CNotE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
             </#if>
       </#list>
     }
@@ -42,20 +42,20 @@ public class ${className} extends Inferencer<${classificationClassName}, ${param
     if (evidence.isT$${node.evidence.id}()) {
       <#list node.inference as inf>
           <#if inf.outcome.match>
-      ${node.cE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.cE}<#else>${base.cNotE}</#if></#list>;
+      ${node.CE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
           </#if>
       </#list>
     }
     if (evidence.isF$${node.evidence.id}()) {
       <#list node.inference as inf>
           <#if !inf.outcome.match>
-      ${node.cNotE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.cE}<#else>${base.cNotE}</#if></#list>;
+      ${node.CNotE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
           </#if>
       </#list>
     }
   </#if>
 </#list>
-    return <#list outputs as node><#if node?index gt 0> * </#if>(${node.cE.id} + ${node.cNotE.id})</#list><#list inputs as node> * (parameters.${node.prior.id} * ${node.cE.id} + parameters.${node.invertedPrior.id} * ${node.cNotE})</#list>;
+    return <#list outputs as node><#if node?index gt 0> * </#if>(${node.CE.id} + ${node.CNotE.id})</#list><#list inputs as node> * (parameters.${node.prior.id} * ${node.CE.id} + parameters.${node.invertedPrior.id} * ${node.CNotE})</#list>;
   }
 
   public double probability(Evidence evidence, ${parametersClassName} parameters) {

@@ -8,6 +8,7 @@ import au.org.ala.vocab.ALATerm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.Getter;
 import org.apache.commons.cli.*;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
@@ -61,6 +62,7 @@ public class IndexBuilder implements Annotator {
 
     protected IndexBuilderConfiguration config;
     /** The network that this is a builder for */
+    @Getter
     protected Network network;
     /** The builder to use in processing */
     protected Builder builder;
@@ -83,6 +85,7 @@ public class IndexBuilder implements Annotator {
     /** The set of terms to copy from an accepted taxon to a synonym */
     protected Set<Observable> synonymCopy;
     /** The load-store. Used to store semi-structured information before building the complete index. */
+    @Getter
     protected LoadStore loadStore;
 
     /**
@@ -107,23 +110,6 @@ public class IndexBuilder implements Annotator {
         this.nameComplete = this.network.findObservable(NAME_COMPLETE_PROPERTY, true);
         this.altScientificName = this.network.findObservable(ALT_SCIENTIFIC_NAME_PROPERTY, true);
         this.synonymCopy = new HashSet<>(this.network.findObservables(COPY_PROPERTY, true));
-    }
-
-    /**
-     * Get the underlying network for this builder.
-     * @return
-     */
-    public Network getNetwork() {
-        return this.network;
-    }
-
-    /**
-     * Get the store for loading/processing
-     *
-     * @return The store that holds intermediate information about the index
-     */
-    public LoadStore getLoadStore() {
-        return this.loadStore;
     }
 
     /**

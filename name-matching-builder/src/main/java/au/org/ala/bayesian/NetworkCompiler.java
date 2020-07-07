@@ -3,6 +3,7 @@ package au.org.ala.bayesian;
 import au.org.ala.util.IdentifierConverter;
 import au.org.ala.util.SimpleIdentifierConverter;
 import au.org.ala.vocab.ALATerm;
+import lombok.Getter;
 import org.apache.lucene.document.Document;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DirectedAcyclicGraph;
@@ -17,20 +18,26 @@ import java.util.stream.IntStream;
 public class NetworkCompiler {
 
     /** The source network */
+    @Getter
     protected Network network;
     /** The reversed graph for dependencies */
     protected DirectedAcyclicGraph<Observable, Dependency> sources;
     /** The horizon computer for vertices */
     protected HorizonAlgorithm<Observable, Dependency> horizonAlgorithm;
     /** The nodes corresponding to the variables */
+    @Getter
     protected Map<String, Node> nodes;
     /** The dependency ordered list of nodes */
+    @Getter
     protected List<Node> orderedNodes;
     /** The input vertices */
+    @Getter
     protected List<Node> inputs;
     /** The output vertices */
+    @Getter
     protected List<Node> outputs;
     /** The list of input signatures */
+    @Getter
     protected List<boolean[]> inputSignatures;
     /** The identifier converter for variable names */
     protected IdentifierConverter variableConverter;
@@ -43,30 +50,6 @@ public class NetworkCompiler {
         this.network = network;
         this.variableConverter = SimpleIdentifierConverter.JAVA_VARIABLE;
         ALATerm.weight.toString(); // Ensure loaded
-    }
-
-    public Network getNetwork() {
-        return this.network;
-    }
-
-    public Map<String, Node> getNodes() {
-        return this.nodes;
-    }
-
-    public List<Node> getOrderedNodes() {
-        return this.orderedNodes;
-    }
-
-    public List<Node> getInputs() {
-        return this.inputs;
-    }
-
-    public List<boolean[]> getInputSignatures() {
-        return this.inputSignatures;
-    }
-
-    public List<Node> getOutputs() {
-        return outputs;
     }
 
     /**
@@ -235,77 +218,41 @@ public class NetworkCompiler {
 
     public class Node {
         /** The associated observable */
+        @Getter
         private Observable observable;
         /** The variable that holds the matchiung evidence for this variable (if any) */
+        @Getter
         private Variable evidence;
         /** The variable that holds the conditional probability of seeing positive evidence **/
+        @Getter
         private Variable cE;
         /** The variable that conditional probability of seeing negative evidence **/
+        @Getter
         private Variable cNotE;
         /** The variable tha holds the prior probability for an incoming node */
+        @Getter
         private InferenceParameter prior;
         /** The variable that holds the inverted prior probability for an incoming node */
+        @Getter
         private InferenceParameter invertedPrior;
         /** The list of inference variables */
+        @Getter
         private List<InferenceParameter> inference;
         /** The predecessor vertices; every vertex that feeds directly or indirectly into the node */
+        @Getter
         private HorizonAlgorithm.Horizon<Observable> horizon;
         /** The interior varables for this node */
+        @Getter
         private List<InferenceParameter> interior;
         /** Is this a source node; a node that acts as a source to other node calculations */
+        @Getter
         private boolean source;
         /** Is this an input node; a node with no incoming dependencies */
+        @Getter
         private boolean input;
         /** Is this an output node; a node with no outgoing dependencies */
+        @Getter
         private boolean output;
-
-        public Observable getObservable() {
-            return this.observable;
-        }
-
-        public Variable getEvidence() {
-            return this.evidence;
-        }
-
-        public Variable getcE() {
-            return this.cE;
-        }
-
-        public Variable getcNotE() {
-            return this.cNotE;
-        }
-
-        public Variable getPrior() {
-            return this.prior;
-        }
-
-        public Variable getInvertedPrior() {
-            return this.invertedPrior;
-        }
-
-        public List<InferenceParameter> getInference() {
-            return this.inference;
-        }
-
-        public HorizonAlgorithm.Horizon<Observable> getHorizon() {
-            return horizon;
-        }
-
-        public List<InferenceParameter> getInterior() {
-            return this.interior;
-        }
-
-        public boolean isSource() {
-            return this.source;
-        }
-
-        public boolean isInput() {
-            return input;
-        }
-
-        public boolean isOutput() {
-            return output;
-        }
 
         public List<InferenceParameter> getFactors() {
             return this.interior != null && !this.interior.isEmpty() ? this.interior : this.inference;

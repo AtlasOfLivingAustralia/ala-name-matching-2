@@ -1,7 +1,10 @@
 package au.org.ala.bayesian;
 
+import lombok.Getter;
+
 abstract public class Variable {
     /** The variable identifier */
+    @Getter
     private String id;
 
     /**
@@ -11,10 +14,6 @@ abstract public class Variable {
      */
     public Variable(String id) {
         this.id = id;
-    }
-
-    public String getId() {
-        return id;
     }
 
     @Override

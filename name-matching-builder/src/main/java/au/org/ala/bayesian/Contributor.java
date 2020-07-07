@@ -1,5 +1,7 @@
 package au.org.ala.bayesian;
 
+import lombok.Getter;
+
 import java.util.Objects;
 
 /**
@@ -11,8 +13,10 @@ import java.util.Objects;
  */
 public class Contributor {
     /** The observable */
+    @Getter
     private Observable observable;
     /** Whether the observable matches or not */
+    @Getter
     private boolean match;
 
     /**
@@ -24,24 +28,6 @@ public class Contributor {
     public Contributor(Observable observable, boolean match) {
         this.observable = observable;
         this.match = match;
-    }
-
-    /**
-     * Get the observable for this contributor
-     *
-     * @return The observable
-     */
-    public Observable getObservable() {
-        return observable;
-    }
-
-    /**
-     * Is this a match (true) or non-match (false)
-     *
-     * @return True if the contributor should match the evidence
-     */
-    public boolean isMatch() {
-        return match;
     }
 
     /**
