@@ -47,9 +47,10 @@ abstract public class LoadStore<C extends Classifier> {
      * @param classifier The classifier
      * @param type The document type
      *
+     * @throws InferenceException if unable to add annotations
      * @throws StoreException if unable to store the entry
      */
-    abstract public void store(C classifier, Term type) throws StoreException;
+    abstract public void store(C classifier, Term type) throws InferenceException, StoreException;
 
     /**
      * Update an existing entry in the store

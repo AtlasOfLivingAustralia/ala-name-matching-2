@@ -1,6 +1,7 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.StoreException;
 import org.apache.commons.io.FileUtils;
@@ -79,7 +80,7 @@ public class DwCASource extends Source {
      * @throws BuilderException if unable to
      */
     @Override
-    public void load(LoadStore store) throws BuilderException, StoreException {
+    public void load(LoadStore store) throws BuilderException, InferenceException, StoreException {
         this.loadArchiveFile(this.archive.getCore(), store);
         for (ArchiveFile ext: this.archive.getExtensions())
             this.loadArchiveFile(ext, store);
@@ -112,7 +113,7 @@ public class DwCASource extends Source {
      *
      * @throws StoreException if unable to store the resulting document
      */
-    protected void loadArchiveFile(ArchiveFile file, LoadStore store) throws StoreException {
+    protected void loadArchiveFile(ArchiveFile file, LoadStore store) throws InferenceException, StoreException {
         Term type = file.getRowType();
         Set<Observable> terms = file.getTerms().stream().map(t -> this.getObservable(t)).collect(Collectors.toSet());
         for (Record record: file) {

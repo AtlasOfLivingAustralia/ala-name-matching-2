@@ -128,12 +128,12 @@ public class LuceneClassifier extends Classifier {
      * @throws InferenceException if there was a problem matching the result
      */
     @Override
-    public Boolean match(Observable observable, Object value) throws InferenceException {
+    public <T> Boolean match(Observable observable, T value) throws InferenceException {
         if (value == null)
             return null;
         IndexableField[] fields = this.document.getFields(observable.getExternal(LUCENE));
         if (fields.length == 0)
-            return false;
+            return null;
 
         if (observable.getType() == Integer.class || observable.getType() == Short.class || observable.getType() == Byte.class) {
             if (!(value instanceof Number))
@@ -175,9 +175,10 @@ public class LuceneClassifier extends Classifier {
      * @throws StoreException if unable to add this variable to the classifier
      */
     @Override
-    public void add(Observable observable, Object value) throws StoreException {
+    public <T> void add(Observable observable, T value) throws StoreException {
         Field field = this.convert(observable, value);
-        this.document.add(field);
+        if (field != null)
+            this.document.add(field);
     }
 
     /**
@@ -203,7 +204,7 @@ public class LuceneClassifier extends Classifier {
      * @throws StoreException if unable to add this variable to the classifier
      */
     @Override
-    public void replace(Observable observable, Object value) throws StoreException {
+    public <T> void replace(Observable observable, T value) throws StoreException {
         this.document.removeFields(observable.getExternal(LUCENE));
         this.add(observable, value);
     }
@@ -215,8 +216,9 @@ public class LuceneClassifier extends Classifier {
      * @return The associated value or null for not present
      */
     @Override
-    public String get(Observable observable)  {
-        return this.document.get(observable.getExternal(LUCENE));
+    public <T> T get(Observable observable)  {
+        IndexableField field = this.document.getField(observable.getExternal(LUCENE));
+        return this.convert(observable, field);
     }
 
     /**
@@ -226,11 +228,13 @@ public class LuceneClassifier extends Classifier {
      * @return The a set of all present values
      */
     @Override
-    public Set<String> getAll(Observable observable) {
-        String[] vs = this.document.getValues(observable.getExternal(LUCENE));
-        Set<String> values = new HashSet<>(vs.length);
-        for (String v: vs)
+    public <T> Set<T> getAll(Observable observable) {
+        IndexableField[] fs = this.document.getFields(observable.getExternal(LUCENE));
+        Set<T> values = new HashSet<>(fs.length);
+        for (IndexableField f: fs) {
+            T v = this.convert(observable, f);
             values.add(v);
+        }
         return values;
     }
 
@@ -449,8 +453,10 @@ public class LuceneClassifier extends Classifier {
      * @return A corresponding field
      *
      * @throws StoreException if unable to store the data
+     *
+     * @see #convert(Observable, IndexableField)
      */
-    protected Field convert(Observable observable, Object value) throws StoreException {
+    protected <T> Field convert(Observable observable, T value) throws StoreException {
         if (value == null || ((value instanceof String) && ((String) value).isEmpty()))
             return null;
         String field = observable.getExternal(LUCENE);
@@ -471,5 +477,38 @@ public class LuceneClassifier extends Classifier {
                     return new TextField(field, val, Field.Store.YES);
             }
         }
+    }
+
+    /**
+     * Convert a field into an appropriate value for an observable.
+     * <p>
+     * The field is assumed to be normalised
+     * </p>
+     *
+     * @param observable The observable
+     * @param field The field
+     *
+     * @param <T> The implicit observable type
+     *
+     * @return The converted field
+     *
+     * @see #convert(Observable, Object)
+     */
+    protected <T> T convert(Observable observable, IndexableField field) {
+        if (field == null)
+            return null;
+        if (observable.getType() == Integer.class || observable.getType() == Short.class || observable.getType() == Byte.class) {
+            Number number = field.numericValue();
+            if (number == null)
+                return null;
+            return (T) Integer.valueOf(number.intValue());
+        }
+        if (observable.getType() == Double.class || observable.getType() == Float.class) {
+            Number number = field.numericValue();
+            if (number == null)
+                return null;
+            return (T) Double.valueOf(number.doubleValue());
+        }
+        return (T) field.stringValue();
     }
 }

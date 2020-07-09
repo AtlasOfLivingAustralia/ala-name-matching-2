@@ -60,6 +60,10 @@ public class JavaGenerator extends Generator {
     @Getter
     @Setter
     private String artifactName;
+    /** The analyser class to use, if needed */
+    @Getter
+    @Setter
+    private String analyserClass;
     /** The object wrapper to use */
     private BeansWrapper wrapper;
     /** The template to use for the inference class */
@@ -121,6 +125,7 @@ public class JavaGenerator extends Generator {
         this.resourceTargetDir = resourceTargetDir;
         this.packageName = packageName;
         this.artifactName = "name-matching-builder";
+        this.analyserClass = null;
         Configuration config = getConfig();
         this.inferenceTemplate = config.getTemplate(INFERENCE_CLASS_TEMPLATE);
         this.parametersTemplate = config.getTemplate(PARAMETERS_CLASS_TEMPLATE);
@@ -199,6 +204,10 @@ public class JavaGenerator extends Generator {
         context.put("artifactName", this.artifactName);
         context.put("packageName", this.packageName);
         context.put("networkFile", networkFileName);
+        if (this.analyserClass != null) {
+            context.put("analyserClass", this.analyserClass);
+            context.put("analyserClassName", this.analyserClass.replace("([a-z0-9_]+\\.)+", ""));
+        }
 
         // Generate inference class
         if (this.isGenerateInferencer()) {

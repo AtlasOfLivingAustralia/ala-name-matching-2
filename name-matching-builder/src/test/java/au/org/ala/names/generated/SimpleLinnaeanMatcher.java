@@ -9,6 +9,7 @@ public class SimpleLinnaeanMatcher extends ClassificationMatcher<SimpleLinnaeanC
     super(searcher, new SimpleLinnaeanInference());
   }
 
+
   @Override
   public SimpleLinnaeanClassification createClassification() {
     return new SimpleLinnaeanClassification();

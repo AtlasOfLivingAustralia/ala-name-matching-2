@@ -46,10 +46,20 @@ abstract public class Classification {
      * <p>
      * This allows a classification to be built that matches the classifier.
      * </p>
-     * @param classifier The clkassifier that contains the original data
+     * @param classifier The classifier that contains the original data
      * @param overwrite Overwrite what is already in the classification
      *
      * @throws InferenceException
      */
     abstract public void populate(Classifier classifier, boolean overwrite) throws InferenceException;
+
+    /**
+     * Translate this classification into a classifier.
+     *
+     * @param classifier The empty classifier to populate
+     *
+     * @throws InferenceException if unable to translate
+     * @throws StoreException if unable to store the translation
+     */
+    abstract public void translate(Classifier classifier) throws InferenceException, StoreException;
 }

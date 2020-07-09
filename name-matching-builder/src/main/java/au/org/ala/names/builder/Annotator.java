@@ -1,6 +1,7 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Parameters;
 import au.org.ala.bayesian.StoreException;
 import org.apache.lucene.document.*;
@@ -26,7 +27,8 @@ public interface Annotator {
      *
      * @param classifier The classifier
      *
+     * @throws InferenceException If unable to analyse this classifier properly
      * @throws StoreException If unable to create an annotation for some reason.
      */
-    public void annotate(Classifier classifier) throws StoreException;
+    public void annotate(Classifier classifier) throws InferenceException, StoreException;
 }

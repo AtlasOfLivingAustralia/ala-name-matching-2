@@ -59,20 +59,20 @@ public class GrassParameters extends Parameters {
 
   public void build() {
     this.prior_f$rain = 1.0 - this.prior_t$rain;
-    this.inf_f_t$sprinkler = 1.0 - inf_t_t$sprinkler;
-    this.inf_f_f$sprinkler = 1.0 - inf_t_f$sprinkler;
-    this.inf_f_tt$wet = 1.0 - inf_t_tt$wet;
-    this.inf_f_tf$wet = 1.0 - inf_t_tf$wet;
-    this.inf_f_ft$wet = 1.0 - inf_t_ft$wet;
-    this.inf_f_ff$wet = 1.0 - inf_t_ff$wet;
-    this.derived_t_tt$wet = inf_t_tt$wet * inf_t_t$sprinkler;
-    this.derived_f_tt$wet = inf_f_tt$wet * inf_t_t$sprinkler;
-    this.derived_t_tf$wet = inf_t_ft$wet * inf_t_f$sprinkler;
-    this.derived_f_tf$wet = inf_f_ft$wet * inf_t_f$sprinkler;
-    this.derived_t_ft$wet = inf_t_tf$wet * inf_f_t$sprinkler;
-    this.derived_f_ft$wet = inf_f_tf$wet * inf_f_t$sprinkler;
-    this.derived_t_ff$wet = inf_t_ff$wet * inf_f_f$sprinkler;
-    this.derived_f_ff$wet = inf_f_ff$wet * inf_f_f$sprinkler;
+    this.inf_f_t$sprinkler = 1.0 - this.inf_t_t$sprinkler;
+    this.inf_f_f$sprinkler = 1.0 - this.inf_t_f$sprinkler;
+    this.inf_f_tt$wet = 1.0 - this.inf_t_tt$wet;
+    this.inf_f_tf$wet = 1.0 - this.inf_t_tf$wet;
+    this.inf_f_ft$wet = 1.0 - this.inf_t_ft$wet;
+    this.inf_f_ff$wet = 1.0 - this.inf_t_ff$wet;
+    this.derived_t_tt$wet = this.inf_t_tt$wet * this.inf_t_t$sprinkler;
+    this.derived_f_tt$wet = this.inf_f_tt$wet * this.inf_t_t$sprinkler;
+    this.derived_t_tf$wet = this.inf_t_ft$wet * this.inf_t_f$sprinkler;
+    this.derived_f_tf$wet = this.inf_f_ft$wet * this.inf_t_f$sprinkler;
+    this.derived_t_ft$wet = this.inf_t_tf$wet * this.inf_f_t$sprinkler;
+    this.derived_f_ft$wet = this.inf_f_tf$wet * this.inf_f_t$sprinkler;
+    this.derived_t_ff$wet = this.inf_t_ff$wet * this.inf_f_f$sprinkler;
+    this.derived_f_ff$wet = this.inf_f_ff$wet * this.inf_f_f$sprinkler;
   }
 
 }

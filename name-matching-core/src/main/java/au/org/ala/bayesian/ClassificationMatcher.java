@@ -18,6 +18,7 @@ abstract public class ClassificationMatcher<C extends Classification, P extends 
 
     private ClassifierSearcher searcher;
     private I inferencer;
+    private EvidenceAnalyser<C> analyser;
 
     /**
      * Create with a searcher and inferencer.
@@ -28,11 +29,14 @@ abstract public class ClassificationMatcher<C extends Classification, P extends 
     public ClassificationMatcher(ClassifierSearcher searcher, I inferencer) {
         this.searcher = searcher;
         this.inferencer = inferencer;
+        this.analyser = this.createAnalyser();
     }
 
     public Match<C> findMatch(C classification) throws InferenceException, StoreException {
+        if (analyser != null)
+            analyser.analyse(classification);
+        classification.infer();
         List<Classifier> candididates = this.searcher.search(classification);
-
         if (candididates.isEmpty())
             return null;
         List<Match<C>> results = new ArrayList<>(candididates.size());
@@ -49,6 +53,8 @@ abstract public class ClassificationMatcher<C extends Classification, P extends 
                 results.add(match);
             }
         }
+        if (results.isEmpty())
+            return null;
         results.sort((m1, m2) -> - Double.compare(m1.getProbability(), m2.getProbability()));
         // TODO resolution
         return results.get(0);
@@ -86,6 +92,16 @@ abstract public class ClassificationMatcher<C extends Classification, P extends 
      */
     protected boolean isAcceptable(C classification, Classifier candidate, double p) {
         return p >= ACCEPTABLE_THRESHOLD;
+    }
+
+
+    /**
+     * Create an analyser
+     *
+     * @return A new analyser, or null for not required
+     */
+    public EvidenceAnalyser<C> createAnalyser() {
+        return null;
     }
 
     /**

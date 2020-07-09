@@ -61,7 +61,7 @@ public class SoundexDerivation extends CopyDerivation {
     public String generateBuilderTransform(String var, String extra, String documentVar) {
         if (this.rank == null)
             extra = "\"species\"";
-        return "this." + INSTANCE_VAR + ".treatWord(" + var + ", " + extra + ")";
+        return "this." + INSTANCE_VAR + ".treatWord((String) " + var + ", " + extra + ")";
     }
 
     @Override

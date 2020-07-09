@@ -1,5 +1,6 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.StoreException;
 import org.gbif.dwc.terms.DwcTerm;
@@ -56,9 +57,10 @@ abstract public class Source {
      * @param store The store to load into
      *
      * @throws BuilderException If there is an error in loading
+     * @throws InferenceException if there is an error in annotating a record
      * @throws StoreException If there is an error in storing the retrieved data
      */
-    abstract public void load(LoadStore store) throws BuilderException, StoreException;
+    abstract public void load(LoadStore store) throws BuilderException, InferenceException, StoreException;
 
     /**
      * Close this source after loading

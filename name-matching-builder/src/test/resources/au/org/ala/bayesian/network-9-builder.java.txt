@@ -21,8 +21,8 @@ public class Network9Builder extends Builder<Network9Parameters> {
 
   @Override
   public void infer(Classifier classifier) throws InferenceException, StoreException {
-    for (String v: classifier.getAll(Network9Observables.v1)) {
-      String d = this.soundex.treatWord(v, "species");
+    for (Object v: classifier.getAll(Network9Observables.v1)) {
+      Object d = this.soundex.treatWord((String) v, "species");
       classifier.add(Network9Observables.v2, d);
     }
   }

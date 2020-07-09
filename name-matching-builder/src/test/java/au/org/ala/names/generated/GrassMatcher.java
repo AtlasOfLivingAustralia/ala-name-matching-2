@@ -9,6 +9,7 @@ public class GrassMatcher extends ClassificationMatcher<GrassClassification, Gra
     super(searcher, new GrassInference());
   }
 
+
   @Override
   public GrassClassification createClassification() {
     return new GrassClassification();

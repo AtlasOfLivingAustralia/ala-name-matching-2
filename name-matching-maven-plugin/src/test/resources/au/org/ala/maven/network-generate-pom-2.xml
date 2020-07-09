@@ -35,6 +35,7 @@
                      <generateObservables>false</generateObservables>
                      <generateBuilder>true</generateBuilder>
                      <generateCli>true</generateCli>
+                     <analyserClass>au.org.ala.bayesian.EvidenceAnalyser</analyserClass>
                  </configuration>
                 <goals>
                     <goal>generate-network</goal>

@@ -48,8 +48,8 @@ public class CSVSourceTest {
         assertEquals(11, this.store.getStore().size());
         LuceneClassifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "S-1");
         assertNotNull(value);
-        assertEquals("Artemia franciscana", value.get(SCIENTIFIC_NAME_OBS));
-        assertEquals("species", value.get(TAXON_RANK_OBS));
+        assertEquals("Artemia franciscana", value.get(SCIENTIFIC_NAME_OBS).toString());
+        assertEquals("species", value.get(TAXON_RANK_OBS).toString());
         source.close();
     }
 

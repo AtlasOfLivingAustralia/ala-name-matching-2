@@ -1,5 +1,6 @@
 package au.org.ala.maven;
 
+import au.org.ala.bayesian.EvidenceAnalyser;
 import au.org.ala.bayesian.JavaGenerator;
 import au.org.ala.bayesian.Network;
 import au.org.ala.bayesian.NetworkCompiler;
@@ -34,6 +35,11 @@ public class NetworkGeneratorMojo extends AbstractMojo {
     /** The directory to write to (generated java and resources subdirectories are added as required) */
     @Parameter(property="outputDirectory", defaultValue = "${project.build.directory}")
     private File outputDirectory;
+
+
+    /** Any analyser to generate */
+    @Parameter(property="analyser")
+    private String analyserClass;
 
     /** Generate the builder? */
     @Parameter(property="generateBuilder", defaultValue = "true")
@@ -100,6 +106,8 @@ public class NetworkGeneratorMojo extends AbstractMojo {
             generator.setGenerateObservables(this.generateObservables);
             generator.setGenerateCli(this.generateCli);
             generator.setArtifactName(this.project.getArtifactId());
+            if (this.analyserClass != null)
+                generator.setAnalyserClass(this.analyserClass);
             generator.generate(compiler);
         } catch (MojoExecutionException ex) {
             throw ex;

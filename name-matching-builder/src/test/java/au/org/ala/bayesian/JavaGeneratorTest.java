@@ -76,7 +76,7 @@ public class JavaGeneratorTest {
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.generateParameterClass(compiler, "Network3Parameters",  this.createProperties("Network3"), writer);
-        System.out.println(writer.toString());
+        // System.out.println(writer.toString());
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-2-parameter.java.txt"), writer.toString());
     }
 
@@ -88,7 +88,7 @@ public class JavaGeneratorTest {
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.generateParameterClass(compiler, "Network3Parameters",  this.createProperties("Network3"), writer);
-        // System.out.println(writer.toString());
+        System.out.println(writer.toString());
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-3-parameter.java.txt"), writer.toString());
     }
 

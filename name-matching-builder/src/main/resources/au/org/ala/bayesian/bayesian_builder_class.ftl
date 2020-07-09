@@ -33,10 +33,10 @@ public class ${className} extends Builder<${parametersClassName}> {
   <#if observable?? && observable.derivation??>
     <#assign derivation = observable.derivation>
     <#if derivation.hasExtra()>
-    String e_${node?index} = ${derivation.generateExtra("classifier", observablesClassName)};
+    ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", observablesClassName)};
     </#if>
-    for (String v: ${derivation.generateValues("classifier", observablesClassName)}) {
-      String d = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
+    for (Object v: ${derivation.generateValues("classifier", observablesClassName)}) {
+      Object d = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
       classifier.add(${observablesClassName}.${observable.javaVariable}, d);
     }
   </#if>
@@ -56,10 +56,10 @@ public class ${className} extends Builder<${parametersClassName}> {
     Optional<Classifier> ${docVar} = parents.stream().filter(c -> ${condition}).findFirst();
     if (${docVar}.isPresent()){
     <#if derivation.hasExtra()>
-      String e_${node?index} = ${derivation.generateExtra("classifier", observablesClassName)};
+      ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", observablesClassName)};
     </#if>
-      for(String v: ${derivation.generateValues("${docVar}.get()", observablesClassName)}){
-        String d = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
+      for(Object v: ${derivation.generateValues("${docVar}.get()", observablesClassName)}){
+        Object d = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
         classifier.add(${observablesClassName}.${observable.javaVariable}, d);
       }
     }

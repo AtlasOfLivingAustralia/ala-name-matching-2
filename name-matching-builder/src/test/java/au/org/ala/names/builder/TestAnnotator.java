@@ -9,6 +9,6 @@ import org.apache.lucene.document.Document;
  */
 public class TestAnnotator implements Annotator {
     @Override
-    public void annotate(Classifier classifier) throws StoreException {
+    public void annotate(Classifier classifier) {
     }
 }

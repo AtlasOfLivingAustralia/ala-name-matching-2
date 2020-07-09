@@ -12,6 +12,10 @@ import java.net.URL;
 import ${variable.clazz.name};
 </#list>
 
+<#if analyserClass??>
+import ${analyserClass};
+</#if>
+
 public class ${className} {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
@@ -40,6 +44,9 @@ public class ${className} {
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(${builderClassName}.class);
        config.setNetwork(${builderClassName}.class.getResource("${builderClassName}.json"));
+<#if analyserClass??>
+       config.setAnalyserClass(${analyserClassName}.class);
+</#if>
      }
      if (cmd.hasOption(workOption.getOpt())) {
        config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));

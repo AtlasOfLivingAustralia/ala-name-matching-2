@@ -66,4 +66,11 @@ public class TestClassification extends Classification {
         if (overwrite || this.vernacularName == null)
             this.vernacularName = classifier.get(VERNACULAR_NAME);
     }
+
+    @Override
+    public void translate(Classifier classifier) throws StoreException {
+        classifier.add(CLASS_, this.class_);
+        classifier.add(SCIENTIFIC_NAME, this.scientificName);
+        classifier.add(VERNACULAR_NAME, this.vernacularName);
+    }
 }

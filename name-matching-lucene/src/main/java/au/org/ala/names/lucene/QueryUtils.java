@@ -101,7 +101,8 @@ public class QueryUtils {
         Query base;
 
         if (observation.isPresent()) {
-            base = new DocValuesFieldExistsQuery(field);
+            // Invert MUST/MUST_NOT for presence, a blank observations means that something should not be there
+            return new BooleanClause(new DocValuesFieldExistsQuery(field), observation.isPositive() ? BooleanClause.Occur.MUST_NOT : BooleanClause.Occur.MUST);
         } else {
             base = this.asQuery(
                 field,

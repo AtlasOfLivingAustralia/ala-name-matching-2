@@ -50,7 +50,7 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
     }
 
     @Override
-    public void store(LuceneClassifier classifier, Term type) throws StoreException {
+    public void store(LuceneClassifier classifier, Term type) throws InferenceException, StoreException {
         String id = classifier.identify();
         classifier.setType(type);
         this.annotator.annotate(classifier);

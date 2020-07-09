@@ -1,5 +1,7 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.EvidenceAnalyser;
+import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.TermDeserializer;
@@ -37,6 +39,11 @@ public class IndexBuilderConfiguration {
     @Getter
     @Setter
     private Class<? extends Builder> builderClass;
+    /** The class of the analyser */
+    @JsonProperty
+    @Getter
+    @Setter
+    private Class<? extends EvidenceAnalyser> analyserClass;
     /** The class of the load store */
     @JsonProperty
     @Getter
@@ -55,6 +62,7 @@ public class IndexBuilderConfiguration {
 
     public IndexBuilderConfiguration() {
         this.builderClass = EmptyBuilder.class;
+        this.analyserClass = null;
         this.loadStoreClass = LuceneLoadStore.class;
         this.defaultWeight = 1.0;
         this.logInterval = 100;
@@ -133,6 +141,30 @@ public class IndexBuilderConfiguration {
         } catch (Exception ex) {
         }
         throw new StoreException("Unable to construct builder for " + this.builderClass);
+    }
+
+    /**
+     * Construct an analyser.
+     * <p>
+     * The analyser must have an empty constuctor.
+     * </p>
+     *
+      *
+     * @return A newly created analyser or null for none required.
+     *
+     * @throws InferenceException if unable to build the analyser
+     */
+    public EvidenceAnalyser<?> createAnalyser() throws InferenceException {
+        Constructor<? extends EvidenceAnalyser> c;
+
+        if (this.analyserClass == null)
+            return null;
+        try {
+            c = this.analyserClass.getConstructor();
+            return c.newInstance();
+        } catch (Exception ex) {
+        }
+        throw new InferenceException("Unable to construct analyser for " + this.analyserClass);
     }
 
     /**

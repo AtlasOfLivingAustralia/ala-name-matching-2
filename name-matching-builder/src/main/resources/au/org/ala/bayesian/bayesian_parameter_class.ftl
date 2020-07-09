@@ -30,7 +30,7 @@ public class ${className} extends Parameters {
 </#list>
 <#list orderedNodes as node>
   <#list node.inference as inf>
-    <#if !inf.derived>
+    <#if !inf.inverted && !inf.derived>
     this.${inf.id} = vector[${load}];
       <#assign load = load + 1 >
     </#if>
@@ -50,7 +50,7 @@ public class ${className} extends Parameters {
 </#list>
 <#list orderedNodes as node>
   <#list node.inference as inf>
-    <#if !inf.derived>
+    <#if !inf.inverted && !inf.derived>
     vector[${load}] = this.${inf.id};
       <#assign load = load + 1 >
     </#if>
@@ -66,12 +66,12 @@ public class ${className} extends Parameters {
 <#list orderedNodes as node>
     <#list node.inference as inf>
       <#if inf.derived>
-    this.${inf.id} = <#if inf.inverted>1.0 - </#if><#list inf.derivedFrom as s><#if s?index gt 0> * </#if>${s.id}</#list>;
+    this.${inf.id} = <#if inf.inverted>1.0 - </#if><#list inf.derivedFrom as s><#if s?index gt 0> * </#if>this.${s.id}</#list>;
       </#if>
     </#list>
     <#list node.interior as inf>
         <#if inf.derived>
-    this.${inf.id} = <#if inf.inverted>1.0 - </#if><#list inf.derivedFrom as s><#if s?index gt 0> * </#if>${s.id}</#list>;
+    this.${inf.id} = <#if inf.inverted>1.0 - </#if><#list inf.derivedFrom as s><#if s?index gt 0> * </#if>this.${s.id}</#list>;
         </#if>
     </#list>
 </#list>

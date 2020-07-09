@@ -2,8 +2,11 @@ package au.org.ala.names.generated;
 
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.EvidenceAnalyser;
 import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.StoreException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -140,4 +143,19 @@ public class SimpleLinnaeanClassification extends Classification {
     return evidence;
   }
 
+  @Override
+  public void translate(Classifier classifier) throws InferenceException, StoreException {
+    classifier.add(SimpleLinnaeanObservables.taxonId, this.taxonId);
+    classifier.add(SimpleLinnaeanObservables.taxonRank, this.taxonRank);
+    classifier.add(SimpleLinnaeanObservables.specificEpithet, this.specificEpithet);
+    classifier.add(SimpleLinnaeanObservables.scientificNameAuthorship, this.scientificNameAuthorship);
+    classifier.add(SimpleLinnaeanObservables.scientificName, this.scientificName);
+    classifier.add(SimpleLinnaeanObservables.soundexScientificName, this.soundexScientificName);
+    classifier.add(SimpleLinnaeanObservables.genus, this.genus);
+    classifier.add(SimpleLinnaeanObservables.family, this.family);
+    classifier.add(SimpleLinnaeanObservables.order, this.order);
+    classifier.add(SimpleLinnaeanObservables.class_, this.class_);
+    classifier.add(SimpleLinnaeanObservables.phylum, this.phylum);
+    classifier.add(SimpleLinnaeanObservables.kingdom, this.kingdom);
+  }
 }

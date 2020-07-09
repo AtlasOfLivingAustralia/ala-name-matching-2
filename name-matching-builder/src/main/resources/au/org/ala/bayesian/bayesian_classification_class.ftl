@@ -2,8 +2,11 @@ package ${packageName};
 
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.EvidenceAnalyser;
 import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.StoreException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,4 +86,10 @@ public class ${className} extends Classification {
     return evidence;
   }
 
+  @Override
+  public void translate(Classifier classifier) throws InferenceException, StoreException {
+<#list orderedNodes as node>
+    classifier.add(${observablesClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
+</#list>
+  }
 }

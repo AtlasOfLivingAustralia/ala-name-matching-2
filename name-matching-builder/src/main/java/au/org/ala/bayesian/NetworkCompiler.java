@@ -241,7 +241,7 @@ public class NetworkCompiler {
         /** The predecessor vertices; every vertex that feeds directly or indirectly into the node */
         @Getter
         private HorizonAlgorithm.Horizon<Observable> horizon;
-        /** The interior varables for this node */
+        /** The interior variables for this node */
         @Getter
         private List<InferenceParameter> interior;
         /** Is this a source node; a node that acts as a source to other node calculations */

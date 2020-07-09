@@ -87,6 +87,8 @@ public class IndexBuilder implements Annotator {
     /** The load-store. Used to store semi-structured information before building the complete index. */
     @Getter
     protected LoadStore loadStore;
+    /** The analyser. Used to add extra information to loaded classifiers. Accessed via the annotation interface */
+    protected EvidenceAnalyser<?> analyser;
 
     /**
      * Construct with a configuration.
@@ -96,11 +98,12 @@ public class IndexBuilder implements Annotator {
      * @throws StoreException if unable to create the load-store
      *
      */
-    public IndexBuilder(IndexBuilderConfiguration config) throws BuilderException, StoreException, IOException {
+    public IndexBuilder(IndexBuilderConfiguration config) throws BuilderException, InferenceException, StoreException, IOException {
         this.config = config;
         this.network = Network.read(this.config.getNetwork());
         this.builder = config.createBuilder(this);
         this.loadStore = config.createLoadStore(this);
+        this.analyser = config.createAnalyser();
         this.weight = this.network.findObservable(WEIGHT_PROPERTY, true).orElseThrow(() -> new BuilderException("Require observable " + WEIGHT_PROPERTY + ":true property"));
         this.parent = this.network.findObservable(PARENT_PROPERTY, true).orElseThrow(() -> new BuilderException("Require observable " + PARENT_PROPERTY + ":true property"));
         this.accepted = this.network.findObservable(ACCEPTED_PROPERTY, true);
@@ -118,9 +121,10 @@ public class IndexBuilder implements Annotator {
      * @param source The source to load
      *
      * @throws BuilderException if something foes wrong
+     * @throws InferenceException if there is something wrong with annotating the load
      * @throws StoreException if the store fails during loading
      */
-    public void load(Source source) throws BuilderException, StoreException {
+    public void load(Source source) throws BuilderException, InferenceException, StoreException {
         source.load(this.loadStore);
         this.loadStore.commit();
     }
@@ -197,7 +201,7 @@ public class IndexBuilder implements Annotator {
         }
 
         Optional<String> authorship = this.scientificNameAuthorship.map(sna -> classifier.get(sna));
-        String nameComplete = this.nameComplete.map(nc -> classifier.get(nc)).orElseGet(() -> (name + " " + authorship.orElse("")).trim());
+        String nameComplete = this.nameComplete.map(nc -> (String) classifier.get(nc)).orElseGet(() -> (name + " " + authorship.orElse("")).trim());
         CleanedScientificName nc = new CleanedScientificName(nameComplete);
         allNames.add(nc.getName());
         allNames.add(nc.getBasic());
@@ -390,6 +394,7 @@ public class IndexBuilder implements Annotator {
     /**
      * Annotate a classifier with additional information.
      * <p>
+     * Any {@link EvidenceAnalyser} is applied to the classification.
      * If the document does not have a parent or an accepted taxon
      * then annotate it as {@link ALATerm#isRoot}.
      * If the document does not have a parent but does have an accepted taxon,
@@ -397,13 +402,17 @@ public class IndexBuilder implements Annotator {
      * </p>
      *
      * @param classifier The classifier
+     *
+     * @throws InferenceException If any analysis fails
      * @throws StoreException If unable to create an annotation for some reason.
      */
     @Override
-    public void annotate(Classifier classifier) throws StoreException {
+    public void annotate(Classifier classifier) throws InferenceException, StoreException {
         String p = classifier.get(this.parent);
         String a = this.accepted.isPresent() ? classifier.get(this.accepted.get()) : null;
 
+        if (this.analyser != null)
+            this.analyser.analyse(classifier);
         if (( p == null || p.isEmpty()) && (a == null || a.isEmpty()))
             classifier.annotate(ALATerm.isRoot);
         if ((p == null || p.isEmpty()) && (a != null && !a.isEmpty()))

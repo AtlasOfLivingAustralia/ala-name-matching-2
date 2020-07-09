@@ -26,7 +26,7 @@ abstract public class Classifier {
      *
      * @return The associated value or null for not present
      */
-    abstract public String get(Observable observable);
+    abstract public <T> T get(Observable observable);
 
     /**
      * Get the all values for an observable.
@@ -35,7 +35,7 @@ abstract public class Classifier {
      *
      * @return The a set of all present values
      */
-    abstract public Set<String> getAll(Observable observable);
+    abstract public <T> Set<T> getAll(Observable observable);
 
     /**
      * Does this classifier contain any information about this observable?
@@ -60,7 +60,7 @@ abstract public class Classifier {
      *
      * @throws InferenceException if there was a problem matching the result
      */
-    abstract public Boolean match(Observable observable, Object value) throws InferenceException;
+    abstract public <T> Boolean match(Observable observable, T value) throws InferenceException;
 
     /**
      * Add a value to the classifier.
@@ -74,7 +74,7 @@ abstract public class Classifier {
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    abstract public void add(Observable observable, Object value) throws StoreException;
+    abstract public <T> void add(Observable observable, T value) throws StoreException;
 
 
     /**
@@ -101,7 +101,7 @@ abstract public class Classifier {
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    abstract public void replace(Observable observable, Object value) throws StoreException;
+    abstract public <T> void replace(Observable observable, T value) throws StoreException;
 
     /**
      * Get the identifier for a classifier.

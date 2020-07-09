@@ -49,8 +49,8 @@ public class LuceneClassifierSearcherTest {
         assertNotNull(classifiers);
         assertEquals(4, classifiers.size());
         LuceneClassifier c1 = classifiers.get(0);
-        assertEquals("reptilia", c1.get(TestClassification.CLASS_).toLowerCase());
+        assertEquals("reptilia", ((String) c1.get(TestClassification.CLASS_)).toLowerCase());
         LuceneClassifier c2 = classifiers.get(1);
-        assertEquals("reptilia", c2.get(TestClassification.CLASS_).toLowerCase());
+        assertEquals("reptilia", ((String) c2.get(TestClassification.CLASS_)).toLowerCase());
     }
 }

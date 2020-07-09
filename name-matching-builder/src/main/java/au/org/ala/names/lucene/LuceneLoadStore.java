@@ -134,7 +134,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @param type The document type
      */
     @Override
-    public void store(LuceneClassifier classifier, Term type) throws StoreException {
+    public void store(LuceneClassifier classifier, Term type) throws InferenceException, StoreException {
          try {
             classifier.identify();
             classifier.setType(type);

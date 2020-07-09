@@ -59,10 +59,10 @@ public class LuceneLoadStoreTest {
         this.store.store(v1, DwcTerm.Taxon);
         LuceneClassifier v1r = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "ID-1");
         assertNotNull(v1r);
-        assertEquals("ID-1", v1r.get(TAXON_ID_OBS));
-        assertEquals("Acacia dealbata", v1r.get(SCIENTIFIC_NAME_OBS));
-        assertEquals("Acacia", v1r.get(GENUS_OBS));
-        assertEquals("Fabaceae", v1r.get(FAMILY_OBS));
+        assertEquals("ID-1", v1r.get(TAXON_ID_OBS).toString());
+        assertEquals("Acacia dealbata", v1r.get(SCIENTIFIC_NAME_OBS).toString());
+        assertEquals("Acacia", v1r.get(GENUS_OBS).toString());
+        assertEquals("Fabaceae", v1r.get(FAMILY_OBS).toString());
         assertEquals(DwcTerm.Taxon, v1r.getType());
     }
 
@@ -91,13 +91,13 @@ public class LuceneLoadStoreTest {
         assertTrue(di.hasNext());
         LuceneClassifier v1r = di.next();
         assertNotNull(v1r);
-        assertEquals("ID-1", v1r.get(TAXON_ID_OBS));
-        assertEquals("Acacia", v1r.get(GENUS_OBS));
+        assertEquals("ID-1", v1r.get(TAXON_ID_OBS).toString());
+        assertEquals("Acacia", v1r.get(GENUS_OBS).toString());
         assertTrue(di.hasNext());
         LuceneClassifier v2r = di.next();
         assertNotNull(v2r);
-        assertEquals("ID-1", v2r.get(TAXON_ID_OBS));
-        assertEquals("Acacia", v2r.get(GENUS_OBS));
+        assertEquals("ID-1", v2r.get(TAXON_ID_OBS).toString());
+        assertEquals("Acacia", v2r.get(GENUS_OBS).toString());
         assertFalse(di.hasNext());
     }
 

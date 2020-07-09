@@ -9,7 +9,6 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>au.org.ala</groupId>
     <artifactId>ala-linnaean</artifactId>
 <!--    <version>${project.parent.version}</version>-->
 
@@ -19,11 +18,17 @@
     </description>
 
     <dependencies>
-    <dependency>
-        <groupId>au.org.ala</groupId>
-        <artifactId>name-matching-core</artifactId>
-        <version>${project.parent.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>au.org.ala</groupId>
+            <artifactId>name-matching-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <!-- Version has to be 2.x to allow compatibility with ALANameParser -->
+            <groupId>org.gbif</groupId>
+            <artifactId>name-parser</artifactId>
+            <version>2.24</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -46,7 +51,8 @@
                             <generateInferencer>true</generateInferencer>
                             <generateParameters>true</generateParameters>
                             <generateClassification>true</generateClassification>
-                            <generateObserables>true</generateObserables>
+                            <generateObservables>true</generateObservables>
+                            <analyserClass>au.org.ala.names.AlaNameAnalyser</analyserClass>
                         </configuration>
                     </execution>
                  </executions>
