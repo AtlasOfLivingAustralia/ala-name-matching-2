@@ -157,4 +157,15 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals(1.0, match.getProbability(), 0.00001);
     }
 
+
+    @Test
+    public void testMatch5() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Canarium acutifolium";
+        Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
+        assertNotNull(match);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
+        assertEquals(1.0, match.getProbability(), 0.00001);
+    }
+
 }

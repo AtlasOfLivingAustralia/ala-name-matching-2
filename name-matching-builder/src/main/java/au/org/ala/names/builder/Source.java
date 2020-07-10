@@ -55,12 +55,13 @@ abstract public class Source {
      * Load this source into an index builder.
      *
      * @param store The store to load into
+     * @param accepted The accepted observations, all if null
      *
      * @throws BuilderException If there is an error in loading
      * @throws InferenceException if there is an error in annotating a record
      * @throws StoreException If there is an error in storing the retrieved data
      */
-    abstract public void load(LoadStore store) throws BuilderException, InferenceException, StoreException;
+    abstract public void load(LoadStore store, Collection<Observable> accepted) throws BuilderException, InferenceException, StoreException;
 
     /**
      * Close this source after loading

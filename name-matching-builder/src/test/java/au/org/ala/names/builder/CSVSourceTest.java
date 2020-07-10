@@ -11,9 +11,9 @@ import org.junit.Test;
 
 import java.io.Reader;
 import java.net.URL;
+import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Test cases for {@link CSVSource}
@@ -43,7 +43,7 @@ public class CSVSourceTest {
     public void testLoad1() throws Exception {
         Reader reader = TestUtils.getResourceReader(this.getClass(), "source-1.csv");
         CSVSource source = new CSVSource(DwcTerm.Taxon, reader, this.network.getObservables());
-        source.load(this.store);
+        source.load(this.store, null);
 
         assertEquals(11, this.store.getStore().size());
         LuceneClassifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "S-1");
@@ -57,13 +57,13 @@ public class CSVSourceTest {
     public void testLoad2() throws Exception {
         URL url = this.getClass().getResource("source-1.csv");
         CSVSource source = new CSVSource(DwcTerm.Taxon, url, this.network.getObservables());
-        source.load(this.store);
+        source.load(this.store, Arrays.asList(TAXON_ID_OBS, SCIENTIFIC_NAME_OBS));
 
         assertEquals(11, this.store.getStore().size());
         LuceneClassifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "S-1");
         assertNotNull(value);
         assertEquals("Artemia franciscana", value.get(SCIENTIFIC_NAME_OBS));
-        assertEquals("species", value.get(TAXON_RANK_OBS));
+        assertNull(value.get(TAXON_RANK_OBS));
         source.close();
     }
 }

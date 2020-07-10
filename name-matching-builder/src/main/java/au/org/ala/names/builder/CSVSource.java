@@ -94,12 +94,14 @@ public class CSVSource extends Source {
      * @throws BuilderException if unable to load correctly
      */
     @Override
-    public void load(LoadStore store) throws BuilderException {
+    public void load(LoadStore store, Collection<Observable> accepted) throws BuilderException {
         String[] line;
         try {
             while ((line = this.reader.readNext()) != null) {
                 Classifier classifier = store.newClassifier();
                 for (int i = 0; i < this.header.length; i++) {
+                    if (accepted != null && !accepted.contains(header[i]))
+                        continue;
                     String value = line[i];
                     if (value != null && !value.isEmpty())
                         classifier.add(header[i], value);

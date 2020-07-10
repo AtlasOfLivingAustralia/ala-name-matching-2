@@ -76,14 +76,15 @@ public class DwCASource extends Source {
      * Load the data into a store
      *
      * @param store The store
+     * @param accepted The accepted observables (null for all)
      *
      * @throws BuilderException if unable to
      */
     @Override
-    public void load(LoadStore store) throws BuilderException, InferenceException, StoreException {
-        this.loadArchiveFile(this.archive.getCore(), store);
+    public void load(LoadStore store, Collection<Observable> accepted) throws BuilderException, InferenceException, StoreException {
+        this.loadArchiveFile(this.archive.getCore(), store, accepted);
         for (ArchiveFile ext: this.archive.getExtensions())
-            this.loadArchiveFile(ext, store);
+            this.loadArchiveFile(ext, store, accepted);
     }
 
     /**
@@ -110,22 +111,25 @@ public class DwCASource extends Source {
      *
      * @param file The archive file
      * @param store The store to load to
+     * @param accepted The list of accepted observables
      *
      * @throws StoreException if unable to store the resulting document
      */
-    protected void loadArchiveFile(ArchiveFile file, LoadStore store) throws InferenceException, StoreException {
+    protected void loadArchiveFile(ArchiveFile file, LoadStore store, Collection<Observable> accepted) throws InferenceException, StoreException {
         Term type = file.getRowType();
         Set<Observable> terms = file.getTerms().stream().map(t -> this.getObservable(t)).collect(Collectors.toSet());
         for (Record record: file) {
             Classifier classifier = store.newClassifier();
             for (Observable term: terms) {
+                if (accepted != null && !accepted.contains(term))
+                    continue;
                 String value = record.value(term.getTerm());
                 if (value != null) {
                     value = value.trim();
                     if (!value.isEmpty())
                         classifier.add(term, value);
                 }
-             }
+            }
             store.store(classifier, type);
         }
     }

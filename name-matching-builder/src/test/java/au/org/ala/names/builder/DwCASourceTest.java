@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URL;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -42,7 +43,7 @@ public class DwCASourceTest {
     public void testLoad1() throws Exception {
         URL sample = this.getClass().getResource("/sample-1.zip");
         DwCASource source = new DwCASource(sample, this.network.getObservables());
-        source.load(this.store);
+        source.load(this.store, null);
 
         assertEquals(710, this.store.getStore().size());
         Classifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2901022");
@@ -53,6 +54,24 @@ public class DwCASourceTest {
         value = this.store.get(GbifTerm.VernacularName, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2913682");
         assertNotNull(value);
         assertEquals("Mallow", value.get(VERNACULAR_NAME_OBS));
+        source.close();
+    }
+
+    @Test
+    public void testLoad2() throws Exception {
+        URL sample = this.getClass().getResource("/sample-1.zip");
+        DwCASource source = new DwCASource(sample, this.network.getObservables());
+        source.load(this.store, Arrays.asList(TAXON_ID_OBS, SCIENTIFIC_NAME_OBS));
+
+        assertEquals(710, this.store.getStore().size());
+        Classifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2901022");
+        assertNotNull(value);
+        assertEquals("Canarium acutifolium", value.get(SCIENTIFIC_NAME_OBS));
+        assertNull(value.get(TAXON_RANK_OBS));
+
+        value = this.store.get(GbifTerm.VernacularName, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2913682");
+        assertNotNull(value);
+        assertNull(value.get(VERNACULAR_NAME_OBS));
         source.close();
     }
 }

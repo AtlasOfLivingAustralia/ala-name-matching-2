@@ -84,6 +84,8 @@ public class IndexBuilder implements Annotator {
     protected Optional<Observable> nameComplete;
     /** The set of terms to copy from an accepted taxon to a synonym */
     protected Set<Observable> synonymCopy;
+    /** The set of terms that need to be stored */
+    protected Set<Observable> stored;
     /** The load-store. Used to store semi-structured information before building the complete index. */
     @Getter
     protected LoadStore loadStore;
@@ -113,6 +115,16 @@ public class IndexBuilder implements Annotator {
         this.nameComplete = this.network.findObservable(NAME_COMPLETE_PROPERTY, true);
         this.altScientificName = this.network.findObservable(ALT_SCIENTIFIC_NAME_PROPERTY, true);
         this.synonymCopy = new HashSet<>(this.network.findObservables(COPY_PROPERTY, true));
+        this.stored = new HashSet<>(this.network.getVertices()); // The defined observables in the network
+        this.stored.add(this.weight);
+        this.stored.add(this.parent);
+        this.accepted.ifPresent(o -> this.stored.add(o));
+        this.stored.add(this.taxonId);
+        this.stored.add(this.scientificName);
+        this.scientificNameAuthorship.ifPresent(o -> this.stored.add(o));
+        this.nameComplete.ifPresent(o -> this.stored.add(o));
+        this.altScientificName.ifPresent(o -> this.stored.add(o));
+        this.stored.addAll(this.synonymCopy);
     }
 
     /**
@@ -125,7 +137,7 @@ public class IndexBuilder implements Annotator {
      * @throws StoreException if the store fails during loading
      */
     public void load(Source source) throws BuilderException, InferenceException, StoreException {
-        source.load(this.loadStore);
+        source.load(this.loadStore, this.stored);
         this.loadStore.commit();
     }
 
