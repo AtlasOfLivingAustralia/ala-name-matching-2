@@ -18,42 +18,42 @@ public class AlaNameAnalyserTest {
     @Test
     public void testClassifierNamePopulation1() throws Exception {
         SimpleClassifier classifier = new SimpleClassifier();
-        classifier.add(AlaLinnaeanObservables.scientificName, "Acacia dealbata");
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata");
         this.analyser.analyse(classifier);
-        assertEquals("Acacia", classifier.get(AlaLinnaeanObservables.genus));
-        assertEquals("dealbata", classifier.get(AlaLinnaeanObservables.specificEpithet));
-        assertEquals("species", classifier.get(AlaLinnaeanObservables.taxonRank));
+        assertEquals("Acacia", classifier.get(AlaLinnaeanFactory.genus));
+        assertEquals("dealbata", classifier.get(AlaLinnaeanFactory.specificEpithet));
+        assertEquals("species", classifier.get(AlaLinnaeanFactory.taxonRank));
     }
 
     @Test
     public void testClassifierNamePopulation2() throws Exception {
         SimpleClassifier classifier = new SimpleClassifier();
-        classifier.add(AlaLinnaeanObservables.scientificName, "Acacia dealbata dealbata");
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata dealbata");
         this.analyser.analyse(classifier);
-        assertEquals("Acacia", classifier.get(AlaLinnaeanObservables.genus));
-        assertEquals("dealbata", classifier.get(AlaLinnaeanObservables.specificEpithet));
-        assertEquals("infraspecific_name", classifier.get(AlaLinnaeanObservables.taxonRank));
+        assertEquals("Acacia", classifier.get(AlaLinnaeanFactory.genus));
+        assertEquals("dealbata", classifier.get(AlaLinnaeanFactory.specificEpithet));
+        assertEquals("infraspecific_name", classifier.get(AlaLinnaeanFactory.taxonRank));
     }
 
     @Test
     public void testClassifierNamePopulation3() throws Exception {
         SimpleClassifier classifier = new SimpleClassifier();
-        classifier.add(AlaLinnaeanObservables.scientificName, "Acacia dealbata dealbata");
-        classifier.add(AlaLinnaeanObservables.taxonRank, "variety");
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata dealbata");
+        classifier.add(AlaLinnaeanFactory.taxonRank, "variety");
         this.analyser.analyse(classifier);
-        assertEquals("Acacia", classifier.get(AlaLinnaeanObservables.genus));
-        assertEquals("dealbata", classifier.get(AlaLinnaeanObservables.specificEpithet));
-        assertEquals("infraspecific_name", classifier.get(AlaLinnaeanObservables.taxonRank));
+        assertEquals("Acacia", classifier.get(AlaLinnaeanFactory.genus));
+        assertEquals("dealbata", classifier.get(AlaLinnaeanFactory.specificEpithet));
+        assertEquals("infraspecific_name", classifier.get(AlaLinnaeanFactory.taxonRank));
     }
 
     @Test
     public void testClassifierNamePopulation4() throws Exception {
         SimpleClassifier classifier = new SimpleClassifier();
-        classifier.add(AlaLinnaeanObservables.scientificName, "Plantae");
+        classifier.add(AlaLinnaeanFactory.scientificName, "Plantae");
         this.analyser.analyse(classifier);
-        assertNull(classifier.get(AlaLinnaeanObservables.genus));
-        assertNull(classifier.get(AlaLinnaeanObservables.specificEpithet));
-        assertNull(classifier.get(AlaLinnaeanObservables.taxonRank));
+        assertNull(classifier.get(AlaLinnaeanFactory.genus));
+        assertNull(classifier.get(AlaLinnaeanFactory.specificEpithet));
+        assertNull(classifier.get(AlaLinnaeanFactory.taxonRank));
     }
     
     @Test

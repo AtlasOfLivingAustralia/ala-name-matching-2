@@ -10,7 +10,7 @@ import java.util.Deque;
 /**
  * A null builder that does nothing in particular.
  */
-public class EmptyBuilder extends Builder<EmptyBuilder.EmptyParameters> {
+public class EmptyBuilder implements Builder<EmptyBuilder.EmptyParameters> {
     /**
      * Default constructor
      */
@@ -37,16 +37,6 @@ public class EmptyBuilder extends Builder<EmptyBuilder.EmptyParameters> {
     }
 
     /**
-     * Create an empty parameter set to be filled.
-     *
-     * @return A new parameter instance
-     */
-    @Override
-    public EmptyParameters createParameters() {
-        return new EmptyParameters();
-    }
-
-    /**
      * Null parameter calculation
      *
      * @param parameters The parameters to fill out
@@ -58,7 +48,7 @@ public class EmptyBuilder extends Builder<EmptyBuilder.EmptyParameters> {
     public void calculate(EmptyParameters parameters, ParameterAnalyser analyser, Classifier classifier) throws InferenceException {
     }
 
-    public static class EmptyParameters extends Parameters {
+    public static class EmptyParameters implements Parameters {
         double prior;
 
         @Override

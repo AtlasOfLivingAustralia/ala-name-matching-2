@@ -10,12 +10,13 @@ import java.util.List;
  * is then returned.
  * </p>
  */
-abstract public class ClassificationMatcher<C extends Classification, P extends Parameters, I extends Inferencer<C, P>> {
+public class ClassificationMatcher<C extends Classification, P extends Parameters, I extends Inferencer<C, P>> {
     /** The default possible theshold for something to be considered. @see isPossible */
     public static double POSSIBLE_THESHOLD = 0.1;
     /** The default acceptable threshold for something to be regarded as accepted. @see isAcceptable */
     public static double ACCEPTABLE_THRESHOLD = 0.99;
 
+    private NetworkFactory<C, P, I> factory;
     private ClassifierSearcher searcher;
     private I inferencer;
     private EvidenceAnalyser<C> analyser;
@@ -23,13 +24,14 @@ abstract public class ClassificationMatcher<C extends Classification, P extends 
     /**
      * Create with a searcher and inferencer.
      *
+     * @param factory The factory for creating objects for the matcher to work on
      * @param searcher The mechanism for getting candidiates
-     * @param inferencer The mechanism for computing match probabilities
      */
-    public ClassificationMatcher(ClassifierSearcher searcher, I inferencer) {
+    public ClassificationMatcher(NetworkFactory<C, P, I> factory, ClassifierSearcher searcher) {
+        this.factory = factory;
         this.searcher = searcher;
-        this.inferencer = inferencer;
-        this.analyser = this.createAnalyser();
+        this.inferencer = this.factory.createInferencer();
+        this.analyser = this.factory.createAnalyser();
     }
 
     public Match<C> findMatch(C classification) throws InferenceException, StoreException {
@@ -40,12 +42,12 @@ abstract public class ClassificationMatcher<C extends Classification, P extends 
         if (candididates.isEmpty())
             return null;
         List<Match<C>> results = new ArrayList<>(candididates.size());
+        P parameters = this.factory.createParameters();
         for (Classifier candidate: candididates) {
-            P parameters = this.createParameters();
             candidate.loadParameters(parameters);
             double p = this.inferencer.probability(classification, candidate, parameters);
             if (this.isPossible(classification, candidate, p)) {
-                C candidateClassification = this.createClassification();
+                C candidateClassification = this.factory.createClassification();
                 candidateClassification.populate(candidate, true);
                 Match<C> match = new Match<>(candidateClassification, candidate, p);
                 if (this.isAcceptable(classification, candidate, p))
@@ -93,28 +95,4 @@ abstract public class ClassificationMatcher<C extends Classification, P extends 
     protected boolean isAcceptable(C classification, Classifier candidate, double p) {
         return p >= ACCEPTABLE_THRESHOLD;
     }
-
-
-    /**
-     * Create an analyser
-     *
-     * @return A new analyser, or null for not required
-     */
-    public EvidenceAnalyser<C> createAnalyser() {
-        return null;
-    }
-
-    /**
-     * Create an empty classification
-     *
-     * @return The empty classification
-     */
-    abstract public C createClassification();
-
-    /**
-     * Create an empty set of parameters
-     *
-     * @return The empty parameters
-     */
-    abstract public P createParameters();
 }

@@ -37,7 +37,11 @@ public class NetworkGeneratorMojo extends AbstractMojo {
     private File outputDirectory;
 
 
-    /** Any analyser to generate */
+    /** Any matcher to use */
+    @Parameter(property="matcher")
+    private String matcherClass;
+
+    /** Any analyser to use */
     @Parameter(property="analyser")
     private String analyserClass;
 
@@ -57,13 +61,9 @@ public class NetworkGeneratorMojo extends AbstractMojo {
     @Parameter(property="generateClassification", defaultValue = "true")
     private boolean generateClassification = true;
 
-    /** Generate the matcher? */
+    /** Generate the factory? */
     @Parameter(property="generateMatcher", defaultValue = "true")
-    private boolean generateMatcher = true;
-
-    /** Generate the observables? */
-    @Parameter(property="generateObservables", defaultValue = "true")
-    private boolean generateObservables = true;
+    private boolean generateFactory = true;
 
     /** Generate the command line interface? */
     @Parameter(property="generateCli", defaultValue = "true")
@@ -102,12 +102,11 @@ public class NetworkGeneratorMojo extends AbstractMojo {
             generator.setGenerateInferencer(this.generateInferencer);
             generator.setGenerateParameters(this.generateParameters);
             generator.setGenerateClassification(this.generateClassification);
-            generator.setGenerateMatcher(this.generateMatcher);
-            generator.setGenerateObservables(this.generateObservables);
+            generator.setGenerateFactory(this.generateFactory);
             generator.setGenerateCli(this.generateCli);
             generator.setArtifactName(this.project.getArtifactId());
-            if (this.analyserClass != null)
-                generator.setAnalyserClass(this.analyserClass);
+            generator.setMatcherClass(this.matcherClass);
+            generator.setAnalyserClass(this.analyserClass);
             generator.generate(compiler);
         } catch (MojoExecutionException ex) {
             throw ex;

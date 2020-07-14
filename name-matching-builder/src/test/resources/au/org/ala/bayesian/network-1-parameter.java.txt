@@ -4,7 +4,7 @@ import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 
-public class Network1Parameters extends Parameters {
+public class Network1Parameters implements Parameters {
   public double prior_t$v1; // v_1 prior probability
   public double prior_f$v1; // 1 - v_1 prior probability
 

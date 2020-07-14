@@ -10,6 +10,7 @@ import java.net.URL;
 
 import au.org.ala.util.TaxonNameSoundEx;
 
+
 public class Network9Cli {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
@@ -37,6 +38,7 @@ public class Network9Cli {
      } else {
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(Network9Builder.class);
+       config.setFactoryClass(Network9Factory.class);
        config.setNetwork(Network9Builder.class.getResource("Network9Builder.json"));
      }
      if (cmd.hasOption(workOption.getOpt())) {

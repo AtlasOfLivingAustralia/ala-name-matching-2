@@ -68,7 +68,7 @@
                             <generateInferencer>false</generateInferencer>
                             <generateParameters>false</generateParameters>
                             <generateClassification>false</generateClassification>
-                            <generateObservables>false</generateObservables>
+                            <generateFactory>false</generateFactory>
                             <analyserClass>au.org.ala.names.AlaNameAnalyser</analyserClass>
                         </configuration>
                     </execution>

@@ -8,7 +8,7 @@ import org.gbif.dwc.terms.Term;
 
 import java.util.*;
 
-public class TestClassification extends Classification {
+public class TestClassification implements Classification {
     public static final Normaliser NORMALISER = new BasicNormaliser("basic", true, true, true, true, false);
     public static final Observable CLASS_ = new Observable(DwcTerm.class_);
     public static final Observable SCIENTIFIC_NAME = new Observable(DwcTerm.scientificName);

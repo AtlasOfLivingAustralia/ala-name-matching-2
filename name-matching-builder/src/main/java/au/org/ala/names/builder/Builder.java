@@ -11,7 +11,7 @@ import java.util.Deque;
  * Subclasses are generated based on the network configuration.
  * </p>
  */
-abstract public class Builder<P extends Parameters> {
+public interface Builder<P extends Parameters> {
     /**
      * Infer from a classifier during building.
      * <p>
@@ -24,7 +24,7 @@ abstract public class Builder<P extends Parameters> {
      * @throws InferenceException if unable to calculate the inference
      * @throws StoreException if unable to retrieve inference data
      */
-    abstract public void infer(Classifier classifier) throws InferenceException, StoreException;
+    public void infer(Classifier classifier) throws InferenceException, StoreException;
 
     /**
      * Expand a classifier during building.
@@ -38,14 +38,7 @@ abstract public class Builder<P extends Parameters> {
      * @throws InferenceException if unable to calculate the expansion
      * @throws StoreException if unable to retrieve expansion data
     */
-    abstract public void expand(Classifier document, Deque<Classifier> parents) throws InferenceException, StoreException;
-
-    /**
-     * Create an empty parameter set to be filled.
-     *
-     * @return A new parameter instance
-     */
-    abstract public P createParameters();
+    public void expand(Classifier document, Deque<Classifier> parents) throws InferenceException, StoreException;
 
     /**
      * Calculate parameter values for a particular document.
@@ -57,5 +50,5 @@ abstract public class Builder<P extends Parameters> {
      * @throws InferenceException if unable to calculate the parameters
      * @throws StoreException if unable to retrieve parameter data
      */
-    abstract public void calculate(P parameters, ParameterAnalyser analyser, Classifier document) throws InferenceException, StoreException;
+    public void calculate(P parameters, ParameterAnalyser analyser, Classifier document) throws InferenceException, StoreException;
 }

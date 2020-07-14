@@ -1,6 +1,6 @@
 package au.org.ala.bayesian;
 
-abstract public class Inferencer<C extends Classification, P extends Parameters> {
+abstract public interface Inferencer<C extends Classification, P extends Parameters> {
     /**
      * Calculate the probability of a match between a classification and a classifier.
      *
@@ -12,5 +12,5 @@ abstract public class Inferencer<C extends Classification, P extends Parameters>
      *
      * @throws InferenceException if unable to calculate the probability
      */
-    abstract public double probability(C classification, Classifier classifier, P parameters) throws InferenceException;
+    public double probability(C classification, Classifier classifier, P parameters) throws InferenceException;
 }

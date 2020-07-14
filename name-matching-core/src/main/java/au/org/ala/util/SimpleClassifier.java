@@ -11,7 +11,7 @@ import java.util.*;
  *
  * Generally useful when converting classifications into classifiers.
  */
-public class SimpleClassifier extends Classifier {
+public class SimpleClassifier implements Classifier {
     private String identifier;
     private Term type;
     private Set<Term> annotations;

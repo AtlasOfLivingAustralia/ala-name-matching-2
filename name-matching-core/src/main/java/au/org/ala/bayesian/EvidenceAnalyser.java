@@ -15,7 +15,7 @@ package au.org.ala.bayesian;
  * However, there may be quite a performance hit.
  * </p>
  */
-public class EvidenceAnalyser<C extends Classification> {
+public interface EvidenceAnalyser<C extends Classification> {
     /**
      * Analyse the information in a classifier and extend the classifier
      * as required.
@@ -25,8 +25,7 @@ public class EvidenceAnalyser<C extends Classification> {
      * @throws InferenceException if an error occurs during inference
      * @throws StoreException if an error occurs updating the classifier
      */
-    public void analyse(Classifier classifier) throws InferenceException, StoreException {
-    }
+    public void analyse(Classifier classifier) throws InferenceException, StoreException;
 
     /**
      * Analyse the information in a classification and extend the classification
@@ -37,6 +36,5 @@ public class EvidenceAnalyser<C extends Classification> {
      * @throws InferenceException if an error occurs during inference
      * @throws StoreException if an error occurs updating the classifier
      */
-    public void analyse(C classification) throws InferenceException, StoreException {
-    }
+    public void analyse(C classification) throws InferenceException, StoreException;
 }

@@ -51,7 +51,7 @@
                             <generateInferencer>true</generateInferencer>
                             <generateParameters>true</generateParameters>
                             <generateClassification>true</generateClassification>
-                            <generateObservables>true</generateObservables>
+                            <generateFactory>true</generateFactory>
                             <analyserClass>au.org.ala.names.AlaNameAnalyser</analyserClass>
                         </configuration>
                     </execution>

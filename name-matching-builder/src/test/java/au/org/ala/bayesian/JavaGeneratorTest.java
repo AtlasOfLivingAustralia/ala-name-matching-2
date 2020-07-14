@@ -11,10 +11,10 @@ public class JavaGeneratorTest {
         Properties context = new Properties();
         context.put("packageName", "au.org.ala.bayesian.generated");
         context.put("classificationClassName", base + "Classification");
-        context.put("observablesClassName", base + "Observables");
+        context.put("factoryClassName", base + "Factory");
         context.put("builderClassName", base + "Builder");
         context.put("parametersClassName", base + "Parameters");
-        context.put("inferenceClassName", base + "Inference");
+        context.put("inferencerClassName", base + "Inferencer");
         context.put("networkFileName", "network.json");
         context.put("artifactName", "name-matching-builder");
         return context;
@@ -88,7 +88,7 @@ public class JavaGeneratorTest {
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.generateParameterClass(compiler, "Network3Parameters",  this.createProperties("Network3"), writer);
-        System.out.println(writer.toString());
+        // System.out.println(writer.toString());
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-3-parameter.java.txt"), writer.toString());
     }
 

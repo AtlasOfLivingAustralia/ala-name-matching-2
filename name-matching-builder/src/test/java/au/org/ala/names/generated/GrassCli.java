@@ -37,6 +37,7 @@ public class GrassCli {
      } else {
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(GrassBuilder.class);
+       config.setFactoryClass(GrassFactory.class);
        config.setNetwork(GrassBuilder.class.getResource("GrassBuilder.json"));
      }
      if (cmd.hasOption(workOption.getOpt())) {

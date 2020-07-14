@@ -16,7 +16,7 @@ import org.gbif.dwc.terms.Term;
 
 import au.org.ala.util.TaxonNameSoundEx;
 
-public class SimpleLinnaeanClassification extends Classification {
+public class SimpleLinnaeanClassification implements Classification {
   private TaxonNameSoundEx soundex;
 
   public java.lang.String taxonId;
@@ -52,29 +52,29 @@ public class SimpleLinnaeanClassification extends Classification {
     Collection<Observation> obs = new ArrayList(12);
 
     if (this.taxonId != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.taxonId, this.taxonId));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.taxonId, this.taxonId));
     if (this.taxonRank != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.taxonRank, this.taxonRank));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.taxonRank, this.taxonRank));
     if (this.specificEpithet != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.specificEpithet, this.specificEpithet));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.specificEpithet, this.specificEpithet));
     if (this.scientificNameAuthorship != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.scientificNameAuthorship, this.scientificNameAuthorship));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.scientificNameAuthorship, this.scientificNameAuthorship));
     if (this.scientificName != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.scientificName, this.scientificName));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.scientificName, this.scientificName));
     if (this.soundexScientificName != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.soundexScientificName, this.soundexScientificName));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.soundexScientificName, this.soundexScientificName));
     if (this.genus != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.genus, this.genus));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.genus, this.genus));
     if (this.family != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.family, this.family));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.family, this.family));
     if (this.order != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.order, this.order));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.order, this.order));
     if (this.class_ != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.class_, this.class_));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.class_, this.class_));
     if (this.phylum != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.phylum, this.phylum));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.phylum, this.phylum));
     if (this.kingdom != null)
-      obs.add(new Observation(true, SimpleLinnaeanObservables.kingdom, this.kingdom));
+      obs.add(new Observation(true, SimpleLinnaeanFactory.kingdom, this.kingdom));
     return obs;
   }
 
@@ -89,73 +89,73 @@ public class SimpleLinnaeanClassification extends Classification {
   @Override
   public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
     if (overwrite || this.taxonId == null) {
-      this.taxonId = classifier.get(SimpleLinnaeanObservables.taxonId);
+      this.taxonId = classifier.get(SimpleLinnaeanFactory.taxonId);
     }
     if (overwrite || this.taxonRank == null) {
-      this.taxonRank = classifier.get(SimpleLinnaeanObservables.taxonRank);
+      this.taxonRank = classifier.get(SimpleLinnaeanFactory.taxonRank);
     }
     if (overwrite || this.specificEpithet == null) {
-      this.specificEpithet = classifier.get(SimpleLinnaeanObservables.specificEpithet);
+      this.specificEpithet = classifier.get(SimpleLinnaeanFactory.specificEpithet);
     }
     if (overwrite || this.scientificNameAuthorship == null) {
-      this.scientificNameAuthorship = classifier.get(SimpleLinnaeanObservables.scientificNameAuthorship);
+      this.scientificNameAuthorship = classifier.get(SimpleLinnaeanFactory.scientificNameAuthorship);
     }
     if (overwrite || this.scientificName == null) {
-      this.scientificName = classifier.get(SimpleLinnaeanObservables.scientificName);
+      this.scientificName = classifier.get(SimpleLinnaeanFactory.scientificName);
     }
     if (overwrite || this.soundexScientificName == null) {
-      this.soundexScientificName = classifier.get(SimpleLinnaeanObservables.soundexScientificName);
+      this.soundexScientificName = classifier.get(SimpleLinnaeanFactory.soundexScientificName);
     }
     if (overwrite || this.genus == null) {
-      this.genus = classifier.get(SimpleLinnaeanObservables.genus);
+      this.genus = classifier.get(SimpleLinnaeanFactory.genus);
     }
     if (overwrite || this.family == null) {
-      this.family = classifier.get(SimpleLinnaeanObservables.family);
+      this.family = classifier.get(SimpleLinnaeanFactory.family);
     }
     if (overwrite || this.order == null) {
-      this.order = classifier.get(SimpleLinnaeanObservables.order);
+      this.order = classifier.get(SimpleLinnaeanFactory.order);
     }
     if (overwrite || this.class_ == null) {
-      this.class_ = classifier.get(SimpleLinnaeanObservables.class_);
+      this.class_ = classifier.get(SimpleLinnaeanFactory.class_);
     }
     if (overwrite || this.phylum == null) {
-      this.phylum = classifier.get(SimpleLinnaeanObservables.phylum);
+      this.phylum = classifier.get(SimpleLinnaeanFactory.phylum);
     }
     if (overwrite || this.kingdom == null) {
-      this.kingdom = classifier.get(SimpleLinnaeanObservables.kingdom);
+      this.kingdom = classifier.get(SimpleLinnaeanFactory.kingdom);
     }
   }
 
-  public SimpleLinnaeanInference.Evidence match(Classifier classifier) throws InferenceException {
-    SimpleLinnaeanInference.Evidence evidence = new SimpleLinnaeanInference.Evidence();
-    evidence.e$taxonId = classifier.match(SimpleLinnaeanObservables.taxonId, this.taxonId);
-    evidence.e$taxonRank = classifier.match(SimpleLinnaeanObservables.taxonRank, this.taxonRank);
-    evidence.e$specificEpithet = classifier.match(SimpleLinnaeanObservables.specificEpithet, this.specificEpithet);
-    evidence.e$scientificNameAuthorship = classifier.match(SimpleLinnaeanObservables.scientificNameAuthorship, this.scientificNameAuthorship);
-    evidence.e$scientificName = classifier.match(SimpleLinnaeanObservables.scientificName, this.scientificName);
-    evidence.e$soundexScientificName = classifier.match(SimpleLinnaeanObservables.soundexScientificName, this.soundexScientificName);
-    evidence.e$genus = classifier.match(SimpleLinnaeanObservables.genus, this.genus);
-    evidence.e$family = classifier.match(SimpleLinnaeanObservables.family, this.family);
-    evidence.e$order = classifier.match(SimpleLinnaeanObservables.order, this.order);
-    evidence.e$class_ = classifier.match(SimpleLinnaeanObservables.class_, this.class_);
-    evidence.e$phylum = classifier.match(SimpleLinnaeanObservables.phylum, this.phylum);
-    evidence.e$kingdom = classifier.match(SimpleLinnaeanObservables.kingdom, this.kingdom);
+  public SimpleLinnaeanInferencer.Evidence match(Classifier classifier) throws InferenceException {
+    SimpleLinnaeanInferencer.Evidence evidence = new SimpleLinnaeanInferencer.Evidence();
+    evidence.e$taxonId = classifier.match(SimpleLinnaeanFactory.taxonId, this.taxonId);
+    evidence.e$taxonRank = classifier.match(SimpleLinnaeanFactory.taxonRank, this.taxonRank);
+    evidence.e$specificEpithet = classifier.match(SimpleLinnaeanFactory.specificEpithet, this.specificEpithet);
+    evidence.e$scientificNameAuthorship = classifier.match(SimpleLinnaeanFactory.scientificNameAuthorship, this.scientificNameAuthorship);
+    evidence.e$scientificName = classifier.match(SimpleLinnaeanFactory.scientificName, this.scientificName);
+    evidence.e$soundexScientificName = classifier.match(SimpleLinnaeanFactory.soundexScientificName, this.soundexScientificName);
+    evidence.e$genus = classifier.match(SimpleLinnaeanFactory.genus, this.genus);
+    evidence.e$family = classifier.match(SimpleLinnaeanFactory.family, this.family);
+    evidence.e$order = classifier.match(SimpleLinnaeanFactory.order, this.order);
+    evidence.e$class_ = classifier.match(SimpleLinnaeanFactory.class_, this.class_);
+    evidence.e$phylum = classifier.match(SimpleLinnaeanFactory.phylum, this.phylum);
+    evidence.e$kingdom = classifier.match(SimpleLinnaeanFactory.kingdom, this.kingdom);
     return evidence;
   }
 
   @Override
   public void translate(Classifier classifier) throws InferenceException, StoreException {
-    classifier.add(SimpleLinnaeanObservables.taxonId, this.taxonId);
-    classifier.add(SimpleLinnaeanObservables.taxonRank, this.taxonRank);
-    classifier.add(SimpleLinnaeanObservables.specificEpithet, this.specificEpithet);
-    classifier.add(SimpleLinnaeanObservables.scientificNameAuthorship, this.scientificNameAuthorship);
-    classifier.add(SimpleLinnaeanObservables.scientificName, this.scientificName);
-    classifier.add(SimpleLinnaeanObservables.soundexScientificName, this.soundexScientificName);
-    classifier.add(SimpleLinnaeanObservables.genus, this.genus);
-    classifier.add(SimpleLinnaeanObservables.family, this.family);
-    classifier.add(SimpleLinnaeanObservables.order, this.order);
-    classifier.add(SimpleLinnaeanObservables.class_, this.class_);
-    classifier.add(SimpleLinnaeanObservables.phylum, this.phylum);
-    classifier.add(SimpleLinnaeanObservables.kingdom, this.kingdom);
+    classifier.add(SimpleLinnaeanFactory.taxonId, this.taxonId);
+    classifier.add(SimpleLinnaeanFactory.taxonRank, this.taxonRank);
+    classifier.add(SimpleLinnaeanFactory.specificEpithet, this.specificEpithet);
+    classifier.add(SimpleLinnaeanFactory.scientificNameAuthorship, this.scientificNameAuthorship);
+    classifier.add(SimpleLinnaeanFactory.scientificName, this.scientificName);
+    classifier.add(SimpleLinnaeanFactory.soundexScientificName, this.soundexScientificName);
+    classifier.add(SimpleLinnaeanFactory.genus, this.genus);
+    classifier.add(SimpleLinnaeanFactory.family, this.family);
+    classifier.add(SimpleLinnaeanFactory.order, this.order);
+    classifier.add(SimpleLinnaeanFactory.class_, this.class_);
+    classifier.add(SimpleLinnaeanFactory.phylum, this.phylum);
+    classifier.add(SimpleLinnaeanFactory.kingdom, this.kingdom);
   }
 }

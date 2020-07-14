@@ -4,7 +4,7 @@ import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 
-public class GrassParameters extends Parameters {
+public class GrassParameters implements Parameters {
   public double prior_t$rain; // rain prior probability
   public double prior_f$rain; // 1 - rain prior probability
   public double inf_t_t$sprinkler; // p(sprinkler | rain) conditional probability

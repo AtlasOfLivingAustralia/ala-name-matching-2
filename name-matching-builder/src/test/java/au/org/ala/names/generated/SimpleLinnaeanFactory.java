@@ -1,5 +1,9 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.bayesian.ClassificationMatcher;
+import au.org.ala.bayesian.ClassifierSearcher;
+import au.org.ala.bayesian.EvidenceAnalyser;
+import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
 import static au.org.ala.names.model.ExternalContext.*;
@@ -9,7 +13,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class SimpleLinnaeanObservables {
+public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClassification, SimpleLinnaeanParameters, SimpleLinnaeanInferencer> {
+    private static SimpleLinnaeanFactory instance = null;
+
   public static final Normaliser lowerCaseNormaliser = new au.org.ala.util.BasicNormaliser("lower_case_normaliser", true, true, true, true, true);
   public static final Normaliser simpleNormaliser = new au.org.ala.util.BasicNormaliser("simple_normaliser", true, true, true, true, false);
 
@@ -178,5 +184,46 @@ public class SimpleLinnaeanObservables {
     taxonId.setExternal(LUCENE, "dwc_taxonID");
     taxonRank.setExternal(LUCENE, "dwc_taxonRank");
     weight.setExternal(LUCENE, "ala_weight");
+  }
+
+  @Override
+  public List<Observable> getObservables() {
+      return OBSERVABLES;
+  }
+
+  @Override
+  public SimpleLinnaeanClassification createClassification() {
+      return new SimpleLinnaeanClassification();
+  }
+
+  @Override
+  public SimpleLinnaeanInferencer createInferencer() {
+      return new SimpleLinnaeanInferencer();
+  }
+
+  @Override
+  public SimpleLinnaeanParameters createParameters() {
+        return new SimpleLinnaeanParameters();
+  }
+
+  @Override
+  public EvidenceAnalyser<SimpleLinnaeanClassification> createAnalyser() {
+        return null;
+  }
+
+  @Override
+  public ClassificationMatcher<SimpleLinnaeanClassification, SimpleLinnaeanParameters, SimpleLinnaeanInferencer> createMatcher(ClassifierSearcher searcher){
+        return new ClassificationMatcher<>(this, searcher);
+  }
+
+  public static SimpleLinnaeanFactory instance() {
+      if (instance == null) {
+          synchronized (SimpleLinnaeanFactory.class) {
+              if (instance == null) {
+                  instance = new SimpleLinnaeanFactory();
+              }
+          }
+      }
+      return instance;
   }
 }

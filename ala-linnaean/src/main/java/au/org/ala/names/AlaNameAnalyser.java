@@ -11,7 +11,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.nameparser.PhraseNameParser;
 import org.gbif.nameparser.RankUtils;
 
-public class AlaNameAnalyser extends EvidenceAnalyser<AlaLinnaeanClassification> {
+public class AlaNameAnalyser implements EvidenceAnalyser<AlaLinnaeanClassification> {
     private static ThreadLocal<PhraseNameParser> PARSER = new ThreadLocal<PhraseNameParser>() {
       @Override
         protected PhraseNameParser initialValue() {
@@ -30,10 +30,9 @@ public class AlaNameAnalyser extends EvidenceAnalyser<AlaLinnaeanClassification>
      */
     @Override
     public void analyse(Classifier classifier) throws InferenceException, StoreException {
-        super.analyse(classifier);
         PhraseNameParser parser = PARSER.get();
-        String scientificName = classifier.get(AlaLinnaeanObservables.scientificName);
-        String taxonRank = classifier.get(AlaLinnaeanObservables.taxonRank);
+        String scientificName = classifier.get(AlaLinnaeanFactory.scientificName);
+        String taxonRank = classifier.get(AlaLinnaeanFactory.taxonRank);
         Rank rank = null;
         try {
             if (taxonRank != null)
@@ -45,13 +44,13 @@ public class AlaNameAnalyser extends EvidenceAnalyser<AlaLinnaeanClassification>
             rank = name.getRank();
             if (rank != null && Rank.SPECIES.higherThan(rank)) {
                 rank = Rank.INFRASPECIFIC_NAME;
-                classifier.replace(AlaLinnaeanObservables.taxonRank, rank.name());
-            } else if (!classifier.has(AlaLinnaeanObservables.taxonRank) && rank != null)
-                classifier.add(AlaLinnaeanObservables.taxonRank, rank.name());
-            if (!classifier.has(AlaLinnaeanObservables.specificEpithet) && name.getSpecificEpithet() != null)
-                classifier.add(AlaLinnaeanObservables.specificEpithet, name.getSpecificEpithet());
-            if (!classifier.has(AlaLinnaeanObservables.genus) && rank != null && !rank.higherThan(Rank.GENUS) && name.getGenusOrAbove() != null)
-                classifier.add(AlaLinnaeanObservables.genus, name.getGenusOrAbove());
+                classifier.replace(AlaLinnaeanFactory.taxonRank, rank.name());
+            } else if (!classifier.has(AlaLinnaeanFactory.taxonRank) && rank != null)
+                classifier.add(AlaLinnaeanFactory.taxonRank, rank.name());
+            if (!classifier.has(AlaLinnaeanFactory.specificEpithet) && name.getSpecificEpithet() != null)
+                classifier.add(AlaLinnaeanFactory.specificEpithet, name.getSpecificEpithet());
+            if (!classifier.has(AlaLinnaeanFactory.genus) && rank != null && !rank.higherThan(Rank.GENUS) && name.getGenusOrAbove() != null)
+                classifier.add(AlaLinnaeanFactory.genus, name.getGenusOrAbove());
         } catch (UnparsableException ex) {
         }
 
@@ -67,7 +66,6 @@ public class AlaNameAnalyser extends EvidenceAnalyser<AlaLinnaeanClassification>
      */
     @Override
     public void analyse(AlaLinnaeanClassification classification) throws InferenceException, StoreException {
-        super.analyse(classification);
         SimpleClassifier classifier = new SimpleClassifier();
         classification.translate(classifier);
         this.analyse(classifier);

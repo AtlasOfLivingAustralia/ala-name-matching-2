@@ -24,9 +24,4 @@ public class ${className} extends ClassificationMatcher<${classificationClassNam
   public ${classificationClassName} createClassification() {
     return new ${classificationClassName}();
   }
-
-  @Override
-  public ${parametersClassName} createParameters() {
-    return new ${parametersClassName}();
-  }
 }

@@ -1,5 +1,6 @@
 package au.org.ala.names;
 
+import au.org.ala.bayesian.ClassificationMatcher;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.Match;
@@ -24,8 +25,9 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
     private static File output;
     private static IndexBuilder builder;
 
+    private AlaLinnaeanFactory factory;
     private LuceneClassifierSearcher searcher;
-    private AlaLinnaeanMatcher matcher;
+    private ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanParameters, AlaLinnaeanInferencer> matcher;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -35,9 +37,9 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         config.setBuilderClass(AlaLinnaeanBuilder.class);
         config.setNetwork(AlaLinnaeanBuilder.class.getResource("AlaLinnaean.json"));
         config.setWork(work);
-        config.setAnalyserClass(AlaNameAnalyser.class);
+        config.setFactoryClass(AlaLinnaeanFactory.class);
         builder = new IndexBuilder(config);
-        Source source = Source.create(AlaLinnaeanBuilderTest.class.getResource("/sample-1.zip"), builder.getNetwork().getObservables());
+        Source source = Source.create(AlaLinnaeanBuilderTest.class.getResource("/sample-1.zip"), AlaLinnaeanFactory.instance().getObservables());
         builder.load(source);
         builder.build();
         builder.buildIndex(output);
@@ -55,8 +57,9 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
 
     @Before
     public void setUp() throws Exception {
+        this.factory = AlaLinnaeanFactory.instance();
         this.searcher = new LuceneClassifierSearcher(this.output);
-        this.matcher = new AlaLinnaeanMatcher(this.searcher);
+        this.matcher = this.factory.createMatcher(this.searcher);
     }
 
     @After
@@ -68,18 +71,18 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
     @Test
     public void testLoadBuild1() throws Exception {
         LoadStore store = this.builder.getLoadStore();
-        Classifier doc = store.get(DwcTerm.Taxon, AlaLinnaeanObservables.taxonId, "urn:lsid:indexfungorum.org:names:90156");
+        Classifier doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "urn:lsid:indexfungorum.org:names:90156");
         assertNotNull(doc);
-        assertEquals("Fungi", doc.get(AlaLinnaeanObservables.scientificName));
-        doc = store.get(DwcTerm.Taxon, AlaLinnaeanObservables.taxonId, "https://id.biodiversity.org.au/node/apni/2904909");
-        assertEquals("Canarium acutifolium var. acutifolium", doc.get(AlaLinnaeanObservables.scientificName));
-        assertEquals("CANARIM ACITIFALIM VAR. ACITIFALIM", doc.get(AlaLinnaeanObservables.soundexScientificName));
-        assertEquals("Canarium", doc.get(AlaLinnaeanObservables.genus));
-        assertEquals("https://id.biodiversity.org.au/node/apni/2918714", doc.get(AlaLinnaeanObservables.genusId));
+        assertEquals("Fungi", doc.get(AlaLinnaeanFactory.scientificName));
+        doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2904909");
+        assertEquals("Canarium acutifolium var. acutifolium", doc.get(AlaLinnaeanFactory.scientificName));
+        assertEquals("CANARIM ACITIFALIM VAR. ACITIFALIM", doc.get(AlaLinnaeanFactory.soundexScientificName));
+        assertEquals("Canarium", doc.get(AlaLinnaeanFactory.genus));
+        assertEquals("https://id.biodiversity.org.au/node/apni/2918714", doc.get(AlaLinnaeanFactory.genusId));
         AlaLinnaeanParameters params = new AlaLinnaeanParameters();
         doc.loadParameters(params);
-        AlaLinnaeanInference inference = new AlaLinnaeanInference();
-        AlaLinnaeanInference.Evidence evidence = new AlaLinnaeanInference.Evidence();
+        AlaLinnaeanInferencer inference = new AlaLinnaeanInferencer();
+        AlaLinnaeanInferencer.Evidence evidence = new AlaLinnaeanInferencer.Evidence();
         evidence.e$scientificName = true;
         double prob = inference.probability(evidence, params);
         assertEquals(1.0, prob, 0.00001);
@@ -110,7 +113,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         List<LuceneClassifier> classifiers = this.searcher.search(classification);
         assertNotNull(classifiers);
         assertEquals(20, classifiers.size());
-        assertEquals("https://id.biodiversity.org.au/node/apni/2904909", classifiers.get(0).get(AlaLinnaeanObservables.taxonId));
+        assertEquals("https://id.biodiversity.org.au/node/apni/2904909", classifiers.get(0).get(AlaLinnaeanFactory.taxonId));
     }
 
     @Test

@@ -4,7 +4,7 @@ import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
 
-public class ${className} extends Inferencer<${classificationClassName}, ${parametersClassName}> {
+public class ${className} implements Inferencer<${classificationClassName}, ${parametersClassName}> {
 
   public double infer(Evidence evidence, ${parametersClassName} parameters<#list inputs as inp>, double ${inp.CE}</#list>) {
 <#list orderedNodes as node>

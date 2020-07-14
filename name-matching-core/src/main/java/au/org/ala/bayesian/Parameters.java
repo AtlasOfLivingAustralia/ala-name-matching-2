@@ -6,7 +6,7 @@ import java.io.*;
  * Base class for generated parameters classes.
  *
  */
-abstract public class Parameters {
+public interface Parameters {
     /**
      * Load a vector of parameters into the parameter set.
      * <p>
@@ -18,7 +18,7 @@ abstract public class Parameters {
      *
      * @see #store()
      */
-    abstract public void load(double[] vector);
+    public void load(double[] vector);
 
     /**
      * Load an encoded set of doubles from an encoded set of bytes.
@@ -29,7 +29,7 @@ abstract public class Parameters {
      *
      * @see #storeAsBytes()
      */
-    public void loadFromBytes(byte[] vector) throws IOException {
+    public default void loadFromBytes(byte[] vector) throws IOException {
         ByteArrayInputStream is = new ByteArrayInputStream(vector);
         ObjectInputStream os = new ObjectInputStream(is);
         int length = os.readInt();
@@ -51,7 +51,7 @@ abstract public class Parameters {
      *
      * @see #load(double[])
      */
-    abstract public double[] store();
+    public double[] store();
 
     /**
      * Produces a serialized encoding of the parameters.
@@ -66,7 +66,7 @@ abstract public class Parameters {
      *
      * @see #loadFromBytes(byte[])
      */
-    public byte[] storeAsBytes() throws IOException {
+    public default byte[] storeAsBytes() throws IOException {
         double[] values = this.store();
         int length = values.length;
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(length * Double.BYTES + 32);

@@ -43,10 +43,8 @@ public class ${className} {
      } else {
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(${builderClassName}.class);
+       config.setFactoryClass(${factoryClassName}.class);
        config.setNetwork(${builderClassName}.class.getResource("${builderClassName}.json"));
-<#if analyserClass??>
-       config.setAnalyserClass(${analyserClassName}.class);
-</#if>
      }
      if (cmd.hasOption(workOption.getOpt())) {
        config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));

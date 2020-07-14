@@ -4,7 +4,7 @@ import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 
-public class SimpleLinnaeanParameters extends Parameters {
+public class SimpleLinnaeanParameters implements Parameters {
   public double prior_t$taxonId; // taxonID prior probability
   public double prior_f$taxonId; // 1 - taxonID prior probability
   public double inf_t_t$taxonRank; // p(taxonRank | taxonID) conditional probability

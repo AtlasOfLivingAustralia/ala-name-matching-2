@@ -17,13 +17,13 @@ public class GrassTest {
     };
 
     private GrassParameters parameters;
-    private GrassInference inference;
+    private GrassInferencer inferencer;
 
     @Before
     public void setUp() {
         this.parameters = new GrassParameters();
         parameters.load(PARAMS);
-        this.inference = new GrassInference();
+        this.inferencer = new GrassInferencer();
     }
 
     /**
@@ -31,9 +31,9 @@ public class GrassTest {
      */
     @Test
     public void testNoneNone() {
-        GrassInference.Evidence evidence = new GrassInference.Evidence();
+        GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
-        assertEquals(0.2, this.inference.probability(evidence, this.parameters), 0.0001);
+        assertEquals(0.2, this.inferencer.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -47,10 +47,10 @@ public class GrassTest {
      */
     @Test
     public void testNoSprinklerNone() {
-        GrassInference.Evidence evidence = new GrassInference.Evidence();
+        GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$sprinkler = false;
-        assertEquals(0.2920, this.inference.probability(evidence, this.parameters), 0.0001);
+        assertEquals(0.2920, this.inferencer.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -64,10 +64,10 @@ public class GrassTest {
      */
     @Test
     public void testSprinklerNone() {
-        GrassInference.Evidence evidence = new GrassInference.Evidence();
+        GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$sprinkler = true;
-        assertEquals(0.0062, this.inference.probability(evidence, this.parameters), 0.0001);
+        assertEquals(0.0062, this.inferencer.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -81,10 +81,10 @@ public class GrassTest {
      */
     @Test
     public void testNoneNoWet() {
-        GrassInference.Evidence evidence = new GrassInference.Evidence();
+        GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$wet = false;
-        assertEquals(0.0724, this.inference.probability(evidence, this.parameters), 0.0001);
+        assertEquals(0.0724, this.inferencer.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -98,10 +98,10 @@ public class GrassTest {
      */
     @Test
     public void testNoneWet() {
-        GrassInference.Evidence evidence = new GrassInference.Evidence();
+        GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$wet = true;
-        assertEquals(0.3539, this.inference.probability(evidence, this.parameters), 0.0001);
+        assertEquals(0.3539, this.inferencer.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -115,11 +115,11 @@ public class GrassTest {
      */
     @Test
     public void testNoSprinklerWet() {
-        GrassInference.Evidence evidence = new GrassInference.Evidence();
+        GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$wet = true;
         evidence.e$sprinkler = false;
-        assertEquals(0.9706, this.inference.probability(evidence, this.parameters), 0.0001);
+        assertEquals(0.9706, this.inferencer.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -134,11 +134,11 @@ public class GrassTest {
      */
     @Test
     public void testSprinklerNoWet() {
-        GrassInference.Evidence evidence = new GrassInference.Evidence();
+        GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$wet = false;
         evidence.e$sprinkler = true;
-        assertEquals(0.0006, this.inference.probability(evidence, this.parameters), 0.0001);
+        assertEquals(0.0006, this.inferencer.probability(evidence, this.parameters), 0.0001);
     }
 
     /**
@@ -153,10 +153,10 @@ public class GrassTest {
      */
     @Test
     public void testSprinklerWet() {
-        GrassInference.Evidence evidence = new GrassInference.Evidence();
+        GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$wet = true;
         evidence.e$sprinkler = true;
-        assertEquals(0.0069, this.inference.probability(evidence, this.parameters), 0.0001);
+        assertEquals(0.0069, this.inferencer.probability(evidence, this.parameters), 0.0001);
     }
 }

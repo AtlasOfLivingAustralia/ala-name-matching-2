@@ -1,8 +1,6 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.EvidenceAnalyser;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.TermDeserializer;
 import au.org.ala.util.TermSerializer;
@@ -20,6 +18,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -34,21 +34,21 @@ public class IndexBuilderConfiguration {
     @Getter
     @Setter
     private URL network;
+    /** The class of the network factory */
+    @JsonProperty
+    @Getter
+    @Setter
+    private Class<? extends NetworkFactory<?, ?, ?>> factoryClass;
     /** The class of the builder */
     @JsonProperty
     @Getter
     @Setter
-    private Class<? extends Builder> builderClass;
-    /** The class of the analyser */
-    @JsonProperty
-    @Getter
-    @Setter
-    private Class<? extends EvidenceAnalyser> analyserClass;
+    private Class<? extends Builder<?>> builderClass;
     /** The class of the load store */
     @JsonProperty
     @Getter
     @Setter
-    private Class<? extends LoadStore> loadStoreClass;
+    private Class<? extends LoadStore<?>> loadStoreClass;
     /** The default weight to use for an unweighted taxon */
     @JsonProperty
     @Getter
@@ -62,7 +62,6 @@ public class IndexBuilderConfiguration {
 
     public IndexBuilderConfiguration() {
         this.builderClass = EmptyBuilder.class;
-        this.analyserClass = null;
         this.loadStoreClass = LuceneLoadStore.class;
         this.defaultWeight = 1.0;
         this.logInterval = 100;
@@ -82,27 +81,27 @@ public class IndexBuilderConfiguration {
      *
      * @throws StoreException if unable to build the store
      */
-    public LoadStore createLoadStore(Annotator annotator) throws StoreException {
-        Constructor<? extends LoadStore> c;
+    public <Cl extends Classifier> LoadStore<Cl> createLoadStore(Annotator annotator) throws StoreException {
+        Constructor<? extends LoadStore<Cl>> c;
 
         if (this.loadStoreClass == null)
             throw new StoreException("Load store class not defined");
         try {
-            c = this.loadStoreClass.getConstructor(Annotator.class, IndexBuilderConfiguration.class, boolean.class);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class, IndexBuilderConfiguration.class, boolean.class);
             return c.newInstance(annotator, this, true);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = this.loadStoreClass.getConstructor(Annotator.class, File.class, boolean.class);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class, File.class, boolean.class);
             return c.newInstance(annotator, this.getWork(), true);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = this.loadStoreClass.getConstructor(Annotator.class);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class);
             return c.newInstance(annotator);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
@@ -112,9 +111,11 @@ public class IndexBuilderConfiguration {
     }
 
     /**
-     * Construct a builder.
+     * Construct a factory.
      * <p>
-     * The load store must have either: A constuctor for a index builder condfiguration,
+     * The factory must have either:
+     * A static instance() method for the factory,
+     * A constructor for an index builder configuration,
      * or an empty constuctor.
      * These are tried in turn.
      * </p>
@@ -125,14 +126,65 @@ public class IndexBuilderConfiguration {
      *
      * @throws StoreException if unable to build the store
      */
-    public Builder createBuilder(Annotator annotator) throws StoreException {
+    public <C extends Classification, P extends Parameters, I extends Inferencer<C, P>> NetworkFactory<C, P, I> createFactory(Annotator annotator) throws StoreException {
+        Constructor<? extends NetworkFactory<C, P, I>> c;
+
+        if (this.factoryClass == null)
+            throw new StoreException("Factory class not defined");
+        try {
+            Method m = this.factoryClass.getMethod("instance");
+            if (m != null && Modifier.isStatic(m.getModifiers()))
+                return (NetworkFactory<C, P, I>) m.invoke(null);
+        } catch (Exception ex) {
+        }
+        try {
+            c = (Constructor<? extends NetworkFactory<C, P, I>>) this.factoryClass.getConstructor(IndexBuilderConfiguration.class);
+            return c.newInstance(this);
+        } catch (Exception ex) {
+        }
+        try {
+            c = (Constructor<? extends NetworkFactory<C, P, I>>) this.factoryClass.getConstructor();
+            return c.newInstance();
+        } catch (Exception ex) {
+        }
+        throw new StoreException("Unable to construct builder for " + this.builderClass);
+    }
+
+    /**
+     * Construct a builder.
+     * <p>
+     * The builder must have either: A constructor for an index builder configuration and a factory,
+     * a constructor for a index builder configuration,
+     * a constructor for a factory,
+     * or an empty constuctor.
+     * These are tried in turn.
+     * </p>
+     *
+     * @param annotator The annotator to use
+     * @param factory The factory to use
+     *
+     * @return A newly created builder.
+     *
+     * @throws StoreException if unable to build the store
+     */
+    public <P extends Parameters> Builder<P> createBuilder(Annotator annotator, NetworkFactory<?, P, ?> factory) throws StoreException {
         Constructor<? extends Builder> c;
 
         if (this.builderClass == null)
             throw new StoreException("Builder class not defined");
         try {
+            c = this.builderClass.getConstructor(IndexBuilderConfiguration.class, NetworkFactory.class);
+            return c.newInstance(this, factory);
+        } catch (Exception ex) {
+        }
+        try {
             c = this.builderClass.getConstructor(IndexBuilderConfiguration.class);
             return c.newInstance(this);
+        } catch (Exception ex) {
+        }
+        try {
+            c = this.builderClass.getConstructor(NetworkFactory.class);
+            return c.newInstance(factory);
         } catch (Exception ex) {
         }
         try {
@@ -141,30 +193,6 @@ public class IndexBuilderConfiguration {
         } catch (Exception ex) {
         }
         throw new StoreException("Unable to construct builder for " + this.builderClass);
-    }
-
-    /**
-     * Construct an analyser.
-     * <p>
-     * The analyser must have an empty constuctor.
-     * </p>
-     *
-      *
-     * @return A newly created analyser or null for none required.
-     *
-     * @throws InferenceException if unable to build the analyser
-     */
-    public EvidenceAnalyser<?> createAnalyser() throws InferenceException {
-        Constructor<? extends EvidenceAnalyser> c;
-
-        if (this.analyserClass == null)
-            return null;
-        try {
-            c = this.analyserClass.getConstructor();
-            return c.newInstance();
-        } catch (Exception ex) {
-        }
-        throw new InferenceException("Unable to construct analyser for " + this.analyserClass);
     }
 
     /**

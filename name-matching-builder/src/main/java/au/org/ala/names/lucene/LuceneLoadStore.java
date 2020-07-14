@@ -114,7 +114,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      */
     @Override
     public Observation getAnnotationObservation(Term annotation) {
-        return new Observation(true, this.annotationObservable, LuceneClassifier.getAnnotationValue(annotation));
+        return new Observation(true, this.annotationObservable, Classifier.getAnnotationValue(annotation));
     }
 
     /**

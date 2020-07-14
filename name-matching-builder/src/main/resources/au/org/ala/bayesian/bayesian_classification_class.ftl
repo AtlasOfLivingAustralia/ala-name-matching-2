@@ -18,7 +18,7 @@ import org.gbif.dwc.terms.Term;
 import ${variable.clazz.name};
 </#list>
 
-public class ${className} extends Classification {
+public class ${className} implements Classification {
 <#list classificationVariables as variable>
   private ${variable.clazz.simpleName} ${variable.name};
 </#list>
@@ -50,7 +50,7 @@ public class ${className} extends Classification {
 
 <#list orderedNodes as node>
     if (this.${node.observable.javaVariable} != null)
-      obs.add(new Observation(true, ${observablesClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable}));
+      obs.add(new Observation(true, ${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable}));
 </#list>
     return obs;
   }
@@ -73,15 +73,15 @@ public class ${className} extends Classification {
   public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
 <#list orderedNodes as node>
     if (overwrite || this.${node.observable.javaVariable} == null) {
-      this.${node.observable.javaVariable} = classifier.get(${observablesClassName}.${node.observable.javaVariable});
+      this.${node.observable.javaVariable} = classifier.get(${factoryClassName}.${node.observable.javaVariable});
     }
 </#list>
   }
 
-  public ${inferenceClassName}.Evidence match(Classifier classifier) throws InferenceException {
-    ${inferenceClassName}.Evidence evidence = new ${inferenceClassName}.Evidence();
+  public ${inferencerClassName}.Evidence match(Classifier classifier) throws InferenceException {
+    ${inferencerClassName}.Evidence evidence = new ${inferencerClassName}.Evidence();
 <#list orderedNodes as node>
-    evidence.${node.evidence.id} = classifier.match(${observablesClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
+    evidence.${node.evidence.id} = classifier.match(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
 </#list>
     return evidence;
   }
@@ -89,7 +89,7 @@ public class ${className} extends Classification {
   @Override
   public void translate(Classifier classifier) throws InferenceException, StoreException {
 <#list orderedNodes as node>
-    classifier.add(${observablesClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
+    classifier.add(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
 </#list>
   }
 }

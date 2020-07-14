@@ -31,10 +31,10 @@
                      <generateInferencer>false</generateInferencer>
                      <generateParameters>false</generateParameters>
                      <generateClassification>false</generateClassification>
-                     <generateMatcher>false</generateMatcher>
-                     <generateObservables>false</generateObservables>
+                     <generateFactory>false</generateFactory>
                      <generateBuilder>true</generateBuilder>
                      <generateCli>true</generateCli>
+                     <matcherClass>au.org.ala.bayesian.ClassificationMatcher</matcherClass>
                      <analyserClass>au.org.ala.bayesian.EvidenceAnalyser</analyserClass>
                  </configuration>
                 <goals>

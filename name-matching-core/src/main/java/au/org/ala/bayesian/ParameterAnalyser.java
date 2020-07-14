@@ -5,23 +5,16 @@ import java.io.IOException;
 /**
  * Analyse the parameters needed by an entry.
  * <p>
- * This abstract class forms the base of actual parameter analysers.
+ * This interface forms the base of actual parameter analysers.
  * </p>
  */
-abstract public class ParameterAnalyser {
-
-    /**
-     * Default constructor
-     */
-    public ParameterAnalyser() {
-    }
-
+public interface ParameterAnalyser {
     /**
      * Get the total weight for all entries.
      *
      * @return The total weight
      */
-    abstract public double getTotalWeight();
+    public double getTotalWeight();
 
     /**
      * Compute the prior probability of a field.
@@ -35,7 +28,7 @@ abstract public class ParameterAnalyser {
      *
      * @throws InferenceException if unable to compute the result
      */
-    abstract public double computePrior(Observation observation) throws InferenceException;
+    public double computePrior(Observation observation) throws InferenceException;
 
     /**
      * Computer a conditional probability for a observation
@@ -50,7 +43,7 @@ abstract public class ParameterAnalyser {
      *
      * @throws InferenceException if unable to compute the result
      */
-    abstract public double computeConditional(Observation observation, Observation... inputs) throws InferenceException;
+    public double computeConditional(Observation observation, Observation... inputs) throws InferenceException;
 
     /**
      * Get a fact from a classifier
@@ -63,7 +56,7 @@ abstract public class ParameterAnalyser {
      *
      * @throws InferenceException if unable to get the observation data
      */
-    public Observation getObservation(boolean positive, Observable observable, Classifier classifier) {
+    public default Observation getObservation(boolean positive, Observable observable, Classifier classifier) {
         return new Observation(positive, observable, classifier.getAll(observable));
     }
 

@@ -3,20 +3,14 @@ package au.org.ala.names.lucene;
 import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.Annotator;
 import au.org.ala.bayesian.StoreException;
-import au.org.ala.names.model.ExternalContext;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.*;
 import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static au.org.ala.names.model.ExternalContext.LUCENE;
 
-public class LuceneParameterAnalyser extends ParameterAnalyser {
+public class LuceneParameterAnalyser implements ParameterAnalyser {
     /** The minimum probability we can get to. This is defined so that #MAXIMUM_PROBABILITY does not evaluate to 1 */
     public static final double MINIMUM_PROBABILITY = 1.0e-9;
     /** The maximum probability we can get to, 1 - #MINIMUM_PROABILITY This must be (just) less than 1. */

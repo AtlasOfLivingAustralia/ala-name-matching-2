@@ -3,6 +3,7 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.names.generated.SimpleLinnaeanBuilder;
+import au.org.ala.names.generated.SimpleLinnaeanFactory;
 import au.org.ala.names.generated.SimpleLinnaeanParameters;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.TestUtils;
@@ -31,6 +32,7 @@ public class IndexBuilderTest {
         this.config.setBuilderClass(SimpleLinnaeanBuilder.class);
         this.config.setLoadStoreClass(LuceneLoadStore.class);
         this.config.setNetwork(this.getClass().getResource("../lucene/simple-network.json"));
+        this.config.setFactoryClass(SimpleLinnaeanFactory.class);
         this.builder = new IndexBuilder(this.config);
     }
 

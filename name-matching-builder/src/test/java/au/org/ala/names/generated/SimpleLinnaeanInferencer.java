@@ -4,7 +4,7 @@ import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
 
-public class SimpleLinnaeanInference extends Inferencer<SimpleLinnaeanClassification, SimpleLinnaeanParameters> {
+public class SimpleLinnaeanInferencer implements Inferencer<SimpleLinnaeanClassification, SimpleLinnaeanParameters> {
 
   public double infer(Evidence evidence, SimpleLinnaeanParameters parameters, double c$taxonId) {
     double nc$taxonId = 1.0 - c$taxonId;

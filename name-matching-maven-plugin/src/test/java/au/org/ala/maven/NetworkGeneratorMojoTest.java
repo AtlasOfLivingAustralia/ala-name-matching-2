@@ -26,7 +26,7 @@ public class NetworkGeneratorMojoTest {
         mojo.execute();
         File base = new File("target/test-harness/network-generator-unit-test/generated-sources/java/au/org/ala/maven/test");
         assertTrue(base.exists());
-        File inference = new File(base, "Network1Inference.java");
+        File inference = new File(base, "Network1Inferencer.java");
         assertTrue(inference.exists());
         File parameters = new File(base, "Network1Parameters.java");
         assertTrue(parameters.exists());
@@ -34,10 +34,8 @@ public class NetworkGeneratorMojoTest {
         assertTrue(builder.exists());
         File classification = new File(base, "Network1Classification.java");
         assertTrue(classification.exists());
-        File matcher = new File(base, "Network1Matcher.java");
-        assertTrue(matcher.exists());
-        File observables = new File(base, "Network1Observables.java");
-        assertTrue(observables.exists());
+        File factory = new File(base, "Network1Factory.java");
+        assertTrue(factory.exists());
         File cli = new File(base, "Network1Cli.java");
         assertTrue(cli.exists());
         base = new File("target/test-harness/network-generator-unit-test/generated-resources/au/org/ala/maven/test");
@@ -65,10 +63,8 @@ public class NetworkGeneratorMojoTest {
         assertTrue(builder.exists());
         File classification = new File(base, "Network1Classification.java");
         assertFalse(classification.exists());
-        File matcher = new File(base, "Network1Matcher.java");
-        assertFalse(matcher.exists());
-        File observables = new File(base, "Network1Observables.java");
-        assertFalse(observables.exists());
+        File factory = new File(base, "Network1Factory.java");
+        assertFalse(factory.exists());
         File cli = new File(base, "Network1Cli.java");
         assertTrue(cli.exists());
         base = new File("target/test-harness/network-generator-unit-test-2/generated-resources/au/org/ala/maven/test");

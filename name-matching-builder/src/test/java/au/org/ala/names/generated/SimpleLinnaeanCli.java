@@ -38,6 +38,7 @@ public class SimpleLinnaeanCli {
      } else {
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(SimpleLinnaeanBuilder.class);
+       config.setFactoryClass(SimpleLinnaeanFactory.class);
        config.setNetwork(SimpleLinnaeanBuilder.class.getResource("SimpleLinnaeanBuilder.json"));
      }
      if (cmd.hasOption(workOption.getOpt())) {

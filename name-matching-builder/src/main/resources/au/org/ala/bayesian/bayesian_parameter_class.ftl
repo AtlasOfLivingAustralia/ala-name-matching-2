@@ -4,7 +4,7 @@ import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 
-public class ${className} extends Parameters {
+public class ${className} implements Parameters {
 <#list inputs as inc>
   public double ${inc.prior.id}; // ${inc.observable.id} prior probability
   public double ${inc.invertedPrior.id}; // 1 - ${inc.observable.id} prior probability

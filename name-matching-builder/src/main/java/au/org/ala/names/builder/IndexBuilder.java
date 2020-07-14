@@ -34,7 +34,7 @@ import java.util.*;
  *     <li>Produce an output lucene index optimised for subsequent searching</li>
  * </ol>
  */
-public class IndexBuilder implements Annotator {
+public class IndexBuilder<C extends Classification, P extends Parameters, I extends Inferencer<C, P>> implements Annotator {
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexBuilder.class);
 
     /** The name of the property that gives the weight */
@@ -64,8 +64,10 @@ public class IndexBuilder implements Annotator {
     /** The network that this is a builder for */
     @Getter
     protected Network network;
+    /** The factory for creating builder objects */
+    protected NetworkFactory<C, P, I> factory;
     /** The builder to use in processing */
-    protected Builder builder;
+    protected Builder<P> builder;
     /** The weight observable (required) */
     protected Observable weight;
     /** The parent observable (required) */
@@ -103,9 +105,10 @@ public class IndexBuilder implements Annotator {
     public IndexBuilder(IndexBuilderConfiguration config) throws BuilderException, InferenceException, StoreException, IOException {
         this.config = config;
         this.network = Network.read(this.config.getNetwork());
-        this.builder = config.createBuilder(this);
+        this.factory = config.createFactory(this);
+        this.builder = config.createBuilder(this, this.factory);
         this.loadStore = config.createLoadStore(this);
-        this.analyser = config.createAnalyser();
+        this.analyser = this.factory.createAnalyser();
         this.weight = this.network.findObservable(WEIGHT_PROPERTY, true).orElseThrow(() -> new BuilderException("Require observable " + WEIGHT_PROPERTY + ":true property"));
         this.parent = this.network.findObservable(PARENT_PROPERTY, true).orElseThrow(() -> new BuilderException("Require observable " + PARENT_PROPERTY + ":true property"));
         this.accepted = this.network.findObservable(ACCEPTED_PROPERTY, true);
@@ -333,7 +336,7 @@ public class IndexBuilder implements Annotator {
             String id = classifier.get(this.taxonId);
             if (count++ % this.config.getLogInterval() == 0)
                 LOGGER.info("Processing parameters " + id);
-            Parameters parameters = this.builder.createParameters();
+            P parameters = this.factory.createParameters();
             this.builder.calculate(parameters, analyser, classifier);
             classifier.storeParameters(parameters);
             this.loadStore.update(classifier);

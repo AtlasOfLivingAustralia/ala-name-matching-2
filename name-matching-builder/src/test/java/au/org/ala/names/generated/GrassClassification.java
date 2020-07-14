@@ -15,7 +15,7 @@ import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
 
-public class GrassClassification extends Classification {
+public class GrassClassification implements Classification {
 
   public java.lang.String rain;
   public java.lang.String sprinkler;
@@ -40,11 +40,11 @@ public class GrassClassification extends Classification {
     Collection<Observation> obs = new ArrayList(3);
 
     if (this.rain != null)
-      obs.add(new Observation(true, GrassObservables.rain, this.rain));
+      obs.add(new Observation(true, GrassFactory.rain, this.rain));
     if (this.sprinkler != null)
-      obs.add(new Observation(true, GrassObservables.sprinkler, this.sprinkler));
+      obs.add(new Observation(true, GrassFactory.sprinkler, this.sprinkler));
     if (this.wet != null)
-      obs.add(new Observation(true, GrassObservables.wet, this.wet));
+      obs.add(new Observation(true, GrassFactory.wet, this.wet));
     return obs;
   }
 
@@ -56,28 +56,28 @@ public class GrassClassification extends Classification {
   @Override
   public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
     if (overwrite || this.rain == null) {
-      this.rain = classifier.get(GrassObservables.rain);
+      this.rain = classifier.get(GrassFactory.rain);
     }
     if (overwrite || this.sprinkler == null) {
-      this.sprinkler = classifier.get(GrassObservables.sprinkler);
+      this.sprinkler = classifier.get(GrassFactory.sprinkler);
     }
     if (overwrite || this.wet == null) {
-      this.wet = classifier.get(GrassObservables.wet);
+      this.wet = classifier.get(GrassFactory.wet);
     }
   }
 
-  public GrassInference.Evidence match(Classifier classifier) throws InferenceException {
-    GrassInference.Evidence evidence = new GrassInference.Evidence();
-    evidence.e$rain = classifier.match(GrassObservables.rain, this.rain);
-    evidence.e$sprinkler = classifier.match(GrassObservables.sprinkler, this.sprinkler);
-    evidence.e$wet = classifier.match(GrassObservables.wet, this.wet);
+  public GrassInferencer.Evidence match(Classifier classifier) throws InferenceException {
+    GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
+    evidence.e$rain = classifier.match(GrassFactory.rain, this.rain);
+    evidence.e$sprinkler = classifier.match(GrassFactory.sprinkler, this.sprinkler);
+    evidence.e$wet = classifier.match(GrassFactory.wet, this.wet);
     return evidence;
   }
 
   @Override
   public void translate(Classifier classifier) throws InferenceException, StoreException {
-    classifier.add(GrassObservables.rain, this.rain);
-    classifier.add(GrassObservables.sprinkler, this.sprinkler);
-    classifier.add(GrassObservables.wet, this.wet);
+    classifier.add(GrassFactory.rain, this.rain);
+    classifier.add(GrassFactory.sprinkler, this.sprinkler);
+    classifier.add(GrassFactory.wet, this.wet);
   }
 }

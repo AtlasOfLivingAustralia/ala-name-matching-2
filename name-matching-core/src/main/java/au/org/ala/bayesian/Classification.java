@@ -11,13 +11,13 @@ import java.util.Collection;
  * Classifications hold the vector of evidence that make up a individual piece of data.
  * </p>
  */
-abstract public class Classification {
+public interface Classification {
     /**
      * Get the type of the classification
      *
      * @return The sort of thing this classification is supposed to match.
      */
-    abstract public Term getType();
+    public Term getType();
 
     /**
      * Get a list of observations that match this classification.
@@ -27,7 +27,7 @@ abstract public class Classification {
      *
      * @return This classification as a list of observations
      */
-    abstract public Collection<Observation> toObservations();
+    public Collection<Observation> toObservations();
 
     /**
      * Infer empty elements of the classification from the network definition.
@@ -38,7 +38,7 @@ abstract public class Classification {
      * </p>
      * @throws InferenceException
      */
-    abstract public void infer() throws InferenceException;
+    public void infer() throws InferenceException;
 
     /**
      *
@@ -51,7 +51,7 @@ abstract public class Classification {
      *
      * @throws InferenceException
      */
-    abstract public void populate(Classifier classifier, boolean overwrite) throws InferenceException;
+    public void populate(Classifier classifier, boolean overwrite) throws InferenceException;
 
     /**
      * Translate this classification into a classifier.
@@ -61,5 +61,5 @@ abstract public class Classification {
      * @throws InferenceException if unable to translate
      * @throws StoreException if unable to store the translation
      */
-    abstract public void translate(Classifier classifier) throws InferenceException, StoreException;
+    public void translate(Classifier classifier) throws InferenceException, StoreException;
 }

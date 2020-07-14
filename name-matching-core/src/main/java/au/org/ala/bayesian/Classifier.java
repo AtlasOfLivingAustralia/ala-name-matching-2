@@ -12,13 +12,7 @@ import java.util.Set;
  * For example, for a lucene index a classifier is just a wrapper around a lucene document.
  * </p>
  */
-abstract public class Classifier {
-    /**
-     * Construct an empty classifier.
-     */
-    protected Classifier() {
-    }
-
+public interface Classifier {
     /**
      * Get the value for an observable.
      *
@@ -26,7 +20,7 @@ abstract public class Classifier {
      *
      * @return The associated value or null for not present
      */
-    abstract public <T> T get(Observable observable);
+    public <T> T get(Observable observable);
 
     /**
      * Get the all values for an observable.
@@ -35,7 +29,7 @@ abstract public class Classifier {
      *
      * @return The a set of all present values
      */
-    abstract public <T> Set<T> getAll(Observable observable);
+    public <T> Set<T> getAll(Observable observable);
 
     /**
      * Does this classifier contain any information about this observable?
@@ -44,7 +38,7 @@ abstract public class Classifier {
      *
      * @return True if there are values in the classifier
      */
-    abstract public boolean has(Observable observable);
+    public boolean has(Observable observable);
 
     /**
      * Does this classifier have a matching term for an observable?
@@ -60,7 +54,7 @@ abstract public class Classifier {
      *
      * @throws InferenceException if there was a problem matching the result
      */
-    abstract public <T> Boolean match(Observable observable, T value) throws InferenceException;
+    public <T> Boolean match(Observable observable, T value) throws InferenceException;
 
     /**
      * Add a value to the classifier.
@@ -74,7 +68,7 @@ abstract public class Classifier {
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    abstract public <T> void add(Observable observable, T value) throws StoreException;
+    public <T> void add(Observable observable, T value) throws StoreException;
 
 
     /**
@@ -88,7 +82,7 @@ abstract public class Classifier {
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    abstract public void addAll(Observable observable, Classifier classifier) throws StoreException;
+    public void addAll(Observable observable, Classifier classifier) throws StoreException;
 
     /**
      * Set a value in the classifier.
@@ -101,14 +95,14 @@ abstract public class Classifier {
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    abstract public <T> void replace(Observable observable, T value) throws StoreException;
+    public <T> void replace(Observable observable, T value) throws StoreException;
 
     /**
      * Get the identifier for a classifier.
      *
      * @return The identifier, or null for no identifier found.
      */
-    abstract public String getIdentifier();
+    public String getIdentifier();
 
     /**
      * Label a classifier with a unique identifier.
@@ -121,7 +115,7 @@ abstract public class Classifier {
      *
      * @throws StoreException If unable to create an identifier for some reason.
      */
-    abstract public String identify() throws StoreException;
+    public String identify() throws StoreException;
 
     /**
      * Get the classifier's type
@@ -130,7 +124,7 @@ abstract public class Classifier {
      *
      * @throws StoreException If unable to create a type for some reason.
      */
-    abstract public Term getType() throws StoreException;
+    public Term getType() throws StoreException;
 
     /**
      * Set the classifier's type
@@ -139,7 +133,7 @@ abstract public class Classifier {
      *
      * @throws StoreException If unable to create a type for some reason.
      */
-    abstract public void setType(Term type) throws StoreException;
+    public void setType(Term type) throws StoreException;
 
 
     /**
@@ -167,7 +161,7 @@ abstract public class Classifier {
      *
      * @throws StoreException if unable to test for the annotation
      */
-    abstract public boolean hasAnnotation(Term annotation) throws StoreException;
+    public boolean hasAnnotation(Term annotation) throws StoreException;
 
     /**
      * Add an annotation to a classifier.
@@ -176,14 +170,14 @@ abstract public class Classifier {
      *
      * @throws StoreException If unable to annotate for some reason.
      */
-    abstract public void annotate(Term annotation) throws StoreException;
+    public void annotate(Term annotation) throws StoreException;
 
     /**
      * Load the inference parameters in a classifier
      *
      * @throws StoreException if unable to retrieve the parameters
      */
-    abstract public void loadParameters(Parameters parameters) throws StoreException;
+    public void loadParameters(Parameters parameters) throws StoreException;
 
     /**
      * Store the inference parameters in a classifier.
@@ -192,7 +186,7 @@ abstract public class Classifier {
      *
      * @throws StoreException if unable to store the parameters in the document
      */
-    abstract public void storeParameters(Parameters parameters) throws StoreException;
+    public void storeParameters(Parameters parameters) throws StoreException;
 
 
     /**
@@ -202,7 +196,8 @@ abstract public class Classifier {
      *
      * @throws StoreException if unable to retrieve the index
      */
-    abstract public int[] getIndex() throws StoreException;
+    public int[] getIndex() throws StoreException;
+
     /**
      * Set the index values for a classifier.
      * <p>
@@ -214,7 +209,7 @@ abstract public class Classifier {
      *
      * @throws StoreException If unable to store the index
      */
-    abstract public void setIndex(int left, int right) throws StoreException;
+    public void setIndex(int left, int right) throws StoreException;
 
     /**
      * Get the names for the classifier.
@@ -226,7 +221,7 @@ abstract public class Classifier {
      *
      * @throws StoreException if unable to get the names list
      */
-    abstract public Collection<String> getNames() throws StoreException;
+    public Collection<String> getNames() throws StoreException;
 
     /**
      * Set the names for a classifier.
@@ -238,5 +233,5 @@ abstract public class Classifier {
      *
      * @throws StoreException if unable to store the names in the classifier
      */
-    abstract public void setNames(Collection<String> names) throws StoreException;
+    public void setNames(Collection<String> names) throws StoreException;
 }

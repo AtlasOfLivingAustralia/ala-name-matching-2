@@ -4,7 +4,7 @@ import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
 
-public class GrassInference extends Inferencer<GrassClassification, GrassParameters> {
+public class GrassInferencer implements Inferencer<GrassClassification, GrassParameters> {
 
   public double infer(Evidence evidence, GrassParameters parameters, double c$rain) {
     double nc$rain = 1.0 - c$rain;

@@ -25,7 +25,7 @@ import java.util.*;
  * The classifier is backed by a lucene document that can be stored/retrieved as required.
  * </p>
  */
-public class LuceneClassifier extends Classifier {
+public class LuceneClassifier implements Classifier {
     /** The default field name for identifiers */
     public static final String ID_FIELD = "_id";
     /** The default field name for types */

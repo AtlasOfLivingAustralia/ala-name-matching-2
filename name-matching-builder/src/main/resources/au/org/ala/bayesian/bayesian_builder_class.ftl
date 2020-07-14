@@ -15,7 +15,7 @@ import java.util.Optional;
 import ${variable.clazz.name};
 </#list>
 
-public class ${className} extends Builder<${parametersClassName}> {
+public class ${className} implements Builder<${parametersClassName}> {
   <#list builderVariables as variable>
   private ${variable.clazz.simpleName} ${variable.name};
   </#list>
@@ -33,11 +33,11 @@ public class ${className} extends Builder<${parametersClassName}> {
   <#if observable?? && observable.derivation??>
     <#assign derivation = observable.derivation>
     <#if derivation.hasExtra()>
-    ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", observablesClassName)};
+    ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", factoryClassName)};
     </#if>
-    for (Object v: ${derivation.generateValues("classifier", observablesClassName)}) {
+    for (Object v: ${derivation.generateValues("classifier", factoryClassName)}) {
       Object d = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
-      classifier.add(${observablesClassName}.${observable.javaVariable}, d);
+      classifier.add(${factoryClassName}.${observable.javaVariable}, d);
     }
   </#if>
 </#list>
@@ -50,17 +50,17 @@ public class ${className} extends Builder<${parametersClassName}> {
   <#if observable?? && observable.base??>
     <#assign derivation = observable.base>
     <#assign docVar = "classifier">
-    <#assign condition = derivation.generateCondition("c", "classifier", observablesClassName, "parents")>
+    <#assign condition = derivation.generateCondition("c", "classifier", factoryClassName, "parents")>
     <#if condition??>
       <#assign docVar = "d_${node?index}">
     Optional<Classifier> ${docVar} = parents.stream().filter(c -> ${condition}).findFirst();
     if (${docVar}.isPresent()){
     <#if derivation.hasExtra()>
-      ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", observablesClassName)};
+      ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", factoryClassName)};
     </#if>
-      for(Object v: ${derivation.generateValues("${docVar}.get()", observablesClassName)}){
+      for(Object v: ${derivation.generateValues("${docVar}.get()", factoryClassName)}){
         Object d = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
-        classifier.add(${observablesClassName}.${observable.javaVariable}, d);
+        classifier.add(${factoryClassName}.${observable.javaVariable}, d);
       }
     }
     </#if>
@@ -69,19 +69,14 @@ public class ${className} extends Builder<${parametersClassName}> {
   }
 
   @Override
-  public ${parametersClassName} createParameters() {
-      return new ${parametersClassName}();
-  }
-
-  @Override
   public void calculate(${parametersClassName} parameters, ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
     <#list inputs as inc>
-    parameters.${inc.prior.id} = analyser.computePrior(analyser.getObservation(true, ${observablesClassName}.${inc.observable.javaVariable}, classifier));
+    parameters.${inc.prior.id} = analyser.computePrior(analyser.getObservation(true, ${factoryClassName}.${inc.observable.javaVariable}, classifier));
     </#list>
     <#list orderedNodes as node>
         <#list node.inference as inf>
             <#if !inf.derived>
-    parameters.${inf.id} = analyser.computeConditional(analyser.getObservation(true, ${observablesClassName}.${inf.outcome.observable.javaVariable}, classifier) <#list inf.contributors as c>, analyser.getObservation(${c.match?c}, ${observablesClassName}.${c.observable.javaVariable}, classifier)</#list>);
+    parameters.${inf.id} = analyser.computeConditional(analyser.getObservation(true, ${factoryClassName}.${inf.outcome.observable.javaVariable}, classifier) <#list inf.contributors as c>, analyser.getObservation(${c.match?c}, ${factoryClassName}.${c.observable.javaVariable}, classifier)</#list>);
             </#if>
         </#list>
     </#list>
