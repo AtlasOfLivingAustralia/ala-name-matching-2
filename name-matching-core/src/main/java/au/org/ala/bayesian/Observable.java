@@ -1,15 +1,12 @@
 package au.org.ala.bayesian;
 
-import au.org.ala.names.model.ExternalContext;
 import au.org.ala.names.model.Identifiable;
 import au.org.ala.vocab.ALATerm;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.gbif.dwc.terms.Term;
-import org.gbif.dwc.terms.TermFactory;
 
 import java.net.URI;
 

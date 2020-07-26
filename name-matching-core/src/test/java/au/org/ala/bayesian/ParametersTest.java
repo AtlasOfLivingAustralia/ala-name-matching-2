@@ -1,11 +1,7 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.util.TestUtils;
-import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileOutputStream;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;

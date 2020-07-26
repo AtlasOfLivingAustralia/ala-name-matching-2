@@ -1,7 +1,5 @@
 package au.org.ala.maven;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
 import org.junit.Rule;
@@ -40,7 +38,7 @@ public class NetworkGeneratorMojoTest {
         assertTrue(cli.exists());
         base = new File("target/test-harness/network-generator-unit-test/generated-resources/au/org/ala/maven/test");
         assertTrue(base.exists());
-        File network = new File(base, "Network1.json");
+        File network = new File(base, "network-1.json");
         assertTrue(network.exists());
     }
 
@@ -69,7 +67,7 @@ public class NetworkGeneratorMojoTest {
         assertTrue(cli.exists());
         base = new File("target/test-harness/network-generator-unit-test-2/generated-resources/au/org/ala/maven/test");
         assertTrue(base.exists());
-        File network = new File(base, "Network1.json");
+        File network = new File(base, "network-1.json");
         assertTrue(network.exists());
     }
 }

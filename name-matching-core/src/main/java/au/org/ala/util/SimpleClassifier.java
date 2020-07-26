@@ -1,7 +1,7 @@
 package au.org.ala.util;
 
-import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.*;
 import org.gbif.dwc.terms.Term;
 
 import java.util.*;

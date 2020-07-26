@@ -4,7 +4,6 @@ import au.org.ala.util.IdentifierConverter;
 import au.org.ala.util.SimpleIdentifierConverter;
 import au.org.ala.vocab.ALATerm;
 import lombok.Getter;
-import org.apache.lucene.document.Document;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 

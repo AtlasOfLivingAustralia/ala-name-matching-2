@@ -45,7 +45,7 @@ public class DwCASourceTest {
         DwCASource source = new DwCASource(sample, this.network.getObservables());
         source.load(this.store, null);
 
-        assertEquals(710, this.store.getStore().size());
+        assertEquals(718, this.store.getStore().size());
         Classifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2901022");
         assertNotNull(value);
         assertEquals("Canarium acutifolium", value.get(SCIENTIFIC_NAME_OBS));
@@ -63,7 +63,7 @@ public class DwCASourceTest {
         DwCASource source = new DwCASource(sample, this.network.getObservables());
         source.load(this.store, Arrays.asList(TAXON_ID_OBS, SCIENTIFIC_NAME_OBS));
 
-        assertEquals(710, this.store.getStore().size());
+        assertEquals(718, this.store.getStore().size());
         Classifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2901022");
         assertNotNull(value);
         assertEquals("Canarium acutifolium", value.get(SCIENTIFIC_NAME_OBS));

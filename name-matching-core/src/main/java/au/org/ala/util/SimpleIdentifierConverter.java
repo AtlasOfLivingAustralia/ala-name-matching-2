@@ -11,9 +11,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SimpleIdentifierConverter implements IdentifierConverter {
+    /** Convert an identifiable object into a Java class name */
     public static final IdentifierConverter JAVA_CLASS = new SimpleIdentifierConverter(Style.CAMEL_CASE, true, false);
+    /** Convert an identifiable object into a Java variable name */
     public static final IdentifierConverter JAVA_VARIABLE = new SimpleIdentifierConverter(Style.CAMEL_CASE, false, true);
+    /** Convert an identifiable object into a Lucene field name */
     public static final IdentifierConverter LUCENE_FIELD = new SimpleIdentifierConverter(Style.UNDERSCORE, false, false);
+    /** Convert an identifiable object into a file name */
+    public static final IdentifierConverter FILE_NAME = new SimpleIdentifierConverter(Style.DASH, false, false);
 
     private static final Set<String> RESERVED_WORDS = new HashSet<>(Arrays.asList(
             "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
@@ -81,6 +86,9 @@ public class SimpleIdentifierConverter implements IdentifierConverter {
                        case UNDERSCORE:
                            w.append('_');
                            break;
+                       case DASH:
+                           w.append('-');
+                           break;
                    }
                    separate = false;
                 }
@@ -113,6 +121,8 @@ public class SimpleIdentifierConverter implements IdentifierConverter {
         /** Use camel case to deliniate words */
         CAMEL_CASE,
         /** Use underscores to deliniate words */
-        UNDERSCORE
+        UNDERSCORE,
+        /** Use dashes to deliniate words */
+        DASH
     }
 }

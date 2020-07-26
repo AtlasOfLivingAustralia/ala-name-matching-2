@@ -2,15 +2,7 @@ package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.Parameters;
 import au.org.ala.bayesian.StoreException;
-import org.apache.lucene.document.*;
-import org.apache.lucene.util.BytesRef;
-import org.gbif.dwc.terms.Term;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.UUID;
 
 /**
  * An annotator annotaters a document with additional information

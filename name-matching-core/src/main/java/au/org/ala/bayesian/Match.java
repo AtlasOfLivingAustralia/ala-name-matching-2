@@ -1,7 +1,5 @@
 package au.org.ala.bayesian;
 
-import au.org.ala.bayesian.Classification;
-import au.org.ala.bayesian.Classifier;
 import lombok.Value;
 
 /**

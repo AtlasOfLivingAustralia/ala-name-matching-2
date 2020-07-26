@@ -1,6 +1,6 @@
 package au.org.ala.names.lucene;
 
-import org.apache.lucene.index.*;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.After;
@@ -8,8 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
 
 public class SumCollectorTest {
     private LuceneUtils lucene;

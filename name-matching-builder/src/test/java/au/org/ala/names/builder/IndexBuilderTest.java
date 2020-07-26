@@ -6,18 +6,13 @@ import au.org.ala.names.generated.SimpleLinnaeanBuilder;
 import au.org.ala.names.generated.SimpleLinnaeanFactory;
 import au.org.ala.names.generated.SimpleLinnaeanParameters;
 import au.org.ala.names.lucene.LuceneLoadStore;
-import au.org.ala.util.TestUtils;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexableField;
 import org.gbif.dwc.terms.DwcTerm;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.Reader;
 import java.net.URL;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 

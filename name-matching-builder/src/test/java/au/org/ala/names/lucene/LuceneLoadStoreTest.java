@@ -1,6 +1,9 @@
 package au.org.ala.names.lucene;
 
-import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.Network;
+import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.builder.Annotator;
 import au.org.ala.names.builder.TestAnnotator;
 import org.gbif.dwc.terms.DwcTerm;

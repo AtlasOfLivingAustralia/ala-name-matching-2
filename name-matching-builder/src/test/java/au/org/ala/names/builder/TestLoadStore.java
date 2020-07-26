@@ -1,10 +1,8 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneClassifier;
-import au.org.ala.names.model.ExternalContext;
-import org.apache.lucene.document.Document;
 import org.gbif.dwc.terms.Term;
 
 import java.util.*;

@@ -1,10 +1,7 @@
 package au.org.ala.names.lucene;
 
-import au.org.ala.bayesian.*;
-
-import static au.org.ala.names.model.ExternalContext.LUCENE;
-
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.*;
 import lombok.Getter;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexOptions;
@@ -18,6 +15,8 @@ import org.gbif.dwc.terms.TermFactory;
 
 import java.io.IOException;
 import java.util.*;
+
+import static au.org.ala.names.model.ExternalContext.LUCENE;
 
 /**
  * Lucene implementation of a classifier.

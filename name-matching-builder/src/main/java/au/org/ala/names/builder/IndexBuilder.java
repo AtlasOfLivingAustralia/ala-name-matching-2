@@ -34,7 +34,7 @@ import java.util.*;
  *     <li>Produce an output lucene index optimised for subsequent searching</li>
  * </ol>
  */
-public class IndexBuilder<C extends Classification, P extends Parameters, I extends Inferencer<C, P>> implements Annotator {
+public class IndexBuilder<C extends Classification, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> implements Annotator {
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexBuilder.class);
 
     /** The name of the property that gives the weight */
@@ -65,7 +65,7 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
     @Getter
     protected Network network;
     /** The factory for creating builder objects */
-    protected NetworkFactory<C, P, I> factory;
+    protected F factory;
     /** The builder to use in processing */
     protected Builder<P> builder;
     /** The weight observable (required) */

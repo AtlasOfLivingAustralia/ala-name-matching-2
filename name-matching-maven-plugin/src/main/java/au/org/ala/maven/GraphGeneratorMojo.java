@@ -1,7 +1,6 @@
 package au.org.ala.maven;
 
 import au.org.ala.bayesian.DotGenerator;
-import au.org.ala.bayesian.JavaGenerator;
 import au.org.ala.bayesian.Network;
 import au.org.ala.bayesian.NetworkCompiler;
 import org.apache.maven.plugin.AbstractMojo;

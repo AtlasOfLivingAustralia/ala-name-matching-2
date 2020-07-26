@@ -1,10 +1,6 @@
 package au.org.ala.names.lucene;
 
-import au.org.ala.bayesian.Classification;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.Observation;
-import au.org.ala.bayesian.StoreException;
-import au.org.ala.bayesian.ClassifierSearcher;
+import au.org.ala.bayesian.*;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;

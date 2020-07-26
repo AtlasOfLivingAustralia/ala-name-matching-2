@@ -1,9 +1,10 @@
 package au.org.ala.names.model;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
 
 public class IdentifiableTest {
     @Test

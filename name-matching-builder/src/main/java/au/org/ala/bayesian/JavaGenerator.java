@@ -1,5 +1,7 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.names.builder.Builder;
+import au.org.ala.names.builder.Cli;
 import au.org.ala.names.model.ExternalContext;
 import au.org.ala.util.IdentifierConverter;
 import au.org.ala.util.SimpleIdentifierConverter;
@@ -13,18 +15,22 @@ import freemarker.template.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.Properties;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Compile a network into java code.
  */
+@Slf4j
 public class JavaGenerator extends Generator {
     /** The default package to generate code for */
     private static final String DEFAULT_PACKAGE = "au.org.ala.bayesian.generated";
@@ -47,64 +53,47 @@ public class JavaGenerator extends Generator {
     private static Configuration CONFIG =null;
 
     /** The java code target directory */
-    private final File javaTargetDir;
+    private File javaTargetDir;
     /** The resources target directory */
-    private final File resourceTargetDir;
+    private File resourceTargetDir;
     /** The package to use */
     @Getter
-    private final String packageName;
+    @Setter
+    private String packageName;
     /** The artifact name to use */
     @Getter
     @Setter
     private String artifactName;
+    /** The freemarker configuration */
+    private Configuration freemarkerConfig;
     /** The object wrapper to use */
-    private final BeansWrapper wrapper;
-    /** The template to use for the inference class */
-    private final Template inferencerTemplate;
-    /** The template to use for the inference class */
-    private final Template parametersTemplate;
-    /** The template to use for the classification class */
-    private final Template classificationTemplate;
-    /** The template to use for the builder class */
-    private final Template builderTemplate;
-    /** The template to use for the factory class */
-    private final Template factoryTemplate;
-    /** The template to use for the CLI class */
-    private final Template cliTemplate;
+    private BeansWrapper wrapper;
     /** The identifier converter for creating class names */
-    private final IdentifierConverter classConverter;
-    /** The analyser class to use, if needed */
+    private IdentifierConverter classConverter;
+    /** Builder class specification */
     @Getter
-    @Setter
-    private String analyserClass;
-    /** The matcher class to use, if needed */
+    private JavaGeneratorSpecification<Builder> builderSpec;
+    /** Parameter class specification */
     @Getter
-    @Setter
-    private String matcherClass;
-    /** Generate the builder? */
+    private JavaGeneratorSpecification<Parameters> parametersSpec;
+    /** Parameter class specification */
     @Getter
-    @Setter
-    private boolean generateBuilder;
-    /** Generate the parameters? */
+    private JavaGeneratorSpecification<Classification> classificationSpec;
+    /** Inferencer class specification */
     @Getter
-    @Setter
-    private boolean generateParameters;
-    /** Generate the classification */
+    private JavaGeneratorSpecification<Inferencer> inferencerSpec;
+    /** Analyser class specification */
     @Getter
-    @Setter
-    private boolean generateClassification;
-    /** Generate the inferencer? */
+    private JavaGeneratorSpecification<EvidenceAnalyser> analyserSpec;
+    /** Generator class specification */
     @Getter
-    @Setter
-    private boolean generateInferencer;
-    /** Generate the factory? */
+    private JavaGeneratorSpecification<ClassificationMatcher> matcherSpec;
+    /** Parameter class specification */
     @Getter
-    @Setter
-    private boolean generateFactory;
-    /** Generate the CLI? */
+    private JavaGeneratorSpecification<NetworkFactory> factorySpec;
+    /** Parameter class specification */
     @Getter
-    @Setter
-    private boolean generateCli;
+    private JavaGeneratorSpecification<Cli> cliSpec;
 
     /**
      * Construct a generator
@@ -120,23 +109,21 @@ public class JavaGenerator extends Generator {
         this.resourceTargetDir = resourceTargetDir;
         this.packageName = packageName;
         this.artifactName = "name-matching-builder";
-        Configuration config = getConfig();
-        this.inferencerTemplate = config.getTemplate(INFERENCE_CLASS_TEMPLATE);
-        this.parametersTemplate = config.getTemplate(PARAMETERS_CLASS_TEMPLATE);
-        this.classificationTemplate = config.getTemplate(CLASSIFICATION_CLASS_TEMPLATE);
-        this.builderTemplate = config.getTemplate(BUILDER_CLASS_TEMPLATE);
-        this.factoryTemplate = config.getTemplate(FACTORY_CLASS_TEMPLATE);
-        this.cliTemplate = config.getTemplate(CLI_CLASS_TEMPLATE);
+        this.freemarkerConfig = getConfig();
         this.classConverter = SimpleIdentifierConverter.JAVA_CLASS;
-        this.wrapper = new DefaultObjectWrapperBuilder(config.getIncompatibleImprovements()).build();
-        this.analyserClass = null;
-        this.matcherClass = null;
-        this.generateBuilder = true;
-        this.generateParameters = true;
-        this.generateClassification = true;
-        this.generateInferencer = true;
-        this.generateFactory = true;
-        this.generateCli = true;
+        this.wrapper = new DefaultObjectWrapperBuilder(this.freemarkerConfig.getIncompatibleImprovements()).build();
+        this.parametersSpec = new JavaGeneratorSpecification<>("Parameters", PARAMETERS_CLASS_TEMPLATE, Parameters.class);
+        this.classificationSpec = new JavaGeneratorSpecification<>("Classification", CLASSIFICATION_CLASS_TEMPLATE, Classification.class);
+        this.inferencerSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_CLASS_TEMPLATE, Inferencer.class, this.classificationSpec, this.parametersSpec);
+        this.factorySpec = new JavaGeneratorSpecification<>("Factory", FACTORY_CLASS_TEMPLATE, NetworkFactory.class, this.classificationSpec, this.parametersSpec, this.inferencerSpec);
+        this.builderSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_CLASS_TEMPLATE, Builder.class, this.parametersSpec, this.factorySpec);
+        this.cliSpec = new JavaGeneratorSpecification<>("Cli", CLI_CLASS_TEMPLATE, Cli.class, this.classificationSpec, this.parametersSpec, this.builderSpec, this.inferencerSpec, this.factorySpec);
+        this.analyserSpec = new JavaGeneratorSpecification<>("analyser", null, EvidenceAnalyser.class, this.classificationSpec);
+        this.matcherSpec = new JavaGeneratorSpecification<>("matcher", null, ClassificationMatcher.class, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.factorySpec);
+        this.factorySpec.addParameter(this.analyserSpec);
+        this.factorySpec.addParameter(this.matcherSpec);
+        this.classificationSpec.addParameter(this.factorySpec);
+        this.classificationSpec.addParameter(this.inferencerSpec);
     }
 
     /**
@@ -163,8 +150,7 @@ public class JavaGenerator extends Generator {
      * Generate all results requested.
      * <p>
      * By default, everything is generated.
-     * You can choose which files to generate by using {@link #setGenerateBuilder(boolean)}, {@link #setGenerateInferencer(boolean)}
-     * and {@link #setGenerateParameters(boolean)}
+     * You can set the individual specifications to flag whether they should be generated or not
      * </p>
      *
      * @param compiler The compuler to generate from
@@ -176,13 +162,6 @@ public class JavaGenerator extends Generator {
         String classBase = this.classConverter.convert(compiler.getNetwork());
         File javaTarget = this.javaTargetDir;
         File resourceTarget = this.resourceTargetDir;
-        String inferencerName = classBase + "Inferencer";
-        String parametersName = classBase + "Parameters";
-        String classificationName = classBase + "Classification";
-        String builderName = classBase + "Builder";
-        String factoryName = classBase + "Factory";
-        String cliName = classBase + "Cli";
-        String networkFileName = classBase + ".json";
         Writer writer;
 
         for (String p: this.packageName.split("\\.")) {
@@ -196,180 +175,74 @@ public class JavaGenerator extends Generator {
         if (!resourceTarget.exists())
             throw new IOException("Unable to create " + resourceTarget);
 
-        // Common context
-        Properties context = new Properties();
-        context.put("inferencerClassName", inferencerName);
-        context.put("parametersClassName", parametersName);
-        context.put("classificationClassName", classificationName);
-        context.put("builderClassName", builderName);
-        context.put("factoryClassName", factoryName);
-        context.put("cliClassName", cliName);
-        context.put("artifactName", this.artifactName);
-        context.put("packageName", this.packageName);
-        context.put("networkFile", networkFileName);
-        if (this.matcherClass != null) {
-            context.put("matcherClass", this.matcherClass);
-            context.put("matcherClassName", this.stripPackage(this.matcherClass));
-        }
-        if (this.analyserClass != null) {
-            context.put("analyserClass", this.analyserClass);
-            context.put("analyserClassName", this.stripPackage(this.analyserClass));
-        }
-
-        // Generate inference class
-        if (this.isGenerateInferencer()) {
-            writer = new FileWriter(new File(javaTarget, inferencerName + ".java"));
-            this.generateInferenceClass(compiler, inferencerName, context, writer);
+        log.info("Generating for network " + compiler.getNetwork());
+        this.generateClass(compiler, this.classificationSpec, javaTarget, compiler.getClassificationVariables());
+        this.generateClass(compiler, this.inferencerSpec, javaTarget, null);
+        this.generateClass(compiler, this.parametersSpec, javaTarget, null);
+        this.generateClass(compiler, this.factorySpec, javaTarget, null);
+        this.generateClass(compiler, this.builderSpec, javaTarget, compiler.getBuilderVariables());
+        this.generateClass(compiler, this.cliSpec, javaTarget,null);
+        if (this.cliSpec.isGenerate()) {
+            writer = new FileWriter(new File(resourceTarget, this.getNetworkFileName(compiler)));
+            this.generateNetworkFile(compiler, writer);
             writer.close();
         }
-        // Generate parameters class
-        if (this.isGenerateParameters()) {
-            writer = new FileWriter(new File(javaTarget, parametersName + ".java"));
-            this.generateParameterClass(compiler, parametersName, context, writer);
-            writer.close();
-        }
-        // Generate classification class
-        if (this.isGenerateClassification()) {
-            writer = new FileWriter(new File(javaTarget, classificationName + ".java"));
-            this.generateClassificationClass(compiler, classificationName, context, writer);
-            writer.close();
-        }
-        // Generate factory class
-        if (this.isGenerateFactory()) {
-            writer = new FileWriter(new File(javaTarget, factoryName + ".java"));
-            this.generateFactoryClass(compiler, factoryName, context, writer);
-            writer.close();
-        }
-
-        // Generate builder class
-        if (this.isGenerateBuilder()) {
-            writer = new FileWriter(new File(javaTarget, builderName + ".java"));
-            this.generateBuilderClass(compiler, builderName, context, writer);
-            writer.close();
-        }
-        if (this.isGenerateCli()) {
-            writer = new FileWriter(new File(javaTarget, cliName + ".java"));
-            this.generateCliClass(compiler, cliName, context, writer);
-            writer.close();
-            writer = new FileWriter(new File(resourceTarget, networkFileName));
-            this.generateNetworkFile(compiler, context, writer);
-        }
-    }
+     }
 
     /**
-     * Populate the template environnment with commobn values.
+     * Populate the template environnment with common values.
      *
      * @param environment The environmwent to populate
-     * @param context The properties map
+     * @param spec The base specification
      */
-    protected void populate(Environment environment, Properties context) {
-        for (String name: context.stringPropertyNames()) {
-            environment.setVariable(name, new StringModel(context.getProperty(name), this.wrapper));
+    protected void populate(Environment environment, NetworkCompiler compiler, JavaGeneratorSpecification spec, Collection<Derivation.Variable> variables) {
+        Set<String> imports = new HashSet<>();
+        JavaGeneratorSpecification.Context baseContext = spec.withContext(compiler, this.packageName);
+        if (variables != null) {
+            for (Derivation.Variable v: variables)
+                baseContext.addImport(v.getClazz().getName(), imports);
         }
+        environment.setVariable("packageName", new StringModel(this.packageName, this.wrapper));
+        environment.setVariable("artifactName", new StringModel(this.artifactName, this.wrapper));
+        environment.setVariable("networkFileName", new StringModel(this.getNetworkFileName(compiler), this.wrapper));
+        environment.setVariable("externalContexts", new CollectionModel(Arrays.asList(ExternalContext.LUCENE), this.wrapper));
+        baseContext.populate(environment, this.wrapper, imports);
+        environment.setVariable("imports", new CollectionModel(imports, this.wrapper));
     }
 
-    /**
-     * Generate code for the inference class
-     *
-     * @param compiler The compiler/analyser
-     * @param name The class name
-     * @param context Context variables
-     * @param writer The output desitination for the code
-     */
-    protected void generateInferenceClass(@NonNull NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
-        Environment env = this.inferencerTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("className", new StringModel(name, this.wrapper));
-        this.populate(env, context);
-        env.process();
+    protected String getNetworkFileName(NetworkCompiler compiler) {
+        return SimpleIdentifierConverter.FILE_NAME.convert(compiler.getNetwork()) + ".json";
     }
 
-    /**
-     * Generate code for the parameters class
-     *
-     * @param compiler The compiler/analyser
-     * @param name The class name
-     * @param context Context variables
-     * @param writer The output desitination for the code
-     */
-    protected void generateParameterClass(@NonNull NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
-        Environment env = this.parametersTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("className", new StringModel(name, this.wrapper));
-        this.populate(env, context);
-        env.process();
+    protected <I> void generateClass(@NonNull NetworkCompiler compiler, @NonNull JavaGeneratorSpecification<I> spec, @NonNull Writer writer, Collection<Derivation.Variable> variables) throws IOException, TemplateException {
+       if (spec.getTemplate() == null || !spec.isGenerate())
+            return;
+        Template template = this.freemarkerConfig.getTemplate(spec.getTemplate());
+        Environment environment = template.createProcessingEnvironment(compiler, writer);
+        this.populate(environment, compiler, spec, variables);
+        log.info("Generating " + compiler.getNetwork().getId() + "/" + spec.getFunction() + " class " + environment.getVariable("className"));
+        environment.process();
     }
 
-    /**
-     * Generate code for the classification class
-     *
-     * @param compiler The compiler/analyser
-     * @param name The class name
-     * @param context Context variables
-     * @param writer The output desitination for the code
-     */
-    protected void generateClassificationClass(@NonNull NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
-        Environment env = this.classificationTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("className", new StringModel(name, this.wrapper));
-        this.populate(env, context);
-        env.process();
-    }
-
-    /**
-     * Generate code for the observables class
-     *
-     * @param compiler The compiler/analyser
-     * @param name The class name
-     * @param context Context variables
-     * @param writer The output desitination for the code
-    */
-    protected void generateFactoryClass(@NonNull NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
-        Environment env = this.factoryTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("className", new StringModel(name, this.wrapper));
-        this.populate(env, context);
-        env.setVariable("externalContexts", new CollectionModel(Collections.singletonList(ExternalContext.LUCENE), this.wrapper));
-        env.process();
-    }
-
-
-    /**
-     * Generate code for the builder class
-     *
-     * @param compiler The compiler/analyser
-     * @param name The class name
-     * @param context Context variables
-     * @param writer The output desitination for the code
-     */
-    protected void generateBuilderClass(@NonNull NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
-        Environment env = this.builderTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("className", new StringModel(name, this.wrapper));
-        this.populate(env, context);
-        env.process();
-    }
-
-    /**
-     * Generate code for the builder class
-     *
-     * @param compiler The compiler/analyser
-     * @param name The class name
-     * @param context Context variables
-     * @param writer The output desitination for the code
-     */
-    protected void generateCliClass(@NonNull NetworkCompiler compiler, String name, Properties context, Writer writer) throws IOException, TemplateException {
-        Environment env = this.cliTemplate.createProcessingEnvironment(compiler, writer);
-        env.setVariable("className", new StringModel(name, this.wrapper));
-        this.populate(env, context);
-        env.process();
+    protected <I> void generateClass(@NonNull NetworkCompiler compiler, @NonNull JavaGeneratorSpecification<I> spec, File javaTarget, Collection<Derivation.Variable> variables) throws IOException, TemplateException {
+        if (spec.getTemplate() == null || !spec.isGenerate())
+            return;
+        File target = new File(javaTarget, spec.withContext(compiler, this.packageName).getClassName() + ".java");
+        log.info("Generating " + compiler.getNetwork().getId() + "/" + spec.getFunction() + " to file " + target);
+        Writer writer = new FileWriter(target);
+        this.generateClass(compiler, spec, writer, variables);
+        writer.close();
     }
 
     /**
      * Generate a readable version of the network for the builder class
      *
      * @param compiler The compiler/analyser
-     * @param context The context to use
      * @param writer The writer to write to
      *
      * @throws IOException if unable to write the network
      */
-    protected void generateNetworkFile(@NonNull NetworkCompiler compiler, @SuppressWarnings("unused") Properties context, Writer writer) throws IOException {
+    protected void generateNetworkFile(@NonNull NetworkCompiler compiler, Writer writer) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
@@ -410,7 +283,7 @@ public class JavaGenerator extends Generator {
         String pkg = cmd.getOptionValue("p", "au.org.ala.names.generated");
         File output = new File(cmd.getOptionValue("o", System.getProperty("user.dir")));
 
-        System.out.println("Generating for package " + pkg + " and output " + output.getAbsolutePath());
+        log.info("Generating for package " + pkg + " and output " + output.getAbsolutePath());
         if (!pkg.matches("[a-z]+(\\.[a-z]+)*"))
             throw new IllegalArgumentException("Invalid package name " + pkg);
         if (!output.exists())
@@ -418,7 +291,7 @@ public class JavaGenerator extends Generator {
         JavaGenerator generator = new JavaGenerator(output, output, pkg);
         for (String s: cmd.getArgList()) {
             File source = new File(s);
-            System.out.println("Generating " + source.getAbsolutePath());
+            log.info("Generating " + source.getAbsolutePath());
             if (!source.exists())
                 throw new IllegalArgumentException("Base network " + source + " does not exist");
             Network network = Network.read(source.toURI().toURL());

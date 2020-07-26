@@ -1,6 +1,5 @@
 package au.org.ala.bayesian;
 
-import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
 import java.util.Collection;

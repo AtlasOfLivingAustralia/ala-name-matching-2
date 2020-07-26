@@ -2,7 +2,6 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.names.model.ExternalContext;
-import au.org.ala.util.BasicNormaliser;
 import au.org.ala.util.TestUtils;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;

@@ -2,7 +2,6 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.ClassificationMatcher;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.Match;
 import au.org.ala.names.builder.IndexBuilder;
 import au.org.ala.names.builder.IndexBuilderConfiguration;
@@ -27,7 +26,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
 
     private AlaLinnaeanFactory factory;
     private LuceneClassifierSearcher searcher;
-    private ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanParameters, AlaLinnaeanInferencer> matcher;
+    private ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanParameters, AlaLinnaeanInferencer, AlaLinnaeanFactory> matcher;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -35,7 +34,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         output = makeTmpDir("output");
         IndexBuilderConfiguration config = new IndexBuilderConfiguration();
         config.setBuilderClass(AlaLinnaeanBuilder.class);
-        config.setNetwork(AlaLinnaeanBuilder.class.getResource("AlaLinnaean.json"));
+        config.setNetwork(AlaLinnaeanBuilder.class.getResource("ala-linnaean.json"));
         config.setWork(work);
         config.setFactoryClass(AlaLinnaeanFactory.class);
         builder = new IndexBuilder(config);
@@ -134,7 +133,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", match.getMatch().taxonId);
-        assertEquals(0.99123, match.getProbability(), 0.00001);
+        assertEquals(0.99180, match.getProbability(), 0.00001);
     }
 
     @Test
@@ -146,7 +145,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.99773, match.getProbability(), 0.00001);
+        assertEquals(0.99775, match.getProbability(), 0.00001);
     }
 
 

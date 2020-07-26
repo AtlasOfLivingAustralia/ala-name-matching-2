@@ -28,6 +28,8 @@
                      <source>src/test/resources/au/org/ala/maven/network-1.json</source>
                      <outputPackage>au.org.ala.maven.test</outputPackage>
                      <outputDirectory>target/test-harness/network-generator-unit-test</outputDirectory>
+                     <matcherClass>au.org.ala.maven.testClassificationMatcher</matcherClass>
+                     <analyserClass>au.org.ala.maven.TestAnalyser</analyserClass>
                  </configuration>
                 <goals>
                     <goal>generate-network</goal>

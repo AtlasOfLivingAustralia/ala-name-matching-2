@@ -1,19 +1,14 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.ClassificationMatcher;
-import au.org.ala.bayesian.ClassifierSearcher;
-import au.org.ala.bayesian.EvidenceAnalyser;
-import au.org.ala.bayesian.NetworkFactory;
-import au.org.ala.bayesian.Normaliser;
-import au.org.ala.bayesian.Observable;
-import static au.org.ala.names.model.ExternalContext.*;
+import au.org.ala.bayesian.*;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class GrassFactory implements NetworkFactory<GrassClassification, GrassParameters, GrassInferencer> {
+import static au.org.ala.names.model.ExternalContext.LUCENE;
+
+public class GrassFactory implements NetworkFactory<GrassClassification, GrassParameters, GrassInferencer, GrassFactory> {
     private static GrassFactory instance = null;
 
 
@@ -83,7 +78,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassPa
   }
 
   @Override
-  public ClassificationMatcher<GrassClassification, GrassParameters, GrassInferencer> createMatcher(ClassifierSearcher searcher){
+  public ClassificationMatcher<GrassClassification, GrassParameters, GrassInferencer, GrassFactory> createMatcher(ClassifierSearcher searcher){
         return new ClassificationMatcher<>(this, searcher);
   }
 

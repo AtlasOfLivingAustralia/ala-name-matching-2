@@ -9,7 +9,6 @@ import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.nameparser.PhraseNameParser;
-import org.gbif.nameparser.RankUtils;
 
 public class AlaNameAnalyser implements EvidenceAnalyser<AlaLinnaeanClassification> {
     private static ThreadLocal<PhraseNameParser> PARSER = new ThreadLocal<PhraseNameParser>() {

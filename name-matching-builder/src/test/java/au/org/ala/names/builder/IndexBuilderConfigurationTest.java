@@ -1,22 +1,15 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.Network;
-import au.org.ala.bayesian.Observable;
 import au.org.ala.names.generated.GrassBuilder;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.ALATerm;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.gbif.dwc.terms.AlternativeNames;
-import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.HashSet;
 
 import static org.junit.Assert.*;
 

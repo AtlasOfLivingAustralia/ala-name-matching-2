@@ -8,8 +8,6 @@ import org.apache.commons.cli.*;
 import java.io.File;
 import java.net.URL;
 
-import au.org.ala.util.TaxonNameSoundEx;
-
 
 public class SimpleLinnaeanCli {
    public static void main(String[] args) throws Exception {

@@ -1,9 +1,7 @@
 package au.org.ala.bayesian.derivation;
 
-import au.org.ala.bayesian.Derivation;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.util.TaxonNameSoundEx;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 

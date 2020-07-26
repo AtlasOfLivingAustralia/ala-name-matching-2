@@ -1,10 +1,7 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.names.model.Identifiable;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
  * Normalise a string in a consistent way.

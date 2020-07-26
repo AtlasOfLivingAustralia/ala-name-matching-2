@@ -2,8 +2,9 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.Annotator;
-import au.org.ala.bayesian.StoreException;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
 import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.IOException;

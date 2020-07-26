@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class ${className} implements NetworkFactory<${classificationClassName}, ${parametersClassName}, ${inferencerClassName}> {
+public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements NetworkFactory<${classificationClassName}, ${parametersClassName}, ${inferencerClassName}, ${className}> {
     private static ${className} instance = null;
 
 <#list network.normalisers as normaliser>
@@ -59,23 +59,23 @@ public class ${className} implements NetworkFactory<${classificationClassName}, 
 
   @Override
   public ${classificationClassName} createClassification() {
-      return new ${classificationClassName}();
+      return new ${classificationImplementationClassName}();
   }
 
   @Override
   public ${inferencerClassName} createInferencer() {
-      return new ${inferencerClassName}();
+      return new ${inferencerImplementationClassName}();
   }
 
   @Override
   public ${parametersClassName} createParameters() {
-        return new ${parametersClassName}();
+        return new ${parametersImplementationClassName}();
   }
 
   @Override
-<#if analyserClassName??>
-  public ${analyserClassName} createAnalyser() {
-        return new ${analyserClassName}();
+<#if analyserImplementationClassName??>
+  public ${analyserImplementationClassName} createAnalyser() {
+        return new ${analyserImplementationClassName}();
   }
 <#else>
   public EvidenceAnalyser<${classificationClassName}> createAnalyser() {
@@ -84,12 +84,12 @@ public class ${className} implements NetworkFactory<${classificationClassName}, 
 </#if>
 
   @Override
-<#if matcherClassName??>
-  public ${matcherClassName} createMatcher(ClassifierSearcher searcher) {
-        return new ${matcherClassName}(this,searcher);
+<#if matcherImplementationClassName??>
+  public ${matcherImplementationClassName} createMatcher(ClassifierSearcher searcher) {
+        return new ${matcherImplementationClassName}(this,searcher);
   }
 <#else>
-  public ClassificationMatcher<${classificationClassName}, ${parametersClassName}, ${inferencerClassName}> createMatcher(ClassifierSearcher searcher){
+  public ClassificationMatcher<${classificationClassName}, ${parametersClassName}, ${inferencerClassName}, ${className}> createMatcher(ClassifierSearcher searcher){
         return new ClassificationMatcher<>(this, searcher);
   }
 </#if>

@@ -1,20 +1,12 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.Classification;
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.EvidenceAnalyser;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.Observable;
-import au.org.ala.bayesian.Observation;
-import au.org.ala.bayesian.StoreException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
+import au.org.ala.bayesian.*;
+import au.org.ala.util.TaxonNameSoundEx;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
-import au.org.ala.util.TaxonNameSoundEx;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class SimpleLinnaeanClassification implements Classification {
   private TaxonNameSoundEx soundex;

@@ -1,10 +1,5 @@
 package au.org.ala.bayesian;
 
-import au.org.ala.bayesian.Classification;
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.StoreException;
-
 import java.util.List;
 
 /**

@@ -5,10 +5,6 @@ import au.org.ala.bayesian.Observable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-import javax.naming.OperationNotSupportedException;
-import java.util.Collection;
-import java.util.Collections;
-
 /**
  * A null derivation from a source to a target.
  * <p>

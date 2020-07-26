@@ -1,6 +1,5 @@
 package au.org.ala.maven;
 
-import au.org.ala.bayesian.EvidenceAnalyser;
 import au.org.ala.bayesian.JavaGenerator;
 import au.org.ala.bayesian.Network;
 import au.org.ala.bayesian.NetworkCompiler;
@@ -37,11 +36,11 @@ public class NetworkGeneratorMojo extends AbstractMojo {
     private File outputDirectory;
 
 
-    /** Any matcher to use */
+    /** Any matcher class to use. If null, a parameterised matcher will be used */
     @Parameter(property="matcher")
     private String matcherClass;
 
-    /** Any analyser to use */
+    /** Any analyser class to use. If null, a default parameterised analyser will be used */
     @Parameter(property="analyser")
     private String analyserClass;
 
@@ -49,25 +48,73 @@ public class NetworkGeneratorMojo extends AbstractMojo {
     @Parameter(property="generateBuilder", defaultValue = "true")
     private boolean generateBuilder = true;
 
+    /** A superclass for the builder */
+    @Parameter(property="builderSuperClass")
+    private String builderSuperClass;
+
+    /** An implementation class for the builder */
+    @Parameter(property="builderImplementationClass")
+    private String builderImplementationClass;
+
     /** Generate the parameters? */
     @Parameter(property="generateParameters", defaultValue = "true")
     private boolean generateParameters = true;
+
+    /** A superclass for the parameters */
+    @Parameter(property="parametersSuperClass")
+    private String parametersSuperClass;
+
+    /** An implementation class for the parameters */
+    @Parameter(property="parametersImplementationClass")
+    private String parametersImplementationClass;
 
     /** Generate the inferencer? */
     @Parameter(property="generateInferencer", defaultValue = "true")
     private boolean generateInferencer = true;
 
+    /** A superclass for the inferencer */
+    @Parameter(property="inferencerSuperClass")
+    private String inferencerSuperClass;
+
+    /** An implementation class for the inferencer */
+    @Parameter(property="inferencerImplementationClass")
+    private String inferencerImplementationClass;
+
     /** Generate the classification? */
     @Parameter(property="generateClassification", defaultValue = "true")
     private boolean generateClassification = true;
 
+    /** A superclass for the classification */
+    @Parameter(property="classificationSuperClass")
+    private String classificationSuperClass;
+
+    /** An implementation class for the classification */
+    @Parameter(property="classificationImplementationClass")
+    private String classificationImplementationClass;
+
     /** Generate the factory? */
-    @Parameter(property="generateMatcher", defaultValue = "true")
+    @Parameter(property="generatefactory", defaultValue = "true")
     private boolean generateFactory = true;
+
+    /** A superclass for the factory */
+    @Parameter(property="factorySuperClass")
+    private String factorySuperClass;
+
+    /** An implementation class for the factory */
+    @Parameter(property="factoryImplementationClass")
+    private String factoryImplementationClass;
 
     /** Generate the command line interface? */
     @Parameter(property="generateCli", defaultValue = "true")
     private boolean generateCli = true;
+
+    /** A superclass for the cli */
+    @Parameter(property="cliSuperClass")
+    private String cliSuperClass;
+
+    /** An implementation class for the cli */
+    @Parameter(property="cliImplementationClass")
+    private String cliImplementationClass;
 
     /**
      * Run the goal.
@@ -98,15 +145,27 @@ public class NetworkGeneratorMojo extends AbstractMojo {
             NetworkCompiler compiler = new NetworkCompiler(network);
             compiler.analyse();
             JavaGenerator generator = new JavaGenerator(javaOutput, resourcesOutput, this.outputPackage);
-            generator.setGenerateBuilder(this.generateBuilder);
-            generator.setGenerateInferencer(this.generateInferencer);
-            generator.setGenerateParameters(this.generateParameters);
-            generator.setGenerateClassification(this.generateClassification);
-            generator.setGenerateFactory(this.generateFactory);
-            generator.setGenerateCli(this.generateCli);
+            generator.getBuilderSpec().setGenerate(this.generateBuilder);
+            generator.getBuilderSpec().setSuperClassName(this.builderSuperClass);
+            generator.getBuilderSpec().setImplementationClassName(this.builderImplementationClass);
+            generator.getClassificationSpec().setGenerate(this.generateClassification);
+            generator.getClassificationSpec().setSuperClassName(this.classificationSuperClass);
+            generator.getClassificationSpec().setImplementationClassName(this.classificationImplementationClass);
+            generator.getCliSpec().setGenerate(this.generateCli);
+            generator.getCliSpec().setSuperClassName(this.cliSuperClass);
+            generator.getCliSpec().setImplementationClassName(this.cliImplementationClass);
+            generator.getFactorySpec().setGenerate(this.generateFactory);
+            generator.getFactorySpec().setSuperClassName(this.factorySuperClass);
+            generator.getFactorySpec().setImplementationClassName(this.factoryImplementationClass);
+            generator.getInferencerSpec().setGenerate(this.generateInferencer);
+            generator.getInferencerSpec().setSuperClassName(this.inferencerSuperClass);
+            generator.getInferencerSpec().setImplementationClassName(this.inferencerImplementationClass);
+            generator.getParametersSpec().setGenerate(this.generateParameters);
+            generator.getParametersSpec().setSuperClassName(this.parametersSuperClass);
+            generator.getParametersSpec().setImplementationClassName(this.parametersImplementationClass);
             generator.setArtifactName(this.project.getArtifactId());
-            generator.setMatcherClass(this.matcherClass);
-            generator.setAnalyserClass(this.analyserClass);
+            generator.getMatcherSpec().setImplementationClassName(this.matcherClass);
+            generator.getAnalyserSpec().setImplementationClassName(this.analyserClass);
             generator.generate(compiler);
         } catch (MojoExecutionException ex) {
             throw ex;

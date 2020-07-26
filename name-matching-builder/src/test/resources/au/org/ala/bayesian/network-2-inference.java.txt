@@ -4,7 +4,7 @@ import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
 
-public class Network2Inference implements Inferencer<Network2Classification, Network2Parameters> {
+public class Network2Inferencer implements Inferencer<Network2Classification, Network2Parameters> {
 
   public double infer(Evidence evidence, Network2Parameters parameters, double c$v1) {
     double nc$v1 = 1.0 - c$v1;

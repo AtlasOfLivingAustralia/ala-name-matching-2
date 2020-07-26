@@ -1,7 +1,5 @@
 package au.org.ala.bayesian;
 
-import java.io.IOException;
-
 /**
  * Analyse the parameters needed by an entry.
  * <p>

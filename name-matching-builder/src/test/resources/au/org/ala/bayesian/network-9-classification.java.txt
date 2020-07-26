@@ -1,0 +1,87 @@
+package au.org.ala.bayesian.generated;
+
+import au.org.ala.bayesian.Classification;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.EvidenceAnalyser;
+import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.StoreException;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.Term;
+
+public class Network9Classification implements Classification {
+  private TaxonNameSoundEx soundex;
+
+  public java.lang.String v1;
+  public java.lang.String v2;
+  public java.lang.String v3;
+
+  public Network9Classification() {
+    this.soundex = new TaxonNameSoundEx();
+  }
+
+  public Network9Classification(Classifier classifier) throws InferenceException {
+    this();
+    this.populate(classifier, true);
+    this.infer();
+  }
+
+  @Override
+  public Term getType() {
+    return DwcTerm.Taxon;
+  }
+
+  @Override
+  public Collection<Observation> toObservations() {
+    Collection<Observation> obs = new ArrayList(3);
+
+    if (this.v1 != null)
+      obs.add(new Observation(true, Network9Factory.v1, this.v1));
+    if (this.v2 != null)
+      obs.add(new Observation(true, Network9Factory.v2, this.v2));
+    if (this.v3 != null)
+      obs.add(new Observation(true, Network9Factory.v3, this.v3));
+    return obs;
+  }
+
+  @Override
+  public void infer() throws InferenceException {
+    if (this.v2 == null) {
+      this.v2 = this.soundex.treatWord(this.v1, "species");
+    }
+  }
+
+
+  @Override
+  public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
+    if (overwrite || this.v1 == null) {
+      this.v1 = classifier.get(Network9Factory.v1);
+    }
+    if (overwrite || this.v2 == null) {
+      this.v2 = classifier.get(Network9Factory.v2);
+    }
+    if (overwrite || this.v3 == null) {
+      this.v3 = classifier.get(Network9Factory.v3);
+    }
+  }
+
+  public Network9Inferencer.Evidence match(Classifier classifier) throws InferenceException {
+    Network9Inferencer.Evidence evidence = new Network9Inferencer.Evidence();
+    evidence.e$v1 = classifier.match(Network9Factory.v1, this.v1);
+    evidence.e$v2 = classifier.match(Network9Factory.v2, this.v2);
+    evidence.e$v3 = classifier.match(Network9Factory.v3, this.v3);
+    return evidence;
+  }
+
+  @Override
+  public void translate(Classifier classifier) throws InferenceException, StoreException {
+    classifier.add(Network9Factory.v1, this.v1);
+    classifier.add(Network9Factory.v2, this.v2);
+    classifier.add(Network9Factory.v3, this.v3);
+  }
+}

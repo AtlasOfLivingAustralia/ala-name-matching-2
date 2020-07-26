@@ -38,7 +38,7 @@ public class IndexBuilderConfiguration {
     @JsonProperty
     @Getter
     @Setter
-    private Class<? extends NetworkFactory<?, ?, ?>> factoryClass;
+    private Class<? extends NetworkFactory<?, ?, ?, ?>> factoryClass;
     /** The class of the builder */
     @JsonProperty
     @Getter
@@ -126,24 +126,24 @@ public class IndexBuilderConfiguration {
      *
      * @throws StoreException if unable to build the store
      */
-    public <C extends Classification, P extends Parameters, I extends Inferencer<C, P>> NetworkFactory<C, P, I> createFactory(Annotator annotator) throws StoreException {
-        Constructor<? extends NetworkFactory<C, P, I>> c;
+    public <C extends Classification, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> F createFactory(Annotator annotator) throws StoreException {
+        Constructor<F> c;
 
         if (this.factoryClass == null)
             throw new StoreException("Factory class not defined");
         try {
             Method m = this.factoryClass.getMethod("instance");
             if (m != null && Modifier.isStatic(m.getModifiers()))
-                return (NetworkFactory<C, P, I>) m.invoke(null);
+                return (F) m.invoke(null);
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends NetworkFactory<C, P, I>>) this.factoryClass.getConstructor(IndexBuilderConfiguration.class);
+            c = (Constructor<F>) this.factoryClass.getConstructor(IndexBuilderConfiguration.class);
             return c.newInstance(this);
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends NetworkFactory<C, P, I>>) this.factoryClass.getConstructor();
+            c = (Constructor<F>) this.factoryClass.getConstructor();
             return c.newInstance();
         } catch (Exception ex) {
         }
@@ -167,7 +167,7 @@ public class IndexBuilderConfiguration {
      *
      * @throws StoreException if unable to build the store
      */
-    public <P extends Parameters> Builder<P> createBuilder(Annotator annotator, NetworkFactory<?, P, ?> factory) throws StoreException {
+    public <P extends Parameters, F extends NetworkFactory<?, P, ?, F>> Builder<P> createBuilder(Annotator annotator, F factory) throws StoreException {
         Constructor<? extends Builder> c;
 
         if (this.builderClass == null)

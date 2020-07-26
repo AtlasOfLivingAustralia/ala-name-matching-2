@@ -1,7 +1,6 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.*;
-import au.org.ala.names.lucene.TestClassification;
 import lombok.NonNull;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -10,7 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class TestFactory implements NetworkFactory<Classification, Parameters, Inferencer<Classification, Parameters>> {
+public class TestFactory implements NetworkFactory<Classification, Parameters, Inferencer<Classification, Parameters>, TestFactory> {
     @Override
     public @NonNull List<Observable> getObservables() {
         return Collections.emptyList();
@@ -99,7 +98,7 @@ public class TestFactory implements NetworkFactory<Classification, Parameters, I
      * @return The new matcher
      */
     @Override
-    public @NonNull ClassificationMatcher<Classification, Parameters, Inferencer<Classification, Parameters>> createMatcher(ClassifierSearcher searcher) {
+    public @NonNull ClassificationMatcher<Classification, Parameters, Inferencer<Classification, Parameters>, TestFactory> createMatcher(ClassifierSearcher searcher) {
         return null;
     }
 }

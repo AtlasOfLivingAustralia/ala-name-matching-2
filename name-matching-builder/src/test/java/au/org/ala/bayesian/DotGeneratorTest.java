@@ -45,7 +45,7 @@ public class DotGeneratorTest {
     @Test
     public void testGenerateDotGrass() throws Exception {
         StringWriter writer = new StringWriter();
-        Network network = Network.read(this.getClass().getResource("grass.json"));
+        Network network = Network.read(this.getClass().getResource("grass-network.json"));
         NetworkCompiler compiler = new NetworkCompiler(network);
         compiler.analyse();
         DotGenerator generator = new DotGenerator(writer, false);

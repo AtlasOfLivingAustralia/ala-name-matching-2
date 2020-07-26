@@ -10,13 +10,13 @@ import java.util.List;
  * is then returned.
  * </p>
  */
-public class ClassificationMatcher<C extends Classification, P extends Parameters, I extends Inferencer<C, P>> {
+public class ClassificationMatcher<C extends Classification, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> {
     /** The default possible theshold for something to be considered. @see isPossible */
     public static double POSSIBLE_THESHOLD = 0.1;
     /** The default acceptable threshold for something to be regarded as accepted. @see isAcceptable */
     public static double ACCEPTABLE_THRESHOLD = 0.99;
 
-    private NetworkFactory<C, P, I> factory;
+    private F factory;
     private ClassifierSearcher searcher;
     private I inferencer;
     private EvidenceAnalyser<C> analyser;
@@ -27,7 +27,7 @@ public class ClassificationMatcher<C extends Classification, P extends Parameter
      * @param factory The factory for creating objects for the matcher to work on
      * @param searcher The mechanism for getting candidiates
      */
-    public ClassificationMatcher(NetworkFactory<C, P, I> factory, ClassifierSearcher searcher) {
+    public ClassificationMatcher(F factory, ClassifierSearcher searcher) {
         this.factory = factory;
         this.searcher = searcher;
         this.inferencer = this.factory.createInferencer();

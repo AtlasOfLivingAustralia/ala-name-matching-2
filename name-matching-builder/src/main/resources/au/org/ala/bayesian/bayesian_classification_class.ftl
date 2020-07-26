@@ -14,11 +14,11 @@ import java.util.Collection;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
-<#list classificationVariables as variable>
-import ${variable.clazz.name};
+<#list imports as import>
+import ${import};
 </#list>
 
-public class ${className} implements Classification {
+public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements Classification {
 <#list classificationVariables as variable>
   private ${variable.clazz.simpleName} ${variable.name};
 </#list>

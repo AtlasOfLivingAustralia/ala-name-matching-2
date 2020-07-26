@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import java.io.StringWriter;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test cases for cleaned scientific names

@@ -6,8 +6,6 @@ import org.junit.Assert;
 
 import java.io.*;
 
-import static org.junit.Assert.assertEquals;
-
 public class TestUtils {
     /**
      * Create a suitably configured object mapper.

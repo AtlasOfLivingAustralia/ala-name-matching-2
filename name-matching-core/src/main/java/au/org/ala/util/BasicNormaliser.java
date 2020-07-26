@@ -1,7 +1,6 @@
 package au.org.ala.util;
 
 import au.org.ala.bayesian.Normaliser;
-import au.org.ala.names.model.Identifiable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
