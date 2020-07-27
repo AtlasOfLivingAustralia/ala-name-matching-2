@@ -37,8 +37,8 @@ public class Contributor {
      */
     public String getFormula() {
         if (this.isMatch())
-            return this.observable.getId();
-        return "\u00ac" + this.observable.getId();
+            return this.observable.getLabel();
+        return "\u00ac" + this.observable.getLabel();
     }
 
     /**

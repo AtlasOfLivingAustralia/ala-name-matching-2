@@ -30,6 +30,10 @@ abstract public class Identifiable {
     @JsonProperty
     @Getter
     private String id;
+    /** An optional short label */
+    @JsonProperty
+    @Setter
+    private String label;
     /** The description */
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -115,6 +119,20 @@ abstract public class Identifiable {
                 this.term = TermFactory.instance().findTerm(this.getId());
         }
         return this.term;
+    }
+
+    /**
+     * Get the label for this identifiable.
+     * <p>
+     * Labels are short forms of the identifier, useful for labelling things where you don't want to take up
+     * too much space.
+     * </p>
+     *
+     * @return The label, if set, or the identifier otherwise
+     */
+    @JsonIgnore
+    public String getLabel() {
+        return this.label != null ? this.label : this.getId();
     }
 
     /**

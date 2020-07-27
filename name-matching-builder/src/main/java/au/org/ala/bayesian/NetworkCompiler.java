@@ -257,6 +257,14 @@ public class NetworkCompiler {
             return this.interior != null && !this.interior.isEmpty() ? this.interior : this.inference;
         }
 
+        public String getFormula() {
+            return "p(" + this.observable.getLabel() + ")";
+        }
+
+        public String getNotFormula() {
+            return "p(\u00ac" + this.observable.getLabel() + ")";
+        }
+
         /**
          * Construct an empty node with a observable
          *
