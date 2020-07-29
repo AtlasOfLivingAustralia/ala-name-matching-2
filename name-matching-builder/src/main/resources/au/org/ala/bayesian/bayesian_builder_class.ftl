@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.Optional;
 
-<#list builderVariables as variable>
-import ${variable.clazz.name};
+<#list imports as import>
+import ${import};
 </#list>
 
 public class ${className} implements Builder<${parametersClassName}> {

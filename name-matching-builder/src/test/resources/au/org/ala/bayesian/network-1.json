@@ -1,7 +1,5 @@
 {
   "id" : "network_1",
-  "normalisers" : [
-  ],
   "observables" : [
     {
       "id" : "v_1"
@@ -9,7 +7,5 @@
    ],
   "vertices" : [
     "v_1"
-  ],
-  "edges" : [
   ]
 }

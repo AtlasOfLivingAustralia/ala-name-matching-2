@@ -152,8 +152,7 @@
     "uri" : "http://id.ala.org.au/terms/1.0/soundexScientificName",
     "derivation" : {
       "@class" : "au.org.ala.bayesian.derivation.SoundexDerivation",
-      "source" : "scientificName",
-      "rank" : "taxonRank"
+      "source" : "scientificName"
     }
   }, {
     "id" : "specificEpithet",

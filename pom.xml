@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>au.org.ala</groupId>
+  <groupId>au.org.ala.names</groupId>
   <artifactId>ala-name-matching-2</artifactId>
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
@@ -16,9 +16,10 @@
     <module>name-matching-lucene</module>
     <module>ala-linnaean</module>
     <module>ala-linnaean-builder</module>
+    <module>taxonomic-tools</module>
   </modules>
 
-  <name>ala-name-matching-2</name>
+  <name>Name Matching v2</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
@@ -30,6 +31,8 @@
     <org.projectlombok.lombok.version>1.18.12</org.projectlombok.lombok.version>
     <org.slf4j.version>1.7.30</org.slf4j.version>
     <maven.version>3.6.1</maven.version>
+    <commons-lang3.version>3.11</commons-lang3.version>
+    <commons-codec.version>1.14</commons-codec.version>
   </properties>
 
   <repositories>

@@ -1,13 +1,17 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.ClassificationMatcher;
+import au.org.ala.bayesian.ClassifierSearcher;
+import au.org.ala.bayesian.EvidenceAnalyser;
+import au.org.ala.bayesian.NetworkFactory;
+import au.org.ala.bayesian.Normaliser;
+import au.org.ala.bayesian.Observable;
+import static au.org.ala.names.model.ExternalContext.*;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static au.org.ala.names.model.ExternalContext.LUCENE;
 
 public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClassification, SimpleLinnaeanParameters, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> {
     private static SimpleLinnaeanFactory instance = null;

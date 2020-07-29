@@ -2,6 +2,7 @@ package au.org.ala.util;
 
 import au.org.ala.bayesian.Normaliser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.HashMap;

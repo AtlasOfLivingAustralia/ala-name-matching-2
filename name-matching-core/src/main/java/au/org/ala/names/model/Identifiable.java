@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIdentityReference(alwaysAsId = false)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 abstract public class Identifiable {
     /** The pattern for a valid ifentifier part */
     public static final String VALID_IDENTIFIER_PART = "\\p{L}\\p{Digit}:_\\-\\.";

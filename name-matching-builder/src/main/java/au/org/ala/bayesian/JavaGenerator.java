@@ -199,8 +199,9 @@ public class JavaGenerator extends Generator {
         Set<String> imports = new HashSet<>();
         JavaGeneratorSpecification.Context baseContext = spec.withContext(compiler, this.packageName);
         if (variables != null) {
-            for (Derivation.Variable v: variables)
+            for (Derivation.Variable v: variables) {
                 baseContext.addImport(v.getClazz().getName(), imports);
+            }
         }
         environment.setVariable("packageName", new StringModel(this.packageName, this.wrapper));
         environment.setVariable("artifactName", new StringModel(this.artifactName, this.wrapper));

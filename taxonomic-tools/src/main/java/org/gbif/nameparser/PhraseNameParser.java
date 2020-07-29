@@ -15,7 +15,7 @@
 
 package org.gbif.nameparser;
 
-import au.org.ala.names.model.ALAParsedName;
+import au.org.ala.names.ALAParsedName;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.gbif.api.exception.UnparsableException;

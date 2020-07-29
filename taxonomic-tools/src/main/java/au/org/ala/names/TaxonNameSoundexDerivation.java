@@ -1,7 +1,7 @@
-package au.org.ala.bayesian.derivation;
+package au.org.ala.names;
 
 import au.org.ala.bayesian.Observable;
-import au.org.ala.util.TaxonNameSoundEx;
+import au.org.ala.bayesian.derivation.CopyDerivation;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
@@ -11,9 +11,9 @@ import java.util.Collection;
 /**
  * Derive a new name based on the taxamatch soundex algorithm.
  */
-public class SoundexDerivation extends CopyDerivation {
+public class TaxonNameSoundexDerivation extends CopyDerivation {
     /** The name of the instance variable for the soundex object */
-    public static final String INSTANCE_VAR = "soundex";
+    public static final String INSTANCE_VAR = "nameSoundex";
 
     /** The rank observable for context */
     @JsonProperty
@@ -23,7 +23,7 @@ public class SoundexDerivation extends CopyDerivation {
     /**
      * Construct a new derivation.
      */
-    public SoundexDerivation() {
+    public TaxonNameSoundexDerivation() {
     }
 
     /**
@@ -31,7 +31,7 @@ public class SoundexDerivation extends CopyDerivation {
      *
      * @param source The source
      */
-    public SoundexDerivation(Observable source) {
+    public TaxonNameSoundexDerivation(Observable source) {
         super(source);
     }
 

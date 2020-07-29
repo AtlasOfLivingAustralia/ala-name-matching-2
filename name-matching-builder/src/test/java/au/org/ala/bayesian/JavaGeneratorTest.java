@@ -86,8 +86,8 @@ public class JavaGeneratorTest {
         NetworkCompiler compiler = new NetworkCompiler(network);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
-        generator.generateClass(compiler, generator.getClassificationSpec(), writer, null);
-        System.out.println(writer.toString());
+        generator.generateClass(compiler, generator.getClassificationSpec(), writer, compiler.getClassificationVariables());
+        // System.out.println(writer.toString());
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-9-classification.java.txt"), writer.toString());
     }
 
@@ -113,7 +113,7 @@ public class JavaGeneratorTest {
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.generateClass(compiler, generator.getFactorySpec(), writer, null);
-        System.out.println(writer.toString());
+        // System.out.println(writer.toString());
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "simple-linnaean-factory.java.txt"), writer.toString());
     }
 
@@ -124,7 +124,7 @@ public class JavaGeneratorTest {
         NetworkCompiler compiler = new NetworkCompiler(network);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
-        generator.generateClass(compiler, generator.getBuilderSpec(), writer, null);
+        generator.generateClass(compiler, generator.getBuilderSpec(), writer, compiler.getBuilderVariables());
         // System.out.println(writer.toString());
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-9-builder.java.txt"), writer.toString());
     }

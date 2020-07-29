@@ -5,23 +5,24 @@ import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.builder.Builder;
-import au.org.ala.util.TaxonNameSoundEx;
 
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.Optional;
 
+import org.apache.commons.codec.language.Soundex;
+
 public class SimpleLinnaeanBuilder implements Builder<SimpleLinnaeanParameters> {
-  private TaxonNameSoundEx soundex;
+  private Soundex soundex;
 
   public SimpleLinnaeanBuilder() {
-    this.soundex = new TaxonNameSoundEx();
+    this.soundex = new Soundex();
   }
 
   @Override
   public void infer(Classifier classifier) throws InferenceException, StoreException {
-    java.lang.String e_5 = classifier.get(SimpleLinnaeanFactory.taxonRank);
     for (Object v: classifier.getAll(SimpleLinnaeanFactory.scientificName)) {
-      Object d = this.soundex.treatWord((String) v, e_5);
+      Object d = this.soundex.soundex((String) v);
       classifier.add(SimpleLinnaeanFactory.soundexScientificName, d);
     }
   }

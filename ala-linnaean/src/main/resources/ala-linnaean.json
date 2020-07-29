@@ -52,7 +52,7 @@
       "label": "xSN",
       "uri": "http://id.ala.org.au/terms/1.0/soundexScientificName",
       "derivation": {
-        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "source": "scientificName",
         "rank": "taxonRank"
       }
@@ -69,7 +69,7 @@
       "label": "xsE",
       "uri": "http://id.ala.org.au/terms/1.0/soundexSpecifcEpithet",
       "derivation": {
-        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "source": "specificEpithet",
         "rank": "taxonRank"
       }
@@ -116,7 +116,7 @@
       "label": "xG",
       "uri": "http://id.ala.org.au/terms/1.0/soundexGenus",
       "derivation": {
-        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "source": "genus",
         "rank": "taxonRank"
       }
@@ -163,7 +163,7 @@
       "label": "xF",
       "uri": "http://id.ala.org.au/terms/1.0/soundexFamily",
       "derivation": {
-        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "source": "family",
         "rank": "taxonRank"
       }
@@ -210,7 +210,7 @@
       "label": "xO",
       "uri": "http://id.ala.org.au/terms/1.0/soundexOrder",
       "derivation": {
-        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "source": "order",
         "rank": "taxonRank"
       }
@@ -257,7 +257,7 @@
       "label": "xC",
       "uri": "http://id.ala.org.au/terms/1.0/soundexClass",
       "derivation": {
-        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "source": "class",
         "rank": "taxonRank"
       }
@@ -304,7 +304,7 @@
       "label": "xP",
       "uri": "http://id.ala.org.au/terms/1.0/soundexPhylum",
       "derivation": {
-        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "source": "phylum",
         "rank": "taxonRank"
       }
@@ -351,7 +351,7 @@
       "label": "xK",
       "uri": "http://id.ala.org.au/terms/1.0/soundexKingdom",
       "derivation": {
-        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "source": "kingdom",
         "rank": "taxonRank"
       }

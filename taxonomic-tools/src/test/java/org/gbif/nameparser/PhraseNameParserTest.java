@@ -2,7 +2,7 @@
 
 package org.gbif.nameparser;
 
-import au.org.ala.names.model.ALAParsedName;
+import au.org.ala.names.ALAParsedName;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.NameType;
 import org.junit.Before;

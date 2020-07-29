@@ -1,15 +1,23 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.*;
-import au.org.ala.util.TaxonNameSoundEx;
-import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.Term;
+import au.org.ala.bayesian.Classification;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.EvidenceAnalyser;
+import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.StoreException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.Term;
+
+import org.apache.commons.codec.language.Soundex;
+
 public class SimpleLinnaeanClassification implements Classification {
-  private TaxonNameSoundEx soundex;
+  private Soundex soundex;
 
   public java.lang.String taxonId;
   public java.lang.String taxonRank;
@@ -25,7 +33,7 @@ public class SimpleLinnaeanClassification implements Classification {
   public java.lang.String kingdom;
 
   public SimpleLinnaeanClassification() {
-    this.soundex = new TaxonNameSoundEx();
+    this.soundex = new Soundex();
   }
 
   public SimpleLinnaeanClassification(Classifier classifier) throws InferenceException {
@@ -73,7 +81,7 @@ public class SimpleLinnaeanClassification implements Classification {
   @Override
   public void infer() throws InferenceException {
     if (this.soundexScientificName == null) {
-      this.soundexScientificName = this.soundex.treatWord(this.scientificName, this.taxonRank);
+      this.soundexScientificName = this.soundex.soundex(this.scientificName);
     }
   }
 

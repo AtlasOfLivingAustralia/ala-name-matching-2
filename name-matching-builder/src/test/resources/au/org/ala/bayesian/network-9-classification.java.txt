@@ -14,15 +14,17 @@ import java.util.Collection;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
+import org.apache.commons.codec.language.Soundex;
+
 public class Network9Classification implements Classification {
-  private TaxonNameSoundEx soundex;
+  private Soundex soundex;
 
   public java.lang.String v1;
   public java.lang.String v2;
   public java.lang.String v3;
 
   public Network9Classification() {
-    this.soundex = new TaxonNameSoundEx();
+    this.soundex = new Soundex();
   }
 
   public Network9Classification(Classifier classifier) throws InferenceException {
@@ -52,7 +54,7 @@ public class Network9Classification implements Classification {
   @Override
   public void infer() throws InferenceException {
     if (this.v2 == null) {
-      this.v2 = this.soundex.treatWord(this.v1, "species");
+      this.v2 = this.soundex.soundex(this.v1);
     }
   }
 

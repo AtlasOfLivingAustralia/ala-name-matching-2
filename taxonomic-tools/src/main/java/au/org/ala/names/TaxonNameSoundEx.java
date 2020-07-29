@@ -1,4 +1,4 @@
-package au.org.ala.util;
+package au.org.ala.names;
 
 import org.apache.commons.lang3.StringUtils;
 

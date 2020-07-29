@@ -10,19 +10,19 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.Optional;
 
-import au.org.ala.util.TaxonNameSoundEx;
+import org.apache.commons.codec.language.Soundex;
 
 public class Network9Builder implements Builder<Network9Parameters> {
-  private TaxonNameSoundEx soundex;
+  private Soundex soundex;
 
   public Network9Builder() {
-    this.soundex = new TaxonNameSoundEx();
+    this.soundex = new Soundex();
   }
 
   @Override
   public void infer(Classifier classifier) throws InferenceException, StoreException {
     for (Object v: classifier.getAll(Network9Factory.v1)) {
-      Object d = this.soundex.treatWord((String) v, "species");
+      Object d = this.soundex.soundex((String) v);
       classifier.add(Network9Factory.v2, d);
     }
   }
