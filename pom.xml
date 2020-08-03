@@ -33,6 +33,7 @@
     <maven.version>3.6.1</maven.version>
     <commons-lang3.version>3.11</commons-lang3.version>
     <commons-codec.version>1.14</commons-codec.version>
+    <name-parser.version>3.6.1-ala-SNAPSHOT</name-parser.version>
   </properties>
 
   <repositories>
