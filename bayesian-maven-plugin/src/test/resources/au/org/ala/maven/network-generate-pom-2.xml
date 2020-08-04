@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>au.org.ala.maven</groupId>
+    <artifactId>network-generator-unit-test</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>Test Network Generator Mojo</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>au.org.ala.maven</groupId>
+                <artifactId>bayesian-maven-plugin</artifactId>
+                 <configuration>
+                     <source>src/test/resources/au/org/ala/maven/network-1.json</source>
+                     <outputPackage>au.org.ala.maven.test</outputPackage>
+                     <outputDirectory>target/test-harness/network-generator-unit-test-2</outputDirectory>
+                     <generateInferencer>false</generateInferencer>
+                     <generateParameters>false</generateParameters>
+                     <generateClassification>false</generateClassification>
+                     <generateFactory>false</generateFactory>
+                     <generateBuilder>true</generateBuilder>
+                     <generateCli>true</generateCli>
+                  </configuration>
+                <goals>
+                    <goal>generate-network</goal>
+                </goals>
+            </plugin>
+        </plugins>
+    </build>
+</project>

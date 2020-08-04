@@ -10,10 +10,10 @@
   <version>1.0-SNAPSHOT</version>
   <modules>
     <module>name-matching-common-test</module>
-    <module>name-matching-core</module>
-    <module>name-matching-builder</module>
-    <module>name-matching-maven-plugin</module>
-    <module>name-matching-lucene</module>
+    <module>bayesian-core</module>
+    <module>bayesian-builder</module>
+    <module>bayesian-maven-plugin</module>
+    <module>bayesian-lucene</module>
     <module>ala-linnaean</module>
     <module>ala-linnaean-builder</module>
     <module>taxonomic-tools</module>
@@ -33,6 +33,7 @@
     <maven.version>3.6.1</maven.version>
     <commons-lang3.version>3.11</commons-lang3.version>
     <commons-codec.version>1.14</commons-codec.version>
+    <dwc-api.version>1.27</dwc-api.version>
     <name-parser.version>3.6.1-ala-SNAPSHOT</name-parser.version>
   </properties>
 

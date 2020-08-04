@@ -1,0 +1,229 @@
+{
+  "id" : "simple-linnaean",
+  "description" : "A simple Linnaean heirarchy for test purposes",
+  "normalisers" : [ {
+    "@class" : "au.org.ala.util.BasicNormaliser",
+    "id" : "lower_case_normaliser",
+    "normaliseSpaces" : true,
+    "normalisePunctuation" : true,
+    "normaliseSymbols" : true,
+    "normaliseAccents" : true,
+    "normaliseCase" : true
+  }, {
+    "@class" : "au.org.ala.util.BasicNormaliser",
+    "id" : "simple_normaliser",
+    "normaliseSpaces" : true,
+    "normalisePunctuation" : true,
+    "normaliseSymbols" : true,
+    "normaliseAccents" : true,
+    "normaliseCase" : false
+  } ],
+  "observables" : [ {
+    "id" : "acceptedNameUsageID",
+    "uri" : "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
+    "properties" : {
+      "accepted" : true
+    }
+  }, {
+    "id" : "altScientificName",
+    "uri" : "http://id.ala.org.au/terms/1.0/altScientificName",
+    "properties" : {
+      "altScientificName" : true
+    }
+  }, {
+    "id" : "class",
+    "uri" : "http://rs.tdwg.org/dwc/terms/class",
+    "properties" : {
+      "copy" : true
+    },
+    "base" : {
+      "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "source" : {
+        "id" : "scientificName",
+        "uri" : "http://rs.tdwg.org/dwc/terms/scientificName",
+        "properties" : {
+          "scientificName" : true
+        },
+        "normaliser" : "simple_normaliser"
+      },
+      "condition" : {
+        "positive" : true,
+        "observable" : {
+          "id" : "taxonRank",
+          "uri" : "http://rs.tdwg.org/dwc/terms/taxonRank",
+          "normaliser" : "lower_case_normaliser"
+        },
+        "value" : "class"
+      }
+    },
+    "normaliser" : "simple_normaliser"
+  }, {
+    "id" : "family",
+    "uri" : "http://rs.tdwg.org/dwc/terms/family",
+    "properties" : {
+      "copy" : true
+    },
+    "base" : {
+      "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "source" : "scientificName",
+      "condition" : {
+        "positive" : true,
+        "observable" : "taxonRank",
+        "value" : "family"
+      }
+    },
+    "normaliser" : "simple_normaliser"
+  }, {
+    "id" : "genus",
+    "uri" : "http://rs.tdwg.org/dwc/terms/genus",
+    "properties" : {
+      "copy" : true
+    },
+    "base" : {
+      "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "source" : "scientificName",
+      "condition" : {
+        "positive" : true,
+        "observable" : "taxonRank",
+        "value" : "genus"
+      }
+    },
+    "normaliser" : "simple_normaliser"
+  }, {
+    "id" : "kingdom",
+    "uri" : "http://rs.tdwg.org/dwc/terms/kingdom",
+    "properties" : {
+      "copy" : true
+    },
+    "base" : {
+      "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "source" : "scientificName",
+      "condition" : {
+        "positive" : true,
+        "observable" : "taxonRank",
+        "value" : "kingdom"
+      }
+    },
+    "normaliser" : "simple_normaliser"
+  }, {
+    "id" : "order",
+    "uri" : "http://rs.tdwg.org/dwc/terms/order",
+    "properties" : {
+      "copy" : true
+    },
+    "base" : {
+      "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "source" : "scientificName",
+      "condition" : {
+        "positive" : true,
+        "observable" : "taxonRank",
+        "value" : "order"
+      }
+    },
+    "normaliser" : "simple_normaliser"
+  }, {
+    "id" : "parentNameUsageID",
+    "uri" : "http://rs.tdwg.org/dwc/terms/parentNameUsageID",
+    "properties" : {
+      "parent" : true
+    }
+  }, {
+    "id" : "phylum",
+    "uri" : "http://rs.tdwg.org/dwc/terms/phylum",
+    "properties" : {
+      "copy" : true
+    },
+    "base" : {
+      "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "source" : "scientificName",
+      "condition" : {
+        "positive" : true,
+        "observable" : "taxonRank",
+        "value" : "phylum"
+      }
+    },
+    "normaliser" : "simple_normaliser"
+  }, "scientificName", {
+    "id" : "scientificNameAuthorship",
+    "uri" : "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship",
+    "normaliser" : "simple_normaliser"
+  }, {
+    "id" : "soundexScientificName",
+    "uri" : "http://id.ala.org.au/terms/1.0/soundexScientificName",
+    "derivation" : {
+      "@class" : "au.org.ala.bayesian.derivation.SoundexDerivation",
+      "source" : "scientificName"
+    }
+  }, {
+    "id" : "specificEpithet",
+    "uri" : "http://rs.tdwg.org/dwc/terms/specificEpithet",
+    "normaliser" : "simple_normaliser"
+  }, {
+    "id" : "taxonID",
+    "uri" : "http://rs.tdwg.org/dwc/terms/taxonID",
+    "properties" : {
+      "taxonID" : true
+    }
+  }, "taxonRank", {
+    "id" : "weight",
+    "uri" : "http://id.ala.org.au/bayesian/1.0/weight",
+    "properties" : {
+      "weight" : true
+    },
+    "type" : "java.lang.Double"
+  } ],
+  "vertices" : [ "taxonID", "taxonRank", "specificEpithet", "scientificNameAuthorship", "scientificName", "soundexScientificName", "genus", "family", "order", "class", "phylum", "kingdom" ],
+  "edges" : [ {
+    "source" : "taxonID",
+    "target" : "scientificName",
+    "edge" : { }
+  }, {
+    "source" : "taxonID",
+    "target" : "taxonRank",
+    "edge" : { }
+  }, {
+    "source" : "taxonID",
+    "target" : "specificEpithet",
+    "edge" : { }
+  }, {
+    "source" : "taxonID",
+    "target" : "scientificNameAuthorship",
+    "edge" : { }
+  }, {
+    "source" : "scientificName",
+    "target" : "genus",
+    "edge" : { }
+  }, {
+    "source" : "scientificName",
+    "target" : "soundexScientificName",
+    "edge" : { }
+  }, {
+    "source" : "specificEpithet",
+    "target" : "scientificName",
+    "edge" : { }
+  }, {
+    "source" : "genus",
+    "target" : "family",
+    "edge" : { }
+  }, {
+    "source" : "soundexScientificName",
+    "target" : "genus",
+    "edge" : { }
+  }, {
+    "source" : "family",
+    "target" : "order",
+    "edge" : { }
+  }, {
+    "source" : "order",
+    "target" : "class",
+    "edge" : { }
+  }, {
+    "source" : "class",
+    "target" : "phylum",
+    "edge" : { }
+  }, {
+    "source" : "phylum",
+    "target" : "kingdom",
+    "edge" : { }
+  } ]
+}

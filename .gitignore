@@ -2,8 +2,9 @@
 /ala-linnaean-builder/target/
 /.idea/
 /ala-name-matching-2.iml
-/name-matching-builder/target/
+/bayesian-builder/target/
 /name-matching-common-test/target/
-/name-matching-core/target/
-/name-matching-lucene/target/
-/name-matching-maven-plugin/target/
+/bayesian-core/target/
+/bayesian-lucene/target/
+/bayesian-maven-plugin/target/
+/taxonomic-tools/target/

@@ -10,7 +10,6 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ala-linnaean</artifactId>
-<!--    <version>${project.parent.version}</version>-->
 
     <name>ALA Linnaean Name Matching</name>
     <description>
@@ -20,7 +19,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>name-matching-core</artifactId>
+            <artifactId>bayesian-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -34,7 +33,7 @@
         <plugins>
             <plugin>
                 <groupId>au.org.ala.maven</groupId>
-                <artifactId>name-matching-maven-plugin</artifactId>
+                <artifactId>bayesian-maven-plugin</artifactId>
                 <version>${project.parent.version}</version>
                 <executions>
                     <execution>

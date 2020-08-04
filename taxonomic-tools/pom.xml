@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>name-matching-core</artifactId>
+            <artifactId>bayesian-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

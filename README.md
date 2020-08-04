@@ -35,3 +35,12 @@ As much as possible, the aim is to make it so that importing the name matching l
 into an application is a small thing, without a huge number of dangling dependencies.
 Building the index and other processing is split out into separate modules so that
 you don't have to drink the entire bottle in one go.
+
+## GBIF Name Parser Library
+
+This code uses a modified of the GBIF name parser library that 
+parses phrase names.
+You will need to install this library before compilation.
+
+Clone https://github.com/charvolant/name-parser and checkout the `phrase-names` branch.
+Install this branch with `mvn clean install`

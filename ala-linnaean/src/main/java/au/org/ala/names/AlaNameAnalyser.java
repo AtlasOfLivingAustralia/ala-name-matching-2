@@ -43,6 +43,10 @@ public class AlaNameAnalyser implements EvidenceAnalyser<AlaLinnaeanClassificati
                 classifier.add(AlaLinnaeanFactory.specificEpithet, name.getSpecificEpithet());
             if (!classifier.has(AlaLinnaeanFactory.genus) && rank != null && !rank.higherThan(Rank.GENUS) && name.getGenus() != null)
                 classifier.add(AlaLinnaeanFactory.genus, name.getGenus());
+            if (!classifier.has(AlaLinnaeanFactory.cultivarEpithet) && name.getCultivarEpithet() != null)
+                classifier.add(AlaLinnaeanFactory.cultivarEpithet, name.getCultivarEpithet());
+            if (!classifier.has(AlaLinnaeanFactory.phraseName) && name.getCultivarEpithet() != null)
+                classifier.add(AlaLinnaeanFactory.phraseName, name.getCultivarEpithet());
         } catch (UnparsableNameException e) {
             // Ignore this, we'll just have to roll along with an unrecognisable name
         }

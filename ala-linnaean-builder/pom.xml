@@ -20,17 +20,17 @@
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>name-matching-core</artifactId>
+            <artifactId>bayesian-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>name-matching-builder</artifactId>
+            <artifactId>bayesian-builder</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>name-matching-lucene</artifactId>
+            <artifactId>bayesian-lucene</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -51,7 +51,7 @@
         <plugins>
             <plugin>
                 <groupId>au.org.ala.maven</groupId>
-                <artifactId>name-matching-maven-plugin</artifactId>
+                <artifactId>bayesian-maven-plugin</artifactId>
                 <version>${project.parent.version}</version>
                 <executions>
                     <execution>
