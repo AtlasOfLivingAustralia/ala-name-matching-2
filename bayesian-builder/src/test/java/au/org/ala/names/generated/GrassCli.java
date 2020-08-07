@@ -1,5 +1,6 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.names.builder.Cli;
 import au.org.ala.names.builder.IndexBuilder;
 import au.org.ala.names.builder.IndexBuilderConfiguration;
 import au.org.ala.names.builder.Source;
@@ -10,7 +11,7 @@ import java.net.URL;
 
 
 
-public class GrassCli {
+public class GrassCli implements Cli<GrassClassification, GrassParameters, GrassBuilder, GrassInferencer, GrassFactory> {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
      Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
@@ -38,7 +39,7 @@ public class GrassCli {
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(GrassBuilder.class);
        config.setFactoryClass(GrassFactory.class);
-       config.setNetwork(GrassBuilder.class.getResource("GrassBuilder.json"));
+       config.setNetwork(GrassBuilder.class.getResource("grass.json"));
      }
      if (cmd.hasOption(workOption.getOpt())) {
        config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));
@@ -52,7 +53,7 @@ public class GrassCli {
      for (String input: cmd.getArgs()) {
        URL in = new URL(input);
        Source source = null;
-       source = Source.create(in, builder.getNetwork().getObservables());
+       source = Source.create(in, builder.getNetwork().getObservables(), config.getTypes());
        builder.load(source);
        source.close();
      }

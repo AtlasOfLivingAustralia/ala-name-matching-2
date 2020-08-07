@@ -47,6 +47,13 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
         return new ArrayList<>(store.values());
     }
 
+
+    @Override
+    public void store(LuceneClassifier classifier) throws InferenceException, StoreException {
+        String id = classifier.identify();
+        this.store.put(id, classifier);
+    }
+
     @Override
     public void store(LuceneClassifier classifier, Term type) throws InferenceException, StoreException {
         String id = classifier.identify();

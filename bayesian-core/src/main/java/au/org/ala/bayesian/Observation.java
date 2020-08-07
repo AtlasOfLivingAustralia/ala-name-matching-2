@@ -133,4 +133,42 @@ public class Observation {
             return Collections.singleton(this.value);
         return Collections.EMPTY_SET;
     }
+
+    /**
+     * Return a positive version of this observation.
+     * <p>
+     * If the observation is already positive, return this.
+     * </p>
+     *
+     * @return The positive observation
+     */
+    public Observation asPositive() {
+        if (this.isPositive())
+            return this;
+        Observation positive = new Observation();
+        positive.observable = this.observable;
+        positive.positive = true;
+        positive.value = this.value;
+        positive.values = this.values;
+        return positive;
+    }
+
+    /**
+     * Return a positive version of this observation.
+     * <p>
+     * If the observation is already positive, return this.
+     * </p>
+     *
+     * @return The positive observation
+     */
+    public Observation asNegative() {
+        if (!this.isPositive())
+            return this;
+        Observation positive = new Observation();
+        positive.observable = this.observable;
+        positive.positive = false;
+        positive.value = this.value;
+        positive.values = this.values;
+        return positive;
+    }
 }

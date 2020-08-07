@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -42,10 +43,10 @@ public class DwCASourceTest {
     @Test
     public void testLoad1() throws Exception {
         URL sample = this.getClass().getResource("/sample-1.zip");
-        DwCASource source = new DwCASource(sample, this.network.getObservables());
+        DwCASource source = new DwCASource(sample, this.network.getObservables(), Arrays.asList(DwcTerm.Taxon, GbifTerm.VernacularName));
         source.load(this.store, null);
 
-        assertEquals(718, this.store.getStore().size());
+        assertEquals(149, this.store.getStore().size());
         Classifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2901022");
         assertNotNull(value);
         assertEquals("Canarium acutifolium", value.get(SCIENTIFIC_NAME_OBS));
@@ -60,10 +61,10 @@ public class DwCASourceTest {
     @Test
     public void testLoad2() throws Exception {
         URL sample = this.getClass().getResource("/sample-1.zip");
-        DwCASource source = new DwCASource(sample, this.network.getObservables());
+        DwCASource source = new DwCASource(sample, this.network.getObservables(), Arrays.asList(DwcTerm.Taxon, GbifTerm.VernacularName));
         source.load(this.store, Arrays.asList(TAXON_ID_OBS, SCIENTIFIC_NAME_OBS));
 
-        assertEquals(718, this.store.getStore().size());
+        assertEquals(149, this.store.getStore().size());
         Classifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2901022");
         assertNotNull(value);
         assertEquals("Canarium acutifolium", value.get(SCIENTIFIC_NAME_OBS));

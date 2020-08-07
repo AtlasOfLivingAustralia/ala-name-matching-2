@@ -9,19 +9,23 @@ import org.apache.lucene.search.SimpleCollector;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.DoubleAdder;
 
 public class SumCollector extends SimpleCollector {
     private IndexSearcher searcher;
+    private ConcurrentMap<Integer, Double> cache;
     private String field;
     private double defaultValue;
     private Set<String> fields;
     private int base;
     private DoubleAdder sum;
 
-    public SumCollector(IndexSearcher searcher, String field, double defaultValue) {
+    public SumCollector(IndexSearcher searcher, ConcurrentMap<Integer, Double> cache, String field, double defaultValue) {
         this.searcher = searcher;
+        this.cache = cache;
         this.field = field;
         this.defaultValue = defaultValue;
         this.fields = Collections.singleton(field);
@@ -44,11 +48,19 @@ public class SumCollector extends SimpleCollector {
     }
 
     @Override
-    public void collect(int doc) throws IOException {
-        Document document = this.searcher.doc(this.base + doc, this.fields);
-        IndexableField value = document == null ? null : document.getField(this.field);
-
-        this.sum.add(value == null ? this.defaultValue : value.numericValue().doubleValue());
+    public void collect(int doc) {
+        int docID = this.base + doc;
+        double value = this.cache.computeIfAbsent(docID, key -> {
+            Document document = null;
+            try {
+                document = this.searcher.doc(key, this.fields);
+            } catch (IOException ex) {
+                throw new IllegalStateException("Unable to retrieve document " + key, ex);
+            }
+            IndexableField val = document == null ? null : document.getField(this.field);
+            return val == null ? this.defaultValue : val.numericValue().doubleValue();
+        });
+        this.sum.add(value);
     }
 
     @Override

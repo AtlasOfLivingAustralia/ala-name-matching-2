@@ -9,6 +9,14 @@ import au.org.ala.bayesian.StoreException;
  * derived from
  */
 public interface Annotator {
+    /**
+     * A generic, null annotator.
+     */
+    public static Annotator NULL = new Annotator() {
+        @Override
+        public void annotate(Classifier classifier) throws InferenceException, StoreException {
+        }
+    };
 
     /**
      * Annotate a classifier with additional information.

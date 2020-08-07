@@ -15,6 +15,7 @@ import java.io.File;
 import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class IndexBuilderTest {
     private IndexBuilderConfiguration config;
@@ -53,7 +54,8 @@ public class IndexBuilderTest {
         CSVSource source = new CSVSource(surl, this.builder.getNetwork().getObservables());
         this.builder.load(source);
         this.builder.expandTree();
-        Classifier classifier = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-1");
+        Classifier classifier = this.builder.expandedStore.get(DwcTerm.Taxon, taxonID, "S-1");
+        assertNotNull(classifier);
         assertEquals("ARTEMIIDAE", classifier.get(family));
         assertEquals("Animalia", classifier.get(kingdom));
         int[] indexes = classifier.getIndex();
@@ -70,7 +72,8 @@ public class IndexBuilderTest {
         this.builder.load(source);
         this.builder.expandTree();
         this.builder.expandSynonyms();
-        Classifier classifier = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-S-1");
+        Classifier classifier = this.builder.expandedStore.get(DwcTerm.Taxon, taxonID, "S-S-1");
+        assertNotNull(classifier);
         assertEquals("ARTEMIIDAE", classifier.get(family));
         assertEquals("Animalia", classifier.get(kingdom));
     }
@@ -84,7 +87,7 @@ public class IndexBuilderTest {
         this.builder.expandTree();
         this.builder.expandSynonyms();
         this.builder.buildParameters();
-        Classifier classifier = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-S-1");
+        Classifier classifier = this.builder.parameterisedStore.get(DwcTerm.Taxon, taxonID, "S-S-1");
         SimpleLinnaeanParameters parameters = new SimpleLinnaeanParameters();
         classifier.loadParameters(parameters);
         assertEquals(0.0909, parameters.prior_t$taxonId, 0.0001);

@@ -10,9 +10,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -23,16 +21,19 @@ import java.util.stream.Collectors;
  */
 abstract public class Source {
     private Map<Term, Observable> observables;
+    private Set<Term> types;
 
     /**
      * Construct with a list of known observables
      *
      * @param observables The list of observables (may be null)
+     * @param types The list of record types to load
      */
-    public Source(Collection<Observable> observables) {
+    public Source(Collection<Observable> observables, Collection<Term> types) {
         if (observables == null)
             observables = Collections.EMPTY_LIST;
         this.observables = observables.stream().collect(Collectors.toMap(o -> o.getTerm(), o -> o));
+        this.types = new HashSet<>(types);
     }
 
     /**
@@ -47,6 +48,17 @@ abstract public class Source {
      */
     public @NotNull Observable getObservable(@NotNull Term term) {
         return this.observables.computeIfAbsent(term, t -> new Observable(t));
+    }
+
+    /**
+     * Check to see whether a record type should be loaded.
+     *
+     * @param type The record type
+     *
+     * @return True if this record type should be loaded
+     */
+    public boolean isLoadable(Term type) {
+        return this.types.contains(type);
     }
 
     /**
@@ -81,17 +93,17 @@ abstract public class Source {
      *
      * @throws Exception for all kinds of reasons
      */
-    public static Source create(URL source, Collection<Observable> observables) throws Exception {
+    public static Source create(URL source, Collection<Observable> observables, Collection<Term> types) throws Exception {
         if (source.getFile().endsWith(".csv")) {
-            return new CSVSource(DwcTerm.Taxon, source, observables);
+            return new CSVSource(types.isEmpty() ? DwcTerm.Taxon : types.iterator().next(), source, observables);
         }
         if (source.getProtocol().equals("file")) {
             File file = new File(source.getPath());
             if (file.exists() && file.isDirectory())
-                return new DwCASource(source, observables);
+                return new DwCASource(source, observables, types);
         }
         if (source.getProtocol().equals("file") || source.getProtocol().equals("jar") || source.getProtocol().equals("http") || source.getProtocol().equals("https"))
-            return new DwCASource(source, observables);
+            return new DwCASource(source, observables, types);
         throw new BuilderException("Unable to to deduce source type for " + source);
     }
 }

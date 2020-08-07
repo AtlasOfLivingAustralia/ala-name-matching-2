@@ -1,5 +1,6 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.names.builder.Cli;
 import au.org.ala.names.builder.IndexBuilder;
 import au.org.ala.names.builder.IndexBuilderConfiguration;
 import au.org.ala.names.builder.Source;
@@ -11,7 +12,7 @@ import java.net.URL;
 import org.apache.commons.codec.language.Soundex;
 
 
-public class Network9Cli {
+public class Network9Cli implements Cli<Network9Classification, Network9Parameters, Network9Builder, Network9Inferencer, Network9Factory> {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
      Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
@@ -39,7 +40,7 @@ public class Network9Cli {
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(Network9Builder.class);
        config.setFactoryClass(Network9Factory.class);
-       config.setNetwork(Network9Builder.class.getResource("Network9Builder.json"));
+       config.setNetwork(Network9Builder.class.getResource("network-9.json"));
      }
      if (cmd.hasOption(workOption.getOpt())) {
        config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));
@@ -53,7 +54,7 @@ public class Network9Cli {
      for (String input: cmd.getArgs()) {
        URL in = new URL(input);
        Source source = null;
-       source = Source.create(in, builder.getNetwork().getObservables());
+       source = Source.create(in, builder.getNetwork().getObservables(), config.getTypes());
        builder.load(source);
        source.close();
      }

@@ -41,14 +41,30 @@ abstract public class LoadStore<C extends Classifier> {
      */
     abstract public C newClassifier();
 
+
     /**
-     * Store an entry in the store
+     * Store a fully annotated and identified entry in the store.
      *
      * @param classifier The classifier
-     * @param type The document type
      *
      * @throws InferenceException if unable to add annotations
-     * @throws StoreException if unable to store the entry
+     * @throws StoreException if unable to store the entry or the classifier is untyped.
+     */
+    abstract public void store(C classifier) throws InferenceException, StoreException;
+
+    /**
+     * Store an entry in the store.
+     * <p>
+     * This assumes that the classifier has not already been in a store.
+     * </p>
+     *
+     * @param classifier The classifier
+     * @param type The classifier type. If null the classifier has already had a type set.
+     *
+     * @throws InferenceException if unable to add annotations
+     * @throws StoreException if unable to store the entry or the classifier is untyped.
+     *
+     * @see #store(Classifier)
      */
     abstract public void store(C classifier, Term type) throws InferenceException, StoreException;
 

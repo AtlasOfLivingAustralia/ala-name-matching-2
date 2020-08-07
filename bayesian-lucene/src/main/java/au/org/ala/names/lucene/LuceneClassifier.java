@@ -3,6 +3,7 @@ package au.org.ala.names.lucene;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
@@ -41,6 +42,9 @@ public class LuceneClassifier implements Classifier {
     /** The underlying lucene document */
     @Getter
     private Document document;
+    /** Has this document been retrieved from a store (in which case it is hard ti store again */
+    @Getter
+    private boolean retrieved;
 
     /**
      * Construct for an empty document
@@ -49,6 +53,7 @@ public class LuceneClassifier implements Classifier {
     public LuceneClassifier() {
         super();
         this.document = new Document();
+        this.retrieved = false;
     }
 
     /**
@@ -59,6 +64,7 @@ public class LuceneClassifier implements Classifier {
     public LuceneClassifier(Document document) {
         super();
         this.document = document;
+        this.retrieved = true;
     }
 
     /**

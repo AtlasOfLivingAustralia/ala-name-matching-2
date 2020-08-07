@@ -4,6 +4,7 @@ import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.CleanedScientificName;
+import au.org.ala.util.Counter;
 import au.org.ala.vocab.BayesianTerm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +13,7 @@ import lombok.Getter;
 import org.apache.commons.cli.*;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,6 +93,12 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
     /** The load-store. Used to store semi-structured information before building the complete index. */
     @Getter
     protected LoadStore loadStore;
+    /** The expanded store. Used to store expanded information */
+    @Getter
+    protected LoadStore expandedStore;
+    /** The parameterised store. Used to store parameterised information */
+    @Getter
+    protected LoadStore parameterisedStore;
     /** The analyser. Used to add extra information to loaded classifiers. Accessed via the annotation interface */
     protected EvidenceAnalyser<?> analyser;
 
@@ -173,6 +181,10 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
      */
     public void close() throws StoreException {
         this.loadStore.close();
+        if (this.expandedStore != null)
+            this.expandedStore.close();
+        if (this.parameterisedStore != null)
+            this.parameterisedStore.close();
     }
 
     /**
@@ -184,20 +196,24 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
      */
     public void expandTree() throws BuilderException, InferenceException, StoreException {
         LOGGER.info("Expanding accepted concept tree");
-        int count = 0;
+        this.expandedStore = this.config.createLoadStore(Annotator.NULL);
         int index = 1;
         Observation isRoot = this.loadStore.getAnnotationObservation(BayesianTerm.isRoot);
         List<Classifier> top = this.loadStore.getAllClassifiers(DwcTerm.Taxon, isRoot); // Keep across commits
-
+        Counter topCounter = new Counter("Processed {0} top level documents, {1}s, {3,number,0.0}%", LOGGER, 100, top.size());
+        Counter counter = new Counter("Processed {0} accepted taxa, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
+        topCounter.start();
+        counter.start();
         for (Classifier classifier: top) {
-            if (count++ % this.config.getLogInterval() == 0)
-                LOGGER.info("Processing top-level document " + classifier.get(this.taxonId));
-            index = this.expandTree(classifier, new LinkedList<Classifier>(), index);
-            this.loadStore.commit();
+            topCounter.increment(classifier.getIdentifier());
+            index = this.expandTree(classifier, new LinkedList<Classifier>(), index, counter);
+            this.expandedStore.commit();
         }
+        counter.stop();
+        topCounter.stop();
     }
 
-    public int expandTree(Classifier classifier, Deque<Classifier> parents, int index) throws InferenceException, StoreException {
+    public int expandTree(Classifier classifier, Deque<Classifier> parents, int index, Counter counter) throws InferenceException, StoreException {
         int left = index;
         // Perform all derivations
         this.builder.expand(classifier, parents);
@@ -244,12 +260,13 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
             parents.push(classifier);
             Iterable<Classifier> children = this.loadStore.getAll(DwcTerm.Taxon, new Observation(true, this.parent, id));
             for (Classifier child : children) {
-                index = this.expandTree(child, parents, index);
+                index = this.expandTree(child, parents, index, counter);
             }
             parents.pop();
         }
         classifier.setIndex(left, index);
-        this.loadStore.update(classifier);
+        this.expandedStore.store(classifier);
+        counter.increment(classifier.getIdentifier());
         return index + 1;
     }
 
@@ -260,26 +277,27 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
      */
     public void expandSynonyms() throws InferenceException, StoreException {
         LOGGER.info("Expanding synonyms");
-        int count = 0;
+        Counter counter = new Counter("Processed {0} synonyms, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
         Observation isSynonym = this.loadStore.getAnnotationObservation(BayesianTerm.isSynonym);
         Iterable<Classifier> synonyms = this.loadStore.getAll(DwcTerm.Taxon, isSynonym);
+        counter.start();
         for (Classifier classifier: synonyms) {
             String id = classifier.get(this.taxonId);
-            if (count++ % this.config.getLogInterval() == 0)
-                LOGGER.info("Processing synonym " + id);
             Optional<String> aid = this.accepted.map(acc -> classifier.get(acc));
             Optional<Classifier> acpt = Optional.empty();
             if (!aid.isPresent()) {
                 LOGGER.error("Synonym document " + id + " does not have an accepted taxon id");
             } else {
-                acpt = Optional.ofNullable(this.loadStore.get(DwcTerm.Taxon, this.taxonId, aid.get()));
+                acpt = Optional.ofNullable(this.expandedStore.get(DwcTerm.Taxon, this.taxonId, aid.get()));
                 if (!acpt.isPresent()) {
                     LOGGER.error("Taxon " + id + " with accepted id " + aid + " does not have a matching accepted taxon");
                 }
             }
             this.expandSynonym(classifier, acpt);
+            counter.increment(classifier.getIdentifier());
         }
-        this.loadStore.commit();
+        counter.stop();
+        this.expandedStore.commit();
     }
 
     /**
@@ -318,7 +336,7 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
             }
         }
         this.builder.infer(classifier);
-        this.loadStore.update(classifier);
+        this.expandedStore.store(classifier);
     }
 
     /**
@@ -329,24 +347,25 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
      */
     public void buildParameters() throws StoreException, InferenceException {
         LOGGER.info("Building parameter sets");
-        int count = 0;
-        ParameterAnalyser analyser = this.loadStore.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight());
-        Iterable<Classifier> taxa = this.loadStore.getAll(DwcTerm.Taxon);
+        this.parameterisedStore = config.createLoadStore(Annotator.NULL);
+        Counter counter = new Counter("Processed {0} synonyms, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
+        ParameterAnalyser analyser = this.expandedStore.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight());
+        Iterable<Classifier> taxa = this.expandedStore.getAll(DwcTerm.Taxon);
+        counter.start();
         for (Classifier classifier : taxa) {
             String id = classifier.get(this.taxonId);
-            if (count++ % this.config.getLogInterval() == 0)
-                LOGGER.info("Processing parameters " + id);
             P parameters = this.factory.createParameters();
             this.builder.calculate(parameters, analyser, classifier);
             classifier.storeParameters(parameters);
-            this.loadStore.update(classifier);
+            this.parameterisedStore.store(classifier);
+            counter.increment(classifier.getIdentifier());
         }
+        counter.stop();
         this.loadStore.commit();
 
     }
 
     public void buildIndex(File output) throws StoreException, InferenceException {
-        int count = 0;
         LOGGER.info("Building matchng index at " + output);
         if (output.exists()) {
             String backup = output.getName() + "-" + ((SimpleDateFormat) BACKUP_TAG.clone()).format(new Date());
@@ -358,9 +377,9 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
             throw new IllegalArgumentException("Unable to create " + output);
         LoadStore index = new LuceneLoadStore(this, output, false);
         // Copy taxa across
-        Iterable<Classifier> taxa = this.loadStore.getAll(DwcTerm.Taxon);
+        Iterable<Classifier> taxa = this.parameterisedStore.getAll(DwcTerm.Taxon);
         for (Classifier classifier : taxa) {
-            index.update(classifier);
+            index.store(classifier);
         }
         // Insert metadata document
         Classifier metadata = this.createMetadata();
@@ -423,9 +442,12 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
      */
     @Override
     public void annotate(Classifier classifier) throws InferenceException, StoreException {
+        Term type = classifier.getType();
         String p = classifier.get(this.parent);
         String a = this.accepted.isPresent() ? classifier.get(this.accepted.get()) : null;
 
+        if (type != DwcTerm.Taxon)
+            return;
         if (this.analyser != null)
             this.analyser.analyse(classifier);
         if (( p == null || p.isEmpty()) && (a == null || a.isEmpty()))
@@ -511,5 +533,4 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
         builder.buildIndex(output);
         builder.close();
     }
-
 }

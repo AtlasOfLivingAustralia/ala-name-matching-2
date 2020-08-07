@@ -15,6 +15,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Load from a CSV file
@@ -38,11 +39,12 @@ public class CSVSource extends Source {
      * @param reader The CSV reader
      * @param observables Any klnown observables
      *
+     *
      * @throws IOException when reading the CSV file
      * @throws CsvValidationException if not a CSV file
      */
     public CSVSource(Term type, Reader reader, Collection<Observable> observables) throws IOException, CsvValidationException {
-        super(observables);
+        super(observables, Collections.singleton(type));
         this.type = type;
         this.reader = new CSVReaderBuilder(reader).build();
         this.buildHeader();
@@ -63,7 +65,7 @@ public class CSVSource extends Source {
      * @throws CsvValidationException If the file is invalid
      */
     public CSVSource(Term type, URL source, Collection<Observable> observables) throws IOException, CsvValidationException {
-        super(observables);
+        super(observables, Collections.singleton(type));
         this.type = type;
         URLConnection connection = source.openConnection();
         String encoding = connection.getContentEncoding();

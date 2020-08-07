@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.Getter;
 import lombok.Setter;
+import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
 import java.io.File;
@@ -21,6 +22,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class IndexBuilderConfiguration {
@@ -59,12 +62,18 @@ public class IndexBuilderConfiguration {
     @Getter
     @Setter
     private int logInterval;
+    /** The types of records to load and index */
+    @JsonProperty
+    @Getter
+    @Setter
+    private List<Term> types;
 
     public IndexBuilderConfiguration() {
         this.builderClass = EmptyBuilder.class;
         this.loadStoreClass = LuceneLoadStore.class;
         this.defaultWeight = 1.0;
-        this.logInterval = 100;
+        this.logInterval = 10000;
+        this.types = Arrays.asList(DwcTerm.Taxon);
     }
 
     /**

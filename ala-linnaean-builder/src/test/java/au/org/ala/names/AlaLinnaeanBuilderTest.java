@@ -38,7 +38,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         config.setWork(work);
         config.setFactoryClass(AlaLinnaeanFactory.class);
         builder = new IndexBuilder(config);
-        Source source = Source.create(AlaLinnaeanBuilderTest.class.getResource("/sample-1.zip"), AlaLinnaeanFactory.instance().getObservables());
+        Source source = Source.create(AlaLinnaeanBuilderTest.class.getResource("/sample-1.zip"), AlaLinnaeanFactory.instance().getObservables(), config.getTypes());
         builder.load(source);
         builder.build();
         builder.buildIndex(output);
@@ -69,7 +69,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
 
     @Test
     public void testLoadBuild1() throws Exception {
-        LoadStore store = this.builder.getLoadStore();
+        LoadStore store = this.builder.getParameterisedStore();
         Classifier doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "urn:lsid:indexfungorum.org:names:90156");
         assertNotNull(doc);
         assertEquals("Fungi", doc.get(AlaLinnaeanFactory.scientificName));

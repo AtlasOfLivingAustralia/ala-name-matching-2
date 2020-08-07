@@ -5,7 +5,9 @@ import au.org.ala.names.builder.Annotator;
 import au.org.ala.names.builder.LoadStore;
 import au.org.ala.bayesian.ExternalContext;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -16,6 +18,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.NIOFSDirectory;
 import org.gbif.dwc.terms.Term;
 
 import java.io.File;
@@ -24,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 
+@Slf4j
 public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     /** The default batch size for getting results. Assumes a smallish size */
     public static final int DEFAULT_BATCH_SIZE = 256;
@@ -87,6 +91,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
         this.batchSize = DEFAULT_BATCH_SIZE;
         this.annotationObservable = new Observable(LuceneClassifier.ANNOTATION_FIELD);
         this.annotationObservable.setExternal(ExternalContext.LUCENE, LuceneClassifier.ANNOTATION_FIELD);
+        log.info("Lucene load store created at " + directory);
     }
 
     /**
@@ -126,10 +131,24 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * Store an entry in the load store
      *
      * @param classifier The collection of information that makes up the entry
+     */
+    @Override
+    public void store(LuceneClassifier classifier) throws InferenceException, StoreException {
+        try {
+            this.writer.addDocument(classifier.isRetrieved() ? classifier.makeDocumentCopy() : classifier.getDocument());
+        } catch (IOException ex) {
+            throw new StoreException("Unable to store " + classifier, ex);
+        }
+    }
+
+    /**
+     * Store an entry in the load store
+     *
+     * @param classifier The collection of information that makes up the entry
      * @param type The document type
      */
     @Override
-    public void store(LuceneClassifier classifier, Term type) throws InferenceException, StoreException {
+    public void store(LuceneClassifier classifier, @NonNull Term type) throws InferenceException, StoreException {
          try {
             classifier.identify();
             classifier.setType(type);

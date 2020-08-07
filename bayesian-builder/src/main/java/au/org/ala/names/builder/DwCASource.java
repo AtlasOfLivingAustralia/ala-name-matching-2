@@ -4,6 +4,8 @@ import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.StoreException;
+import au.org.ala.util.Counter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.gbif.dwc.Archive;
 import org.gbif.dwc.ArchiveFile;
@@ -32,11 +34,11 @@ import java.util.stream.Collectors;
  * The archive is assumed to be expanded and in a directory.
  * </p>
  */
+@Slf4j
 public class DwCASource extends Source {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DwCASource.class);
-
     private List<Path> cleanup;
     private Archive archive;
+    private Counter counter;
 
     /**
      * Construct with DwCA directory
@@ -47,32 +49,33 @@ public class DwCASource extends Source {
      * @throws IOException when attempting to open the archive
      * @throws UnsupportedArchiveException if the archive is invalid
      */
-    public DwCASource(URL source, Collection<Observable> observables) throws IOException, UnsupportedArchiveException {
-        super(observables);
+    public DwCASource(URL source, Collection<Observable> observables, Collection<Term> types) throws IOException, UnsupportedArchiveException {
+        super(observables, types);
         this.cleanup = new ArrayList<>();
         if (source.getProtocol().equals("file")) {
             File file = new File(source.getPath());
-            LOGGER.info("Getting source " + source + " as file " + file);
+            log.info("Getting source " + source + " as file " + file);
             if (!file.exists())
                 throw new FileNotFoundException("DwCA dnot found " + file);
             if (file.isDirectory()) {
                 this.archive = DwcFiles.fromLocation(file.toPath());
             } else {
                 Path tmpDir = Files.createTempDirectory("dwca");
-                LOGGER.info("Extracting " + file + " info " + tmpDir);
+                log.info("Extracting " + file + " info " + tmpDir);
                 this.cleanup.add(tmpDir);
                 this.archive = DwcFiles.fromCompressed(file.toPath(), tmpDir);
             }
         } else {
             Path download = Files.createTempFile("dwca", "download.zip");
-            LOGGER.info("Getting " + source + " as " + download);
+            log.info("Getting " + source + " as " + download);
             this.cleanup.add(download);
             FileUtils.copyURLToFile(source, download.toFile());
             Path tmpDir = Files.createTempDirectory("dwca");
-            LOGGER.info("Extracting " + download + " info " + tmpDir);
+            log.info("Extracting " + download + " info " + tmpDir);
             this.cleanup.add(tmpDir);
             this.archive = DwcFiles.fromCompressed(download, tmpDir);
         }
+        this.counter = new Counter("Loaded {0} records, {2,number,0.0}/s", log, 10000, -1);
     }
 
     /**
@@ -85,9 +88,11 @@ public class DwCASource extends Source {
      */
     @Override
     public void load(LoadStore store, Collection<Observable> accepted) throws BuilderException, InferenceException, StoreException {
+        this.counter.start();
         this.loadArchiveFile(this.archive.getCore(), store, accepted);
         for (ArchiveFile ext: this.archive.getExtensions())
             this.loadArchiveFile(ext, store, accepted);
+        this.counter.stop();
     }
 
     /**
@@ -120,6 +125,8 @@ public class DwCASource extends Source {
      */
     protected void loadArchiveFile(ArchiveFile file, LoadStore store, Collection<Observable> accepted) throws InferenceException, StoreException {
         Term type = file.getRowType();
+        if (!this.isLoadable(type))
+            return;
         Set<Observable> terms = file.getTerms().stream().map(t -> this.getObservable(t)).collect(Collectors.toSet());
         for (Record record: file) {
             Classifier classifier = store.newClassifier();
@@ -134,6 +141,7 @@ public class DwCASource extends Source {
                 }
             }
             store.store(classifier, type);
+            this.counter.increment(classifier.getIdentifier());
         }
     }
 }

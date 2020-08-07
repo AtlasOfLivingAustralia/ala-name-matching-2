@@ -8,6 +8,13 @@ import org.apache.lucene.search.Query;
 import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 import static au.org.ala.bayesian.ExternalContext.LUCENE;
 
@@ -23,6 +30,8 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
     protected Annotator annotator;
     /** The index */
     private IndexSearcher searcher;
+    /** The score cache */
+    private ConcurrentMap<Integer, Double> scoreCache;
     /** The weight observable */
     private Observable weight;
     /** The default weight */
@@ -47,6 +56,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
         this.network = network;
         this.annotator = annotator;
         this.searcher = searcher;
+        this.scoreCache = new ConcurrentHashMap<>();
         this.weight = weight;
         this.defaultWeight = defaultWeight;
         this.queryUtils = new QueryUtils();
@@ -72,7 +82,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      */
     protected double sum(Query query) throws InferenceException {
         try {
-            SumCollector collector = new SumCollector(this.searcher, this.weight.getExternal(LUCENE), this.defaultWeight);
+            SumCollector collector = new SumCollector(this.searcher, this.scoreCache, this.weight.getExternal(LUCENE), this.defaultWeight);
             this.searcher.search(query, collector);
             return collector.getSum();
         } catch (IOException ex) {
@@ -102,7 +112,13 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
     }
 
     /**
-     * Computer a conditional probability for a observation
+     * Computer a conditional probability for a observation.
+     * <p>
+     * This contains special code for when all inputs are negative observations.
+     * Since we have the total weight, it's faster to compute all the positive
+     * cases and then subtract them from the total weight than compute the negative cases,
+     * which will be manyfold.
+     * </p>
      *
      * @param observation The observation
      * @param inputs The facts inputting into the result
@@ -114,16 +130,72 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
     public double computeConditional(Observation observation, Observation... inputs) throws InferenceException {
         if (totalWeight <= 0.0)
             return 0.0;
+        double priorWeight = 1.0;
+        boolean allNegative = true;
         BooleanQuery.Builder conditionalBuilder = this.queryUtils.createBuilder(this.taxonQuery);
-        for (int i = 0; i < inputs.length; i++) {
-            if (!inputs[i].isBlank())
-                conditionalBuilder.add(this.queryUtils.asClause(inputs[i]));
+        List<Observation> nonBlank = Arrays.stream(inputs).filter(o -> !o.isBlank()).collect(Collectors.toList());
+        if (nonBlank.isEmpty()) {
+            priorWeight = this.totalWeight;
+        } else {
+            for (Observation input : nonBlank) {
+                conditionalBuilder.add(this.queryUtils.asClause(input));
+                allNegative = allNegative && !input.isPositive();
+            }
+            if (!allNegative) {
+                priorWeight = this.sum(conditionalBuilder.build());
+            } else {
+                priorWeight = this.totalWeight;
+                for (List<Observation> cases : this.generatePositiveCases(nonBlank)) {
+                    BooleanQuery.Builder positiveBuilder = this.queryUtils.createBuilder(this.taxonQuery);
+                    for (Observation input : cases)
+                        positiveBuilder.add(this.queryUtils.asClause(input));
+                    priorWeight -= this.sum(positiveBuilder.build());
+                }
+            }
         }
-        double priorWeight = this.sum(conditionalBuilder.build());
         if (priorWeight < MINIMUM_PROBABILITY)
             return MINIMUM_PROBABILITY;
         conditionalBuilder.add(this.queryUtils.asClause(observation));
         double conditionalWeight = this.sum(conditionalBuilder.build());
         return Math.max(MINIMUM_PROBABILITY, Math.min(MAXIMUM_PROBABILITY, conditionalWeight / priorWeight));
+    }
+
+    /**
+     * Make a list of positive variations of a list of inputs.
+     * <p>
+     * Any instance of the list with at least one positive
+     * </p>
+     *
+     * @param inputs The list of inputs.
+     *
+     * @return The inputs, power-setted over positive/negative without any all-negative instances.
+     */
+    private List<List<Observation>> generatePositiveCases(List<Observation> inputs) {
+        List<List<Observation>> cases = new ArrayList<>(2 * inputs.size());
+        this.generatePositiveCases(inputs, 0, cases, new Stack<Observation>());
+        return cases;
+    }
+
+    /**
+     * Generator to {@link #generatePositiveCases(List)}.
+     *
+     * @param inputs The list of inputs
+     * @param index Which input to manipulate
+     * @param cases A cases accumulator
+     * @param stack The stack of existing inputs
+     */
+    private void generatePositiveCases(List<Observation> inputs, int index, List<List<Observation>> cases, Stack<Observation> stack) {
+        if (index >= inputs.size()) {
+            if (!stack.stream().allMatch(o -> !o.isPositive()))
+                cases.add(new ArrayList<>(stack));
+            return;
+        }
+        Observation o = inputs.get(index);
+        stack.push(o.asPositive());
+        this.generatePositiveCases(inputs, index + 1, cases, stack);
+        stack.pop();
+        stack.push(o.asNegative());
+        this.generatePositiveCases(inputs, index + 1, cases, stack);
+        stack.pop();
     }
 }
