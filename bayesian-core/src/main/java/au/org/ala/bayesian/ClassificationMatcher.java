@@ -35,8 +35,9 @@ public class ClassificationMatcher<C extends Classification, P extends Parameter
     }
 
     public Match<C> findMatch(C classification) throws InferenceException, StoreException {
+        Issues issues = new Issues();
         if (analyser != null)
-            analyser.analyse(classification);
+            analyser.analyse(classification, issues);
         classification.infer();
         List<Classifier> candididates = this.searcher.search(classification);
         if (candididates.isEmpty())
@@ -49,7 +50,7 @@ public class ClassificationMatcher<C extends Classification, P extends Parameter
             if (this.isPossible(classification, candidate, p)) {
                 C candidateClassification = this.factory.createClassification();
                 candidateClassification.populate(candidate, true);
-                Match<C> match = new Match<>(candidateClassification, candidate, p);
+                Match<C> match = new Match<>(candidateClassification, candidate, p, issues);
                 if (this.isAcceptable(classification, candidate, p))
                     return match;
                 results.add(match);

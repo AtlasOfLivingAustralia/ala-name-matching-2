@@ -101,6 +101,10 @@ public enum ALATerm implements Term {
     builderClass,
     /** The class used for parameters */
     parametersClass,
+    /** The scientific name has been canononicalised before searching */
+    canonicalMatch,
+    /** The match is fuzzy, rather than exact */
+    fuzzyMatch,
     /** Record type describing document metadata */
     Metadata,
     /** Record type describing an unplaced vernacular name */

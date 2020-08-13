@@ -26,6 +26,12 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 <#list orderedNodes as node>
   public ${node.observable.type.name} ${node.observable.javaVariable};
 </#list>
+<#if additionalNodes?size gt 0>
+  // Additional stored classification information not used in inference
+</#if>
+<#list additionalNodes as node>
+  public ${node.observable.type.name} ${node.observable.javaVariable};
+</#list>
 
   public ${className}() {
 <#list classificationVariables as variable>
@@ -66,12 +72,26 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     }
     </#if>
 </#list>
+<#list additionalNodes as node>
+  <#assign observable = node.observable >
+  <#if observable?? && observable.derivation??>
+    <#assign derivation = observable.derivation>
+    if (this.${node.observable.javaVariable} == null) {
+      this.${node.observable.javaVariable} = ${derivation.generateClassificationTransform()};
+    }
+  </#if>
+</#list>
   }
 
 
   @Override
   public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
 <#list orderedNodes as node>
+    if (overwrite || this.${node.observable.javaVariable} == null) {
+      this.${node.observable.javaVariable} = classifier.get(${factoryClassName}.${node.observable.javaVariable});
+    }
+</#list>
+<#list additionalNodes as node>
     if (overwrite || this.${node.observable.javaVariable} == null) {
       this.${node.observable.javaVariable} = classifier.get(${factoryClassName}.${node.observable.javaVariable});
     }
@@ -89,6 +109,9 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   @Override
   public void translate(Classifier classifier) throws InferenceException, StoreException {
 <#list orderedNodes as node>
+    classifier.add(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
+</#list>
+<#list additionalNodes as node>
     classifier.add(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
 </#list>
   }

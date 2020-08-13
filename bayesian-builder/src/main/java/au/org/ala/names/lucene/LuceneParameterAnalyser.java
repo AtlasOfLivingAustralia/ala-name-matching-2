@@ -5,6 +5,9 @@ import au.org.ala.names.builder.Annotator;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.cache2k.Cache;
+import org.cache2k.Cache2kBuilder;
+import org.cache2k.integration.CacheLoader;
 import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.IOException;
@@ -30,8 +33,10 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
     protected Annotator annotator;
     /** The index */
     private IndexSearcher searcher;
-    /** The score cache */
-    private ConcurrentMap<Integer, Double> scoreCache;
+    /** The weight cache */
+    private ConcurrentMap<Integer, Double> weightCache;
+    /** The query cache */
+    private Cache<Query, Double>  queryCache;
     /** The weight observable */
     private Observable weight;
     /** The default weight */
@@ -56,7 +61,12 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
         this.network = network;
         this.annotator = annotator;
         this.searcher = searcher;
-        this.scoreCache = new ConcurrentHashMap<>();
+        this.weightCache = new ConcurrentHashMap<>();
+        this.queryCache = Cache2kBuilder.of(Query.class, Double.class)
+            .eternal(true)
+            .entryCapacity(1000000)
+            .loader(this::doSum)
+            .build();
         this.weight = weight;
         this.defaultWeight = defaultWeight;
         this.queryUtils = new QueryUtils();
@@ -75,20 +85,39 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
 
     /**
      * Sum all the weights for documents matching this query.
+     * <p>
+     * The result is cached.
+     * The {@link #doSum(Query)} method actually calculates the sum.
+     * </p>
      *
      * @param query The query
      *
      * @return The resulting sum
      */
-    protected double sum(Query query) throws InferenceException {
+    protected double sum(final Query query) throws InferenceException {
+        return this.queryCache.get(query);
+    }
+
+
+    /**
+     * Perform a sum of all the weights for documents matching this query.
+     *
+     * @param query The query
+     *
+     * @return The resulting sum
+     *
+     * @see #sum(Query)
+     */
+    protected double doSum(final Query query) throws InferenceException {
         try {
-            SumCollector collector = new SumCollector(this.searcher, this.scoreCache, this.weight.getExternal(LUCENE), this.defaultWeight);
+            SumCollector collector = new SumCollector(this.searcher, this.weightCache, this.weight.getExternal(LUCENE), this.defaultWeight);
             this.searcher.search(query, collector);
             return collector.getSum();
         } catch (IOException ex) {
-            throw new InferenceException("Unable to calculate weight sum", ex);
+            throw new InferenceException("Unable to calculate weight sum" , ex);
         }
     }
+
 
     /**
      * Compute the prior probability of a field.

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An observation or fact about a node in the bayseian network.
@@ -47,7 +45,16 @@ public class Observation {
     public Observation(boolean positive, Observable observable, Set<String> values) {
         this.positive = positive;
         this.observable = observable;
-        this.values = values;
+        if (values.size() == 0) {
+            this.value = null;
+            this.values = null;
+        } else if (values.size() == 1) {
+            this.value = values.iterator().next();
+            this.values = null;
+        } else {
+            this.values = null;
+            this.values = values;
+        }
     }
 
     /**
@@ -170,5 +177,43 @@ public class Observation {
         positive.value = this.value;
         positive.values = this.values;
         return positive;
+    }
+
+    /**
+     * Build a hash code for this object.
+     *
+     * @return The computed hash code
+     */
+    @Override
+    public int hashCode() {
+        int hash = this.observable.hashCode();
+        hash = hash ^ (this.positive ? 1000003 : 10001531);
+        // The hash for a single value should be the same, no matter how stored
+        if (this.value != null)
+            hash = hash ^ this.value.hashCode();
+        if (this.values != null)
+            hash = hash ^ this.values.hashCode(); // Relies on AbstractSet#hashCode just adding values
+        return hash;
+    }
+
+    /**
+     * Equality test.
+     *
+     * @param obj The other object
+     *
+     * @return true if referncing the same observavle and same values in the same way.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Observation))
+            return false;
+        Observation o = (Observation) obj;
+        if (!this.observable.equals(o.observable))
+            return false;
+        if (this.positive != o.positive)
+            return false;
+        if (Objects.equals(this.value, o.value))
+            return false;
+        return Objects.equals(this.values, o.values);
     }
 }

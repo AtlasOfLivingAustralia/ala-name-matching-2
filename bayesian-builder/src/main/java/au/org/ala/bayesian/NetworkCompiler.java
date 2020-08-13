@@ -29,6 +29,9 @@ public class NetworkCompiler {
     /** The dependency ordered list of nodes */
     @Getter
     protected List<Node> orderedNodes;
+    /** Any additional nodes */
+    @Getter
+    protected List<Node> additionalNodes;
     /** The input vertices */
     @Getter
     protected List<Node> inputs;
@@ -101,6 +104,7 @@ public class NetworkCompiler {
         this.horizonAlgorithm = new HorizonAlgorithm<>(this.sources);
         this.nodes = this.network.getVertices().stream().collect(Collectors.toMap(v -> v.getId(), v -> new Node(v)));
         this.orderedNodes = this.network.getVertices().stream().map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
+        this.additionalNodes = this.network.getObservablesById().stream().filter(o -> o.hasProperty("classification", true) && !nodes.containsKey(o.getId())).map(o -> new Node(o)).collect(Collectors.toList());
         this.inputs = this.network.getVertices().stream().filter(v -> this.network.getIncoming(v).isEmpty()).map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
         this.inputSignatures = this.signatures(this.inputs.size());
         this.outputs = this.network.getVertices().stream().filter(v -> this.network.getOutgoing(v).isEmpty()).map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());

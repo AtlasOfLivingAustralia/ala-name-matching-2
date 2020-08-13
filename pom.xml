@@ -17,6 +17,7 @@
     <module>ala-linnaean</module>
     <module>ala-linnaean-builder</module>
     <module>taxonomic-tools</module>
+    <module>ala-namematching</module>
   </modules>
 
   <name>Name Matching v2</name>
@@ -35,6 +36,7 @@
     <commons-codec.version>1.14</commons-codec.version>
     <dwc-api.version>1.27</dwc-api.version>
     <name-parser.version>3.6.1-ala-SNAPSHOT</name-parser.version>
+    <cache2k.version>1.2.4.Final</cache2k.version>
   </properties>
 
   <repositories>

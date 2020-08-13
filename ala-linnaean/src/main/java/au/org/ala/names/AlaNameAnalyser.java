@@ -1,16 +1,14 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.EvidenceAnalyser;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.*;
 import au.org.ala.util.SimpleClassifier;
+import au.org.ala.vocab.ALATerm;
 import com.google.common.base.Enums;
 import org.gbif.nameparser.NameParserGBIF;
-import org.gbif.nameparser.api.NameParser;
-import org.gbif.nameparser.api.ParsedName;
-import org.gbif.nameparser.api.Rank;
-import org.gbif.nameparser.api.UnparsableNameException;
+import org.gbif.nameparser.api.*;
+import org.gbif.nameparser.util.NameFormatter;
+
+import java.util.Arrays;
 
 public class AlaNameAnalyser implements EvidenceAnalyser<AlaLinnaeanClassification> {
     private static final ThreadLocal<NameParser> PARSER = ThreadLocal.withInitial(NameParserGBIF::new);
@@ -24,13 +22,15 @@ public class AlaNameAnalyser implements EvidenceAnalyser<AlaLinnaeanClassificati
      * @throws StoreException     if an error occurs updating the classifier
      */
     @Override
-    public void analyse(Classifier classifier) throws StoreException {
-        NameParser parser = PARSER.get();
-        String scientificName = classifier.get(AlaLinnaeanFactory.scientificName);
-        String taxonRank = classifier.get(AlaLinnaeanFactory.taxonRank);
+    public void analyse(Classifier classifier, Issues issues) throws StoreException {
+        final NameParser parser = PARSER.get();
+        final String scientificName = classifier.get(AlaLinnaeanFactory.scientificName);
+        final String taxonRank = classifier.get(AlaLinnaeanFactory.taxonRank);
+        final String nomenclaturalCode = classifier.get(AlaLinnaeanFactory.nomenclaturalCode);
         Rank rank = taxonRank == null ? Rank.UNRANKED : Enums.getIfPresent(Rank.class, taxonRank).or(Rank.UNRANKED);
+        NomCode nomCode = nomenclaturalCode == null ? null : Arrays.stream(NomCode.values()).filter(c -> nomenclaturalCode.equalsIgnoreCase(c.getAcronym())).findFirst().orElse(null);
         try {
-            ParsedName name = parser.parse(scientificName, rank, null);
+            ParsedName name = parser.parse(scientificName, rank, nomCode);
             rank = name.getRank();
             if (rank != null && rank != Rank.UNRANKED) {
                 if (Rank.SPECIES.higherThan(rank)) {
@@ -38,6 +38,11 @@ public class AlaNameAnalyser implements EvidenceAnalyser<AlaLinnaeanClassificati
                     classifier.replace(AlaLinnaeanFactory.taxonRank, rank.name());
                 } else if (!classifier.has(AlaLinnaeanFactory.taxonRank))
                     classifier.add(AlaLinnaeanFactory.taxonRank, rank.name());
+            }
+            if (!classifier.has(AlaLinnaeanFactory.scientificNameAuthorship) && name.hasAuthorship()) {
+                issues.add(ALATerm.canonicalMatch);
+                classifier.replace(AlaLinnaeanFactory.scientificNameAuthorship, NameFormatter.authorshipComplete(name));
+                classifier.replace(AlaLinnaeanFactory.scientificName, NameFormatter.canonicalWithoutAuthorship(name));
             }
             if (!classifier.has(AlaLinnaeanFactory.specificEpithet) && name.getSpecificEpithet() != null)
                 classifier.add(AlaLinnaeanFactory.specificEpithet, name.getSpecificEpithet());
@@ -61,10 +66,10 @@ public class AlaNameAnalyser implements EvidenceAnalyser<AlaLinnaeanClassificati
      * @throws StoreException     if an error occurs updating the classifier
      */
     @Override
-    public void analyse(AlaLinnaeanClassification classification) throws InferenceException, StoreException {
+    public void analyse(AlaLinnaeanClassification classification, Issues issues) throws InferenceException, StoreException {
         SimpleClassifier classifier = new SimpleClassifier();
         classification.translate(classifier);
-        this.analyse(classifier);
+        this.analyse(classifier, issues);
         classification.populate(classifier, true);
     }
 }

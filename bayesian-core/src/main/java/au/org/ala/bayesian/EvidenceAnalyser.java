@@ -21,20 +21,22 @@ public interface EvidenceAnalyser<C extends Classification> {
      * as required.
      *
      * @param classifier The classifier
+     * @param issues A store of issues associated with analysis and matching
      *
      * @throws InferenceException if an error occurs during inference
      * @throws StoreException if an error occurs updating the classifier
      */
-    public void analyse(Classifier classifier) throws InferenceException, StoreException;
+    public void analyse(Classifier classifier, Issues issues) throws InferenceException, StoreException;
 
     /**
      * Analyse the information in a classification and extend the classification
      * as required.
      *
      * @param classification The classification
+     * @param issues A store of issues associated with analysis and matching
      *
      * @throws InferenceException if an error occurs during inference
      * @throws StoreException if an error occurs updating the classifier
      */
-    public void analyse(C classification) throws InferenceException, StoreException;
+    public void analyse(C classification, Issues issues) throws InferenceException, StoreException;
 }

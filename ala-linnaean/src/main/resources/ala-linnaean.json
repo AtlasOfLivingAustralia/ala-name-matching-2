@@ -432,7 +432,17 @@
       "label": "aID",
       "uri": "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
       "properties": {
-        "accepted": true
+        "accepted": true,
+        "classification": true
+      },
+      "style": "IDENTIFIER"
+    },
+    {
+      "id": "taxonomicStatus",
+      "label": "TS",
+      "uri": "http://rs.tdwg.org/dwc/terms/taxonomicStatus",
+      "properties": {
+        "classification": true
       },
       "style": "IDENTIFIER"
     },

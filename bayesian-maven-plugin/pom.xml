@@ -11,9 +11,9 @@
   <artifactId>bayesian-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
 
-  <name>Name Matching Tools Maven Plugin</name>
+  <name>Bayesian Network Builder Maven Plugin</name>
     <description>
-        Maven plugin to invoke the various name matching tools.
+        Plugin to invoke the Bayesian network builder from maven.
     </description>
   <url>http://maven.apache.org</url>
 

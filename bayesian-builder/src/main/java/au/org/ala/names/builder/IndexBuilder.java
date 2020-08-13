@@ -348,7 +348,7 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
     public void buildParameters() throws StoreException, InferenceException {
         LOGGER.info("Building parameter sets");
         this.parameterisedStore = config.createLoadStore(Annotator.NULL);
-        Counter counter = new Counter("Processed {0} synonyms, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
+        Counter counter = new Counter("Processed {0} parameter sets, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
         ParameterAnalyser analyser = this.expandedStore.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight());
         Iterable<Classifier> taxa = this.expandedStore.getAll(DwcTerm.Taxon);
         counter.start();
@@ -445,15 +445,18 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
         Term type = classifier.getType();
         String p = classifier.get(this.parent);
         String a = this.accepted.isPresent() ? classifier.get(this.accepted.get()) : null;
+        Issues issues = new Issues();
 
         if (type != DwcTerm.Taxon)
             return;
         if (this.analyser != null)
-            this.analyser.analyse(classifier);
+            this.analyser.analyse(classifier, issues);
         if (( p == null || p.isEmpty()) && (a == null || a.isEmpty()))
             classifier.annotate(BayesianTerm.isRoot);
         if ((p == null || p.isEmpty()) && (a != null && !a.isEmpty()))
             classifier.annotate(BayesianTerm.isSynonym);
+        for (Term issue: issues)
+            classifier.annotate(issue);
     }
 
     /**
