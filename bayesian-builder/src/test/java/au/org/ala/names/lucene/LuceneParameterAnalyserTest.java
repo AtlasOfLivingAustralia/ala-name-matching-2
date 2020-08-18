@@ -26,7 +26,7 @@ public class LuceneParameterAnalyserTest {
     public void setUp() throws Exception {
         BayesianTerm.values(); // Ensure loaded
         this.network = Network.read(this.getClass().getResource("simple-network.json"));
-        this.weight = this.network.findObservable(IndexBuilder.WEIGHT_PROPERTY, true).get();
+        this.weight = this.network.findObservable(BayesianTerm.weight, true).get();
         this.annotator = new TestAnnotator();
         this.lucene = new LuceneUtils(LuceneParameterAnalyser.class, "parameter-analyser-1.csv", this.network.getObservables());
     }

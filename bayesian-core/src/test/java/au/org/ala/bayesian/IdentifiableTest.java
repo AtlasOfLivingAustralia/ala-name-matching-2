@@ -1,6 +1,5 @@
-package au.org.ala.names.model;
+package au.org.ala.bayesian;
 
-import au.org.ala.bayesian.Identifiable;
 import org.junit.Test;
 
 import java.net.URI;

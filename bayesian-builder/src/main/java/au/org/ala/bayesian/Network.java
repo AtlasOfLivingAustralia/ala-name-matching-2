@@ -1,5 +1,6 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.util.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -193,7 +194,7 @@ public class Network extends Identifiable {
      *
      * @return An optional observable
      */
-    public Optional<Observable> findObservable(String property, Object value) {
+    public Optional<Observable> findObservable(Term property, Object value) {
        return this.idMap.values().stream().filter(o -> o.hasProperty(property, value)).findFirst();
     }
 
@@ -205,7 +206,7 @@ public class Network extends Identifiable {
      *
      * @return A, possibly empty, list of matching observables.
      */
-    public List<Observable> findObservables(String property, Object value) {
+    public List<Observable> findObservables(Term property, Object value) {
         return this.idMap.values().stream().filter(o -> o.hasProperty(property, value)).collect(Collectors.toList());
     }
 
@@ -302,9 +303,7 @@ public class Network extends Identifiable {
      * @throws IOException If unable to read the network
      */
     public static Network read(URL source) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        return mapper.readValue(source, Network.class);
+        return JsonUtils.createMapper().readValue(source, Network.class);
     }
 
     /**

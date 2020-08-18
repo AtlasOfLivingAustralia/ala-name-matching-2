@@ -26,7 +26,7 @@ abstract public class Derivation {
      */
     @JsonIgnore
     public Collection<Variable> getBuilderVariables() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**
@@ -39,7 +39,7 @@ abstract public class Derivation {
      */
     @JsonIgnore
     public Collection<Variable> getClassificationVariables() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**

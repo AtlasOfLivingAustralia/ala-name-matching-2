@@ -1,6 +1,8 @@
 package au.org.ala.bayesian;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import org.gbif.dwc.terms.Term;
@@ -58,9 +60,8 @@ abstract public class Identifiable {
     @JsonIgnore
     private Map<ExternalContext, String> externalCache;
     /** Any property flags that this observable has */
-    @JsonProperty
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private SortedMap<String, Object> properties;
+    // See getter/setter for json properties
+    private SortedMap<Term, Object> properties;
 
 
     /**
@@ -83,7 +84,7 @@ abstract public class Identifiable {
         this.uri = uri;
         this.external = new HashMap<>();
         this.externalCache = new HashMap<>();
-        this.properties = new TreeMap<>();
+        this.properties = new TreeMap<>((t1, t2) -> t1.qualifiedName().compareTo(t2.qualifiedName()));
     }
     /**
      * Construct with a defined identifier.
@@ -253,14 +254,28 @@ abstract public class Identifiable {
         return id;
      }
 
+     /** Getter for json serialisation */
+     @JsonGetter("properties")
+     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+     protected Map<Term, Object> getProperties() {
+        return this.properties;
+     }
+
+     /** Setter for json deserialisation */
+     @JsonSetter("properties")
+     protected void setProperties(Map<Term, Object> properties) {
+        this.properties.clear();
+        this.properties.putAll(properties);
+     }
+
     /**
      * Get the value of a property.
      *
-     * @param property The property name
+     * @param property The property
      *
      * @return The property value
      */
-     public Object getProperty(String property) {
+     public Object getProperty(Term property) {
         return this.properties.get(property);
      }
 
@@ -270,7 +285,7 @@ abstract public class Identifiable {
      * @param property The property
      * @param value The property value
      */
-     public void setProperty(String property, Object value) {
+     public void setProperty(Term property, Object value) {
          if (value == null)
              this.properties.remove(property);
          else
@@ -285,7 +300,7 @@ abstract public class Identifiable {
      *
      * @return True if the values match
      */
-     public boolean hasProperty(String property, Object value) {
+     public boolean hasProperty(Term property, Object value) {
          return Objects.equals(this.properties.get(property), value);
     }
 

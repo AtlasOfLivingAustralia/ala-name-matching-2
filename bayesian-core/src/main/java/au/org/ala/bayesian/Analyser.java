@@ -14,8 +14,9 @@ package au.org.ala.bayesian;
  * and {@link Classification#populate(Classifier, boolean)} to ensure consistency.
  * However, there may be quite a performance hit.
  * </p>
+ *
  */
-public interface EvidenceAnalyser<C extends Classification> {
+public interface Analyser<C extends Classification> {
     /**
      * Analyse the information in a classifier and extend the classifier
      * as required.
@@ -31,6 +32,10 @@ public interface EvidenceAnalyser<C extends Classification> {
     /**
      * Analyse the information in a classification and extend the classification
      * as required.
+     * <p>
+     * A default version simply converts the classification into a classifier, analyses
+     * that and returns the result. One
+     * </p>
      *
      * @param classification The classification
      * @param issues A store of issues associated with analysis and matching

@@ -19,7 +19,7 @@ public class ClassificationMatcher<C extends Classification, P extends Parameter
     private F factory;
     private ClassifierSearcher searcher;
     private I inferencer;
-    private EvidenceAnalyser<C> analyser;
+    private Analyser<C> analyser;
 
     /**
      * Create with a searcher and inferencer.

@@ -3,7 +3,7 @@ package ${packageName};
 
 import au.org.ala.bayesian.ClassificationMatcher;
 import au.org.ala.bayesian.ClassifierSearcher;
-import au.org.ala.bayesian.EvidenceAnalyser;
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
@@ -73,15 +73,13 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
+  public Analyser<${classificationClassName}> createAnalyser(){
 <#if analyserImplementationClassName??>
-  public ${analyserImplementationClassName} createAnalyser() {
         return new ${analyserImplementationClassName}();
-  }
 <#else>
-  public EvidenceAnalyser<${classificationClassName}> createAnalyser() {
-        return null;
-  }
+        return new au.org.ala.bayesian.NullAnalyser<>();
 </#if>
+  }
 
   @Override
 <#if matcherImplementationClassName??>

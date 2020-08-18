@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.util.*;
 
 /**
- * An observation or fact about a node in the bayseian network.
+ * An observation or fact about a node in the Bayesian network.
  */
 public class Observation {
     /** Is this fact true or false */
@@ -88,7 +88,7 @@ public class Observation {
     }
 
     /**
-     * Is this a singleton observation (a singhle value, rather than a set of possible values)
+     * Is this a singleton observation (a single value, rather than a set of possible values)
      *
      * @return True if this is a singleton
      */
@@ -130,7 +130,7 @@ public class Observation {
     /**
      * Get the collection of values.
      *
-     * @return
+     * @return The set of values that correspond to matching the observation
      */
     @JsonIgnore
     public Set<String> getValues() {
@@ -138,7 +138,7 @@ public class Observation {
             return this.values;
         if (this.value != null)
             return Collections.singleton(this.value);
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     /**
@@ -201,7 +201,7 @@ public class Observation {
      *
      * @param obj The other object
      *
-     * @return true if referncing the same observavle and same values in the same way.
+     * @return true if referencing the same observable and same values in the same way.
      */
     @Override
     public boolean equals(Object obj) {

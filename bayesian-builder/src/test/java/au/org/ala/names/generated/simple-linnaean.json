@@ -22,29 +22,26 @@
     "id" : "acceptedNameUsageID",
     "uri" : "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
     "properties" : {
-      "accepted" : true
+      "dwc:acceptedNameUsageID" : true
     }
   }, {
     "id" : "altScientificName",
     "uri" : "http://id.ala.org.au/terms/1.0/altScientificName",
     "properties" : {
-      "altScientificName" : true
+      "bayesian:altName" : true
     }
   }, {
     "id" : "class",
     "uri" : "http://rs.tdwg.org/dwc/terms/class",
-    "properties" : {
-      "copy" : true
-    },
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
       "source" : {
         "id" : "scientificName",
         "uri" : "http://rs.tdwg.org/dwc/terms/scientificName",
+        "normaliser" : "simple_normaliser",
         "properties" : {
-          "scientificName" : true
-        },
-        "normaliser" : "simple_normaliser"
+          "dwc:scientificName" : true
+        }
       },
       "condition" : {
         "positive" : true,
@@ -56,13 +53,13 @@
         "value" : "class"
       }
     },
-    "normaliser" : "simple_normaliser"
+    "normaliser" : "simple_normaliser",
+    "properties" : {
+      "bayesian:copy" : true
+    }
   }, {
     "id" : "family",
     "uri" : "http://rs.tdwg.org/dwc/terms/family",
-    "properties" : {
-      "copy" : true
-    },
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
       "source" : "scientificName",
@@ -72,13 +69,13 @@
         "value" : "family"
       }
     },
-    "normaliser" : "simple_normaliser"
+    "normaliser" : "simple_normaliser",
+    "properties" : {
+      "bayesian:copy" : true
+    }
   }, {
     "id" : "genus",
     "uri" : "http://rs.tdwg.org/dwc/terms/genus",
-    "properties" : {
-      "copy" : true
-    },
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
       "source" : "scientificName",
@@ -88,13 +85,13 @@
         "value" : "genus"
       }
     },
-    "normaliser" : "simple_normaliser"
+    "normaliser" : "simple_normaliser",
+    "properties" : {
+      "bayesian:copy" : true
+    }
   }, {
     "id" : "kingdom",
     "uri" : "http://rs.tdwg.org/dwc/terms/kingdom",
-    "properties" : {
-      "copy" : true
-    },
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
       "source" : "scientificName",
@@ -104,13 +101,13 @@
         "value" : "kingdom"
       }
     },
-    "normaliser" : "simple_normaliser"
+    "normaliser" : "simple_normaliser",
+    "properties" : {
+      "bayesian:copy" : true
+    }
   }, {
     "id" : "order",
     "uri" : "http://rs.tdwg.org/dwc/terms/order",
-    "properties" : {
-      "copy" : true
-    },
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
       "source" : "scientificName",
@@ -120,19 +117,19 @@
         "value" : "order"
       }
     },
-    "normaliser" : "simple_normaliser"
+    "normaliser" : "simple_normaliser",
+    "properties" : {
+      "bayesian:copy" : true
+    }
   }, {
     "id" : "parentNameUsageID",
     "uri" : "http://rs.tdwg.org/dwc/terms/parentNameUsageID",
     "properties" : {
-      "parent" : true
+      "dwc:parentNameUsageID" : true
     }
   }, {
     "id" : "phylum",
     "uri" : "http://rs.tdwg.org/dwc/terms/phylum",
-    "properties" : {
-      "copy" : true
-    },
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
       "source" : "scientificName",
@@ -142,7 +139,10 @@
         "value" : "phylum"
       }
     },
-    "normaliser" : "simple_normaliser"
+    "normaliser" : "simple_normaliser",
+    "properties" : {
+      "bayesian:copy" : true
+    }
   }, "scientificName", {
     "id" : "scientificNameAuthorship",
     "uri" : "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship",
@@ -162,15 +162,15 @@
     "id" : "taxonID",
     "uri" : "http://rs.tdwg.org/dwc/terms/taxonID",
     "properties" : {
-      "taxonID" : true
+      "dwc:taxonID" : true
     }
   }, "taxonRank", {
     "id" : "weight",
     "uri" : "http://id.ala.org.au/bayesian/1.0/weight",
+    "type" : "java.lang.Double",
     "properties" : {
-      "weight" : true
-    },
-    "type" : "java.lang.Double"
+      "bayesian:weight" : true
+    }
   } ],
   "vertices" : [ "taxonID", "taxonRank", "specificEpithet", "scientificNameAuthorship", "scientificName", "soundexScientificName", "genus", "family", "order", "class", "phylum", "kingdom" ],
   "edges" : [ {

@@ -13,8 +13,16 @@ import java.net.URI;
  * Copyright (c) 2016 CSIRO
  */
 public enum BayesianTerm implements Term {
-    /** A category weight - how likely it is to be a matching categorty */
+    /** A category weight - how likely it is to be a matching category */
     weight,
+    /** The full name of a category */
+    fullName,
+    /** An alternate name for a category */
+    altName,
+    /** A term that should be copied */
+    copy,
+    /** An observable that contains additional classification values */
+    additional,
     /** Is this a root category? */
     isRoot,
     /** Is this a synonym category? */
@@ -23,6 +31,12 @@ public enum BayesianTerm implements Term {
     builderClass,
     /** The class used for parameters */
     parametersClass,
+    /** The class used for analysis */
+    analyserClass,
+    /** An analysis method - a method on an analyser that can be used to process a value */
+    analysisMethod,
+    /** An equivalence method - a method on an analyser that can be used to decide equality */
+    equalityMethod,
     /** Record type describing document metadata */
     Metadata;
 

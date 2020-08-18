@@ -2,23 +2,12 @@ package au.org.ala.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.Assert;
 
 import java.io.*;
 
 public class TestUtils {
-    /**
-     * Create a suitably configured object mapper.
-     *
-     * @return The object mapper
-     */
-    public static ObjectMapper createMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        return mapper;
-    }
-
     /**
      * Recursively delete all files.
      *

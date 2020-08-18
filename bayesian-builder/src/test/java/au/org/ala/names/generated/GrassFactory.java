@@ -2,7 +2,7 @@ package au.org.ala.names.generated;
 
 import au.org.ala.bayesian.ClassificationMatcher;
 import au.org.ala.bayesian.ClassifierSearcher;
-import au.org.ala.bayesian.EvidenceAnalyser;
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
@@ -78,8 +78,8 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassPa
   }
 
   @Override
-  public EvidenceAnalyser<GrassClassification> createAnalyser() {
-        return null;
+  public Analyser<GrassClassification> createAnalyser(){
+        return new au.org.ala.bayesian.NullAnalyser<>();
   }
 
   @Override

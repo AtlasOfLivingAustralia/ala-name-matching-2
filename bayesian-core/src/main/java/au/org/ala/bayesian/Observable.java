@@ -24,7 +24,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @Getter
     @Setter
     private Derivation base;
-    /** The base of the values for this observable, if this is not directly supplied, a string if null */
+    /** The base class of the values for this observable, if this is not directly supplied, a {@link String} by default */
     @JsonProperty
     @Getter
     @Setter
@@ -39,7 +39,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @Getter
     @Setter
     private boolean required = false;
-   /** The normaliser, if required */
+    /** The normaliser, if required */
     @JsonProperty
     @Getter
     @Setter

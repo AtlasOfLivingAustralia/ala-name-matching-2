@@ -99,7 +99,7 @@ public class JavaGeneratorTest {
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.getMatcherSpec().setImplementationClassName("au.org.ala.test.TestMatcher");
-        generator.getAnalyserSpec().setImplementationClassName("au.org.ala.test.TestAnalyser");
+        generator.getAnalyserSpec().setImplementationClassName("au.org.ala.bayesian.NullAnalyser");
         generator.generateClass(compiler, generator.getFactorySpec(), writer, null);
         // System.out.println(writer.toString());
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-9-factory.java.txt"), writer.toString());

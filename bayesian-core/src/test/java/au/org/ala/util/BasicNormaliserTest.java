@@ -96,7 +96,7 @@ public class BasicNormaliserTest {
     @Test
     public void testToJson1() throws Exception {
         BasicNormaliser normaliser = new BasicNormaliser("normaliser_1", true, true, true, true, false);
-        ObjectMapper mapper = TestUtils.createMapper();
+        ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, normaliser);
         // System.out.println(writer.toString());
@@ -105,7 +105,7 @@ public class BasicNormaliserTest {
 
     @Test
     public void testFromJson1() throws Exception {
-        ObjectMapper mapper = TestUtils.createMapper();
+        ObjectMapper mapper = JsonUtils.createMapper();
         Normaliser normaliser = mapper.readValue(TestUtils.getResource(this.getClass(), "normaliser-1.json"), Normaliser.class);
         assertEquals("normaliser_1", normaliser.getId());
         assertEquals("SSomething GOOD alpha", normaliser.normalise("ẞomething  GOOD  α"));
@@ -113,7 +113,7 @@ public class BasicNormaliserTest {
 
     @Test
     public void testFromJson2() throws Exception {
-        ObjectMapper mapper = TestUtils.createMapper();
+        ObjectMapper mapper = JsonUtils.createMapper();
         Normaliser normaliser = mapper.readValue(TestUtils.getResource(this.getClass(), "normaliser-2.json"), Normaliser.class);
         assertEquals("normaliser_2", normaliser.getId());
         assertEquals("SSomething  GOOD   alpha", normaliser.normalise("ẞomething  GOOD  α"));

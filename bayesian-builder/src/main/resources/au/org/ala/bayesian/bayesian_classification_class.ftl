@@ -2,7 +2,7 @@ package ${packageName};
 
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.EvidenceAnalyser;
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;

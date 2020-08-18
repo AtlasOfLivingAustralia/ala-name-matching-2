@@ -87,7 +87,7 @@ public class TestFactory implements NetworkFactory<Classification, Parameters, I
      * @return The analyser, or null for no analyser
      */
     @Override
-    public EvidenceAnalyser<Classification> createAnalyser() {
+    public Analyser<Classification> createAnalyser() {
         return null;
     }
 

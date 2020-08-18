@@ -81,9 +81,9 @@ public class JavaGenerator extends Generator {
     /** Inferencer class specification */
     @Getter
     private JavaGeneratorSpecification<Inferencer> inferencerSpec;
-    /** Analyser class specification */
+    /** Analysis class specification */
     @Getter
-    private JavaGeneratorSpecification<EvidenceAnalyser> analyserSpec;
+    private JavaGeneratorSpecification<Analyser> analyserSpec;
     /** Generator class specification */
     @Getter
     private JavaGeneratorSpecification<ClassificationMatcher> matcherSpec;
@@ -117,7 +117,7 @@ public class JavaGenerator extends Generator {
         this.factorySpec = new JavaGeneratorSpecification<>("Factory", FACTORY_CLASS_TEMPLATE, NetworkFactory.class, this.classificationSpec, this.parametersSpec, this.inferencerSpec);
         this.builderSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_CLASS_TEMPLATE, Builder.class, this.parametersSpec, this.factorySpec);
         this.cliSpec = new JavaGeneratorSpecification<>("Cli", CLI_CLASS_TEMPLATE, Cli.class, this.classificationSpec, this.parametersSpec, this.builderSpec, this.inferencerSpec, this.factorySpec);
-        this.analyserSpec = new JavaGeneratorSpecification<>("analyser", null, EvidenceAnalyser.class, this.classificationSpec);
+        this.analyserSpec = new JavaGeneratorSpecification<>("analyser", null, Analyser.class, this.classificationSpec);
         this.matcherSpec = new JavaGeneratorSpecification<>("matcher", null, ClassificationMatcher.class, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.factorySpec);
         this.factorySpec.addParameter(this.analyserSpec);
         this.factorySpec.addParameter(this.matcherSpec);

@@ -2,6 +2,7 @@ package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneLoadStore;
+import au.org.ala.util.JsonUtils;
 import au.org.ala.util.TermDeserializer;
 import au.org.ala.util.TermSerializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -212,7 +213,7 @@ public class IndexBuilderConfiguration {
      * @throws IOException if unable to write
      */
     public void write(Writer writer) throws IOException {
-        createMapper().writeValue(writer, this);
+        JsonUtils.createMapper().writeValue(writer, this);
     }
     /**
      * Read a index builder config from a URL.
@@ -224,24 +225,7 @@ public class IndexBuilderConfiguration {
      * @throws IOException If unable to read the configuration
      */
     public static IndexBuilderConfiguration read(URL source) throws IOException {
-        return createMapper().readValue(source, IndexBuilderConfiguration.class);
+        return JsonUtils.createMapper().readValue(source, IndexBuilderConfiguration.class);
     }
-
-    /**
-     * Create a standard object mapper for reading configurations.
-     *
-     * @return The standard object mapper
-     */
-    public static ObjectMapper createMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(Term.class, new TermDeserializer());
-        module.addSerializer(Term.class, new TermSerializer());
-        mapper.registerModule(module);
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        return mapper;
-    }
-
 }
 

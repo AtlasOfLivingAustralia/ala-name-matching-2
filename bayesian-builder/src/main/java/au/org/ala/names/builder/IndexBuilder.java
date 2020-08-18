@@ -39,24 +39,6 @@ import java.util.*;
 public class IndexBuilder<C extends Classification, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> implements Annotator {
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexBuilder.class);
 
-    /** The name of the property that gives the weight */
-    public static final String WEIGHT_PROPERTY = "weight";
-    /** The name of the property that gives the parent taxon */
-    public static final String PARENT_PROPERTY = "parent";
-    /** The name of the property that gives the parent taxon */
-    public static final String ACCEPTED_PROPERTY = "accepted";
-    /** The name of the property that gives the taxon id */
-    public static final String TAXON_ID_PROPERTY = "taxonID";
-    /** The name of the property that gives the scientifc name */
-    public static final String SCIENTIFIC_NAME_PROPERTY = "scientificName";
-    /** The name of the property that gives the scientifc name authorship */
-    public static final String SCIENTIFIC_NAME_AUTHORSHIP_PROPERTY = "scientificNameAuthorship";
-    /** The name of the property that gives the complete name+author */
-    public static final String NAME_COMPLETE_PROPERTY = "nameComplete";
-    /** The name of the property that gives the scientifc name */
-    public static final String ALT_SCIENTIFIC_NAME_PROPERTY = "altScientificName";
-    /** The name of the property that gives the scientifc name */
-    public static final String COPY_PROPERTY = "copy";
     /** The date format for timestamping backups */
     public static final SimpleDateFormat BACKUP_TAG = new SimpleDateFormat("yyyyMMddHHmmss");
     /** The data format for timestamping metadata */
@@ -100,7 +82,7 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
     @Getter
     protected LoadStore parameterisedStore;
     /** The analyser. Used to add extra information to loaded classifiers. Accessed via the annotation interface */
-    protected EvidenceAnalyser<?> analyser;
+    protected Analyser<?> analyser;
 
     /**
      * Construct with a configuration.
@@ -117,15 +99,15 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
         this.builder = config.createBuilder(this, this.factory);
         this.loadStore = config.createLoadStore(this);
         this.analyser = this.factory.createAnalyser();
-        this.weight = this.network.findObservable(WEIGHT_PROPERTY, true).orElseThrow(() -> new BuilderException("Require observable " + WEIGHT_PROPERTY + ":true property"));
-        this.parent = this.network.findObservable(PARENT_PROPERTY, true).orElseThrow(() -> new BuilderException("Require observable " + PARENT_PROPERTY + ":true property"));
-        this.accepted = this.network.findObservable(ACCEPTED_PROPERTY, true);
-        this.taxonId = this.network.findObservable(TAXON_ID_PROPERTY, true).orElseThrow(() -> new BuilderException("Require observable " + TAXON_ID_PROPERTY + ":true property"));
-        this.scientificName = this.network.findObservable(SCIENTIFIC_NAME_PROPERTY, true).orElseThrow(() -> new BuilderException("Require observable " + SCIENTIFIC_NAME_PROPERTY + ":true property"));
-        this.scientificNameAuthorship = this.network.findObservable(SCIENTIFIC_NAME_AUTHORSHIP_PROPERTY, true);
-        this.nameComplete = this.network.findObservable(NAME_COMPLETE_PROPERTY, true);
-        this.altScientificName = this.network.findObservable(ALT_SCIENTIFIC_NAME_PROPERTY, true);
-        this.synonymCopy = new HashSet<>(this.network.findObservables(COPY_PROPERTY, true));
+        this.weight = this.network.findObservable(BayesianTerm.weight, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.weight + ":true property"));
+        this.parent = this.network.findObservable(DwcTerm.parentNameUsageID, true).orElseThrow(() -> new BuilderException("Require observable " + DwcTerm.parentNameUsageID + ":true property"));
+        this.accepted = this.network.findObservable(DwcTerm.acceptedNameUsageID, true);
+        this.taxonId = this.network.findObservable(DwcTerm.taxonID, true).orElseThrow(() -> new BuilderException("Require observable " + DwcTerm.taxonID + ":true property"));
+        this.scientificName = this.network.findObservable(DwcTerm.scientificName, true).orElseThrow(() -> new BuilderException("Require observable " + DwcTerm.scientificName + ":true property"));
+        this.scientificNameAuthorship = this.network.findObservable(DwcTerm.scientificNameAuthorship, true);
+        this.nameComplete = this.network.findObservable(BayesianTerm.fullName, true);
+        this.altScientificName = this.network.findObservable(BayesianTerm.altName, true);
+        this.synonymCopy = new HashSet<>(this.network.findObservables(BayesianTerm.copy, true));
         this.stored = new HashSet<>(this.network.getVertices()); // The defined observables in the network
         this.stored.add(this.weight);
         this.stored.add(this.parent);
@@ -428,7 +410,7 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
     /**
      * Annotate a classifier with additional information.
      * <p>
-     * Any {@link EvidenceAnalyser} is applied to the classification.
+     * Any {@link Analyser} is applied to the classification.
      * If the document does not have a parent or an accepted taxon
      * then annotate it as {@link BayesianTerm#isRoot}.
      * If the document does not have a parent but does have an accepted taxon,

@@ -49,7 +49,7 @@ public interface NetworkFactory<C extends Classification, P extends Parameters, 
      *
      * @return The analyser, or null for no analyser
      */
-    public EvidenceAnalyser<C> createAnalyser();
+    public Analyser<C> createAnalyser();
 
     /**
      * Create a matcher for the network.
