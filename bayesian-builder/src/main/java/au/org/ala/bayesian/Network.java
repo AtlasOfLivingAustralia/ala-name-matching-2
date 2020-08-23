@@ -195,7 +195,7 @@ public class Network extends Identifiable {
      * @return An optional observable
      */
     public Optional<Observable> findObservable(Term property, Object value) {
-       return this.idMap.values().stream().filter(o -> o.hasProperty(property, value)).findFirst();
+        return this.idMap.values().stream().filter(o -> o.hasProperty(property, value)).findFirst();
     }
 
     /**

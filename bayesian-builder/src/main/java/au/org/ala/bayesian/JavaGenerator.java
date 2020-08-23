@@ -113,16 +113,16 @@ public class JavaGenerator extends Generator {
         this.wrapper = new DefaultObjectWrapperBuilder(this.freemarkerConfig.getIncompatibleImprovements()).build();
         this.parametersSpec = new JavaGeneratorSpecification<>("Parameters", PARAMETERS_CLASS_TEMPLATE, Parameters.class);
         this.classificationSpec = new JavaGeneratorSpecification<>("Classification", CLASSIFICATION_CLASS_TEMPLATE, Classification.class);
-        this.inferencerSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_CLASS_TEMPLATE, Inferencer.class, this.classificationSpec, this.parametersSpec);
-        this.factorySpec = new JavaGeneratorSpecification<>("Factory", FACTORY_CLASS_TEMPLATE, NetworkFactory.class, this.classificationSpec, this.parametersSpec, this.inferencerSpec);
+        this.analyserSpec = new JavaGeneratorSpecification<>("analyser", null, Analyser.class, this.classificationSpec);
+        this.inferencerSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_CLASS_TEMPLATE, Inferencer.class, this.classificationSpec, this.parametersSpec, this.analyserSpec);
+        this.factorySpec = new JavaGeneratorSpecification<>("Factory", FACTORY_CLASS_TEMPLATE, NetworkFactory.class, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.analyserSpec);
         this.builderSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_CLASS_TEMPLATE, Builder.class, this.parametersSpec, this.factorySpec);
         this.cliSpec = new JavaGeneratorSpecification<>("Cli", CLI_CLASS_TEMPLATE, Cli.class, this.classificationSpec, this.parametersSpec, this.builderSpec, this.inferencerSpec, this.factorySpec);
-        this.analyserSpec = new JavaGeneratorSpecification<>("analyser", null, Analyser.class, this.classificationSpec);
         this.matcherSpec = new JavaGeneratorSpecification<>("matcher", null, ClassificationMatcher.class, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.factorySpec);
-        this.factorySpec.addParameter(this.analyserSpec);
         this.factorySpec.addParameter(this.matcherSpec);
         this.classificationSpec.addParameter(this.factorySpec);
         this.classificationSpec.addParameter(this.inferencerSpec);
+        this.classificationSpec.addParameter(this.analyserSpec);
     }
 
     /**
@@ -201,6 +201,10 @@ public class JavaGenerator extends Generator {
             for (Derivation.Variable v: variables) {
                 baseContext.addImport(v.getClazz().getName(), imports);
             }
+        }
+        for (Observable observable: compiler.getNetwork().getObservables()) {
+            baseContext.addImport(observable.getType().getName(), imports);
+            baseContext.addImport(observable.getAnalysis().getClass().getName(), imports);
         }
         environment.setVariable("packageName", new StringModel(this.packageName, this.wrapper));
         environment.setVariable("artifactName", new StringModel(this.artifactName, this.wrapper));

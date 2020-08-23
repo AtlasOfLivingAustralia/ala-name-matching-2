@@ -13,6 +13,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.NullAnalyser;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.test.TestMatcher;
+import au.org.ala.bayesian.ClassificationMatcher;
+
 public class Network9Factory implements NetworkFactory<Network9Classification, Network9Parameters, Network9Inferencer, Network9Factory> {
     private static Network9Factory instance = null;
 
@@ -20,25 +26,28 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
   public static final Observable v1 = new Observable(
       "v_1",
       null,
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
   public static final Observable v2 = new Observable(
       "v_2",
       null,
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
   public static final Observable v3 = new Observable(
       "v_3",
       null,
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
 
@@ -75,7 +84,7 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
   }
 
   @Override
-  public Analyser<Network9Classification> createAnalyser(){
+  public au.org.ala.bayesian.NullAnalyser createAnalyser() {
         return new au.org.ala.bayesian.NullAnalyser();
   }
 

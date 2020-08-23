@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.Assert;
+import org.junit.ComparisonFailure;
 
 import java.io.*;
 
@@ -111,16 +112,20 @@ public class TestUtils {
     }
 
     /**
-     * Compare two strings, ignoreing whitespace
+     * Compare two strings, ignoring whitespace during the comparison
      *
      * @param expected The expected string
      * @param actual The actual string
      */
     public static void compareNoSpaces(String expected, String actual) {
-        expected = expected.replace('\n', ' ');
-        expected = expected.replaceAll("\\s+", " ").trim();
-        actual = actual.replace('\n', ' ');
-        actual = actual.replaceAll("\\s+", " ").trim();
-        Assert.assertEquals(expected, actual);
-    }
+        String expected1 = expected.replace('\n', ' ');
+        expected1 = expected1.replaceAll("\\s+", " ").trim();
+        String actual1 = actual.replace('\n', ' ');
+        actual1 = actual.replaceAll("\\s+", " ").trim();
+        try {
+            Assert.assertEquals(expected1, actual1);
+        } catch (ComparisonFailure fail) {
+            throw new ComparisonFailure(fail.getMessage(), expected, actual);
+        }
+     }
 }

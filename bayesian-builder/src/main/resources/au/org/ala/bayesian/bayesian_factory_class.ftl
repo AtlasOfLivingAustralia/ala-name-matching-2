@@ -1,4 +1,5 @@
 <#import "derivations.ftl" as derivations>
+<#assign analyserType><#if analyserImplementationClassName??>${analyserImplementationClassName}<#else>Analyser<${classificationClassName}></#if></#assign>
 package ${packageName};
 
 import au.org.ala.bayesian.ClassificationMatcher;
@@ -14,6 +15,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+<#list imports as import>
+import ${import};
+</#list>
+
 public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements NetworkFactory<${classificationClassName}, ${parametersClassName}, ${inferencerClassName}, ${className}> {
     private static ${className} instance = null;
 
@@ -25,15 +30,17 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 </#list>
 
   <#list network.observablesById as observable>
+    <#assign oType><#if observable.type??>${observable.type.simpleName}<#else>String</#if></#assign>
     <#if observable.description??>
   /** ${observable.description} */
     </#if>
   public static final Observable ${observable.javaVariable} = new Observable(
       "${observable.id}",
       <#if observable.uri??>URI.create("${observable.uri}")<#else>null</#if>,
-      ${observable.type.name}.class,
+      ${oType}.class,
       Observable.Style.${observable.style},
       <#if observable.normaliser??>${observable.normaliser.javaVariable}<#else>null</#if>,
+      new ${observable.analysis.class.simpleName}(),
       ${observable.required?c}
     );
   </#list>
@@ -73,7 +80,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public Analyser<${classificationClassName}> createAnalyser(){
+  public ${analyserType} createAnalyser() {
 <#if analyserImplementationClassName??>
         return new ${analyserImplementationClassName}();
 <#else>

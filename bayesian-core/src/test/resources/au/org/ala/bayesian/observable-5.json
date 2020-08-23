@@ -1,4 +1,7 @@
 {
   "id" : "test_5",
-  "type" : "java.lang.Integer"
+  "type" : "java.lang.Integer",
+  "analysis" : {
+    "@class" : "au.org.ala.bayesian.analysis.IntegerAnalysis"
+  }
 }

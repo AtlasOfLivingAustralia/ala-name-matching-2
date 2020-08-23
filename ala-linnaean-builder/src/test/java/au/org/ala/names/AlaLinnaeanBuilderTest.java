@@ -101,7 +101,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         evidence.e$genus = true;
         evidence.e$soundexGenus = true;
         prob = inference.probability(evidence, params);
-        assertEquals(0.5, prob, 0.00001);
+        assertEquals(0.33333, prob, 0.00001);
     }
 
 
@@ -132,8 +132,8 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         classification.specificEpithet = "acutifolium";
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
-        assertEquals("https://id.biodiversity.org.au/node/apni/2904909", match.getMatch().taxonId);
-        assertEquals(0.99180, match.getProbability(), 0.00001);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
+        assertEquals(1.0, match.getProbability(), 0.00001);
     }
 
     @Test
@@ -145,7 +145,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.99775, match.getProbability(), 0.00001);
+        assertEquals(1.0, match.getProbability(), 0.00001);
     }
 
 

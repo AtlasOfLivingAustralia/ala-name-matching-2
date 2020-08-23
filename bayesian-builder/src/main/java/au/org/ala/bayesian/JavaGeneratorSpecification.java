@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  *
  * @param <I> The interface this class
  */
+@Slf4j
 public class JavaGeneratorSpecification<I> {
     /** The function of the class. Used to make appropriate names */
     @Getter
@@ -202,16 +204,22 @@ public class JavaGeneratorSpecification<I> {
 
         public void populate(Environment environment, BeansWrapper wrapper, Set<String> imports) {
             if (this.getSuperClassName() != null) {
+                log.debug("Adding variable {}={}", "superClassName", this.getSuperClassName());
                 environment.setVariable("superClassName", new StringModel(this.getSuperClassName(), wrapper));
                 this.addImport(this.getSuperClassName(), imports);
             }
+            log.debug("Adding variable {}={}", "className", this.getClassName());
             environment.setVariable("className", new StringModel(this.getClassName(), wrapper));
+            log.debug("Adding variable {}={}", "implementationClassName", this.getImplementationClassName());
             environment.setVariable("implementationClassName", new StringModel(this.getImplementationClassName(), wrapper));
             for (JavaGeneratorSpecification ps: JavaGeneratorSpecification.this.parameters.values()) {
                 Context c = ps.withContext(this.compiler, this.packageName);
+                log.debug("Adding variable {}={}", c.getClassVariable(), c.getClassName());
                 environment.setVariable(c.getClassVariable(), new StringModel(c.getClassName(), wrapper));
-                if (c.getImplementationClassName() != null)
+                if (c.getImplementationClassName() != null) {
+                    log.debug("Adding variable {}={}", c.getImplementationClassVariable(), c.getImplementationClassName());
                     environment.setVariable(c.getImplementationClassVariable(), new StringModel(c.getImplementationClassName(), wrapper));
+                }
                 if (c.getFullImplementationClassName() != null)
                     this.addImport(c.getFullImplementationClassName(), imports);
                 this.addImport(c.getFullClassName(), imports);

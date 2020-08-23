@@ -52,9 +52,10 @@ public interface Classifier {
      *
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
      *
+     * @throws StoreException if there was a problem retrieving a value from the classifier
      * @throws InferenceException if there was a problem matching the result
      */
-    public <T> Boolean match(Observable observable, T value) throws InferenceException;
+    public <T> Boolean match(Observable observable, T value) throws StoreException, InferenceException;
 
     /**
      * Add a value to the classifier.

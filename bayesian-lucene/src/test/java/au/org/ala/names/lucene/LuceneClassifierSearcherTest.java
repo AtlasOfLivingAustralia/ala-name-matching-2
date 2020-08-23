@@ -1,5 +1,6 @@
 package au.org.ala.names.lucene;
 
+import au.org.ala.bayesian.TestClassification;
 import org.junit.After;
 import org.junit.Test;
 

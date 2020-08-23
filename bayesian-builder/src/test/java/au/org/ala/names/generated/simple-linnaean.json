@@ -168,6 +168,9 @@
     "id" : "weight",
     "uri" : "http://id.ala.org.au/bayesian/1.0/weight",
     "type" : "java.lang.Double",
+    "analysis" : {
+      "@class" : "au.org.ala.bayesian.analysis.DoubleAnalysis"
+    },
     "properties" : {
       "bayesian:weight" : true
     }

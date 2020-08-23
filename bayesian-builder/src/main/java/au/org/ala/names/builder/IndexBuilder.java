@@ -82,7 +82,7 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
     @Getter
     protected LoadStore parameterisedStore;
     /** The analyser. Used to add extra information to loaded classifiers. Accessed via the annotation interface */
-    protected Analyser<?> analyser;
+    protected Analyser<C> analyser;
 
     /**
      * Construct with a configuration.
@@ -427,18 +427,13 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
         Term type = classifier.getType();
         String p = classifier.get(this.parent);
         String a = this.accepted.isPresent() ? classifier.get(this.accepted.get()) : null;
-        Issues issues = new Issues();
 
         if (type != DwcTerm.Taxon)
             return;
-        if (this.analyser != null)
-            this.analyser.analyse(classifier, issues);
         if (( p == null || p.isEmpty()) && (a == null || a.isEmpty()))
             classifier.annotate(BayesianTerm.isRoot);
         if ((p == null || p.isEmpty()) && (a != null && !a.isEmpty()))
             classifier.annotate(BayesianTerm.isSynonym);
-        for (Term issue: issues)
-            classifier.annotate(issue);
     }
 
     /**

@@ -4,6 +4,7 @@ import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.StoreException;
@@ -14,18 +15,28 @@ import java.util.Collection;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.Analyser;
 
-public class GrassClassification implements Classification {
+public class GrassClassification implements Classification<GrassClassification> {
+  private Analyser<GrassClassification> analyser;
+  private Issues issues;
 
   public java.lang.String rain;
   public java.lang.String sprinkler;
   public java.lang.String wet;
 
-  public GrassClassification() {
+  public GrassClassification(Analyser<GrassClassification> analyser) {
+    this.analyser = GrassFactory.instance().createAnalyser();
+    this.issues = new Issues();
   }
 
-  public GrassClassification(Classifier classifier) throws InferenceException {
-    this();
+  public GrassClassification() {
+    this(GrassFactory.instance().createAnalyser());
+  }
+
+  public GrassClassification(Classifier classifier, Analyser<GrassClassification> analyser) throws InferenceException, StoreException {
+    this(analyser);
     this.populate(classifier, true);
     this.infer();
   }
@@ -33,6 +44,16 @@ public class GrassClassification implements Classification {
   @Override
   public Term getType() {
     return DwcTerm.Taxon;
+  }
+
+  @Override
+  public Analyser<GrassClassification> getAnalyser() {
+    return this.analyser;
+  }
+
+  @Override
+  public Issues getIssues() {
+    return this.issues;
   }
 
   @Override
@@ -49,7 +70,11 @@ public class GrassClassification implements Classification {
   }
 
   @Override
-  public void infer() throws InferenceException {
+  public void infer() throws InferenceException, StoreException {
+    this.rain = (String) GrassFactory.rain.getAnalysis().analyse(this.rain);
+    this.sprinkler = (String) GrassFactory.sprinkler.getAnalysis().analyse(this.sprinkler);
+    this.wet = (String) GrassFactory.wet.getAnalysis().analyse(this.wet);
+    this.analyser.analyse(this);
   }
 
 
@@ -66,11 +91,11 @@ public class GrassClassification implements Classification {
     }
   }
 
-  public GrassInferencer.Evidence match(Classifier classifier) throws InferenceException {
+  public GrassInferencer.Evidence match(Classifier classifier) throws StoreException, InferenceException {
     GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
-    evidence.e$rain = classifier.match(GrassFactory.rain, this.rain);
-    evidence.e$sprinkler = classifier.match(GrassFactory.sprinkler, this.sprinkler);
-    evidence.e$wet = classifier.match(GrassFactory.wet, this.wet);
+  evidence.e$rain = classifier.match(GrassFactory.rain, this.rain);
+  evidence.e$sprinkler = classifier.match(GrassFactory.sprinkler, this.sprinkler);
+  evidence.e$wet = classifier.match(GrassFactory.wet, this.wet);
     return evidence;
   }
 

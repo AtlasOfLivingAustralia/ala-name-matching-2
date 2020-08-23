@@ -13,6 +13,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.analysis.DoubleAnalysis;
+import au.org.ala.bayesian.ClassificationMatcher;
+
 public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClassification, SimpleLinnaeanParameters, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> {
     private static SimpleLinnaeanFactory instance = null;
 
@@ -22,129 +27,145 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   public static final Observable acceptedNameUsageId = new Observable(
       "acceptedNameUsageID",
       URI.create("http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
   public static final Observable altScientificName = new Observable(
       "altScientificName",
       URI.create("http://id.ala.org.au/terms/1.0/altScientificName"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
   public static final Observable class_ = new Observable(
       "class",
       URI.create("http://rs.tdwg.org/dwc/terms/class"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
       false
     );
   public static final Observable family = new Observable(
       "family",
       URI.create("http://rs.tdwg.org/dwc/terms/family"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
       false
     );
   public static final Observable genus = new Observable(
       "genus",
       URI.create("http://rs.tdwg.org/dwc/terms/genus"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
       false
     );
   public static final Observable kingdom = new Observable(
       "kingdom",
       URI.create("http://rs.tdwg.org/dwc/terms/kingdom"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
       false
     );
   public static final Observable order = new Observable(
       "order",
       URI.create("http://rs.tdwg.org/dwc/terms/order"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
       false
     );
   public static final Observable parentNameUsageId = new Observable(
       "parentNameUsageID",
       URI.create("http://rs.tdwg.org/dwc/terms/parentNameUsageID"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
   public static final Observable phylum = new Observable(
       "phylum",
       URI.create("http://rs.tdwg.org/dwc/terms/phylum"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
       false
     );
   public static final Observable scientificName = new Observable(
       "scientificName",
       URI.create("http://rs.tdwg.org/dwc/terms/scientificName"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
       false
     );
   public static final Observable scientificNameAuthorship = new Observable(
       "scientificNameAuthorship",
       URI.create("http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
       false
     );
   public static final Observable soundexScientificName = new Observable(
       "soundexScientificName",
       URI.create("http://id.ala.org.au/terms/1.0/soundexScientificName"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
   public static final Observable specificEpithet = new Observable(
       "specificEpithet",
       URI.create("http://rs.tdwg.org/dwc/terms/specificEpithet"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
       false
     );
   public static final Observable taxonId = new Observable(
       "taxonID",
       URI.create("http://rs.tdwg.org/dwc/terms/taxonID"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
   public static final Observable taxonRank = new Observable(
       "taxonRank",
       URI.create("http://rs.tdwg.org/dwc/terms/taxonRank"),
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       lowerCaseNormaliser,
+      new StringAnalysis(),
       false
     );
   public static final Observable weight = new Observable(
       "weight",
       URI.create("http://id.ala.org.au/bayesian/1.0/weight"),
-      java.lang.Double.class,
+      Double.class,
       Observable.Style.CANONICAL,
       null,
+      new DoubleAnalysis(),
       false
     );
 
@@ -207,7 +228,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   }
 
   @Override
-  public Analyser<SimpleLinnaeanClassification> createAnalyser(){
+  public Analyser<SimpleLinnaeanClassification> createAnalyser() {
         return new au.org.ala.bayesian.NullAnalyser<>();
   }
 

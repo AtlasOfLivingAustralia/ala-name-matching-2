@@ -11,22 +11,11 @@ package au.org.ala.bayesian;
  */
 public class NullAnalyser<C extends Classification> implements Analyser<C> {
     /**
-     * Null analysis on a classifier.
-     *
-     * @param classifier The classifier
-     * @param issues     A store of issues associated with analysis and matching
-     */
-    @Override
-    public void analyse(Classifier classifier, Issues issues) {
-    }
-
-    /**
      * Null analysis on a classification
      *
      * @param classification The classification
-     * @param issues         A store of issues associated with analysis and matching
      */
     @Override
-    public void analyse(C classification, Issues issues) {
+    public void analyse(C classification) {
     }
 }

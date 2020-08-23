@@ -1,8 +1,10 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
+import au.org.ala.bayesian.StoreException;
 
 public class SimpleLinnaeanInferencer implements Inferencer<SimpleLinnaeanClassification, SimpleLinnaeanParameters> {
 
@@ -129,7 +131,7 @@ public class SimpleLinnaeanInferencer implements Inferencer<SimpleLinnaeanClassi
   }
 
   @Override
-  public double probability(SimpleLinnaeanClassification classification, Classifier classifier, SimpleLinnaeanParameters parameters) throws InferenceException {
+  public double probability(SimpleLinnaeanClassification classification, Classifier classifier, SimpleLinnaeanParameters parameters) throws StoreException, InferenceException {
     Evidence evidence = classification.match(classifier);
     return this.probability(evidence, parameters);
   }

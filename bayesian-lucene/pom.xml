@@ -51,6 +51,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>bayesian-core</artifactId>
+      <version>${project.parent.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>5.0</version>

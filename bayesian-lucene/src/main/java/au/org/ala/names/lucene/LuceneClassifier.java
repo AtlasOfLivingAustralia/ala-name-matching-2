@@ -129,44 +129,34 @@ public class LuceneClassifier implements Classifier {
      *
      * @param observable The observable to match
      * @param value      The value to match against (may be null)
+     * @param analysis   The analysis object
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
      * @throws InferenceException if there was a problem matching the result
      */
     @Override
-    public <T> Boolean match(Observable observable, T value) throws InferenceException {
+    public <T> Boolean match(Observable observable, T value) throws StoreException, InferenceException {
         if (value == null)
             return null;
         IndexableField[] fields = this.document.getFields(observable.getExternal(LUCENE));
         if (fields.length == 0)
             return null;
-
-        if (observable.getType() == Integer.class || observable.getType() == Short.class || observable.getType() == Byte.class) {
+        Analysis analysis = observable.getAnalysis();
+        if (Number.class.isAssignableFrom(observable.getType())) {
             if (!(value instanceof Number))
                 return false;
-            int val = ((Number) value).intValue();
-            for (IndexableField field: fields)
-                if (field.numericValue() != null && field.numericValue().intValue() == val)
+            for (IndexableField field: fields) {
+                Number fv = field.numericValue();
+                Boolean match = analysis.equivalent(value, fv);
+                if (match != null && match)
                     return true;
-        } else if (observable.getType() == Double.class || observable.getType() == Float.class) {
-            if (!(value instanceof Number))
-                return false;
-            double val = ((Number) value).doubleValue();
-            for (IndexableField field: fields)
-                if (field.numericValue() != null && field.numericValue().doubleValue() == val)
-                    return true;
+            }
         } else {
-            String val = value.toString();
-            Normaliser normaliser = observable.getNormaliser();
-            if (normaliser != null)
-                val = normaliser.normalise(val);
             for (IndexableField field: this.document.getFields(observable.getExternal(LUCENE))) {
-                switch (observable.getStyle()) {
-                    case IDENTIFIER:
-                    case CANONICAL:
-                        return val.equals(field.stringValue());
-                    default:
-                        return val.equalsIgnoreCase(field.stringValue());
-                }
+                String sv = field.stringValue();
+                Object cv = analysis.fromString(sv);
+                Boolean match = analysis.equivalent(value, cv);
+                if (match != null && match)
+                    return true;
             }
         }
         return false;

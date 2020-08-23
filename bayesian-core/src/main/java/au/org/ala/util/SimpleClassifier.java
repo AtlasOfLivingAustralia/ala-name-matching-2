@@ -69,15 +69,14 @@ public class SimpleClassifier implements Classifier {
      *
      * @param observable The observable to match
      * @param value      The value to match against (may be null)
+     * @param analysis   The analysis object
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
      * @throws InferenceException if there was a problem matching the result
      */
     @Override
     public <T> Boolean match(Observable observable, T value) throws InferenceException {
-        if (value == null)
-            return null;
         Object val = this.values.get(observable);
-        return Objects.equals(value, val);
+        return observable.getAnalysis().equivalent(val, value);
     }
 
     /**

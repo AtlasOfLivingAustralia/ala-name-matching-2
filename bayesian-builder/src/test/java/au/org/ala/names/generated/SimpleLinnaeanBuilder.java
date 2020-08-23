@@ -10,7 +10,9 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.Optional;
 
+import au.org.ala.bayesian.analysis.StringAnalysis;
 import org.apache.commons.codec.language.Soundex;
+import au.org.ala.bayesian.analysis.DoubleAnalysis;
 
 public class SimpleLinnaeanBuilder implements Builder<SimpleLinnaeanParameters> {
   private Soundex soundex;

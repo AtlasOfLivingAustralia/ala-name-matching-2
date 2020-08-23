@@ -14,6 +14,8 @@ import java.net.URI;
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Observable extends Identifiable implements Comparable<Observable> {
+    /** The domain of the observable if unspecified */
+    public static final Class<?> DEFAULT_TYPE = String.class;
     /** The derivation of this observable, if this is a derived value */
     @JsonProperty
     @Getter
@@ -24,11 +26,11 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @Getter
     @Setter
     private Derivation base;
-    /** The base class of the values for this observable, if this is not directly supplied, a {@link String} by default */
+    /** The base class of the values for this observable, if this is not directly supplied, a {@link String} is assumed by default */
     @JsonProperty
     @Getter
     @Setter
-    private Class<?> type = String.class;
+    private Class<?> type = DEFAULT_TYPE;
     /** the style of this observable. How to treat searching and canonicity */
     @JsonProperty
     @Getter
@@ -44,6 +46,12 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @Getter
     @Setter
     private Normaliser normaliser;
+    /**
+     * The object that analyses this observable and provides equivalence.
+     */
+    @JsonProperty
+    @Setter
+    private Analysis analysis;
 
     // Ensure ALA Term vocabulary is properly loaded
     static {
@@ -66,14 +74,15 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * @param type The type of values
      * @param style The style of value (how to search for the value)
      * @param normaliser Any normaliser
+     * @param analysis The analysis object
      * @param required Is this a required observable
-     *
      */
-    public Observable(String id, URI uri, Class<?> type, Style style, Normaliser normaliser, boolean required) {
+    public Observable(String id, URI uri, Class type, Style style, Normaliser normaliser, Analysis analysis, boolean required) {
         super(id, uri);
         this.type = type;
         this.style = style;
         this.normaliser = normaliser;
+        this.analysis = analysis;
         this.required = required;
     }
 
@@ -105,7 +114,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * @param term The term
      */
     public Observable(Term term) {
-        this(term, String.class, Style.CANONICAL, null, false);
+        this(term, String.class, Style.CANONICAL, null, null, false);
     }
 
     /**
@@ -115,10 +124,30 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * @param type The type of the value
      * @param style The style to usse
      * @param normaliser Any normaliser
+     * @param analysis The analysis object
      * @param required Is this a required value
      */
-    public Observable(Term term, Class<?> type, Style style, Normaliser normaliser, boolean required) {
-        this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, required);
+    public Observable(Term term, Class<?> type, Style style, Normaliser normaliser, Analysis analysis, boolean required) {
+        this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, analysis, required);
+    }
+
+    /**
+     * Get the analysis object.
+     * <p>
+     * If null, this is lazily initialised to the default
+     * object for this type via {@link Analysis#defaultAnalyser(Class)}
+     * </p>
+     *
+     * @return The analysis object.
+     */
+    public Analysis getAnalysis() {
+        if (this.analysis == null) {
+            synchronized (this) {
+                if (this.analysis == null)
+                    this.analysis = Analysis.defaultAnalyser(this.getType());
+            }
+        }
+        return this.analysis;
     }
 
     /**
@@ -173,7 +202,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * This gets used to decide how to search for somethign
      * </p>
      */
-    public static enum Style {
+    public enum Style {
         /** An identifier, treated as a single unit */
         IDENTIFIER,
         /** A canonical form */

@@ -1,8 +1,10 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
+import au.org.ala.bayesian.StoreException;
 
 public class Network1Inferencer implements Inferencer<Network1Classification, Network1Parameters> {
 
@@ -25,7 +27,7 @@ public class Network1Inferencer implements Inferencer<Network1Classification, Ne
   }
 
   @Override
-  public double probability(Network1Classification classification, Classifier classifier, Network1Parameters parameters) throws InferenceException {
+  public double probability(Network1Classification classification, Classifier classifier, Network1Parameters parameters) throws StoreException, InferenceException {
     Evidence evidence = classification.match(classifier);
     return this.probability(evidence, parameters);
   }

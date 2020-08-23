@@ -4,6 +4,7 @@ import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.StoreException;
@@ -14,21 +15,32 @@ import java.util.Collection;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.Analyser;
 import org.apache.commons.codec.language.Soundex;
 
-public class Network9Classification implements Classification {
+
+public class Network9Classification implements Classification<Network9Classification> {
+  private Analyser<Network9Classification> analyser;
+  private Issues issues;
   private Soundex soundex;
 
   public java.lang.String v1;
   public java.lang.String v2;
   public java.lang.String v3;
 
-  public Network9Classification() {
+  public Network9Classification(Analyser<Network9Classification> analyser) {
+    this.analyser = Network9Factory.instance().createAnalyser();
+    this.issues = new Issues();
     this.soundex = new Soundex();
   }
 
-  public Network9Classification(Classifier classifier) throws InferenceException {
-    this();
+  public Network9Classification() {
+    this(Network9Factory.instance().createAnalyser());
+  }
+
+  public Network9Classification(Classifier classifier, Analyser<Network9Classification> analyser) throws InferenceException, StoreException {
+    this(analyser);
     this.populate(classifier, true);
     this.infer();
   }
@@ -36,6 +48,16 @@ public class Network9Classification implements Classification {
   @Override
   public Term getType() {
     return DwcTerm.Taxon;
+  }
+
+  @Override
+  public Analyser<Network9Classification> getAnalyser() {
+    return this.analyser;
+  }
+
+  @Override
+  public Issues getIssues() {
+    return this.issues;
   }
 
   @Override
@@ -52,7 +74,11 @@ public class Network9Classification implements Classification {
   }
 
   @Override
-  public void infer() throws InferenceException {
+  public void infer() throws InferenceException, StoreException {
+    this.v1 = (String) Network9Factory.v1.getAnalysis().analyse(this.v1);
+    this.v2 = (String) Network9Factory.v2.getAnalysis().analyse(this.v2);
+    this.v3 = (String) Network9Factory.v3.getAnalysis().analyse(this.v3);
+    this.analyser.analyse(this);
     if (this.v2 == null) {
       this.v2 = this.soundex.soundex(this.v1);
     }
@@ -72,11 +98,11 @@ public class Network9Classification implements Classification {
     }
   }
 
-  public Network9Inferencer.Evidence match(Classifier classifier) throws InferenceException {
+  public Network9Inferencer.Evidence match(Classifier classifier) throws StoreException, InferenceException {
     Network9Inferencer.Evidence evidence = new Network9Inferencer.Evidence();
-    evidence.e$v1 = classifier.match(Network9Factory.v1, this.v1);
-    evidence.e$v2 = classifier.match(Network9Factory.v2, this.v2);
-    evidence.e$v3 = classifier.match(Network9Factory.v3, this.v3);
+  evidence.e$v1 = classifier.match(Network9Factory.v1, this.v1);
+  evidence.e$v2 = classifier.match(Network9Factory.v2, this.v2);
+  evidence.e$v3 = classifier.match(Network9Factory.v3, this.v3);
     return evidence;
   }
 

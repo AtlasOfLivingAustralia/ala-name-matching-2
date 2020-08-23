@@ -13,6 +13,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.ClassificationMatcher;
+
 public class GrassFactory implements NetworkFactory<GrassClassification, GrassParameters, GrassInferencer, GrassFactory> {
     private static GrassFactory instance = null;
 
@@ -21,27 +25,30 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassPa
   public static final Observable rain = new Observable(
       "rain",
       null,
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
   /** The sprinkler is on */
   public static final Observable sprinkler = new Observable(
       "sprinkler",
       null,
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
   /** The grass is wet */
   public static final Observable wet = new Observable(
       "wet",
       null,
-      java.lang.String.class,
+      String.class,
       Observable.Style.CANONICAL,
       null,
+      new StringAnalysis(),
       false
     );
 
@@ -78,7 +85,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassPa
   }
 
   @Override
-  public Analyser<GrassClassification> createAnalyser(){
+  public Analyser<GrassClassification> createAnalyser() {
         return new au.org.ala.bayesian.NullAnalyser<>();
   }
 

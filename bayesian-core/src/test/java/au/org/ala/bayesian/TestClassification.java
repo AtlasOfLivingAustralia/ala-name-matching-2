@@ -1,12 +1,13 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.util.BasicNormaliser;
+import lombok.Getter;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
 import java.util.*;
 
-public class TestClassification implements Classification {
+public class TestClassification implements Classification<TestClassification> {
     public static final Normaliser NORMALISER = new BasicNormaliser("basic", true, true, true, true, false);
     public static final Observable CLASS_ = new Observable(DwcTerm.class_);
     public static final Observable SCIENTIFIC_NAME = new Observable(DwcTerm.scientificName);
@@ -30,6 +31,10 @@ public class TestClassification implements Classification {
     public String class_;
     public String scientificName;
     public String vernacularName;
+    @Getter
+    private TestAnalyser analyser = new TestAnalyser();
+    @Getter
+    private Issues issues = new Issues();
 
 
     @Override
@@ -50,7 +55,7 @@ public class TestClassification implements Classification {
         return obs;
     }
 
-     @Override
+    @Override
     public void infer() {
 
     }

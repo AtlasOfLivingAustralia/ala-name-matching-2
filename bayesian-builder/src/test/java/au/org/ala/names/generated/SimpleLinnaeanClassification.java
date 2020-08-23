@@ -4,6 +4,7 @@ import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.StoreException;
@@ -14,9 +15,14 @@ import java.util.Collection;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.Analyser;
 import org.apache.commons.codec.language.Soundex;
+import au.org.ala.bayesian.analysis.DoubleAnalysis;
 
-public class SimpleLinnaeanClassification implements Classification {
+public class SimpleLinnaeanClassification implements Classification<SimpleLinnaeanClassification> {
+  private Analyser<SimpleLinnaeanClassification> analyser;
+  private Issues issues;
   private Soundex soundex;
 
   public java.lang.String taxonId;
@@ -32,12 +38,18 @@ public class SimpleLinnaeanClassification implements Classification {
   public java.lang.String phylum;
   public java.lang.String kingdom;
 
-  public SimpleLinnaeanClassification() {
+  public SimpleLinnaeanClassification(Analyser<SimpleLinnaeanClassification> analyser) {
+    this.analyser = SimpleLinnaeanFactory.instance().createAnalyser();
+    this.issues = new Issues();
     this.soundex = new Soundex();
   }
 
-  public SimpleLinnaeanClassification(Classifier classifier) throws InferenceException {
-    this();
+  public SimpleLinnaeanClassification() {
+    this(SimpleLinnaeanFactory.instance().createAnalyser());
+  }
+
+  public SimpleLinnaeanClassification(Classifier classifier, Analyser<SimpleLinnaeanClassification> analyser) throws InferenceException, StoreException {
+    this(analyser);
     this.populate(classifier, true);
     this.infer();
   }
@@ -45,6 +57,16 @@ public class SimpleLinnaeanClassification implements Classification {
   @Override
   public Term getType() {
     return DwcTerm.Taxon;
+  }
+
+  @Override
+  public Analyser<SimpleLinnaeanClassification> getAnalyser() {
+    return this.analyser;
+  }
+
+  @Override
+  public Issues getIssues() {
+    return this.issues;
   }
 
   @Override
@@ -79,7 +101,20 @@ public class SimpleLinnaeanClassification implements Classification {
   }
 
   @Override
-  public void infer() throws InferenceException {
+  public void infer() throws InferenceException, StoreException {
+    this.taxonId = (String) SimpleLinnaeanFactory.taxonId.getAnalysis().analyse(this.taxonId);
+    this.taxonRank = (String) SimpleLinnaeanFactory.taxonRank.getAnalysis().analyse(this.taxonRank);
+    this.specificEpithet = (String) SimpleLinnaeanFactory.specificEpithet.getAnalysis().analyse(this.specificEpithet);
+    this.scientificNameAuthorship = (String) SimpleLinnaeanFactory.scientificNameAuthorship.getAnalysis().analyse(this.scientificNameAuthorship);
+    this.scientificName = (String) SimpleLinnaeanFactory.scientificName.getAnalysis().analyse(this.scientificName);
+    this.soundexScientificName = (String) SimpleLinnaeanFactory.soundexScientificName.getAnalysis().analyse(this.soundexScientificName);
+    this.genus = (String) SimpleLinnaeanFactory.genus.getAnalysis().analyse(this.genus);
+    this.family = (String) SimpleLinnaeanFactory.family.getAnalysis().analyse(this.family);
+    this.order = (String) SimpleLinnaeanFactory.order.getAnalysis().analyse(this.order);
+    this.class_ = (String) SimpleLinnaeanFactory.class_.getAnalysis().analyse(this.class_);
+    this.phylum = (String) SimpleLinnaeanFactory.phylum.getAnalysis().analyse(this.phylum);
+    this.kingdom = (String) SimpleLinnaeanFactory.kingdom.getAnalysis().analyse(this.kingdom);
+    this.analyser.analyse(this);
     if (this.soundexScientificName == null) {
       this.soundexScientificName = this.soundex.soundex(this.scientificName);
     }
@@ -126,20 +161,20 @@ public class SimpleLinnaeanClassification implements Classification {
     }
   }
 
-  public SimpleLinnaeanInferencer.Evidence match(Classifier classifier) throws InferenceException {
+  public SimpleLinnaeanInferencer.Evidence match(Classifier classifier) throws StoreException, InferenceException {
     SimpleLinnaeanInferencer.Evidence evidence = new SimpleLinnaeanInferencer.Evidence();
-    evidence.e$taxonId = classifier.match(SimpleLinnaeanFactory.taxonId, this.taxonId);
-    evidence.e$taxonRank = classifier.match(SimpleLinnaeanFactory.taxonRank, this.taxonRank);
-    evidence.e$specificEpithet = classifier.match(SimpleLinnaeanFactory.specificEpithet, this.specificEpithet);
-    evidence.e$scientificNameAuthorship = classifier.match(SimpleLinnaeanFactory.scientificNameAuthorship, this.scientificNameAuthorship);
-    evidence.e$scientificName = classifier.match(SimpleLinnaeanFactory.scientificName, this.scientificName);
-    evidence.e$soundexScientificName = classifier.match(SimpleLinnaeanFactory.soundexScientificName, this.soundexScientificName);
-    evidence.e$genus = classifier.match(SimpleLinnaeanFactory.genus, this.genus);
-    evidence.e$family = classifier.match(SimpleLinnaeanFactory.family, this.family);
-    evidence.e$order = classifier.match(SimpleLinnaeanFactory.order, this.order);
-    evidence.e$class_ = classifier.match(SimpleLinnaeanFactory.class_, this.class_);
-    evidence.e$phylum = classifier.match(SimpleLinnaeanFactory.phylum, this.phylum);
-    evidence.e$kingdom = classifier.match(SimpleLinnaeanFactory.kingdom, this.kingdom);
+  evidence.e$taxonId = classifier.match(SimpleLinnaeanFactory.taxonId, this.taxonId);
+  evidence.e$taxonRank = classifier.match(SimpleLinnaeanFactory.taxonRank, this.taxonRank);
+  evidence.e$specificEpithet = classifier.match(SimpleLinnaeanFactory.specificEpithet, this.specificEpithet);
+  evidence.e$scientificNameAuthorship = classifier.match(SimpleLinnaeanFactory.scientificNameAuthorship, this.scientificNameAuthorship);
+  evidence.e$scientificName = classifier.match(SimpleLinnaeanFactory.scientificName, this.scientificName);
+  evidence.e$soundexScientificName = classifier.match(SimpleLinnaeanFactory.soundexScientificName, this.soundexScientificName);
+  evidence.e$genus = classifier.match(SimpleLinnaeanFactory.genus, this.genus);
+  evidence.e$family = classifier.match(SimpleLinnaeanFactory.family, this.family);
+  evidence.e$order = classifier.match(SimpleLinnaeanFactory.order, this.order);
+  evidence.e$class_ = classifier.match(SimpleLinnaeanFactory.class_, this.class_);
+  evidence.e$phylum = classifier.match(SimpleLinnaeanFactory.phylum, this.phylum);
+  evidence.e$kingdom = classifier.match(SimpleLinnaeanFactory.kingdom, this.kingdom);
     return evidence;
   }
 

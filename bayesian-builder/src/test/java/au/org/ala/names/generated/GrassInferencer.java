@@ -1,8 +1,10 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
+import au.org.ala.bayesian.StoreException;
 
 public class GrassInferencer implements Inferencer<GrassClassification, GrassParameters> {
 
@@ -42,7 +44,7 @@ public class GrassInferencer implements Inferencer<GrassClassification, GrassPar
   }
 
   @Override
-  public double probability(GrassClassification classification, Classifier classifier, GrassParameters parameters) throws InferenceException {
+  public double probability(GrassClassification classification, Classifier classifier, GrassParameters parameters) throws StoreException, InferenceException {
     Evidence evidence = classification.match(classifier);
     return this.probability(evidence, parameters);
   }

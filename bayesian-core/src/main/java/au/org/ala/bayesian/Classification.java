@@ -1,5 +1,6 @@
 package au.org.ala.bayesian;
 
+import lombok.NonNull;
 import org.gbif.dwc.terms.Term;
 
 import java.util.Collection;
@@ -10,13 +11,30 @@ import java.util.Collection;
  * Classifications hold the vector of evidence that make up a individual piece of data.
  * </p>
  */
-public interface Classification {
+public interface Classification<C extends Classification> {
     /**
      * Get the type of the classification
      *
      * @return The sort of thing this classification is supposed to match.
      */
-    public Term getType();
+    public @NonNull Term getType();
+
+    /**
+     * Get the analyser used with this classification.
+     *
+     * @return The analyser
+     */
+    public @NonNull Analyser<C> getAnalyser();
+
+    /**
+     * Get any issues recorded with this classification.
+     * <p>
+     * The analyser in {@link #getAnalyser()} may addf issues as required.
+     * </p>
+     *
+     * @return Any issues associated with the classification/
+     */
+    public @NonNull Issues getIssues();
 
     /**
      * Get a list of observations that match this classification.
@@ -35,9 +53,11 @@ public interface Classification {
      * specified by {@link Observable#getDerivation()}.
      * The method can be used to perform common derivations without requiring further coding.
      * </p>
-     * @throws InferenceException
+     *
+     * @throws InferenceException if unable to calculate an inferred value
+     * @throws StoreException if unable to retrieve a source value
      */
-    public void infer() throws InferenceException;
+    public void infer() throws InferenceException, StoreException;
 
     /**
      *

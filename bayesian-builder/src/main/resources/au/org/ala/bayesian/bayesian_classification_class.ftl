@@ -1,9 +1,11 @@
+<#assign analyserType><#if analyserImplementationClassName??>${analyserImplementationClassName}<#else>Analyser<${className}></#if></#assign>
 package ${packageName};
 
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.StoreException;
@@ -18,7 +20,9 @@ import org.gbif.dwc.terms.Term;
 import ${import};
 </#list>
 
-public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements Classification {
+public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements Classification<${className}> {
+  private ${analyserType} analyser;
+  private Issues issues;
 <#list classificationVariables as variable>
   private ${variable.clazz.simpleName} ${variable.name};
 </#list>
@@ -33,14 +37,20 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   public ${node.observable.type.name} ${node.observable.javaVariable};
 </#list>
 
-  public ${className}() {
+  public ${className}(${analyserType} analyser) {
+    this.analyser = ${factoryClassName}.instance().createAnalyser();
+    this.issues = new Issues();
 <#list classificationVariables as variable>
     this.${variable.name} = new ${variable.clazz.simpleName}();
 </#list>
   }
 
-  public ${className}(Classifier classifier) throws InferenceException {
-    this();
+  public ${className}() {
+    this(${factoryClassName}.instance().createAnalyser());
+  }
+
+  public ${className}(Classifier classifier, ${analyserType} analyser) throws InferenceException, StoreException {
+    this(analyser);
     this.populate(classifier, true);
     this.infer();
   }
@@ -48,6 +58,16 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   @Override
   public Term getType() {
     return DwcTerm.Taxon;
+  }
+
+  @Override
+  public ${analyserType} getAnalyser() {
+    return this.analyser;
+  }
+
+  @Override
+  public Issues getIssues() {
+    return this.issues;
   }
 
   @Override
@@ -62,17 +82,15 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public void infer() throws InferenceException {
-<#list orderedNodes as node>
+  public void infer() throws InferenceException, StoreException {
+<#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
-  <#if observable?? && observable.derivation??>
-    <#assign derivation = observable.derivation>
-    if (this.${node.observable.javaVariable} == null) {
-      this.${node.observable.javaVariable} = ${derivation.generateClassificationTransform()};
-    }
-    </#if>
+  <#if observable?? && observable.analysis??>
+    this.${observable.javaVariable} = (${observable.type.simpleName}) ${factoryClassName}.${observable.javaVariable}.getAnalysis().analyse(this.${observable.javaVariable});
+  </#if>
 </#list>
-<#list additionalNodes as node>
+    this.analyser.analyse(this);
+<#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.derivation??>
     <#assign derivation = observable.derivation>
@@ -86,32 +104,25 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
   @Override
   public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
-<#list orderedNodes as node>
-    if (overwrite || this.${node.observable.javaVariable} == null) {
-      this.${node.observable.javaVariable} = classifier.get(${factoryClassName}.${node.observable.javaVariable});
-    }
-</#list>
-<#list additionalNodes as node>
+<#list orderedNodes + additionalNodes as node>
     if (overwrite || this.${node.observable.javaVariable} == null) {
       this.${node.observable.javaVariable} = classifier.get(${factoryClassName}.${node.observable.javaVariable});
     }
 </#list>
   }
 
-  public ${inferencerClassName}.Evidence match(Classifier classifier) throws InferenceException {
+  public ${inferencerClassName}.Evidence match(Classifier classifier) throws StoreException, InferenceException {
     ${inferencerClassName}.Evidence evidence = new ${inferencerClassName}.Evidence();
 <#list orderedNodes as node>
-    evidence.${node.evidence.id} = classifier.match(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
+  <#assign observable = node.observable >
+  evidence.${node.evidence.id} = classifier.match(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
 </#list>
     return evidence;
   }
 
   @Override
   public void translate(Classifier classifier) throws InferenceException, StoreException {
-<#list orderedNodes as node>
-    classifier.add(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
-</#list>
-<#list additionalNodes as node>
+<#list orderedNodes + additionalNodes as node>
     classifier.add(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
 </#list>
   }

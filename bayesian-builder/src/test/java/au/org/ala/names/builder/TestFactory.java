@@ -1,6 +1,7 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.*;
+import lombok.Getter;
 import lombok.NonNull;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -22,7 +23,12 @@ public class TestFactory implements NetworkFactory<Classification, Parameters, I
      */
     @Override
     public Classification createClassification() {
-        return new Classification() {
+        return new Classification<Classification>() {
+            @Getter
+            private Analyser<Classification> analyser = TestFactory.this.createAnalyser();
+            @Getter
+            private Issues issues = new Issues();
+
             @Override
             public Term getType() {
                 return DwcTerm.Taxon;
@@ -54,7 +60,7 @@ public class TestFactory implements NetworkFactory<Classification, Parameters, I
      */
     @Override
     public Inferencer createInferencer() {
-        return new Inferencer() {
+        return new Inferencer<Classification, Parameters>() {
             @Override
             public double probability(Classification classification, Classifier classifier, Parameters parameters) throws InferenceException {
                 return 0.0;

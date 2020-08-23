@@ -31,7 +31,7 @@ abstract public class Source {
      */
     public Source(Collection<Observable> observables, Collection<Term> types) {
         if (observables == null)
-            observables = Collections.EMPTY_LIST;
+            observables = Collections.emptyList();
         this.observables = observables.stream().collect(Collectors.toMap(o -> o.getTerm(), o -> o));
         this.types = new HashSet<>(types);
     }
