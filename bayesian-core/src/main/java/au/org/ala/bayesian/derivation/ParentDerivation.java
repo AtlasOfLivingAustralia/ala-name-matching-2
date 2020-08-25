@@ -2,6 +2,7 @@ package au.org.ala.bayesian.derivation;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.StoreException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -44,8 +45,18 @@ public class ParentDerivation extends CopyDerivation {
      * @return code for testing the document.
      */
     @Override
-    public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) {
-        return (this.condition.isPositive() ? "" : "!") + foundVar + ".getAll(" + observablesClass + "." + this.condition.getObservable().getJavaVariable() + ").stream().anyMatch(x -> \"" + this.condition.getValue() + "\".equals(x))";
+    public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) throws StoreException {
+        Object value = this.condition.getObservable().getAnalysis().fromString(this.condition.getValue().toString());
+        String valueStatement = null;
+        if (value == null)
+            valueStatement = "x == null";
+        if (value instanceof Number)
+            valueStatement = value.toString() + " == x";
+        else if (value instanceof Enum)
+            valueStatement = value.getClass().getName() + "." + ((Enum<?>) value).name() + " == x";
+        else
+            valueStatement = "\"" + value.toString() + "\".equals(x)";
+        return (this.condition.isPositive() ? "" : "!") + foundVar + ".getAll(" + observablesClass + "." + this.condition.getObservable().getJavaVariable() + ").stream().anyMatch(x -> " + valueStatement + ")";
     }
 
 }

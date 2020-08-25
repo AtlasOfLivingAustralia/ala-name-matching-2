@@ -1,6 +1,7 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Observable;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -37,14 +38,15 @@ public class CSVSource extends Source {
      *
      * @param type The type of information in the CSV file
      * @param reader The CSV reader
+     * @param factory The network factory
      * @param observables Any klnown observables
      *
      *
      * @throws IOException when reading the CSV file
      * @throws CsvValidationException if not a CSV file
      */
-    public CSVSource(Term type, Reader reader, Collection<Observable> observables) throws IOException, CsvValidationException {
-        super(observables, Collections.singleton(type));
+    public CSVSource(Term type, Reader reader, NetworkFactory factory, Collection<Observable> observables) throws IOException, CsvValidationException {
+        super(factory, observables, Collections.singleton(type));
         this.type = type;
         this.reader = new CSVReaderBuilder(reader).build();
         this.buildHeader();
@@ -59,13 +61,14 @@ public class CSVSource extends Source {
      *
      * @param type The record type
      * @param source The record source
+     * @param factory The network factory
      * @param observables Any known observables
      *
      * @throws IOException if unable to get the data
      * @throws CsvValidationException If the file is invalid
      */
-    public CSVSource(Term type, URL source, Collection<Observable> observables) throws IOException, CsvValidationException {
-        super(observables, Collections.singleton(type));
+    public CSVSource(Term type, URL source, NetworkFactory factory, Collection<Observable> observables) throws IOException, CsvValidationException {
+        super(factory, observables, Collections.singleton(type));
         this.type = type;
         URLConnection connection = source.openConnection();
         String encoding = connection.getContentEncoding();
@@ -78,15 +81,16 @@ public class CSVSource extends Source {
      * Construct for a default {@link DwcTerm#Taxon} source type.
      *
      * @param source The source CSV file
+     * @param factory The network factory
      * @param observables Any known observables
      *
      * @throws IOException if uable to get the data
      * @throws CsvValidationException if the data is not a CSV file
      *
-     * @see #CSVSource(Term, URL, Collection)
+     * @see #CSVSource(Term, URL, NetworkFactory, Collection)
      */
-    public CSVSource(URL source, Collection<Observable> observables) throws IOException, CsvValidationException {
-        this(DwcTerm.Taxon, source, observables);
+    public CSVSource(URL source,NetworkFactory factory, Collection<Observable> observables) throws IOException, CsvValidationException {
+        this(DwcTerm.Taxon, source, factory, observables);
     }
 
     /**
@@ -102,12 +106,15 @@ public class CSVSource extends Source {
             while ((line = this.reader.readNext()) != null) {
                 Classifier classifier = store.newClassifier();
                 for (int i = 0; i < this.header.length; i++) {
+                    Observable observable = header[i];
                     if (accepted != null && !accepted.contains(header[i]))
                         continue;
                     String value = line[i];
-                    if (value != null && !value.isEmpty())
-                        classifier.add(header[i], value);
+                    Object val = observable.getAnalysis().fromString(value);
+                    if (val != null)
+                        classifier.add(header[i], val);
                 }
+                this.infer(classifier);
                 store.store(classifier, this.type);
             }
         } catch (Exception ex) {

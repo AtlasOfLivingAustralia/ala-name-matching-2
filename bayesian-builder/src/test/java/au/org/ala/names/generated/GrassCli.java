@@ -53,7 +53,7 @@ public class GrassCli implements Cli<GrassClassification, GrassParameters, Grass
      for (String input: cmd.getArgs()) {
        URL in = new URL(input);
        Source source = null;
-       source = Source.create(in, builder.getNetwork().getObservables(), config.getTypes());
+       source = Source.create(in, builder.getFactory(), builder.getNetwork().getObservables(), config.getTypes());
        builder.load(source);
        source.close();
      }

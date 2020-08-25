@@ -49,6 +49,7 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
     @Getter
     protected Network network;
     /** The factory for creating builder objects */
+    @Getter
     protected F factory;
     /** The builder to use in processing */
     protected Builder<P> builder;
@@ -501,7 +502,7 @@ public class IndexBuilder<C extends Classification, P extends Parameters, I exte
                 System.exit(1);
             }
             if (input.endsWith(".csv")) {
-                source = new CSVSource(DwcTerm.Taxon, new FileReader(in), builder.getNetwork().getObservables());
+                source = new CSVSource(DwcTerm.Taxon, new FileReader(in), builder.getFactory(), builder.getNetwork().getObservables());
             } else {
                 System.err.println("Unable to determine the type of " + in);
             }

@@ -2,6 +2,7 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.Issues;
 import au.org.ala.util.SimpleClassifier;
+import org.gbif.nameparser.api.Rank;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ public class AlaNameAnalyserTest {
         classification.infer();
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
-        assertEquals("species", classification.taxonRank);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
         assertTrue(classification.getIssues().isEmpty());
     }
 
@@ -33,7 +34,7 @@ public class AlaNameAnalyserTest {
         classification.infer();
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
-        assertEquals("infraspecific_name", classification.taxonRank);
+        assertEquals(Rank.INFRASPECIFIC_NAME, classification.taxonRank);
         assertTrue(classification.getIssues().isEmpty());
     }
 
@@ -41,11 +42,11 @@ public class AlaNameAnalyserTest {
     public void testClassificationNamePopulation3() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
         classification.scientificName = "Acacia dealbata dealbata";
-        classification.taxonRank = "variety";
+        classification.taxonRank = Rank.VARIETY;
         classification.infer();
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
-        assertEquals("infraspecific_name", classification.taxonRank);
+        assertEquals(Rank.INFRASPECIFIC_NAME, classification.taxonRank);
         assertTrue(classification.getIssues().isEmpty());
     }
 

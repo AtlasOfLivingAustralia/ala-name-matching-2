@@ -44,11 +44,11 @@ public class TestFactory implements NetworkFactory<Classification, Parameters, I
             }
 
             @Override
-            public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
+            public void read(Classifier classifier, boolean overwrite) throws InferenceException {
             }
 
             @Override
-            public void translate(Classifier classifier) throws InferenceException, StoreException {
+            public void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException {
             }
         };
     }

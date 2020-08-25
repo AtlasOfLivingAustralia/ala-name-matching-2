@@ -51,7 +51,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
   public ${className}(Classifier classifier, ${analyserType} analyser) throws InferenceException, StoreException {
     this(analyser);
-    this.populate(classifier, true);
+    this.read(classifier, true);
     this.infer();
   }
 
@@ -101,9 +101,8 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 </#list>
   }
 
-
   @Override
-  public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
+  public void read(Classifier classifier, boolean overwrite) throws InferenceException {
 <#list orderedNodes + additionalNodes as node>
     if (overwrite || this.${node.observable.javaVariable} == null) {
       this.${node.observable.javaVariable} = classifier.get(${factoryClassName}.${node.observable.javaVariable});
@@ -111,19 +110,27 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 </#list>
   }
 
+  @Override
+  public void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException{
+    if(overwrite){
+<#list orderedNodes + additionalNodes as node>
+      classifier.replace(${factoryClassName}.${node.observable.javaVariable},this.${node.observable.javaVariable});
+</#list>
+    } else {
+<#list orderedNodes + additionalNodes as node>
+      classifier.add(${factoryClassName}.${node.observable.javaVariable},this.${node.observable.javaVariable});
+</#list>
+    }
+  }
+
+
   public ${inferencerClassName}.Evidence match(Classifier classifier) throws StoreException, InferenceException {
     ${inferencerClassName}.Evidence evidence = new ${inferencerClassName}.Evidence();
 <#list orderedNodes as node>
   <#assign observable = node.observable >
-  evidence.${node.evidence.id} = classifier.match(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
+    evidence.${node.evidence.id} = classifier.match(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
 </#list>
     return evidence;
   }
 
-  @Override
-  public void translate(Classifier classifier) throws InferenceException, StoreException {
-<#list orderedNodes + additionalNodes as node>
-    classifier.add(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
-</#list>
-  }
 }

@@ -1,8 +1,8 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
-import au.org.ala.bayesian.StoreException;
+import lombok.NonNull;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -20,8 +20,9 @@ import java.util.stream.Collectors;
  * </p>
  */
 abstract public class Source {
-    private Map<Term, Observable> observables;
-    private Set<Term> types;
+    private final NetworkFactory factory;
+    private final Map<Term, Observable> observables;
+    private final Set<Term> types;
 
     /**
      * Construct with a list of known observables
@@ -29,9 +30,10 @@ abstract public class Source {
      * @param observables The list of observables (may be null)
      * @param types The list of record types to load
      */
-    public Source(Collection<Observable> observables, Collection<Term> types) {
+    public Source(NetworkFactory factory, Collection<Observable> observables, Collection<Term> types) {
         if (observables == null)
             observables = Collections.emptyList();
+        this.factory = factory;
         this.observables = observables.stream().collect(Collectors.toMap(o -> o.getTerm(), o -> o));
         this.types = new HashSet<>(types);
     }
@@ -62,6 +64,32 @@ abstract public class Source {
     }
 
     /**
+     * Create a new, empty classification
+     *
+     * @return The classification
+     */
+    @NonNull
+    public Classification createClassification() {
+        return this.factory.createClassification();
+    }
+
+    /**
+     * Perform an inference step on a classifier.
+     * <p>
+     * To do this, we convert the classifier data into a classification,
+     * do the inference step and then write it back into the classifier.
+     * </p>
+     *
+     * @param classifier The classifier to expand.
+     */
+    public void infer(Classifier classifier) throws StoreException, InferenceException {
+        Classification classification = this.createClassification();
+        classification.read(classifier, true);
+        classification.infer();
+        classification.write(classifier, true);
+    }
+
+    /**
      * Load this source into an index builder.
      *
      * @param store The store to load into
@@ -87,23 +115,24 @@ abstract public class Source {
      * </p>
      *
      * @param source The source URL
+     * @param factory The network factory
      * @param observables Any known observables
      *
      * @return An appropriate source.
      *
      * @throws Exception for all kinds of reasons
      */
-    public static Source create(URL source, Collection<Observable> observables, Collection<Term> types) throws Exception {
+    public static Source create(URL source, NetworkFactory factory, Collection<Observable> observables, Collection<Term> types) throws Exception {
         if (source.getFile().endsWith(".csv")) {
-            return new CSVSource(types.isEmpty() ? DwcTerm.Taxon : types.iterator().next(), source, observables);
+            return new CSVSource(types.isEmpty() ? DwcTerm.Taxon : types.iterator().next(), source, factory, observables);
         }
         if (source.getProtocol().equals("file")) {
             File file = new File(source.getPath());
             if (file.exists() && file.isDirectory())
-                return new DwCASource(source, observables, types);
+                return new DwCASource(source, factory, observables, types);
         }
         if (source.getProtocol().equals("file") || source.getProtocol().equals("jar") || source.getProtocol().equals("http") || source.getProtocol().equals("https"))
-            return new DwCASource(source, observables, types);
+            return new DwCASource(source, factory, observables, types);
         throw new BuilderException("Unable to to deduce source type for " + source);
     }
 }

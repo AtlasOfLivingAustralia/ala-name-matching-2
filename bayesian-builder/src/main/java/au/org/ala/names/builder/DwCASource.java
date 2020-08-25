@@ -1,9 +1,6 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.Observable;
-import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.*;
 import au.org.ala.util.Counter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -44,13 +41,14 @@ public class DwCASource extends Source {
      * Construct with DwCA directory
      *
      * @param source The location of the DwCA
+     * @param factory The network factory
      * @param observables The list of observables expected
      *
      * @throws IOException when attempting to open the archive
      * @throws UnsupportedArchiveException if the archive is invalid
      */
-    public DwCASource(URL source, Collection<Observable> observables, Collection<Term> types) throws IOException, UnsupportedArchiveException {
-        super(observables, types);
+    public DwCASource(URL source, NetworkFactory factory, Collection<Observable> observables, Collection<Term> types) throws IOException, UnsupportedArchiveException {
+        super(factory, observables, types);
         this.cleanup = new ArrayList<>();
         if (source.getProtocol().equals("file")) {
             File file = new File(source.getPath());
@@ -89,9 +87,9 @@ public class DwCASource extends Source {
     @Override
     public void load(LoadStore store, Collection<Observable> accepted) throws BuilderException, InferenceException, StoreException {
         this.counter.start();
-        this.loadArchiveFile(this.archive.getCore(), store, accepted);
+        this.loadArchiveFile(this.archive.getCore(), store, accepted, true);
         for (ArchiveFile ext: this.archive.getExtensions())
-            this.loadArchiveFile(ext, store, accepted);
+            this.loadArchiveFile(ext, store, accepted, false);
         this.counter.stop();
     }
 
@@ -120,10 +118,11 @@ public class DwCASource extends Source {
      * @param file The archive file
      * @param store The store to load to
      * @param accepted The list of accepted observables
+     * @param core This is the core type of element (inference, based on the factory, is only done to core elements)
      *
      * @throws StoreException if unable to store the resulting document
      */
-    protected void loadArchiveFile(ArchiveFile file, LoadStore store, Collection<Observable> accepted) throws InferenceException, StoreException {
+    protected void loadArchiveFile(ArchiveFile file, LoadStore store, Collection<Observable> accepted, boolean core) throws InferenceException, StoreException {
         Term type = file.getRowType();
         if (!this.isLoadable(type))
             return;
@@ -134,12 +133,13 @@ public class DwCASource extends Source {
                 if (accepted != null && !accepted.contains(term))
                     continue;
                 String value = record.value(term.getTerm());
+                Object val = term.getAnalysis().fromString(value);
                 if (value != null) {
-                    value = value.trim();
-                    if (!value.isEmpty())
-                        classifier.add(term, value);
+                    classifier.add(term, val);
                 }
             }
+            if (core)
+                this.infer(classifier);
             store.store(classifier, type);
             this.counter.increment(classifier.getIdentifier());
         }

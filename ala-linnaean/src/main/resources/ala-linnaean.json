@@ -34,8 +34,11 @@
     {
       "id": "taxonRank",
       "label": "R",
+      "type": "org.gbif.nameparser.api.Rank",
       "uri": "http://rs.tdwg.org/dwc/terms/taxonRank",
-      "normaliser": "lower_case_normaliser"
+      "analysis": {
+        "@class": "au.org.ala.names.RankAnalysis"
+      }
     },
     {
       "id": "scientificName",
@@ -416,9 +419,11 @@
     {
       "id": "weight",
       "label": "w",
+      "type": "java.lang.Double",
       "uri": "http://id.ala.org.au/bayesian/1.0/weight",
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/weight": true
+        "http://id.ala.org.au/bayesian/1.0/weight": true,
+        "http://id.ala.org.au/bayesian/1.0/additional": true
       }
     },
     {
@@ -426,7 +431,8 @@
       "label": "pID",
       "uri": "http://rs.tdwg.org/dwc/terms/parentNameUsageID",
       "properties": {
-        "http://rs.tdwg.org/dwc/terms/parentNameUsageID": true
+        "http://rs.tdwg.org/dwc/terms/parentNameUsageID": true,
+        "http://id.ala.org.au/bayesian/1.0/additional": true
       },
       "style": "IDENTIFIER"
     },

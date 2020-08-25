@@ -22,11 +22,11 @@ public class Observation {
     /** A single value (optimisation so that we don't bother with a singleton collection) */
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private String value;
+    private Object value;
     /** The possible values that this observable can have */
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Set<String> values;
+    private Set<Object> values;
 
     /**
      * Empty constructor
@@ -42,7 +42,7 @@ public class Observation {
      * @param observable The associated network observable
      * @param values The possible values
      */
-    public Observation(boolean positive, Observable observable, Set<String> values) {
+    public Observation(boolean positive, Observable observable, Set<Object> values) {
         this.positive = positive;
         this.observable = observable;
         if (values.size() == 0) {
@@ -64,7 +64,7 @@ public class Observation {
      * @param observable The associated network observable
      * @param values The possible values
      */
-    public Observation(boolean positive, Observable observable, String... values) {
+    public Observation(boolean positive, Observable observable, Object... values) {
         this.positive = positive;
         this.observable = observable;
         if (values.length == 0)
@@ -119,7 +119,7 @@ public class Observation {
      * @throws IllegalStateException if a singleton is not available
      */
     @JsonIgnore
-    public String getValue() throws IllegalStateException {
+    public Object getValue() throws IllegalStateException {
         if (this.value != null)
             return this.value;
         if (this.values != null && this.values.size() == 1)
@@ -133,7 +133,7 @@ public class Observation {
      * @return The set of values that correspond to matching the observation
      */
     @JsonIgnore
-    public Set<String> getValues() {
+    public Set<Object> getValues() {
         if (this.values != null)
             return this.values;
         if (this.value != null)

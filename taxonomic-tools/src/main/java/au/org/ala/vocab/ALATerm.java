@@ -105,6 +105,10 @@ public enum ALATerm implements Term {
     canonicalMatch,
     /** The match is fuzzy, rather than exact */
     fuzzyMatch,
+    /** There is a loop in the taxon's parent link */
+    taxonParentLoop,
+    /** There is a loop in the taxon's accepted link */
+    taxonAcceptedLoop,
     /** Record type describing document metadata */
     Metadata,
     /** Record type describing an unplaced vernacular name */

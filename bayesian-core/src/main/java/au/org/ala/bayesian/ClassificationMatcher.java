@@ -46,7 +46,7 @@ public class ClassificationMatcher<C extends Classification, P extends Parameter
             double p = this.inferencer.probability(classification, candidate, parameters);
             if (this.isPossible(classification, candidate, p)) {
                 C candidateClassification = this.factory.createClassification();
-                candidateClassification.populate(candidate, true);
+                candidateClassification.read(candidate, true);
                 Match<C> match = new Match<>(candidateClassification, candidate, p, candidateClassification.getIssues());
                 if (this.isAcceptable(classification, candidate, p))
                     return match;

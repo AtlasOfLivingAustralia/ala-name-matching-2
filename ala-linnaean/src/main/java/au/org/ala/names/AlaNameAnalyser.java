@@ -18,17 +18,16 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
      * Analyse the information in a classifier and extend the classifier
      * as required.
      *
-     * @param classifier The classifier
+     * @param classification The classification
      *
-     * @throws StoreException     if an error occurs updating the classifier
+     * @throws StoreException     if an error occurs updating the classification
      */
     @Override
     public void analyse(AlaLinnaeanClassification classification) throws StoreException {
         final NameParser parser = PARSER.get();
         final String scientificName = classification.scientificName;
-        final String taxonRank = classification.taxonRank;
+        Rank rank = classification.taxonRank;
         final String nomenclaturalCode = classification.nomenclaturalCode;
-        Rank rank = RankUtils.inferRank(taxonRank);
         if (rank == null)
             rank = Rank.UNRANKED;
         NomCode nomCode = nomenclaturalCode == null ? null : Arrays.stream(NomCode.values()).filter(c -> nomenclaturalCode.equalsIgnoreCase(c.getAcronym())).findFirst().orElse(null);
@@ -78,9 +77,17 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
         if (rank != null && rank.notOtherOrUnranked()) {
             if (Rank.SPECIES.higherThan(rank)) {
                 rank = Rank.INFRASPECIFIC_NAME;
-                classification.taxonRank = rank.name().toLowerCase();
-            } else if (classification.taxonRank == null && rank != Rank.UNRANKED & rank != rank.OTHER)
-                classification.taxonRank = rank.name().toLowerCase();
+                classification.taxonRank = rank;
+            } else if (classification.taxonRank == null && rank.notOtherOrUnranked())
+                classification.taxonRank = rank;
         }
-    }
+        if (classification.parentNameUsageId != null && classification.parentNameUsageId.equals(classification.taxonId)) {
+            classification.getIssues().add(ALATerm.taxonParentLoop);
+            classification.parentNameUsageId = null;
+        }
+        if (classification.acceptedNameUsageId != null && classification.acceptedNameUsageId.equals(classification.taxonId)) {
+            classification.getIssues().add(ALATerm.taxonAcceptedLoop);
+            classification.acceptedNameUsageId = null;
+        }
+   }
 }

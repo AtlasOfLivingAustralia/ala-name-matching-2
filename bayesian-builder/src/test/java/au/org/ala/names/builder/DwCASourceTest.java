@@ -3,6 +3,7 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Network;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.names.generated.SimpleLinnaeanFactory;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.junit.After;
@@ -19,18 +20,17 @@ import static org.junit.Assert.*;
  * Test cases for {@link DwCASource}
  */
 public class DwCASourceTest {
-    private static final Observable TAXON_ID_OBS = new Observable(DwcTerm.taxonID);
-    private static final Observable TAXON_RANK_OBS = new Observable(DwcTerm.taxonRank);
-    private static final Observable SCIENTIFIC_NAME_OBS = new Observable(DwcTerm.scientificName);
     private static final Observable VERNACULAR_NAME_OBS = new Observable(DwcTerm.vernacularName);
 
     private Network network;
+    private SimpleLinnaeanFactory factory;
     private Annotator annotator;
     private TestLoadStore store;
 
     @Before
     public void setUp() throws Exception {
         this.network = new Network();
+        this.factory = SimpleLinnaeanFactory.instance();
         this.annotator = new TestAnnotator();
         this.store = new TestLoadStore(this.annotator);
     }
@@ -43,16 +43,16 @@ public class DwCASourceTest {
     @Test
     public void testLoad1() throws Exception {
         URL sample = this.getClass().getResource("/sample-1.zip");
-        DwCASource source = new DwCASource(sample, this.network.getObservables(), Arrays.asList(DwcTerm.Taxon, GbifTerm.VernacularName));
+        DwCASource source = new DwCASource(sample, this.factory, this.network.getObservables(), Arrays.asList(DwcTerm.Taxon, GbifTerm.VernacularName));
         source.load(this.store, null);
 
         assertEquals(149, this.store.getStore().size());
-        Classifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2901022");
+        Classifier value = this.store.get(DwcTerm.Taxon, SimpleLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2901022");
         assertNotNull(value);
-        assertEquals("Canarium acutifolium", value.get(SCIENTIFIC_NAME_OBS));
-        assertEquals("species", value.get(TAXON_RANK_OBS));
+        assertEquals("Canarium acutifolium", value.get(SimpleLinnaeanFactory.scientificName));
+        assertEquals("species", value.get(SimpleLinnaeanFactory.taxonRank));
 
-        value = this.store.get(GbifTerm.VernacularName, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2913682");
+        value = this.store.get(GbifTerm.VernacularName, SimpleLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2913682");
         assertNotNull(value);
         assertEquals("Mallow", value.get(VERNACULAR_NAME_OBS));
         source.close();
@@ -61,16 +61,16 @@ public class DwCASourceTest {
     @Test
     public void testLoad2() throws Exception {
         URL sample = this.getClass().getResource("/sample-1.zip");
-        DwCASource source = new DwCASource(sample, this.network.getObservables(), Arrays.asList(DwcTerm.Taxon, GbifTerm.VernacularName));
-        source.load(this.store, Arrays.asList(TAXON_ID_OBS, SCIENTIFIC_NAME_OBS));
+        DwCASource source = new DwCASource(sample, this.factory, this.network.getObservables(), Arrays.asList(DwcTerm.Taxon, GbifTerm.VernacularName));
+        source.load(this.store, Arrays.asList(SimpleLinnaeanFactory.taxonId, SimpleLinnaeanFactory.scientificName));
 
         assertEquals(149, this.store.getStore().size());
-        Classifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2901022");
+        Classifier value = this.store.get(DwcTerm.Taxon, SimpleLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2901022");
         assertNotNull(value);
-        assertEquals("Canarium acutifolium", value.get(SCIENTIFIC_NAME_OBS));
-        assertNull(value.get(TAXON_RANK_OBS));
+        assertEquals("Canarium acutifolium", value.get(SimpleLinnaeanFactory.scientificName));
+        assertNull(value.get(SimpleLinnaeanFactory.taxonRank));
 
-        value = this.store.get(GbifTerm.VernacularName, TAXON_ID_OBS, "https://id.biodiversity.org.au/node/apni/2913682");
+        value = this.store.get(GbifTerm.VernacularName, SimpleLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2913682");
         assertNotNull(value);
         assertNull(value.get(VERNACULAR_NAME_OBS));
         source.close();

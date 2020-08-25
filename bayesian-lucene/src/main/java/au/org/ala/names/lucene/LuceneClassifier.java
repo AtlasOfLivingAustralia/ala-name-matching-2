@@ -4,6 +4,7 @@ import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
@@ -25,6 +26,7 @@ import static au.org.ala.bayesian.ExternalContext.LUCENE;
  * The classifier is backed by a lucene document that can be stored/retrieved as required.
  * </p>
  */
+@Slf4j
 public class LuceneClassifier implements Classifier {
     /** The default field name for identifiers */
     public static final String ID_FIELD = "_id";
@@ -129,7 +131,6 @@ public class LuceneClassifier implements Classifier {
      *
      * @param observable The observable to match
      * @param value      The value to match against (may be null)
-     * @param analysis   The analysis object
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
      * @throws InferenceException if there was a problem matching the result
      */
@@ -187,7 +188,8 @@ public class LuceneClassifier implements Classifier {
     public void addAll(Observable observable, Classifier classifier) throws StoreException {
         if (!(classifier instanceof LuceneClassifier))
             throw new IllegalArgumentException("Expecting instnce of LuceneClassifier");
-        for (IndexableField field: ((LuceneClassifier) classifier).document.getFields(observable.getExternal(LUCENE)))
+        String fieldName = observable.getExternal(LUCENE);
+        for (IndexableField field: ((LuceneClassifier) classifier).document.getFields(fieldName))
             this.document.add(field);
     }
 
@@ -211,7 +213,7 @@ public class LuceneClassifier implements Classifier {
      * @return The associated value or null for not present
      */
     @Override
-    public <T> T get(Observable observable)  {
+    public <T> T get(Observable observable) {
         IndexableField field = this.document.getField(observable.getExternal(LUCENE));
         return this.convert(observable, field);
     }
@@ -221,6 +223,8 @@ public class LuceneClassifier implements Classifier {
      *
      * @param observable The observable
      * @return The a set of all present values
+     *
+     * @throws StoreException if unable to retrieve a value
      */
     @Override
     public <T> Set<T> getAll(Observable observable) {
@@ -228,7 +232,8 @@ public class LuceneClassifier implements Classifier {
         Set<T> values = new HashSet<>(fs.length);
         for (IndexableField f: fs) {
             T v = this.convert(observable, f);
-            values.add(v);
+            if (v != null)
+                values.add(v);
         }
         return values;
     }
@@ -460,7 +465,7 @@ public class LuceneClassifier implements Classifier {
         else if (value instanceof Number)
             return new StoredField(field, ((Number) value).doubleValue());
         else {
-            String val = value.toString();
+            String val = observable.getAnalysis().toString(value);
             Normaliser normaliser = observable.getNormaliser();
             if (normaliser != null)
                 val = normaliser.normalise(val);
@@ -504,6 +509,11 @@ public class LuceneClassifier implements Classifier {
                 return null;
             return (T) Double.valueOf(number.doubleValue());
         }
-        return (T) field.stringValue();
+        try {
+            return (T) observable.getAnalysis().fromString(field.stringValue());
+        } catch (StoreException ex) {
+            log.error("Unable to convert " + field + " to " + observable + " returning null instead", ex);
+            return null;
+        }
     }
 }

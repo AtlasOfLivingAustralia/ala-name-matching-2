@@ -2,6 +2,7 @@ package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Network;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.names.generated.SimpleLinnaeanFactory;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.util.TestUtils;
 import org.gbif.dwc.terms.DwcTerm;
@@ -19,17 +20,15 @@ import static org.junit.Assert.*;
  * Test cases for {@link CSVSource}
  */
 public class CSVSourceTest {
-    private static final Observable TAXON_ID_OBS = new Observable(DwcTerm.taxonID);
-    private static final Observable TAXON_RANK_OBS = new Observable(DwcTerm.taxonRank);
-    private static final Observable SCIENTIFIC_NAME_OBS = new Observable(DwcTerm.scientificName);
-
     private Network network;
+    private SimpleLinnaeanFactory factory;
     private Annotator annotator;
     private TestLoadStore store;
 
     @Before
     public void setUp() throws Exception {
         this.network = new Network();
+        this.factory = SimpleLinnaeanFactory.instance();
         this.annotator = new TestAnnotator();
         this.store = new TestLoadStore(this.annotator);
     }
@@ -42,28 +41,28 @@ public class CSVSourceTest {
     @Test
     public void testLoad1() throws Exception {
         Reader reader = TestUtils.getResourceReader(this.getClass(), "source-1.csv");
-        CSVSource source = new CSVSource(DwcTerm.Taxon, reader, this.network.getObservables());
+        CSVSource source = new CSVSource(DwcTerm.Taxon, reader, this.factory, this.network.getObservables());
         source.load(this.store, null);
 
         assertEquals(11, this.store.getStore().size());
-        LuceneClassifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "S-1");
+        LuceneClassifier value = this.store.get(DwcTerm.Taxon, SimpleLinnaeanFactory.taxonId, "S-1");
         assertNotNull(value);
-        assertEquals("Artemia franciscana", value.get(SCIENTIFIC_NAME_OBS).toString());
-        assertEquals("species", value.get(TAXON_RANK_OBS).toString());
+        assertEquals("Artemia franciscana", value.get(SimpleLinnaeanFactory.scientificName).toString());
+        assertEquals("species", value.get(SimpleLinnaeanFactory.taxonRank).toString());
         source.close();
     }
 
     @Test
     public void testLoad2() throws Exception {
         URL url = this.getClass().getResource("source-1.csv");
-        CSVSource source = new CSVSource(DwcTerm.Taxon, url, this.network.getObservables());
-        source.load(this.store, Arrays.asList(TAXON_ID_OBS, SCIENTIFIC_NAME_OBS));
+        CSVSource source = new CSVSource(DwcTerm.Taxon, url, this.factory, this.network.getObservables());
+        source.load(this.store, Arrays.asList(SimpleLinnaeanFactory.taxonId, SimpleLinnaeanFactory.scientificName));
 
         assertEquals(11, this.store.getStore().size());
-        LuceneClassifier value = this.store.get(DwcTerm.Taxon, TAXON_ID_OBS, "S-1");
+        LuceneClassifier value = this.store.get(DwcTerm.Taxon, SimpleLinnaeanFactory.taxonId, "S-1");
         assertNotNull(value);
-        assertEquals("Artemia franciscana", value.get(SCIENTIFIC_NAME_OBS));
-        assertNull(value.get(TAXON_RANK_OBS));
+        assertEquals("Artemia franciscana", value.get(SimpleLinnaeanFactory.scientificName));
+        assertNull(value.get(SimpleLinnaeanFactory.taxonRank));
         source.close();
     }
 }

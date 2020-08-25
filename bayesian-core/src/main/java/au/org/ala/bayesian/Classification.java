@@ -61,24 +61,26 @@ public interface Classification<C extends Classification> {
 
     /**
      *
-     * Populate this classification from a classifier.
+     * Read this classification from a classifier.
      * <p>
      * This allows a classification to be built that matches the classifier.
      * </p>
      * @param classifier The classifier that contains the original data
      * @param overwrite Overwrite what is already in the classification
      *
-     * @throws InferenceException
+     * @throws InferenceException if unable to compute the population value
+     * @throws StoreException if unable to populate the classifier
      */
-    public void populate(Classifier classifier, boolean overwrite) throws InferenceException;
+    public void read(Classifier classifier, boolean overwrite) throws InferenceException, StoreException;
 
     /**
-     * Translate this classification into a classifier.
+     * Write this classification into a classifier.
      *
      * @param classifier The empty classifier to populate
+     * @param overwrite Overwrite what is already in the classifier
      *
      * @throws InferenceException if unable to translate
      * @throws StoreException if unable to store the translation
      */
-    public void translate(Classifier classifier) throws InferenceException, StoreException;
+    public void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException;
 }

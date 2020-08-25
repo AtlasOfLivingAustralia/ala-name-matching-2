@@ -8,12 +8,6 @@ package au.org.ala.bayesian;
  * For example, it can be used to work out implied rank from a scientific name,
  * if one has not been specified.
  * </p>
- * <p>
- * Note that the classifier and classification analysis should be identical.
- * You can do a quick'n'dirty analysis by using {@link Classification#translate(Classifier)}
- * and {@link Classification#populate(Classifier, boolean)} to ensure consistency.
- * However, there may be quite a performance hit.
- * </p>
  *
  */
 public interface Analyser<C extends Classification> {

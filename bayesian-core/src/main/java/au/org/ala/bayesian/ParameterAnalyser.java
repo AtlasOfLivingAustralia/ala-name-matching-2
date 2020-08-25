@@ -53,8 +53,9 @@ public interface ParameterAnalyser {
      * @return The associated fact.
      *
      * @throws InferenceException if unable to get the observation data
+     * @throws StoreException if unable to retrieve the data
      */
-    public default Observation getObservation(boolean positive, Observable observable, Classifier classifier) {
+    public default Observation getObservation(boolean positive, Observable observable, Classifier classifier) throws StoreException {
         return new Observation(positive, observable, classifier.getAll(observable));
     }
 

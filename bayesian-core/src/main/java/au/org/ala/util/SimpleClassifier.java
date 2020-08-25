@@ -69,7 +69,6 @@ public class SimpleClassifier implements Classifier {
      *
      * @param observable The observable to match
      * @param value      The value to match against (may be null)
-     * @param analysis   The analysis object
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
      * @throws InferenceException if there was a problem matching the result
      */
@@ -110,6 +109,7 @@ public class SimpleClassifier implements Classifier {
      *
      * @param observable The observable for the values
      * @param classifier The classifier to copy from
+     *
      * @throws StoreException if unable to add this variable to the classifier
      */
     @Override

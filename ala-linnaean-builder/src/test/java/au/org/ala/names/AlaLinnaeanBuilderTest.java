@@ -11,6 +11,7 @@ import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.util.TestUtils;
 import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.nameparser.api.Rank;
 import org.junit.*;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         config.setWork(work);
         config.setFactoryClass(AlaLinnaeanFactory.class);
         builder = new IndexBuilder(config);
-        Source source = Source.create(AlaLinnaeanBuilderTest.class.getResource("/sample-1.zip"), AlaLinnaeanFactory.instance().getObservables(), config.getTypes());
+        Source source = Source.create(AlaLinnaeanBuilderTest.class.getResource("/sample-1.zip"), AlaLinnaeanFactory.instance(), AlaLinnaeanFactory.instance().getObservables(), config.getTypes());
         builder.load(source);
         builder.build();
         builder.buildIndex(output);
@@ -101,7 +102,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         evidence.e$genus = true;
         evidence.e$soundexGenus = true;
         prob = inference.probability(evidence, params);
-        assertEquals(0.33333, prob, 0.00001);
+        assertEquals(0.33425, prob, 0.00001);
     }
 
 
@@ -141,7 +142,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.genus = "Canarium";
         classification.specificEpithet = "acutifolium";
-        classification.taxonRank = "species";
+        classification.taxonRank = Rank.SPECIES;
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);

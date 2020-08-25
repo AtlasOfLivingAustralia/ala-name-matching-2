@@ -37,7 +37,7 @@ public class GrassClassification implements Classification<GrassClassification> 
 
   public GrassClassification(Classifier classifier, Analyser<GrassClassification> analyser) throws InferenceException, StoreException {
     this(analyser);
-    this.populate(classifier, true);
+    this.read(classifier, true);
     this.infer();
   }
 
@@ -77,9 +77,8 @@ public class GrassClassification implements Classification<GrassClassification> 
     this.analyser.analyse(this);
   }
 
-
   @Override
-  public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
+  public void read(Classifier classifier, boolean overwrite) throws InferenceException {
     if (overwrite || this.rain == null) {
       this.rain = classifier.get(GrassFactory.rain);
     }
@@ -91,18 +90,26 @@ public class GrassClassification implements Classification<GrassClassification> 
     }
   }
 
+  @Override
+  public void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException{
+    if(overwrite){
+      classifier.replace(GrassFactory.rain,this.rain);
+      classifier.replace(GrassFactory.sprinkler,this.sprinkler);
+      classifier.replace(GrassFactory.wet,this.wet);
+    } else {
+      classifier.add(GrassFactory.rain,this.rain);
+      classifier.add(GrassFactory.sprinkler,this.sprinkler);
+      classifier.add(GrassFactory.wet,this.wet);
+    }
+  }
+
+
   public GrassInferencer.Evidence match(Classifier classifier) throws StoreException, InferenceException {
     GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
-  evidence.e$rain = classifier.match(GrassFactory.rain, this.rain);
-  evidence.e$sprinkler = classifier.match(GrassFactory.sprinkler, this.sprinkler);
-  evidence.e$wet = classifier.match(GrassFactory.wet, this.wet);
+    evidence.e$rain = classifier.match(GrassFactory.rain, this.rain);
+    evidence.e$sprinkler = classifier.match(GrassFactory.sprinkler, this.sprinkler);
+    evidence.e$wet = classifier.match(GrassFactory.wet, this.wet);
     return evidence;
   }
 
-  @Override
-  public void translate(Classifier classifier) throws InferenceException, StoreException {
-    classifier.add(GrassFactory.rain, this.rain);
-    classifier.add(GrassFactory.sprinkler, this.sprinkler);
-    classifier.add(GrassFactory.wet, this.wet);
-  }
 }

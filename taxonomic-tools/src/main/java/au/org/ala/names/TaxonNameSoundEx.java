@@ -1,6 +1,7 @@
 package au.org.ala.names;
 
 import org.apache.commons.lang3.StringUtils;
+import org.gbif.nameparser.api.Rank;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -62,6 +63,9 @@ public class TaxonNameSoundEx {
         return output;
     }
 
+    public static String treatWord(String str, Rank rank) {
+        return treatWord(str, rank == null ? "species" : rank.name().toLowerCase());
+    }
 
     public static String treatWord(String str2, String wordType) {
         char startLetter;
@@ -128,7 +132,7 @@ public class TaxonNameSoundEx {
             // now drop any repeated characters (AA becomes A, BB or BBB becomes B, etc.)
             temp = temp.replaceAll("(\\w)\\1+", "$1");
 
-            if (wordType == "species") {
+            if (wordType.equals("species")) {
                 if (temp.endsWith("IS")) {
                     temp = temp.substring(0, temp.length() - 2) + "A";
                 } else if (temp.endsWith("IM")) {

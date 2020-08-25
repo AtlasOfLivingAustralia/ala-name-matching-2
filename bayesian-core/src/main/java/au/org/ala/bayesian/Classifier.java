@@ -1,6 +1,9 @@
 package au.org.ala.bayesian;
 
+import lombok.extern.slf4j.Slf4j;
 import org.gbif.dwc.terms.Term;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Set;
@@ -17,8 +20,6 @@ public interface Classifier {
      * Get the value for an observable.
      *
      * @param observable The observable
-     *
-     * @return The associated value or null for not present
      */
     public <T> T get(Observable observable);
 

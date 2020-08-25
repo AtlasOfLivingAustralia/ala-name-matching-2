@@ -61,7 +61,7 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public void populate(Classifier classifier, boolean overwrite) throws InferenceException {
+    public void read(Classifier classifier, boolean overwrite) throws StoreException, InferenceException {
         if (overwrite || this.class_ == null)
             this.class_ = classifier.get(CLASS_);
         if (overwrite || this.scientificName == null)
@@ -71,9 +71,15 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public void translate(Classifier classifier) throws StoreException {
-        classifier.add(CLASS_, this.class_);
-        classifier.add(SCIENTIFIC_NAME, this.scientificName);
-        classifier.add(VERNACULAR_NAME, this.vernacularName);
+    public void write(Classifier classifier, boolean overwrite) throws StoreException {
+        if (overwrite) {
+            classifier.replace(CLASS_, this.class_);
+            classifier.replace(SCIENTIFIC_NAME, this.scientificName);
+            classifier.replace(VERNACULAR_NAME, this.vernacularName);
+        } else {
+            classifier.add(CLASS_, this.class_);
+            classifier.add(SCIENTIFIC_NAME, this.scientificName);
+            classifier.add(VERNACULAR_NAME, this.vernacularName);
+        }
     }
 }
