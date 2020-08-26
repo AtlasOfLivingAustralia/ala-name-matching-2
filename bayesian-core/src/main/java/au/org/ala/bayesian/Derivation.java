@@ -14,7 +14,7 @@ import java.util.Objects;
  * Subclassses are used to contain useful parameters.
  * </p>
  */
-@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
+@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property="@class")
 abstract public class Derivation {
     /**
      * Get the variables that this builder/derivation uses.
@@ -50,12 +50,9 @@ abstract public class Derivation {
      * @param observablesClass The class holding observable defintions
      * @param parentsVar The parent list variable
      *
-     * @throws StoreException If unable to build the condition from the supplied value
-     * @throws InferenceException If unable to infer the condition from the supplied value
-     *
      * @return The code for a finder test, or null for no test
      */
-    public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) throws StoreException, InferenceException {
+    public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) {
         return null;
     }
 

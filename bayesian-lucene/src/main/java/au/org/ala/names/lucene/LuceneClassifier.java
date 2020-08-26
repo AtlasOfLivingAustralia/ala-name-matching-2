@@ -299,7 +299,6 @@ public class LuceneClassifier implements Classifier {
      * Set the classifier's type
      *
      * @param type The new type
-     * @return The document type
      * @throws StoreException If unable to create a type for some reason.
      */
     @Override

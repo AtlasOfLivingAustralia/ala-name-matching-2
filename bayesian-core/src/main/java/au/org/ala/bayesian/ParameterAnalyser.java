@@ -12,7 +12,7 @@ public interface ParameterAnalyser {
      *
      * @return The total weight
      */
-    public double getTotalWeight();
+    double getTotalWeight();
 
     /**
      * Compute the prior probability of a field.
@@ -26,7 +26,7 @@ public interface ParameterAnalyser {
      *
      * @throws InferenceException if unable to compute the result
      */
-    public double computePrior(Observation observation) throws InferenceException;
+    double computePrior(Observation observation) throws InferenceException;
 
     /**
      * Computer a conditional probability for a observation
@@ -41,7 +41,7 @@ public interface ParameterAnalyser {
      *
      * @throws InferenceException if unable to compute the result
      */
-    public double computeConditional(Observation observation, Observation... inputs) throws InferenceException;
+    double computeConditional(Observation observation, Observation... inputs) throws InferenceException;
 
     /**
      * Get a fact from a classifier
@@ -52,10 +52,9 @@ public interface ParameterAnalyser {
      *
      * @return The associated fact.
      *
-     * @throws InferenceException if unable to get the observation data
      * @throws StoreException if unable to retrieve the data
      */
-    public default Observation getObservation(boolean positive, Observable observable, Classifier classifier) throws StoreException {
+    default Observation getObservation(boolean positive, Observable observable, Classifier classifier) throws StoreException {
         return new Observation(positive, observable, classifier.getAll(observable));
     }
 
