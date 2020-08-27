@@ -7,7 +7,7 @@ import au.org.ala.bayesian.StoreException;
 /**
  * The default integer analysis
  */
-public class IntegerAnalysis extends Analysis {
+public class IntegerAnalysis extends Analysis<Integer> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -30,7 +30,7 @@ public class IntegerAnalysis extends Analysis {
      * @throws InferenceException if unable to analyse the value
      */
     @Override
-    public <C> C analyse(C value) throws InferenceException {
+    public Integer analyse(Integer value) throws InferenceException {
         return value;
     }
 
@@ -42,7 +42,7 @@ public class IntegerAnalysis extends Analysis {
      * @throws StoreException if unable to convert to a string
      */
     @Override
-    public String toString(Object value) throws StoreException {
+    public String toString(Integer value) throws StoreException {
         return value == null ? null : value.toString();
     }
 

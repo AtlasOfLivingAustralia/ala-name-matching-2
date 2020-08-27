@@ -36,7 +36,7 @@ import java.util.*;
  *     <li>Produce an output lucene index optimised for subsequent searching</li>
  * </ol>
  */
-public class IndexBuilder<C extends Classification, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> implements Annotator {
+public class IndexBuilder<C extends Classification<C>, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> implements Annotator {
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexBuilder.class);
 
     /** The date format for timestamping backups */

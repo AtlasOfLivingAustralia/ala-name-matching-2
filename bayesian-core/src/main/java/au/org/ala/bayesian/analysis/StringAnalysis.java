@@ -6,7 +6,7 @@ import au.org.ala.bayesian.StoreException;
 
 import java.time.LocalDate;
 
-public class StringAnalysis extends Analysis {
+public class StringAnalysis extends Analysis<String> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -30,11 +30,11 @@ public class StringAnalysis extends Analysis {
      * @throws InferenceException if unable to analyse the value
      */
     @Override
-    public <C> C analyse(C value) throws InferenceException {
+    public String analyse(String value) throws InferenceException {
         if (value == null)
             return null;
-        String s = value.toString().trim();
-        return s.isEmpty() ? null : (C) s;
+        String s = value.trim();
+        return s.isEmpty() ? null : s;
     }
 
     /**
@@ -48,8 +48,8 @@ public class StringAnalysis extends Analysis {
      * @throws StoreException if unable to convert to a string
      */
     @Override
-    public String toString(Object value) throws StoreException {
-        return value == null ? null : value.toString();
+    public String toString(String value) throws StoreException {
+        return value == null ? null : value;
     }
 
     /**

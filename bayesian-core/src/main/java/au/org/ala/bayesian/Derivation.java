@@ -51,8 +51,11 @@ abstract public class Derivation {
      * @param parentsVar The parent list variable
      *
      * @return The code for a finder test, or null for no test
+     *
+     * @throws StoreException if unable to access the condition
+     * @throws InferenceException if unable to process the condition
      */
-    public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) {
+    public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) throws InferenceException, StoreException {
         return null;
     }
 

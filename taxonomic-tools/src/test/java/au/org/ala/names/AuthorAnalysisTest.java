@@ -1,0 +1,40 @@
+package au.org.ala.names;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class AuthorAnalysisTest {
+    private AuthorAnalysis analysis = new AuthorAnalysis();
+
+    @Test
+    public void testEquivalence1() throws Exception {
+        assertTrue(this.analysis.equivalent("Jones", "Jones"));
+        assertTrue(this.analysis.equivalent("Linnaeus", "L."));
+        assertTrue(this.analysis.equivalent("A.Cabrera", "Ángel Cabrera"));
+    }
+
+    @Test
+    public void testEquivalence2() throws Exception {
+        assertTrue(this.analysis.equivalent("Jones", "Jonesey")); // Close enough
+        assertFalse(this.analysis.equivalent("Linnaeus", "Shwartz"));
+        assertFalse(this.analysis.equivalent("Caery", "Karey"));
+        assertTrue(this.analysis.equivalent("A.Cabrera", "A.Cabre"));
+    }
+
+    @Test
+    public void testEquivalence3() throws Exception {
+        assertNull(this.analysis.equivalent("Jones", null));
+        assertNull(this.analysis.equivalent(null, "L."));
+    }
+
+    @Test
+    public void testEquivalence4() throws Exception {
+        assertTrue(this.analysis.equivalent("Jones", "Jones, 1975"));
+        assertTrue(this.analysis.equivalent("Jones", "(Jones)"));
+        assertTrue(this.analysis.equivalent("Jones", "(Jones, 1975)"));
+        assertTrue(this.analysis.equivalent("(Jones)", "(Jones, 1975)"));
+        assertTrue(this.analysis.equivalent("(Jones)", "Jones, 1975"));
+   }
+
+}

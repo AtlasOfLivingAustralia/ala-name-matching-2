@@ -10,14 +10,14 @@ import java.util.List;
  * is then returned.
  * </p>
  */
-public class ClassificationMatcher<C extends Classification, Cl extends Classifier, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> {
+public class ClassificationMatcher<C extends Classification<C>, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> {
     /** The default possible theshold for something to be considered. @see isPossible */
     public static double POSSIBLE_THESHOLD = 0.1;
     /** The default acceptable threshold for something to be regarded as accepted. @see isAcceptable */
     public static double ACCEPTABLE_THRESHOLD = 0.99;
 
     private F factory;
-    private ClassifierSearcher<Cl> searcher;
+    private ClassifierSearcher<?> searcher;
     private I inferencer;
     private Analyser<C> analyser;
 
@@ -27,7 +27,7 @@ public class ClassificationMatcher<C extends Classification, Cl extends Classifi
      * @param factory The factory for creating objects for the matcher to work on
      * @param searcher The mechanism for getting candidiates
      */
-    public ClassificationMatcher(F factory, ClassifierSearcher<Cl> searcher) {
+    public ClassificationMatcher(F factory, ClassifierSearcher<?> searcher) {
         this.factory = factory;
         this.searcher = searcher;
         this.inferencer = this.factory.createInferencer();
@@ -36,12 +36,12 @@ public class ClassificationMatcher<C extends Classification, Cl extends Classifi
 
     public Match<C> findMatch(C classification) throws InferenceException, StoreException {
         classification.infer();
-        List<Cl> candididates = this.searcher.search(classification);
-        if (candididates.isEmpty())
+        List<? extends Classifier> candidates = this.searcher.search(classification);
+        if (candidates.isEmpty())
             return null;
-        List<Match<C>> results = new ArrayList<>(candididates.size());
+        List<Match<C>> results = new ArrayList<>(candidates.size());
         P parameters = this.factory.createParameters();
-        for (Cl candidate: candididates) {
+        for (Classifier candidate: candidates) {
             candidate.loadParameters(parameters);
             double p = this.inferencer.probability(classification, candidate, parameters);
             if (this.isPossible(classification, candidate, p)) {
@@ -73,7 +73,7 @@ public class ClassificationMatcher<C extends Classification, Cl extends Classifi
      *
      * @return True if this is a possible match
      */
-    protected boolean isPossible(C classification, Cl candidate, double p) {
+    protected boolean isPossible(C classification, Classifier candidate, double p) {
         return p >= POSSIBLE_THESHOLD;
     }
 
@@ -90,7 +90,7 @@ public class ClassificationMatcher<C extends Classification, Cl extends Classifi
      *
      * @return True if this is a possible match
      */
-    protected boolean isAcceptable(C classification, Cl candidate, double p) {
+    protected boolean isAcceptable(C classification, Classifier candidate, double p) {
         return p >= ACCEPTABLE_THRESHOLD;
     }
 }

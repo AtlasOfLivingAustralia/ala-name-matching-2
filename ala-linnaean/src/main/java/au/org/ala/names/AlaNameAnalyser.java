@@ -3,6 +3,8 @@ package au.org.ala.names;
 import au.org.ala.bayesian.*;
 import au.org.ala.util.SimpleClassifier;
 import au.org.ala.vocab.ALATerm;
+import com.google.common.base.Enums;
+import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.NameParserGBIF;
 import org.gbif.nameparser.api.*;
 import org.gbif.nameparser.util.NameFormatter;
@@ -27,10 +29,10 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
         final NameParser parser = PARSER.get();
         final String scientificName = classification.scientificName;
         Rank rank = classification.taxonRank;
-        final String nomenclaturalCode = classification.nomenclaturalCode;
+        final NomenclaturalCode nomenclaturalCode = classification.nomenclaturalCode;
+        final NomCode nomCode = nomenclaturalCode == null ? null : Enums.getIfPresent(NomCode.class, nomenclaturalCode.name()).orNull();
         if (rank == null)
             rank = Rank.UNRANKED;
-        NomCode nomCode = nomenclaturalCode == null ? null : Arrays.stream(NomCode.values()).filter(c -> nomenclaturalCode.equalsIgnoreCase(c.getAcronym())).findFirst().orElse(null);
         try {
             ParsedName name = parser.parse(scientificName, rank, nomCode);
             rank = name.getRank();

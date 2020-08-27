@@ -15,29 +15,30 @@ import java.util.HashMap;
  * Analysis objects take a value an performs any simple processing or
  * intepretation that the value needs before
  * </p>
+ *
+ * @param <C> The type of object this analyser handles.
  */
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
-abstract public class Analysis {
+abstract public class Analysis<C> {
     /**
      * Get the class of object that this analyser handles.
      *
      * @return The class of analyser object
      */
     @JsonIgnore
-    abstract public Class<?> getType();
+    abstract public Class<C> getType();
 
     /**
      * Analyse this object, providing any special interpretation
      * required.
      *
      * @param value The value to analyse
-     * @param type The expected type
      *
      * @return The analysed value.
      *
      * @throws InferenceException if unable to analyse the value
      */
-    abstract public <C> C analyse(C value) throws InferenceException;
+    abstract public C analyse(C value) throws InferenceException;
 
     /**
      * Convert this object into a string for storage
@@ -48,7 +49,7 @@ abstract public class Analysis {
      *
      * @throws StoreException if unable to convert to a string
      */
-    abstract public String toString(Object value) throws StoreException;
+    abstract public String toString(C value) throws StoreException;
 
     /**
      * Parse this value and return a suitably interpreted object.
@@ -74,7 +75,7 @@ abstract public class Analysis {
      *
      * @throws InferenceException if unable to determine equivalence
      */
-    public Boolean equivalent(Object value1, Object value2) throws InferenceException {
+    public Boolean equivalent(C value1, C value2) throws InferenceException {
         if (value1 == null || value2 == null)
             return null;
         return value1.equals(value2);
@@ -88,16 +89,18 @@ abstract public class Analysis {
      * @return A default analyser for this class
      *
      * @throws IllegalArgumentException if unable to determine the analyser from the class
+     *
+     * @param <C> The type of object this analyses
      */
-    public static Analysis defaultAnalyser(Class<?> clazz) throws IllegalArgumentException {
+    public static <C> Analysis<C> defaultAnalyser(Class<C> clazz) throws IllegalArgumentException {
         if (clazz == LocalDateAnalysis.class)
-            return new LocalDateAnalysis();
+            return (Analysis<C>) new LocalDateAnalysis();
         if (clazz == Double.class)
-            return new DoubleAnalysis();
+            return (Analysis<C>) new DoubleAnalysis();
         if (clazz == Integer.class)
-            return new IntegerAnalysis();
+            return (Analysis<C>) new IntegerAnalysis();
         if (clazz == String.class)
-            return new StringAnalysis();
+            return (Analysis<C>) new StringAnalysis();
         throw new IllegalArgumentException("Unable to build default analysis object for " + clazz);
     }
 

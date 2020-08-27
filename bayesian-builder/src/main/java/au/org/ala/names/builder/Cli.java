@@ -14,5 +14,5 @@ import au.org.ala.bayesian.Parameters;
  * @param <I> The inferencer to use
  * @param <F> The factory to use
  */
-public interface Cli<C extends Classification, P extends Parameters, B extends Builder<P>, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>>{
+public interface Cli<C extends Classification<C>, P extends Parameters, B extends Builder<P>, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>>{
 }

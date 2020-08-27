@@ -11,7 +11,7 @@ import java.util.List;
  * @param <P> The parameters class to use
  * @param <I> The inferencer class to user
  */
-public interface NetworkFactory<C extends Classification, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> {
+public interface NetworkFactory<C extends Classification<C>, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> {
     /**
      * Get a list of all the observables used by the network.
      *

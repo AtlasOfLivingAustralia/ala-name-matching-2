@@ -142,6 +142,7 @@ public class LuceneClassifier implements Classifier {
         if (fields.length == 0)
             return null;
         Analysis analysis = observable.getAnalysis();
+        boolean allNull = true;
         if (Number.class.isAssignableFrom(observable.getType())) {
             if (!(value instanceof Number))
                 return false;
@@ -150,6 +151,7 @@ public class LuceneClassifier implements Classifier {
                 Boolean match = analysis.equivalent(value, fv);
                 if (match != null && match)
                     return true;
+                allNull = allNull && match == null;
             }
         } else {
             for (IndexableField field: this.document.getFields(observable.getExternal(LUCENE))) {
@@ -158,9 +160,10 @@ public class LuceneClassifier implements Classifier {
                 Boolean match = analysis.equivalent(value, cv);
                 if (match != null && match)
                     return true;
+                allNull = allNull && match == null;
             }
         }
-        return false;
+        return allNull ? null : false;
     }
 
     /**

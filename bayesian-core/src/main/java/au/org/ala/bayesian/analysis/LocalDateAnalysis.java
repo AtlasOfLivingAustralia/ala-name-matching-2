@@ -13,7 +13,7 @@ import java.util.Calendar;
 /**
  * The default date analysis for a local date (no time part)
  */
-public class LocalDateAnalysis extends Analysis {
+public class LocalDateAnalysis extends Analysis<LocalDate> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -36,7 +36,7 @@ public class LocalDateAnalysis extends Analysis {
      * @throws InferenceException if unable to analyse the value
      */
     @Override
-    public <C> C analyse(C value) throws InferenceException {
+    public LocalDate analyse(LocalDate value) throws InferenceException {
         return value;
     }
 
@@ -48,9 +48,7 @@ public class LocalDateAnalysis extends Analysis {
      * @throws StoreException if unable to convert to a string
      */
     @Override
-    public String toString(Object value) throws StoreException {
-        if (!(value instanceof LocalDate))
-            throw new StoreException("Expecting local date, got " + value);
+    public String toString(LocalDate value) throws StoreException {
         return value == null ? null : DateTimeFormatter.ISO_LOCAL_DATE.format((LocalDate) value);
     }
 

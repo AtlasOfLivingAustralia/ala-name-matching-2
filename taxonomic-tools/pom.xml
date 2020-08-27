@@ -14,6 +14,11 @@
     <name>Taxonomic Tools</name>
     <description>Classes, tools and network utilties for analysing biological names</description>
 
+    <!-- Contains GBIF-specific versions -->
+    <properties>
+         <name-parser.version>3.6.1-ala-SNAPSHOT</name-parser.version>
+        <checklistbank.version>2.83</checklistbank.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -30,6 +35,11 @@
             <groupId>org.gbif</groupId>
             <artifactId>name-parser-api</artifactId>
             <version>${name-parser.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif.checklistbank</groupId>
+            <artifactId>checklistbank-common</artifactId>
+            <version>${checklistbank.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -79,7 +79,7 @@ public class IndexBuilderConfigurationTest {
         Annotator annotator = new TestAnnotator();
         IndexBuilderConfiguration config = new IndexBuilderConfiguration();
         config.setBuilderClass(EmptyBuilder.class);
-        Builder builder  = config.createBuilder(annotator, new TestFactory());
+        Builder builder  = config.createBuilder(annotator, new EmptyFactory());
         assertEquals(EmptyBuilder.class, builder.getClass());
     }
 

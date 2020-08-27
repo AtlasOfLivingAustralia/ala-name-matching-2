@@ -385,6 +385,9 @@
       "style": "PHRASE",
       "properties": {
         "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship": true
+      },
+      "analysis": {
+        "@class": "au.org.ala.names.AuthorAnalysis"
       }
     },
     {
@@ -414,7 +417,11 @@
     {
       "id": "nomenclaturalCode",
       "label": "NC",
-      "uri": "http://rs.tdwg.org/dwc/terms/nomenclaturalCode"
+      "type": "org.gbif.api.vocabulary.NomenclaturalCode",
+      "uri": "http://rs.tdwg.org/dwc/terms/nomenclaturalCode",
+      "analysis": {
+        "@class": "au.org.ala.names.NomenclaturalCodeAnalysis"
+      }
     },
     {
       "id": "weight",

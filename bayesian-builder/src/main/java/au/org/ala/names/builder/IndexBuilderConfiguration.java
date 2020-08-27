@@ -136,7 +136,7 @@ public class IndexBuilderConfiguration {
      *
      * @throws StoreException if unable to build the store
      */
-    public <C extends Classification, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> F createFactory(Annotator annotator) throws StoreException {
+    public <C extends Classification<C>, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> F createFactory(Annotator annotator) throws StoreException {
         Constructor<F> c;
 
         if (this.factoryClass == null)
