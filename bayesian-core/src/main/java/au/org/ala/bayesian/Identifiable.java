@@ -166,7 +166,6 @@ abstract public class Identifiable {
         }
     }
 
-
     /**
      * Get the java variable name for this identifiable item.
      * <p>
@@ -181,6 +180,23 @@ abstract public class Identifiable {
     @JsonIgnore
     public String getJavaVariable() {
         return this.getExternal(ExternalContext.JAVA_VARIABLE);
+    }
+
+
+    /**
+     * Get the java variable name for this identifiable item.
+     * <p>
+     * Variable names are suitable base names for using in java code and corresponds to
+     * <code>this.getExternal(ExternalContext.JAVA_VARIABLE)</code>
+     * </p>
+     *
+     * @return The java variable name
+     *
+     * @see #getExternal
+     */
+    @JsonIgnore
+    public String getJavaConstant() {
+        return this.getExternal(ExternalContext.JAVA_CONSTANT);
     }
 
     /**

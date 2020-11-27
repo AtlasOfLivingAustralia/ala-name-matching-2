@@ -1,9 +1,6 @@
 package au.org.ala.names.lucene;
 
-import au.org.ala.bayesian.Normaliser;
-import au.org.ala.bayesian.Observable;
-import au.org.ala.bayesian.Observation;
-import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.*;
 import au.org.ala.util.BasicNormaliser;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
@@ -67,8 +64,10 @@ public class QueryUtils {
      * Create a new query builder for a base query.
      *
      * @return The new, empty builder
+     *
+     * @throws StoreException if unable to convert to a query
      */
-    public Builder createBuilder(Observable observable, String value) {
+    public Builder createBuilder(Observable observable, String value) throws StoreException {
         return this.createBuilder().add(this.asClause(observable, value));
     }
 
@@ -78,8 +77,10 @@ public class QueryUtils {
      * @param observation The observation
      *
      * @return A matching lucene clause
+     *
+     * @throws StoreException if unable to convert to a query
      */
-    public BooleanClause asClause(Observation observation) {
+    public BooleanClause asClause(Observation observation) throws StoreException {
         return this.asClause(observation, true);
     }
 
@@ -94,10 +95,12 @@ public class QueryUtils {
      * @param required True if the clause is required
      *
      * @return A matching lucene clause
+     *
+     * @throws StoreException if unable to convert to a query
      */
-    public BooleanClause asClause(Observation observation, boolean required) {
-        String field = observation.getObservable().getExternal(LUCENE);
+    public BooleanClause asClause(Observation observation, boolean required) throws StoreException {
         Observable observable = observation.getObservable();
+        String field = observable.getExternal(LUCENE);
         Query base;
 
         if (observation.isPresent()) {
@@ -109,6 +112,7 @@ public class QueryUtils {
                 observable.getType(),
                 observable.getStyle(),
                 observable.getNormaliser(),
+                observable.getAnalysis(),
                 observation.isSingleton() ? observation.getValue() : observation.getValues()
         );
         }
@@ -122,14 +126,17 @@ public class QueryUtils {
      * @param value The required value
      *
      * @return A matching lucene clause
+     *
+     * @throws StoreException if unable to convert to a query
      */
-    public BooleanClause asClause(Observable observable, String value) {
+    public BooleanClause asClause(Observable observable, String value) throws StoreException {
         return new BooleanClause(
                 this.asQuery(
                         observable.getExternal(LUCENE),
                         observable.getType(),
                         observable.getStyle(),
                         observable.getNormaliser(),
+                        observable.getAnalysis(),
                         value),
                 BooleanClause.Occur.FILTER
         );
@@ -142,12 +149,14 @@ public class QueryUtils {
      * @param value The required value
      *
      * @return A matching lucene clause
+     *
+     * @throws StoreException if unable to convert to a query
      */
-    public Query asQuery(String field, Class<?> type, Observable.Style style, Normaliser normaliser, Object value) {
+    public <C> Query asQuery(String field, Class<C> type, Observable.Style style, Normaliser normaliser, Analysis<C> analysis, Object value) throws StoreException {
         if (value instanceof Collection) {
             BooleanQuery.Builder all = new BooleanQuery.Builder();
             for (Object v: (Collection) value) {
-                all.add(new BooleanClause(this.asQuery(field, type, style, normaliser, v), BooleanClause.Occur.SHOULD));
+                all.add(new BooleanClause(this.asQuery(field, type, style, normaliser, analysis, v), BooleanClause.Occur.SHOULD));
             }
             return all.build();
         }
@@ -157,7 +166,7 @@ public class QueryUtils {
         if (Number.class.isAssignableFrom(type)) {
             return DoublePoint.newExactQuery(field, ((Number) value).doubleValue());
         }
-        String val = value.toString();
+        String val = analysis.toString((C) value);
         if (normaliser != null)
             val = normaliser.normalise(val);
         switch (style) {

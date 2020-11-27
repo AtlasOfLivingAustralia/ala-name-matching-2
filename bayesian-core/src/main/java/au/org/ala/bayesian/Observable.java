@@ -53,7 +53,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @Setter
     private Analysis analysis;
 
-    // Ensure ALA Term vocabulary is properly loaded
+    // Ensure Bayesian Term vocabulary is properly loaded
     static {
         BayesianTerm.values();
     }
@@ -199,7 +199,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     /**
      * The style of data in an observable.
      * <p>
-     * This gets used to decide how to search for somethign
+     * This gets used to decide how to search for something
      * </p>
      */
     public enum Style {

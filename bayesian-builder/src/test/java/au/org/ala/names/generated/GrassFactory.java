@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
+
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.ClassificationMatcher;
@@ -57,6 +60,9 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassPa
     sprinkler,
     wet
   ));
+
+  public static final TermFactory TERM_FACTORY = TermFactory.instance();
+
 
   static {
     rain.setExternal(LUCENE, "rain");

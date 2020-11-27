@@ -243,7 +243,7 @@
       "properties": {
         "http://id.ala.org.au/bayesian/1.0/copy": true
       },
-      "normaliser": "simple_normaliser",
+       "normaliser": "simple_normaliser",
       "style": "PHRASE",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
@@ -413,7 +413,7 @@
       "id": "phraseName",
       "label": "PN",
       "uri": "http://id.ala.org.au/terms/1.0/phraseName"
-    },
+     },
     {
       "id": "nomenclaturalCode",
       "label": "NC",
@@ -544,5 +544,69 @@
     { "source": "kingdom", "target": "soundexKingdom",  "edge": { } },
     { "source": "soundexKingdom", "target": "kingdomID",  "edge": { } },
     { "source": "stateOrProvince", "target": "country",  "edge": { } }
+  ],
+  "modifications": [
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_rank",
+      "issue" : "http://id.ala.org.au/issues/1.0/removedRank",
+      "observable" : "taxonRank"
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_authorship",
+      "issue" : "http://id.ala.org.au/issues/1.0/removedScientificNameAuthorship",
+      "observable" : "scientificNameAuthorship"
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_cultivar",
+      "issue" : "http://id.ala.org.au/issues/1.0/removedCultivarEpithet",
+      "observable" : "cultivarEpithet"
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_phrasename",
+      "issue" : "http://id.ala.org.au/issues/1.0/removedPhraseName",
+      "observable" : "phraseName"
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_order",
+      "issue" : "http://id.ala.org.au/issues/1.0/removedOrder",
+      "observable" : "order"
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_class",
+      "issue" : "http://id.ala.org.au/issues/1.0/removedClass",
+      "observable" : "class"
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_phylum",
+      "issue" : "http://id.ala.org.au/issues/1.0/removedPhylum",
+      "observable" : "phylum"
+    }
+  ],
+  "modifiers": [
+    [
+      "remove_order", "remove_class", "remove_phylum"
+    ],
+    [
+      "remove_order", "remove_class", "remove_phylum"
+    ],
+    [
+      "remove_authorship"
+    ],
+    [
+      "remove_cultivar"
+    ],
+    [
+      "remove_phrasename"
+    ],
+    [
+      "remove_rank"
+    ]
   ]
 }

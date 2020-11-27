@@ -228,5 +228,27 @@
     "source" : "phylum",
     "target" : "kingdom",
     "edge" : { }
-  } ]
+  } ],
+  "modifications" : [ {
+    "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+    "id" : "remove_class",
+    "issue" : "http://id.ala.org.au/issues/1.0/removedClass",
+    "observable" : "class"
+  }, {
+    "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+    "id" : "remove_order",
+    "issue" : "http://id.ala.org.au/issues/1.0/removedOrder",
+    "observable" : "order"
+  }, {
+    "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+    "id" : "remove_phylum",
+    "issue" : "http://id.ala.org.au/issues/1.0/removedPhylum",
+    "observable" : "phylum"
+  }, {
+    "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+    "id" : "remove_rank",
+    "issue" : "http://id.ala.org.au/issues/1.0/removedRank",
+    "observable" : "taxonRank"
+  } ],
+  "modifiers" : [ [ "remove_order", "remove_class", "remove_phylum" ], [ "remove_rank" ] ]
 }

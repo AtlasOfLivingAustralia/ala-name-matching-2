@@ -11,8 +11,12 @@ import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.StoreException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 
+import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -25,6 +29,19 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   private Issues issues;
 <#list classificationVariables as variable>
   private ${variable.clazz.simpleName} ${variable.name};
+</#list>
+<#list modifications as modifier>
+  private Function<${className}, ${className}> ${modifier.javaConstant} =
+    c -> {
+      ${className} nc;
+  <#list modifier.generate(compiler, "c", "nc") as statement>
+      ${statement}
+  </#list>
+  <#if modifier.issue??>
+      nc.addIssue(${factoryClassName}.${"ISSUE_" + modifier.javaConstant});
+  </#if>
+      return nc;
+    };
 </#list>
 
 <#list orderedNodes as node>
@@ -53,6 +70,19 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     this(analyser);
     this.read(classifier, true);
     this.infer();
+  }
+
+  @Override
+  @SneakyThrows
+  public ${className} clone() {
+      ${className} clone = (${className}) super.clone();
+      clone.issues = new Issues(this.issues);
+      return clone;
+  }
+
+  @Override
+  public void addIssue(Term issue) {
+    this.issues = this.issues.with(issue);
   }
 
   @Override
@@ -99,6 +129,25 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     }
   </#if>
 </#list>
+  }
+
+  @Override
+  public List<List<Function<${className}, ${className}>>> modificationOrder() {
+    List<List<Function<${className}, ${className}>>> modifications = new ArrayList();
+<#if network.modifiers?? && network.modifiers?size gt 0>
+    List<Function<${className}, ${className}>> ml;
+<#list network.modifiers as ml>
+    ml = new ArrayList();
+    ml.add(null);
+    <#list ml as modifier>
+    if (<#list modifier.modified as var><#if var?index gt 0> && </#if>this.${var.javaVariable} != null</#list>)
+      ml.add(${modifier.javaConstant});
+    </#list>
+    if (ml.size() > 1)
+      modifications.add(ml);
+</#list>
+</#if>
+    return modifications;
   }
 
   @Override

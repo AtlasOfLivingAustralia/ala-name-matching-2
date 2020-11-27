@@ -10,8 +10,12 @@ import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.StoreException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 
+import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -42,6 +46,19 @@ public class Network9Classification implements Classification<Network9Classifica
     this(analyser);
     this.read(classifier, true);
     this.infer();
+  }
+
+  @Override
+  @SneakyThrows
+  public Network9Classification clone() {
+      Network9Classification clone = (Network9Classification) super.clone();
+      clone.issues = new Issues(this.issues);
+      return clone;
+  }
+
+  @Override
+  public void addIssue(Term issue) {
+    this.issues = this.issues.with(issue);
   }
 
   @Override
@@ -81,6 +98,12 @@ public class Network9Classification implements Classification<Network9Classifica
     if (this.v2 == null) {
       this.v2 = this.soundex.soundex(this.v1);
     }
+  }
+
+  @Override
+  public List<List<Function<Network9Classification, Network9Classification>>> modificationOrder() {
+    List<List<Function<Network9Classification, Network9Classification>>> modifications = new ArrayList();
+    return modifications;
   }
 
   @Override

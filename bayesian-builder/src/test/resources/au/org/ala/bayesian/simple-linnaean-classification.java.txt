@@ -1,4 +1,4 @@
-package au.org.ala.names.generated;
+package au.org.ala.bayesian.generated;
 
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;

@@ -2,6 +2,7 @@ package au.org.ala.names.generated;
 
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Inference;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.StoreException;
@@ -117,8 +118,9 @@ public class SimpleLinnaeanInferencer implements Inferencer<SimpleLinnaeanClassi
     return (c$taxonRank + nc$taxonRank) * (c$scientificNameAuthorship + nc$scientificNameAuthorship) * (c$kingdom + nc$kingdom) * (parameters.prior_t$taxonId * c$taxonId + parameters.prior_f$taxonId * nc$taxonId);
   }
 
-  public double probability(Evidence evidence, SimpleLinnaeanParameters parameters) {
+  public Inference probability(Evidence evidence, SimpleLinnaeanParameters parameters) {
     double p;
+    double prior = parameters.prior_t$taxonId;
     double ph = 0.0;
     double pe = 0.0;
 
@@ -127,11 +129,11 @@ public class SimpleLinnaeanInferencer implements Inferencer<SimpleLinnaeanClassi
     pe += p;
     p = (evidence.isF$e$taxonId() ? 1.0 : 0.0) * this.infer(evidence, parameters, 0.0);
     pe += p;
-    return pe == 0.0 ? 0.0 : ph / pe;
+    return Inference.forPEH(prior, pe, ph);
   }
 
   @Override
-  public double probability(SimpleLinnaeanClassification classification, Classifier classifier, SimpleLinnaeanParameters parameters) throws StoreException, InferenceException {
+  public Inference probability(SimpleLinnaeanClassification classification, Classifier classifier, SimpleLinnaeanParameters parameters) throws StoreException, InferenceException {
     Evidence evidence = classification.match(classifier);
     return this.probability(evidence, parameters);
   }

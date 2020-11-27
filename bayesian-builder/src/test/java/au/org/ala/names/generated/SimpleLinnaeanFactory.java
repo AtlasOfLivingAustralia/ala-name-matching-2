@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
+
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.analysis.DoubleAnalysis;
@@ -187,6 +190,17 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     taxonRank,
     weight
   ));
+
+  public static final TermFactory TERM_FACTORY = TermFactory.instance();
+
+  /** Issue if remove_class is used using matching */
+  public static final Term ISSUE_REMOVE_CLASS = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedClass");
+  /** Issue if remove_order is used using matching */
+  public static final Term ISSUE_REMOVE_ORDER = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedOrder");
+  /** Issue if remove_phylum is used using matching */
+  public static final Term ISSUE_REMOVE_PHYLUM = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedPhylum");
+  /** Issue if remove_rank is used using matching */
+  public static final Term ISSUE_REMOVE_RANK = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedRank");
 
   static {
     acceptedNameUsageId.setExternal(LUCENE, "dwc_acceptedNameUsageID");

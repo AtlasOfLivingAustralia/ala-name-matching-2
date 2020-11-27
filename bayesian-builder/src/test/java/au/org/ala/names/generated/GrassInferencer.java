@@ -2,6 +2,7 @@ package au.org.ala.names.generated;
 
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Inference;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.StoreException;
@@ -30,8 +31,9 @@ public class GrassInferencer implements Inferencer<GrassClassification, GrassPar
     return (c$wet + nc$wet) * (parameters.prior_t$rain * c$rain + parameters.prior_f$rain * nc$rain);
   }
 
-  public double probability(Evidence evidence, GrassParameters parameters) {
+  public Inference probability(Evidence evidence, GrassParameters parameters) {
     double p;
+    double prior = parameters.prior_t$rain;
     double ph = 0.0;
     double pe = 0.0;
 
@@ -40,11 +42,11 @@ public class GrassInferencer implements Inferencer<GrassClassification, GrassPar
     pe += p;
     p = (evidence.isF$e$rain() ? 1.0 : 0.0) * this.infer(evidence, parameters, 0.0);
     pe += p;
-    return pe == 0.0 ? 0.0 : ph / pe;
+    return Inference.forPEH(prior, pe, ph);
   }
 
   @Override
-  public double probability(GrassClassification classification, Classifier classifier, GrassParameters parameters) throws StoreException, InferenceException {
+  public Inference probability(GrassClassification classification, Classifier classifier, GrassParameters parameters) throws StoreException, InferenceException {
     Evidence evidence = classification.match(classifier);
     return this.probability(evidence, parameters);
   }

@@ -5,6 +5,9 @@ import au.org.ala.bayesian.Observable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * A null derivation from a source to a target.
  * <p>
@@ -30,6 +33,16 @@ public class CopyDerivation extends Derivation {
      */
     public CopyDerivation(Observable source) {
         this.source = source;
+    }
+
+    /**
+     * Get the list of variables that provide input to this derivatiobn.
+     *
+     * @return The set of sources.
+     */
+    @Override
+    public Set<Observable> getInputs() {
+        return Collections.singleton(this.source);
     }
 
     /**

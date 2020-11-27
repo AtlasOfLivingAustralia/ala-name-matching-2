@@ -2,6 +2,7 @@ package au.org.ala.bayesian.generated;
 
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Inference;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.StoreException;
@@ -13,8 +14,9 @@ public class Network1Inferencer implements Inferencer<Network1Classification, Ne
     return (c$v1 + nc$v1) * (parameters.prior_t$v1 * c$v1 + parameters.prior_f$v1 * nc$v1);
   }
 
-  public double probability(Evidence evidence, Network1Parameters parameters) {
+  public Inference probability(Evidence evidence, Network1Parameters parameters) {
     double p;
+    double prior = parameters.prior_t$v1;
     double ph = 0.0;
     double pe = 0.0;
 
@@ -23,11 +25,11 @@ public class Network1Inferencer implements Inferencer<Network1Classification, Ne
     pe += p;
     p = (evidence.isF$e$v1() ? 1.0 : 0.0) * this.infer(evidence, parameters, 0.0);
     pe += p;
-    return pe == 0.0 ? 0.0 : ph / pe;
+    return Inference.forPEH(prior, pe, ph);
   }
 
   @Override
-  public double probability(Network1Classification classification, Classifier classifier, Network1Parameters parameters) throws StoreException, InferenceException {
+  public Inference probability(Network1Classification classification, Classifier classifier, Network1Parameters parameters) throws StoreException, InferenceException {
     Evidence evidence = classification.match(classifier);
     return this.probability(evidence, parameters);
   }

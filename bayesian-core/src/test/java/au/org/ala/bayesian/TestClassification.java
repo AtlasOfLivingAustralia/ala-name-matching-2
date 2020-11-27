@@ -2,10 +2,14 @@ package au.org.ala.bayesian;
 
 import au.org.ala.util.BasicNormaliser;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.With;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class TestClassification implements Classification<TestClassification> {
     public static final Normaliser NORMALISER = new BasicNormaliser("basic", true, true, true, true, false);
@@ -36,6 +40,16 @@ public class TestClassification implements Classification<TestClassification> {
     @Getter
     private Issues issues = new Issues();
 
+    /**
+     * Create a clone of this classification.
+     *
+     * @return The cloned classification
+     */
+    @SneakyThrows
+    @Override
+    public @NonNull TestClassification clone() {
+        return (TestClassification) super.clone();
+    }
 
     @Override
     public Term getType() {
@@ -56,8 +70,40 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
+    public void addIssue(Term issue) {
+        this.issues = this.issues.with(issue);
+    }
+
+    @Override
     public void infer() {
 
+    }
+
+    /**
+     * The order in which to modify this classification.
+     * <p>
+     * Returned is a list of functions that will take a classification and return
+     * a modified classification
+     * </p>
+     *
+     * @return The modification options for the classifier
+     */
+    @Override
+    public List<List<Function<TestClassification, TestClassification>>> modificationOrder() {
+        List<List<Function<TestClassification, TestClassification>>> modifiers = new ArrayList<>();
+        if (this.class_ != null) {
+            modifiers.add(Arrays.asList(
+                null,
+                c -> { TestClassification nc = c.clone(); nc.class_ = null; nc.addIssue(DwcTerm.class_); return nc;}
+            ));
+        }
+        if (this.vernacularName != null) {
+            modifiers.add(Arrays.asList(
+                null,
+                c -> { TestClassification nc = c.clone(); nc.vernacularName = null; nc.addIssue(DwcTerm.vernacularName); return nc;}
+            ));
+        }
+        return modifiers;
     }
 
     @Override

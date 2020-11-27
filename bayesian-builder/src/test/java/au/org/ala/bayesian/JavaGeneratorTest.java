@@ -91,6 +91,19 @@ public class JavaGeneratorTest {
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-9-classification.java.txt"), writer.toString());
     }
 
+
+    @Test
+    public void testGenerateClassification2() throws Exception {
+        StringWriter writer = new StringWriter();
+        Network network = Network.read(this.getClass().getResource("/au/org/ala/names/lucene/simple-network.json"));
+        NetworkCompiler compiler = new NetworkCompiler(network);
+        compiler.analyse();
+        JavaGenerator generator = new JavaGenerator();
+        generator.generateClass(compiler, generator.getClassificationSpec(), writer, compiler.getClassificationVariables());
+        // System.out.println(writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "simple-linnaean-classification.java.txt"), writer.toString());
+    }
+
     @Test
     public void testGenerateFactory1() throws Exception {
         StringWriter writer = new StringWriter();

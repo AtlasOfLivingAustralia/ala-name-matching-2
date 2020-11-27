@@ -15,6 +15,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
+
 <#list imports as import>
 import ${import};
 </#list>
@@ -50,6 +53,15 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     ${observable.javaVariable}<#if observable?has_next>,</#if>
   </#list>
   ));
+
+  public static final TermFactory TERM_FACTORY = TermFactory.instance();
+
+<#list modifications as modifier>
+    <#if modifier.issue??>
+  /** Issue if ${modifier.id} is used using matching */
+  public static final Term ${"ISSUE_" + modifier.javaConstant} = TERM_FACTORY.findTerm("${modifier.issue}");
+    </#if>
+</#list>
 
   static {
 <#list network.observablesById as observable>

@@ -130,8 +130,9 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      * @return The probaility of the observation, by weight.
      *
      * @throws InferenceException
+     * @throws StoreException if unable to convert to a query
      */
-    public double computePrior(Observation observation) throws InferenceException {
+    public double computePrior(Observation observation) throws InferenceException, StoreException {
         if (totalWeight <= 0.0)
             return 0.0;
 
@@ -155,8 +156,9 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      * @return The probability of the observation, given the inputs, by weight
      *
      * @throws InferenceException
+     * @throws StoreException if unable to convert to a query
      */
-    public double computeConditional(Observation observation, Observation... inputs) throws InferenceException {
+    public double computeConditional(Observation observation, Observation... inputs) throws InferenceException, StoreException {
         if (totalWeight <= 0.0)
             return 0.0;
         double priorWeight = 1.0;

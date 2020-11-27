@@ -1,0 +1,21 @@
+{
+  "id" : "network_10",
+  "observables" : [ {
+    "id" : "v_1"
+  }, {
+    "id" : "v_2"
+  } ],
+  "vertices" : [ "v_1", "v_2" ],
+  "edges" : [ {
+    "source" : "v_1",
+    "target" : "v_2",
+    "edge" : { }
+  } ],
+  "modifications" : [ {
+    "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+    "id" : "mod_1",
+    "issue" : "http://localhost/v_1",
+    "observable" : "v_1"
+  } ],
+  "modifiers" : [ [ "mod_1" ] ]
+}

@@ -2,6 +2,7 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.ClassificationMatcher;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Inference;
 import au.org.ala.bayesian.Match;
 import au.org.ala.names.builder.IndexBuilder;
 import au.org.ala.names.builder.IndexBuilderConfiguration;
@@ -84,25 +85,26 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         AlaLinnaeanInferencer inference = new AlaLinnaeanInferencer();
         AlaLinnaeanInferencer.Evidence evidence = new AlaLinnaeanInferencer.Evidence();
         evidence.e$scientificName = true;
-        double prob = inference.probability(evidence, params);
-        assertEquals(1.0, prob, 0.00001);
+        Inference prob = inference.probability(evidence, params);
+        assertEquals(1.0, prob.getPosterior(), 0.00001);
         evidence.e$genus = false;
         prob = inference.probability(evidence, params);
-        assertEquals(1.0, prob, 0.00001);
+        assertEquals(1.0, prob.getPosterior(), 0.00001);
         evidence.e$soundexGenus = true;
         prob = inference.probability(evidence, params);
-        assertEquals(1.0, prob, 0.00001);
+        assertEquals(1.0, prob.getPosterior(), 0.00001);
         evidence.e$soundexGenus = false;
         prob = inference.probability(evidence, params);
-        assertEquals(1.0, prob, 0.00001);
+        assertEquals(1.0, prob.getPosterior(), 0.00001);
         evidence.e$scientificName = false;
         prob = inference.probability(evidence, params);
-        assertEquals(0.0, prob, 0.00001);
+        assertEquals(0.0, prob.getPosterior(), 0.00001);
         evidence.e$scientificName = null;
         evidence.e$genus = true;
         evidence.e$soundexGenus = true;
         prob = inference.probability(evidence, params);
-        assertEquals(0.33425, prob, 0.00001);
+        assertEquals(0.00409, prob.getEvidence(), 0.00001);
+        assertEquals(0.33425, prob.getPosterior(), 0.00001);
     }
 
 
@@ -123,7 +125,8 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", match.getMatch().taxonId);
-        assertEquals(1.0, match.getProbability(), 0.00001);
+        assertEquals(0.001366, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
     @Test
@@ -134,7 +137,8 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(1.0, match.getProbability(), 0.00001);
+        assertEquals(0.0027322, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
     @Test
@@ -146,7 +150,8 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(1.0, match.getProbability(), 0.00001);
+        assertEquals(0.002732, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
 
@@ -157,7 +162,8 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51337710", match.getMatch().taxonId);
-        assertEquals(1.0, match.getProbability(), 0.00001);
+        assertEquals(0.0082, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
 
@@ -168,7 +174,8 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(1.0, match.getProbability(), 0.00001);
+        assertEquals(0.002732, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
 }

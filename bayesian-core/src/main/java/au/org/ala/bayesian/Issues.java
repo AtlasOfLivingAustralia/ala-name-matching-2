@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.gbif.dwc.terms.Term;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -21,10 +22,36 @@ import java.util.stream.Stream;
  * </p>
  */
 public class Issues extends HashSet<Term> {
+    /**
+     * Create an empty issues list
+     */
     public Issues() {
         super();
     }
 
+    /**
+     * Create from a list of issues.
+     *
+     * @param issues The list of issues
+     */
+    public Issues(Collection<Term> issues) {
+        super(issues);
+    }
+
+    /**
+     * Add another issue to this this of issues and return the merged issues list.
+     *
+     * @param issue The issue to add, if null no issue is added.
+     *
+     * @return The resulting combined issues.
+     */
+    public Issues with(Term issue) {
+        if (issue == null || this.contains(issue))
+            return this;
+        Issues merged = new Issues(this);
+        merged.add(issue);
+        return merged;
+    }
     /**
      * Merge two sets of issues.
      * <p>

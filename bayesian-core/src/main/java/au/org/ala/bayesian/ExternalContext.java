@@ -13,7 +13,8 @@ import lombok.Getter;
  */
 public enum ExternalContext {
     LUCENE(new TermIdentifierConverter("[a-zA-Z0-9_]", "_", true)),
-    JAVA_VARIABLE(SimpleIdentifierConverter.JAVA_VARIABLE);
+    JAVA_VARIABLE(SimpleIdentifierConverter.JAVA_VARIABLE),
+    JAVA_CONSTANT(SimpleIdentifierConverter.JAVA_CONSTANT);
 
     /** How to convert whatever identifier into something acceptable to the external system */
     @Getter

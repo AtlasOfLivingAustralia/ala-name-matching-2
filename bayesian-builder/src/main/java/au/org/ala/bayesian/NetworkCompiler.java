@@ -98,6 +98,15 @@ public class NetworkCompiler {
         return variables;
     }
 
+    /**
+     * Get a list of the things that can modify something.
+     *
+     * @return The list of modifiers
+     */
+    public List<Modifier> getModifications() {
+        return this.network.getModifications();
+    }
+
     public void analyse() throws InferenceException {
         this.sources = new DirectedAcyclicGraph<>(Dependency.class);
         Graphs.addGraphReversed(this.sources, this.network.getGraph());

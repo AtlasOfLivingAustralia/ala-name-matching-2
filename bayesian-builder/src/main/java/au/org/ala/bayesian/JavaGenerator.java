@@ -7,6 +7,7 @@ import au.org.ala.util.SimpleIdentifierConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import freemarker.core.Environment;
+import freemarker.ext.beans.BeanModel;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.ext.beans.CollectionModel;
 import freemarker.ext.beans.StringModel;
@@ -206,6 +207,7 @@ public class JavaGenerator extends Generator {
             baseContext.addImport(observable.getType().getName(), imports);
             baseContext.addImport(observable.getAnalysis().getClass().getName(), imports);
         }
+        environment.setVariable("compiler", new BeanModel(compiler, this.wrapper));
         environment.setVariable("packageName", new StringModel(this.packageName, this.wrapper));
         environment.setVariable("artifactName", new StringModel(this.artifactName, this.wrapper));
         environment.setVariable("networkFileName", new StringModel(this.getNetworkFileName(compiler), this.wrapper));

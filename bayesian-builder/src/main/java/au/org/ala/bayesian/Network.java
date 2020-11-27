@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.Getter;
+import lombok.Setter;
 import org.gbif.dwc.terms.Term;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
@@ -25,12 +27,17 @@ import java.util.stream.Collectors;
  * information to things like an index builder.
  * </p>
  */
-@JsonPropertyOrder({"id", "description", "uri", "normalisers", "observables", "vertices", "edges"})
+@JsonPropertyOrder({"id", "description", "uri", "normalisers", "observables", "vertices", "edges", "modifications", "modifiers" })
 public class Network extends Identifiable {
     /** The vertex id map */
     private SortedMap<String, Observable> idMap;
     /** The vertex URI map */
     private Map<URI, Observable> uriMap;
+    /** The list of modifiers */
+    @JsonProperty
+    @Getter
+    @Setter
+    private List<List<Modifier>> modifiers;
     /** The inference links between vertices */
     @JsonIgnore
     private DirectedAcyclicGraph<Observable, Dependency> graph;
@@ -42,6 +49,7 @@ public class Network extends Identifiable {
         this.graph = new DirectedAcyclicGraph<Observable, Dependency>(Dependency.class);
         this.idMap = new TreeMap<>();
         this.uriMap = new HashMap<>();
+        this.modifiers = new ArrayList<>();
     }
 
     /**
@@ -54,6 +62,7 @@ public class Network extends Identifiable {
         this.graph = new DirectedAcyclicGraph<Observable, Dependency>(Dependency.class);
         this.idMap = new TreeMap<>();
         this.uriMap = new HashMap<>();
+        this.modifiers = new ArrayList<>();
     }
 
     /**
@@ -100,7 +109,7 @@ public class Network extends Identifiable {
     public List<Normaliser> getNormalisers() {
         Set<Normaliser> norms = this.getVertices().stream().map(Observable::getNormaliser).filter(n -> n != null).collect(Collectors.toSet());
         List<Normaliser> normalisers = new ArrayList<>(norms);
-        normalisers.sort((n1, n2) -> n1.getId().compareTo(n2.getId()));
+        normalisers.sort(Comparator.comparing(Identifiable::getId));
         return normalisers;
     }
 
@@ -140,6 +149,14 @@ public class Network extends Identifiable {
             }
             this.graph.addVertex(used);
         }
+    }
+
+    @JsonProperty("modifications")
+    public List<Modifier> getModifications() {
+        Set<Modifier> mods = this.modifiers.stream().flatMap(List::stream).collect(Collectors.toSet());
+        List<Modifier> modifiers = new ArrayList<>(mods);
+        modifiers.sort(Comparator.comparing(Identifiable::getId));
+        return modifiers;
     }
 
 

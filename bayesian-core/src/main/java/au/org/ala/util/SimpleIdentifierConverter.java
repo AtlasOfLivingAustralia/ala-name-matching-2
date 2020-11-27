@@ -12,13 +12,15 @@ import java.util.Set;
 
 public class SimpleIdentifierConverter implements IdentifierConverter {
     /** Convert an identifiable object into a Java class name */
-    public static final IdentifierConverter JAVA_CLASS = new SimpleIdentifierConverter(Style.CAMEL_CASE, true, false);
+    public static final IdentifierConverter JAVA_CLASS = new SimpleIdentifierConverter(Style.CAMEL_CASE, true, false,false);
     /** Convert an identifiable object into a Java variable name */
-    public static final IdentifierConverter JAVA_VARIABLE = new SimpleIdentifierConverter(Style.CAMEL_CASE, false, true);
+    public static final IdentifierConverter JAVA_VARIABLE = new SimpleIdentifierConverter(Style.CAMEL_CASE, false, false,true);
+    /** Convert an identifiable object into a Java variable name */
+    public static final IdentifierConverter JAVA_CONSTANT = new SimpleIdentifierConverter(Style.UNDERSCORE, false, true,true);
     /** Convert an identifiable object into a Lucene field name */
-    public static final IdentifierConverter LUCENE_FIELD = new SimpleIdentifierConverter(Style.UNDERSCORE, false, false);
+    public static final IdentifierConverter LUCENE_FIELD = new SimpleIdentifierConverter(Style.UNDERSCORE, false, false,false);
     /** Convert an identifiable object into a file name */
-    public static final IdentifierConverter FILE_NAME = new SimpleIdentifierConverter(Style.DASH, false, false);
+    public static final IdentifierConverter FILE_NAME = new SimpleIdentifierConverter(Style.DASH, false, false,false);
 
     private static final Set<String> RESERVED_WORDS = new HashSet<>(Arrays.asList(
             "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
@@ -34,6 +36,8 @@ public class SimpleIdentifierConverter implements IdentifierConverter {
     private Style style;
     /** Should the first letter be captialised */
     private boolean firstLetterUpperCase;
+    /** Sould all letters be capitalised? */
+    private boolean allUpperCase;
     /** Should java keywords be avoided */
     private boolean noKeywords;
 
@@ -42,11 +46,13 @@ public class SimpleIdentifierConverter implements IdentifierConverter {
      *
      * @param style The style for work separation, etc.
      * @param firstLetterUpperCase Is the first letter upper case?
+     *
      * @param noKeywords True to avoid generating java keywords
      */
-    public SimpleIdentifierConverter(Style style, boolean firstLetterUpperCase, boolean noKeywords) {
+    public SimpleIdentifierConverter(Style style, boolean firstLetterUpperCase, boolean allUpperCase, boolean noKeywords) {
         this.style = style;
         this.firstLetterUpperCase = firstLetterUpperCase;
+        this.allUpperCase = allUpperCase;
         this.noKeywords = noKeywords;
     }
 
@@ -95,8 +101,12 @@ public class SimpleIdentifierConverter implements IdentifierConverter {
                 if (Character.isLetter(ch) && capitalise) {
                     w.append((char) Character.toUpperCase(ch));
                     capitalise = false;
-                } else
-                    w.append((char) Character.toLowerCase(ch));
+                } else {
+                    if (this.allUpperCase)
+                        w.append((char) Character.toUpperCase(ch));
+                    else
+                        w.append((char) Character.toLowerCase(ch));
+                }
                 int old = ch;
                 ch = r.read();
                 if (

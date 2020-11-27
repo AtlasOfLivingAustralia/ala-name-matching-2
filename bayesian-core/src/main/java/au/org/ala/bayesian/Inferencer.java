@@ -13,5 +13,5 @@ abstract public interface Inferencer<C extends Classification, P extends Paramet
      * @throws InferenceException if unable to calculate the probability
      * @throws StoreException if unable to get a value from the classifier
      */
-    public double probability(C classification, Classifier classifier, P parameters) throws StoreException, InferenceException;
+    public Inference probability(C classification, Classifier classifier, P parameters) throws StoreException, InferenceException;
 }

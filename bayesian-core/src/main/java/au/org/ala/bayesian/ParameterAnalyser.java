@@ -26,7 +26,7 @@ public interface ParameterAnalyser {
      *
      * @throws InferenceException if unable to compute the result
      */
-    double computePrior(Observation observation) throws InferenceException;
+    double computePrior(Observation observation) throws InferenceException, StoreException;
 
     /**
      * Computer a conditional probability for a observation
@@ -41,7 +41,7 @@ public interface ParameterAnalyser {
      *
      * @throws InferenceException if unable to compute the result
      */
-    double computeConditional(Observation observation, Observation... inputs) throws InferenceException;
+    double computeConditional(Observation observation, Observation... inputs) throws InferenceException, StoreException;
 
     /**
      * Get a fact from a classifier

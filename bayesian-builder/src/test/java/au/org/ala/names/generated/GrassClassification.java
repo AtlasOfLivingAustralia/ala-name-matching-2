@@ -10,8 +10,12 @@ import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.StoreException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 
+import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -39,6 +43,19 @@ public class GrassClassification implements Classification<GrassClassification> 
     this(analyser);
     this.read(classifier, true);
     this.infer();
+  }
+
+  @Override
+  @SneakyThrows
+  public GrassClassification clone() {
+      GrassClassification clone = (GrassClassification) super.clone();
+      clone.issues = new Issues(this.issues);
+      return clone;
+  }
+
+  @Override
+  public void addIssue(Term issue) {
+    this.issues = this.issues.with(issue);
   }
 
   @Override
@@ -75,6 +92,12 @@ public class GrassClassification implements Classification<GrassClassification> 
     this.sprinkler = (String) GrassFactory.sprinkler.getAnalysis().analyse(this.sprinkler);
     this.wet = (String) GrassFactory.wet.getAnalysis().analyse(this.wet);
     this.analyser.analyse(this);
+  }
+
+  @Override
+  public List<List<Function<GrassClassification, GrassClassification>>> modificationOrder() {
+    List<List<Function<GrassClassification, GrassClassification>>> modifications = new ArrayList();
+    return modifications;
   }
 
   @Override

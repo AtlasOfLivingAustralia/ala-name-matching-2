@@ -3,9 +3,7 @@ package au.org.ala.bayesian;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A derivation for an observable.
@@ -58,6 +56,14 @@ abstract public class Derivation {
     public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) throws InferenceException, StoreException {
         return null;
     }
+
+    /**
+     * Get the list of variables that provide input to this derivatiobn.
+     *
+     * @return The set of sources.
+     */
+    @JsonIgnore
+    abstract public Set<Observable> getInputs();
 
     /**
      * Test to see whether we have any extra observable needed

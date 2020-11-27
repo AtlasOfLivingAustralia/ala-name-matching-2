@@ -2,6 +2,7 @@ package ${packageName};
 
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Inference;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.StoreException;
@@ -60,8 +61,9 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     return <#list outputs as node><#if node?index gt 0> * </#if>(${node.CE.id} + ${node.CNotE.id})</#list><#list inputs as node> * (parameters.${node.prior.id} * ${node.CE.id} + parameters.${node.invertedPrior.id} * ${node.CNotE})</#list>;
   }
 
-  public double probability(Evidence evidence, ${parametersClassName} parameters) {
+  public Inference probability(Evidence evidence, ${parametersClassName} parameters) {
     double p;
+    double prior = <#list inputs as node><#if node?index gt 0> * </#if>parameters.${node.prior.id}</#list>;
     double ph = 0.0;
     double pe = 0.0;
 
@@ -72,11 +74,11 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     </#if>
     pe += p;
 </#list>
-    return pe == 0.0 ? 0.0 : ph / pe;
+    return Inference.forPEH(prior, pe, ph);
   }
 
   @Override
-  public double probability(${classificationClassName} classification, Classifier classifier, ${parametersClassName} parameters) throws StoreException, InferenceException {
+  public Inference probability(${classificationClassName} classification, Classifier classifier, ${parametersClassName} parameters) throws StoreException, InferenceException {
     Evidence evidence = classification.match(classifier);
     return this.probability(evidence, parameters);
   }

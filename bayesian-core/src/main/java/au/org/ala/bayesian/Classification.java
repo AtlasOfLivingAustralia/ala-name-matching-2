@@ -1,9 +1,13 @@
 package au.org.ala.bayesian;
 
+import lombok.Builder;
 import lombok.NonNull;
+import lombok.Value;
 import org.gbif.dwc.terms.Term;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * The base class for classifications.
@@ -11,7 +15,13 @@ import java.util.Collection;
  * Classifications hold the vector of evidence that make up a individual piece of data.
  * </p>
  */
-public interface Classification<C extends Classification<C>> {
+public interface Classification<C extends Classification<C>> extends Cloneable {
+    /**
+     * Create a clone of this classification.
+     *
+     * @return The cloned classification
+     */
+    @NonNull C clone();
     /**
      * Get the type of the classification
      *
@@ -35,6 +45,17 @@ public interface Classification<C extends Classification<C>> {
      * @return Any issues associated with the classification/
      */
     @NonNull Issues getIssues();
+
+    /**
+     * Add an issue to the issues list.
+     * <p>
+     * Adding an issue should apply to the classification itself.
+     * Shared issues lists need to be disambigauted before being modified.
+     * </p>
+     *
+     * @param issue The issue to add
+     */
+    void addIssue(Term issue);
 
     /**
      * Get a list of observations that match this classification.
@@ -83,4 +104,14 @@ public interface Classification<C extends Classification<C>> {
      * @throws StoreException if unable to store the translation
      */
     void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException;
+
+    /**
+     * The order in which to modify this classification.
+     * <p>
+     * Returned is a list of functions that will take a classification and return
+     * a modified classification
+     * </p>
+     * @return
+     */
+    public List<List<Function<C, C>>> modificationOrder();
 }
