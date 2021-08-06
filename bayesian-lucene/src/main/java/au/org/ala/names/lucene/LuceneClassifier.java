@@ -222,21 +222,23 @@ public class LuceneClassifier implements Classifier {
     }
 
     /**
-     * Get the all values for an observable.
+     * Get the all values for observables.
      *
-     * @param observable The observable
+     * @param observables The observable
      * @return The a set of all present values
      *
      * @throws StoreException if unable to retrieve a value
      */
     @Override
-    public <T> Set<T> getAll(Observable observable) {
-        IndexableField[] fs = this.document.getFields(observable.getExternal(LUCENE));
-        Set<T> values = new HashSet<>(fs.length);
-        for (IndexableField f: fs) {
-            T v = this.convert(observable, f);
-            if (v != null)
-                values.add(v);
+    public <T> Set<T> getAll(Observable... observables) {
+        Set<T> values = new HashSet<>(observables.length);
+        for (Observable observable: observables) {
+            IndexableField[] fs = this.document.getFields(observable.getExternal(LUCENE));
+            for (IndexableField f : fs) {
+                T v = this.convert(observable, f);
+                if (v != null)
+                    values.add(v);
+            }
         }
         return values;
     }

@@ -25,7 +25,7 @@ public abstract class Modifier extends Identifiable {
     @JsonProperty
     @Getter
     @Setter
-    private URI issue;
+    private Issue issue;
 
     /**
      * Construct an empty identifiable object with an arbitrary identifier.

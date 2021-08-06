@@ -17,7 +17,7 @@ import java.io.FileWriter;
 /**
  * Goal that generates a graph in DOT language for a bayesian network.
  */
-@Mojo(name = "generate-graph", defaultPhase = LifecyclePhase.SITE)
+@Mojo(name = "generate-graph", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class GraphGeneratorMojo extends AbstractMojo {
     /** Project reference */
     @Parameter(defaultValue = "${project}", readonly = true)

@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -65,9 +66,11 @@ public class NetworkTest {
         Network network = new Network("network_10");
         network.setVertices(Arrays.asList(v1, v2));
         network.setEdges(Arrays.asList(e1));
-        Modifier modifier = new RemoveModifier("mod_1", v1);
+        Modifier modifier = new RemoveModifier("mod_1", Arrays.asList(v1), false);
         network.setModifiers(Arrays.asList(Arrays.asList(modifier)));
-        modifier.setIssue(URI.create("http://localhost/v_1"));
+        Issue issue = new Issue(URI.create("http://localhost/issue_1"));
+        network.getIssues().add(issue);
+        modifier.setIssue(issue);
         network.setModifiers(Arrays.asList(Arrays.asList(modifier)));
         ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
@@ -144,9 +147,9 @@ public class NetworkTest {
         assertEquals(1, modifications.size());
         Modifier modifier = modifications.get(0);
         assertEquals("mod_1", modifier.getId());
-        assertEquals(URI.create("http://localhost/v_1"), modifier.getIssue());
+        assertEquals(URI.create("http://localhost/issue_1"), modifier.getIssue().getUri());
         assertEquals(RemoveModifier.class, modifier.getClass());
-        assertEquals(vertices.get(0), ((RemoveModifier) modifier).getObservable());
+        assertEquals(Collections.singleton(vertices.get(0)), ((RemoveModifier) modifier).getObservables());
     }
 
 }

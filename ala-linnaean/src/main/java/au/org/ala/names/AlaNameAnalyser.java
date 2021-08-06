@@ -37,7 +37,7 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             ParsedName name = parser.parse(scientificName, rank, nomCode);
             rank = name.getRank();
             if (classification.scientificNameAuthorship == null && name.hasAuthorship()) {
-                classification.getIssues().add(ALATerm.canonicalMatch);
+                classification.addIssue(ALATerm.canonicalMatch);
                 classification.scientificNameAuthorship = NameFormatter.authorshipComplete(name);
                 classification.scientificName = NameFormatter.canonicalWithoutAuthorship(name);
             }
@@ -50,7 +50,7 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             if (classification.phraseName == null && name.getPhrase() != null)
                 classification.phraseName = name.getPhrase();
         } catch (UnparsableNameException e) {
-            // Ignore this, we'll just have to roll along with an unrecognisable name
+            classification.addIssue(ALATerm.unparsableName);
         }
         if (classification.scientificName == null) {
             if (classification.specificEpithet != null && classification.genus != null) {
@@ -84,11 +84,11 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
                 classification.taxonRank = rank;
         }
         if (classification.parentNameUsageId != null && classification.parentNameUsageId.equals(classification.taxonId)) {
-            classification.getIssues().add(ALATerm.taxonParentLoop);
+            classification.addIssue(ALATerm.taxonParentLoop);
             classification.parentNameUsageId = null;
         }
         if (classification.acceptedNameUsageId != null && classification.acceptedNameUsageId.equals(classification.taxonId)) {
-            classification.getIssues().add(ALATerm.taxonAcceptedLoop);
+            classification.addIssue(ALATerm.taxonAcceptedLoop);
             classification.acceptedNameUsageId = null;
         }
    }

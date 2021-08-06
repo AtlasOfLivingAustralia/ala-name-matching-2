@@ -35,7 +35,61 @@ public class Issues extends HashSet<Term> {
      * @param issues The list of issues
      */
     public Issues(Collection<Term> issues) {
-        super(issues);
+        super();
+        this.interiorAddAll(issues);
+    }
+
+    /**
+     * Create a set of issues.
+     *
+     * @param terms The terms to add
+     *
+     * @return The resulting issues set
+     */
+    public static Issues of(Term... terms) {
+        Issues issues = new Issues();
+        for (Term t: terms)
+            issues.interiorAdd(t);
+        return issues;
+    }
+
+    /**
+     * Throws an unsupported operation exception.
+     * <p>
+     * Issues look like values and should use the {@link #with} methods
+     * </p>
+     */
+    @Override
+    public boolean add(Term term) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Throws an unsupported operation exception.
+     * <p>
+     * Issues look like values and should use the {@link #with} methods
+     * </p>
+     */
+    @Override
+    public boolean remove(Object o) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Throws an unsupported operation exception.
+     */
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
+     private void interiorAdd(Term term) {
+        super.add(term);
+    }
+
+    private void interiorAddAll(Collection<Term> terms) {
+        for (Term t: terms)
+            this.interiorAdd(t);
     }
 
     /**
@@ -49,7 +103,7 @@ public class Issues extends HashSet<Term> {
         if (issue == null || this.contains(issue))
             return this;
         Issues merged = new Issues(this);
-        merged.add(issue);
+        merged.interiorAdd(issue);
         return merged;
     }
     /**
@@ -68,8 +122,8 @@ public class Issues extends HashSet<Term> {
         if (other.isEmpty() || this.containsAll(other))
             return this;
         Issues merged = new Issues();
-        merged.addAll(this);
-        merged.addAll(other);
+        merged.interiorAddAll(this);
+        merged.interiorAddAll(other);
         return merged;
     }
 }

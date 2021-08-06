@@ -35,14 +35,14 @@
     "uri" : "http://rs.tdwg.org/dwc/terms/class",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
-      "source" : {
+      "sources" : [ {
         "id" : "scientificName",
         "uri" : "http://rs.tdwg.org/dwc/terms/scientificName",
         "normaliser" : "simple_normaliser",
         "properties" : {
           "dwc:scientificName" : true
         }
-      },
+      } ],
       "condition" : {
         "positive" : true,
         "observable" : {
@@ -62,7 +62,7 @@
     "uri" : "http://rs.tdwg.org/dwc/terms/family",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
-      "source" : "scientificName",
+      "sources" : [ "scientificName" ],
       "condition" : {
         "positive" : true,
         "observable" : "taxonRank",
@@ -78,7 +78,7 @@
     "uri" : "http://rs.tdwg.org/dwc/terms/genus",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
-      "source" : "scientificName",
+      "sources" : [ "scientificName" ],
       "condition" : {
         "positive" : true,
         "observable" : "taxonRank",
@@ -94,7 +94,7 @@
     "uri" : "http://rs.tdwg.org/dwc/terms/kingdom",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
-      "source" : "scientificName",
+      "sources" : [ "scientificName" ],
       "condition" : {
         "positive" : true,
         "observable" : "taxonRank",
@@ -110,7 +110,7 @@
     "uri" : "http://rs.tdwg.org/dwc/terms/order",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
-      "source" : "scientificName",
+      "sources" : [ "scientificName" ],
       "condition" : {
         "positive" : true,
         "observable" : "taxonRank",
@@ -132,7 +132,7 @@
     "uri" : "http://rs.tdwg.org/dwc/terms/phylum",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
-      "source" : "scientificName",
+      "sources" : [ "scientificName" ],
       "condition" : {
         "positive" : true,
         "observable" : "taxonRank",
@@ -152,7 +152,7 @@
     "uri" : "http://id.ala.org.au/terms/1.0/soundexScientificName",
     "derivation" : {
       "@class" : "au.org.ala.bayesian.derivation.SoundexDerivation",
-      "source" : "scientificName"
+      "sources" : [ "scientificName" ]
     }
   }, {
     "id" : "specificEpithet",
@@ -165,6 +165,10 @@
       "dwc:taxonID" : true
     }
   }, "taxonRank", {
+    "id" : "taxonomicStatus",
+    "uri" : "http://rs.tdwg.org/dwc/terms/taxonomicStatus",
+    "normaliser" : "simple_normaliser"
+  }, {
     "id" : "weight",
     "uri" : "http://id.ala.org.au/bayesian/1.0/weight",
     "type" : "java.lang.Double",
@@ -229,26 +233,47 @@
     "target" : "kingdom",
     "edge" : { }
   } ],
+  "issues" : [ {
+    "id" : "removed_rank",
+    "description" : "Ignored supplied rank to find a match.",
+    "uri" : "http://id.ala.org.au/issues/1.0/removedRank"
+  }, {
+    "id" : "removed_phylum",
+    "description" : "Ignored supplied phylum to find a match.",
+    "uri" : "http://id.ala.org.au/issues/1.0/removedPhylum"
+  }, {
+    "id" : "removed_class",
+    "description" : "Ignored supplied class to find a match.",
+    "uri" : "http://id.ala.org.au/issues/1.0/removedClass"
+  }, {
+    "id" : "removed_order",
+    "description" : "Ignored supplied order to find a match.",
+    "uri" : "http://id.ala.org.au/issues/1.0/removedOrder"
+  } ],
   "modifications" : [ {
     "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
     "id" : "remove_class",
-    "issue" : "http://id.ala.org.au/issues/1.0/removedClass",
-    "observable" : "class"
+    "issue" : "removed_class",
+    "observables" : [ "class" ],
+    "nullDervived" : false
   }, {
     "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
     "id" : "remove_order",
-    "issue" : "http://id.ala.org.au/issues/1.0/removedOrder",
-    "observable" : "order"
+    "issue" : "removed_order",
+    "observables" : [ "order" ],
+    "nullDervived" : false
   }, {
     "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
     "id" : "remove_phylum",
-    "issue" : "http://id.ala.org.au/issues/1.0/removedPhylum",
-    "observable" : "phylum"
+    "issue" : "removed_phylum",
+    "observables" : [ "phylum" ],
+    "nullDervived" : false
   }, {
     "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
     "id" : "remove_rank",
-    "issue" : "http://id.ala.org.au/issues/1.0/removedRank",
-    "observable" : "taxonRank"
+    "issue" : "removed_rank",
+    "observables" : [ "taxonRank" ],
+    "nullDervived" : false
   } ],
   "modifiers" : [ [ "remove_order", "remove_class", "remove_phylum" ], [ "remove_rank" ] ]
 }

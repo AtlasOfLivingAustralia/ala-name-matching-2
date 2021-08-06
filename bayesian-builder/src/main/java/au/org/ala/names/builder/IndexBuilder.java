@@ -5,6 +5,7 @@ import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.CleanedScientificName;
 import au.org.ala.util.Counter;
+import au.org.ala.util.SimpleClassifier;
 import au.org.ala.vocab.BayesianTerm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +24,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Build a name matching index.
@@ -109,7 +114,7 @@ public class IndexBuilder<C extends Classification<C>, P extends Parameters, I e
         this.nameComplete = this.network.findObservable(BayesianTerm.fullName, true);
         this.altScientificName = this.network.findObservable(BayesianTerm.altName, true);
         this.synonymCopy = new HashSet<>(this.network.findObservables(BayesianTerm.copy, true));
-        this.stored = new HashSet<>(this.network.getVertices()); // The defined observables in the network
+        this.stored = new HashSet<>(this.network.getObservables()); // The defined observables in the network
         this.stored.add(this.weight);
         this.stored.add(this.parent);
         this.accepted.ifPresent(o -> this.stored.add(o));
@@ -254,7 +259,7 @@ public class IndexBuilder<C extends Classification<C>, P extends Parameters, I e
     }
 
     /**
-     * Expand all synonyms, including parent taxonomy.
+     * Expand all synonyms, including the portions of the parent taxonomy that are accurate.
      *
      * @throws StoreException if unable to manage the updates
      */
@@ -266,6 +271,8 @@ public class IndexBuilder<C extends Classification<C>, P extends Parameters, I e
         counter.start();
         for (Classifier classifier: synonyms) {
             String id = classifier.get(this.taxonId);
+            if (id.equals("9c237030-9af9-41d2-bc3c-3a18adcd43ac"))
+                LOGGER.info("Found it");
             Optional<String> aid = this.accepted.map(acc -> classifier.get(acc));
             Optional<Classifier> acpt = Optional.empty();
             if (!aid.isPresent()) {
@@ -277,7 +284,8 @@ public class IndexBuilder<C extends Classification<C>, P extends Parameters, I e
                 }
             }
             this.expandSynonym(classifier, acpt);
-            counter.increment(classifier.getIdentifier());
+            this.expandedStore.store(classifier);
+           counter.increment(classifier.getIdentifier());
         }
         counter.stop();
         this.expandedStore.commit();
@@ -319,11 +327,13 @@ public class IndexBuilder<C extends Classification<C>, P extends Parameters, I e
             }
         }
         this.builder.infer(classifier);
-        this.expandedStore.store(classifier);
     }
 
     /**
-     * Build the parameters for each taxon
+     * Build the parameters for each taxon.
+     * <p>
+     * This is a slow, expensive piece of processing and is done in parallel.
+     * </p>
      *
      * @throws StoreException
      * @throws InferenceException
@@ -331,20 +341,43 @@ public class IndexBuilder<C extends Classification<C>, P extends Parameters, I e
     public void buildParameters() throws StoreException, InferenceException {
         LOGGER.info("Building parameter sets");
         this.parameterisedStore = config.createLoadStore(Annotator.NULL);
-        Counter counter = new Counter("Processed {0} parameter sets, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
-        ParameterAnalyser analyser = this.expandedStore.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight());
+        final Counter counter = new Counter("Processed {0} parameter sets, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
+        final ParameterAnalyser analyser = this.expandedStore.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight());
+        final BlockingQueue<Classifier> workQueue = new LinkedBlockingQueue<Classifier>(this.config.getThreads() * 4);
+        final Classifier poisonPill = new SimpleClassifier();
         Iterable<Classifier> taxa = this.expandedStore.getAll(DwcTerm.Taxon);
+        List<ParameterConsumer> consumers = IntStream.range(0, this.config.getThreads()).mapToObj(i -> new ParameterConsumer(analyser, workQueue, counter, poisonPill)).collect(Collectors.toList());
+        List<Thread> consumerThreads = consumers.stream().map(Thread::new).collect(Collectors.toList());
+        consumerThreads.forEach(t -> t.start());
         counter.start();
-        for (Classifier classifier : taxa) {
-            String id = classifier.get(this.taxonId);
-            P parameters = this.factory.createParameters();
-            this.builder.calculate(parameters, analyser, classifier);
-            classifier.storeParameters(parameters);
-            this.parameterisedStore.store(classifier);
-            counter.increment(classifier.getIdentifier());
+        try {
+            for (Classifier classifier : taxa) {
+                workQueue.put(classifier);
+            }
+            for (ParameterConsumer consumer : consumers)
+                workQueue.put(poisonPill);
+            LOGGER.info("Waiting for consumers to terminate");
+            for (Thread thread: consumerThreads)
+                thread.join();
+            for (ParameterConsumer consumer: consumers)
+                if (consumer.getError() != null) {
+                    throw new InferenceException("Consumer error : " + consumer.getError());
+                }
+        } catch (InterruptedException ex) {
+            throw new InferenceException("Interupted during parameter building", ex);
         }
         counter.stop();
         this.loadStore.commit();
+    }
+
+    protected void buildParameters(Classifier classifier, ParameterAnalyser analyser) throws StoreException, InferenceException {
+        String id = classifier.get(this.taxonId);
+        if (id.equals("9c237030-9af9-41d2-bc3c-3a18adcd43ac"))
+            System.out.println("Found it");
+        P parameters = this.factory.createParameters();
+        this.builder.calculate(parameters, analyser, classifier);
+        classifier.storeParameters(parameters);
+        this.parameterisedStore.store(classifier);
 
     }
 
@@ -358,7 +391,7 @@ public class IndexBuilder<C extends Classification<C>, P extends Parameters, I e
          }
         if (!output.mkdirs())
             throw new IllegalArgumentException("Unable to create " + output);
-        LoadStore index = new LuceneLoadStore(this, output, false);
+        LoadStore index = new LuceneLoadStore(this, output, false, false);
         // Copy taxa across
         Iterable<Classifier> taxa = this.parameterisedStore.getAll(DwcTerm.Taxon);
         for (Classifier classifier : taxa) {
@@ -513,5 +546,59 @@ public class IndexBuilder<C extends Classification<C>, P extends Parameters, I e
         builder.buildParameters();
         builder.buildIndex(output);
         builder.close();
+    }
+
+    /**
+     * Processor for parameter estimates
+     */
+    private class ParameterConsumer implements Runnable {
+        ParameterAnalyser analyser;
+        BlockingQueue<Classifier> queue;
+        Counter counter;
+        Classifier poisonPill;
+        @Getter
+        String error;
+
+        /**
+         * Build a parameter consumer for a work queue
+         *
+         * @param analyser The parameter analyser
+         * @param queue The work queue
+         * @param counter The statistics counter
+         * @param poisonPill The "poison pill" used to terminate this worked
+         */
+        public ParameterConsumer(ParameterAnalyser analyser, BlockingQueue<Classifier> queue, Counter counter, Classifier poisonPill) {
+            this.analyser = analyser;
+            this.queue = queue;
+            this.counter = counter;
+            this.poisonPill = poisonPill;
+            this.error = null;
+        }
+
+        /**
+         * Pick up a document from the queue and process parameters
+         * <p>
+         * Terminate when a null document is received
+         * </p>
+         */
+        @Override
+        public void run() {
+            this.error = null;
+            IndexBuilder.this.LOGGER.info("Starting processor " + Thread.currentThread().getName());
+            try {
+                while (true) {
+                    Classifier classifier = this.queue.take();
+                    if (classifier == this.poisonPill) {
+                        IndexBuilder.this.LOGGER.info("Terminating processor " + Thread.currentThread().getName());
+                        return;
+                    }
+                    IndexBuilder.this.buildParameters(classifier, analyser);
+                    this.counter.increment(classifier.getIdentifier());
+                }
+            } catch (Exception ex) {
+                IndexBuilder.LOGGER.error(ex.getMessage(), ex);
+                this.error = ex.getMessage();
+            }
+        }
     }
 }

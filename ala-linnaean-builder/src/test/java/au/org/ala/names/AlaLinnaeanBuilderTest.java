@@ -11,6 +11,7 @@ import au.org.ala.names.builder.Source;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.util.TestUtils;
+import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.api.Rank;
 import org.junit.*;
@@ -18,8 +19,7 @@ import org.junit.*;
 import java.io.File;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class AlaLinnaeanBuilderTest extends TestUtils {
     private static File work;
@@ -36,7 +36,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         output = makeTmpDir("output");
         IndexBuilderConfiguration config = new IndexBuilderConfiguration();
         config.setBuilderClass(AlaLinnaeanBuilder.class);
-        config.setNetwork(AlaLinnaeanBuilder.class.getResource("ala-linnaean.json"));
+        config.setNetwork(AlaLinnaeanBuilder.class.getResource("/ala-linnaean.json"));
         config.setWork(work);
         config.setFactoryClass(AlaLinnaeanFactory.class);
         builder = new IndexBuilder(config);
@@ -80,6 +80,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals("CANARIM ACITIFALIM VAR. ACITIFALIM", doc.get(AlaLinnaeanFactory.soundexScientificName));
         assertEquals("Canarium", doc.get(AlaLinnaeanFactory.genus));
         assertEquals("https://id.biodiversity.org.au/node/apni/2918714", doc.get(AlaLinnaeanFactory.genusId));
+        assertEquals(TaxonomicStatus.accepted, doc.get(AlaLinnaeanFactory.taxonomicStatus));
         AlaLinnaeanParameters params = new AlaLinnaeanParameters();
         doc.loadParameters(params);
         AlaLinnaeanInferencer inference = new AlaLinnaeanInferencer();
@@ -105,6 +106,42 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         prob = inference.probability(evidence, params);
         assertEquals(0.00409, prob.getEvidence(), 0.00001);
         assertEquals(0.33425, prob.getPosterior(), 0.00001);
+    }
+
+
+    @Test
+    public void testLoadBuild2() throws Exception {
+        LoadStore store = this.builder.getParameterisedStore();
+        Classifier doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "9c237030-9af9-41d2-bc3c-3a18adcd43ac");
+        assertEquals("Coniosporium sacchari", doc.get(AlaLinnaeanFactory.scientificName));
+        assertEquals("CANIASPARIM SACARI", doc.get(AlaLinnaeanFactory.soundexScientificName));
+        assertEquals("Coniosporium", doc.get(AlaLinnaeanFactory.genus));
+        assertNotNull(doc.get(AlaLinnaeanFactory.genusId));
+        assertNotNull(doc.get(AlaLinnaeanFactory.familyId));
+        assertNull(doc.get(AlaLinnaeanFactory.orderId));
+        assertNotNull(doc.get(AlaLinnaeanFactory.classId));
+        assertNotNull(doc.get(AlaLinnaeanFactory.phylumId));
+        assertEquals("Fungi", doc.get(AlaLinnaeanFactory.kingdom));
+        assertEquals("urn:lsid:indexfungorum.org:names:90156", doc.get(AlaLinnaeanFactory.kingdomId));
+        assertEquals(TaxonomicStatus.synonym, doc.get(AlaLinnaeanFactory.taxonomicStatus));
+        assertEquals("b465f067-a2c1-4c6c-88cc-e394c23e4f87", doc.get(AlaLinnaeanFactory.acceptedNameUsageId));
+        AlaLinnaeanParameters params = new AlaLinnaeanParameters();
+        doc.loadParameters(params);
+        assertEquals(1.0, params.inf_t_t$family, 0.00001);
+        assertEquals(1.0, params.inf_t_t$order, 0.00001);
+        assertEquals(1.0, params.inf_t_t$class_, 0.00001);
+        assertEquals(1.0, params.inf_t_t$phylum, 0.00001);
+        assertEquals(1.0, params.inf_t_t$kingdom, 0.00001);
+        AlaLinnaeanInferencer inference = new AlaLinnaeanInferencer();
+        AlaLinnaeanInferencer.Evidence evidence = new AlaLinnaeanInferencer.Evidence();
+        evidence.e$scientificName = true;
+        Inference prob = inference.probability(evidence, params);
+        assertEquals(1.0, prob.getPosterior(), 0.00001);
+        evidence.e$kingdom = false;
+        evidence.e$soundexKingdom = false;
+        prob = inference.probability(evidence, params);
+        assertEquals(0.0, prob.getEvidence(), 0.00001);
+        assertEquals(1.0, prob.getPosterior(), 0.00001);
     }
 
 

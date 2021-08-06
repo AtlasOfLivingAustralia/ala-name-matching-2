@@ -6,6 +6,7 @@ import org.apache.commons.codec.language.Soundex;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * A simple soundex derivation.
@@ -46,7 +47,7 @@ public class SoundexDerivation extends CopyDerivation {
 
     @Override
     public String generateClassificationTransform() {
-        return "this." + INSTANCE_VAR + ".soundex(this." + this.getSource().getJavaVariable() + ")";
+        return this.getSources().stream().map(s -> "this." + INSTANCE_VAR + ".soundex(this." + s.getJavaVariable() + ")").collect(Collectors.joining(" + "));
     }
 
 }

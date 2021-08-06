@@ -19,7 +19,7 @@ public enum BayesianTerm implements Term {
     fullName,
     /** An alternate name for a category */
     altName,
-    /** A term that should be copied */
+    /** A term that should be copied from the actual category when something is a synonym of something else */
     copy,
     /** An observable that contains additional classification values */
     additional,

@@ -11,11 +11,16 @@
     "target" : "v_2",
     "edge" : { }
   } ],
+  "issues" : [ {
+    "id" : "issue_1",
+    "uri" : "http://localhost/issue_1"
+  } ],
   "modifications" : [ {
     "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
     "id" : "mod_1",
-    "issue" : "http://localhost/v_1",
-    "observable" : "v_1"
+    "issue" : "issue_1",
+    "observables" : [ "v_1" ],
+    "nullDervived" : false
   } ],
   "modifiers" : [ [ "mod_1" ] ]
 }

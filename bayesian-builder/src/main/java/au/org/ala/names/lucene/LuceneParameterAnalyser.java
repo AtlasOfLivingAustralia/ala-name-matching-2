@@ -28,25 +28,25 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
     public static final double MAXIMUM_PROBABILITY = 1.0 - MINIMUM_PROBABILITY;
 
     /** The network for this analyser */
-    protected Network network;
+    protected final Network network;
     /** The annotator for this analyser  */
-    protected Annotator annotator;
+    protected final Annotator annotator;
     /** The index */
-    private IndexSearcher searcher;
+    private final IndexSearcher searcher;
     /** The weight cache */
-    private ConcurrentMap<Integer, Double> weightCache;
+    private final ConcurrentMap<Integer, Double> weightCache;
     /** The query cache */
-    private Cache<Query, Double>  queryCache;
+    private final Cache<Query, Double>  queryCache;
     /** The weight observable */
-    private Observable weight;
+    private final Observable weight;
     /** The default weight */
-    private double defaultWeight;
+    private final double defaultWeight;
     /** The query builder */
-    private QueryUtils queryUtils;
+    private final QueryUtils queryUtils;
     /** The query for taxon entries */
-    private Query taxonQuery;
+    private final Query taxonQuery;
     /** The total weight of all values, cached because this gets used a lot */
-    private double totalWeight;
+    private final double totalWeight;
 
     /**
      * Create for an index.
@@ -161,27 +161,31 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
     public double computeConditional(Observation observation, Observation... inputs) throws InferenceException, StoreException {
         if (totalWeight <= 0.0)
             return 0.0;
+         List<Observation> nonBlank = Arrays.stream(inputs).filter(o -> !o.isBlank()).collect(Collectors.toList());
+
+        // If no inputs, then pass on lower probabilities
+        if (nonBlank.isEmpty()) {
+            if (observation.isPositive())
+                return Arrays.stream(inputs).allMatch(o -> o.isPositive()) ? 1.0 : 0.0;
+            else
+                return Arrays.stream(inputs).allMatch(o -> !o.isPositive()) ? 1.0 : 0.0;
+        }
         double priorWeight = 1.0;
         boolean allNegative = true;
         BooleanQuery.Builder conditionalBuilder = this.queryUtils.createBuilder(this.taxonQuery);
-        List<Observation> nonBlank = Arrays.stream(inputs).filter(o -> !o.isBlank()).collect(Collectors.toList());
-        if (nonBlank.isEmpty()) {
-            priorWeight = this.totalWeight;
+        for (Observation input : nonBlank) {
+            conditionalBuilder.add(this.queryUtils.asClause(input));
+            allNegative = allNegative && !input.isPositive();
+        }
+        if (!allNegative) {
+            priorWeight = this.sum(conditionalBuilder.build());
         } else {
-            for (Observation input : nonBlank) {
-                conditionalBuilder.add(this.queryUtils.asClause(input));
-                allNegative = allNegative && !input.isPositive();
-            }
-            if (!allNegative) {
-                priorWeight = this.sum(conditionalBuilder.build());
-            } else {
-                priorWeight = this.totalWeight;
-                for (List<Observation> cases : this.generatePositiveCases(nonBlank)) {
-                    BooleanQuery.Builder positiveBuilder = this.queryUtils.createBuilder(this.taxonQuery);
-                    for (Observation input : cases)
-                        positiveBuilder.add(this.queryUtils.asClause(input));
-                    priorWeight -= this.sum(positiveBuilder.build());
-                }
+            priorWeight = this.totalWeight;
+            for (List<Observation> cases : this.generatePositiveCases(nonBlank)) {
+                BooleanQuery.Builder positiveBuilder = this.queryUtils.createBuilder(this.taxonQuery);
+                for (Observation input : cases)
+                    positiveBuilder.add(this.queryUtils.asClause(input));
+                priorWeight -= this.sum(positiveBuilder.build());
             }
         }
         if (priorWeight < MINIMUM_PROBABILITY)

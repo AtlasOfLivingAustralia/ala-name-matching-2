@@ -39,14 +39,18 @@ public class SimpleClassifier implements Classifier {
     }
 
     /**
-     * Get the all values for an observable.
+     * Get the all values for observables.
      *
-     * @param observable The observable
+     * @param observables The observables
      * @return The a set of all present values
      */
     @Override
-    public <T> Set<T> getAll(Observable observable) {
-        return Collections.singleton(this.get(observable));
+    public <T> Set<T> getAll(Observable... observables) {
+        Set<T> values = new HashSet<>(observables.length);
+        for (Observable observable: observables) {
+            values.add(this.get(observable));
+        }
+        return values;
     }
 
     /**

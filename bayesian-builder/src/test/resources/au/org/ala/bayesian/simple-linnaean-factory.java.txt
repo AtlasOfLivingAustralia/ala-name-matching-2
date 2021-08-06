@@ -162,6 +162,15 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       new StringAnalysis(),
       false
     );
+  public static final Observable taxonomicStatus = new Observable(
+      "taxonomicStatus",
+      URI.create("http://rs.tdwg.org/dwc/terms/taxonomicStatus"),
+      String.class,
+      Observable.Style.CANONICAL,
+      simpleNormaliser,
+      new StringAnalysis(),
+      false
+    );
   public static final Observable weight = new Observable(
       "weight",
       URI.create("http://id.ala.org.au/bayesian/1.0/weight"),
@@ -188,19 +197,28 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     specificEpithet,
     taxonId,
     taxonRank,
+    taxonomicStatus,
     weight
   ));
 
   public static final TermFactory TERM_FACTORY = TermFactory.instance();
 
-  /** Issue if remove_class is used using matching */
-  public static final Term ISSUE_REMOVE_CLASS = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedClass");
-  /** Issue if remove_order is used using matching */
-  public static final Term ISSUE_REMOVE_ORDER = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedOrder");
-  /** Issue if remove_phylum is used using matching */
-  public static final Term ISSUE_REMOVE_PHYLUM = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedPhylum");
-  /** Issue if remove_rank is used using matching */
-  public static final Term ISSUE_REMOVE_RANK = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedRank");
+  /** Issue removed_rank
+      <p>Ignored supplied rank to find a match.</p>
+  */
+  public static final Term REMOVED_RANK = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedRank");
+  /** Issue removed_phylum
+      <p>Ignored supplied phylum to find a match.</p>
+  */
+  public static final Term REMOVED_PHYLUM = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedPhylum");
+  /** Issue removed_class
+      <p>Ignored supplied class to find a match.</p>
+  */
+  public static final Term REMOVED_CLASS = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedClass");
+  /** Issue removed_order
+      <p>Ignored supplied order to find a match.</p>
+  */
+  public static final Term REMOVED_ORDER = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedOrder");
 
   static {
     acceptedNameUsageId.setExternal(LUCENE, "dwc_acceptedNameUsageID");
@@ -218,6 +236,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     specificEpithet.setExternal(LUCENE, "dwc_specificEpithet");
     taxonId.setExternal(LUCENE, "dwc_taxonID");
     taxonRank.setExternal(LUCENE, "dwc_taxonRank");
+    taxonomicStatus.setExternal(LUCENE, "dwc_taxonomicStatus");
     weight.setExternal(LUCENE, "bayesian_weight");
   }
 

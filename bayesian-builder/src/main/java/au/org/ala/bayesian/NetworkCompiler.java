@@ -107,6 +107,15 @@ public class NetworkCompiler {
         return this.network.getModifications();
     }
 
+    /**
+     * Get the list of issue defintitions.
+     *
+     * @return The list of issues
+     */
+    public List<Issue> getIssues() {
+        return this.network.getIssues();
+    }
+
     public void analyse() throws InferenceException {
         this.sources = new DirectedAcyclicGraph<>(Dependency.class);
         Graphs.addGraphReversed(this.sources, this.network.getGraph());

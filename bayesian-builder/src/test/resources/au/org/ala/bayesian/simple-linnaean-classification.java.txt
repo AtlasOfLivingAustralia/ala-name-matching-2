@@ -33,7 +33,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       SimpleLinnaeanClassification nc;
       nc = c.clone();
       nc.class_ = null;
-      nc.addIssue(SimpleLinnaeanFactory.ISSUE_REMOVE_CLASS);
+      nc.addIssue(SimpleLinnaeanFactory.REMOVED_CLASS);
       return nc;
     };
   private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_ORDER =
@@ -41,7 +41,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       SimpleLinnaeanClassification nc;
       nc = c.clone();
       nc.order = null;
-      nc.addIssue(SimpleLinnaeanFactory.ISSUE_REMOVE_ORDER);
+      nc.addIssue(SimpleLinnaeanFactory.REMOVED_ORDER);
       return nc;
     };
   private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_PHYLUM =
@@ -49,7 +49,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       SimpleLinnaeanClassification nc;
       nc = c.clone();
       nc.phylum = null;
-      nc.addIssue(SimpleLinnaeanFactory.ISSUE_REMOVE_PHYLUM);
+      nc.addIssue(SimpleLinnaeanFactory.REMOVED_PHYLUM);
       return nc;
     };
   private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_RANK =
@@ -57,7 +57,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       SimpleLinnaeanClassification nc;
       nc = c.clone();
       nc.taxonRank = null;
-      nc.addIssue(SimpleLinnaeanFactory.ISSUE_REMOVE_RANK);
+      nc.addIssue(SimpleLinnaeanFactory.REMOVED_RANK);
       return nc;
     };
 

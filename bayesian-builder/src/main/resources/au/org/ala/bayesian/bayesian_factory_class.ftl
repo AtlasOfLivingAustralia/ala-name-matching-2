@@ -56,11 +56,11 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
   public static final TermFactory TERM_FACTORY = TermFactory.instance();
 
-<#list modifications as modifier>
-    <#if modifier.issue??>
-  /** Issue if ${modifier.id} is used using matching */
-  public static final Term ${"ISSUE_" + modifier.javaConstant} = TERM_FACTORY.findTerm("${modifier.issue}");
-    </#if>
+<#list issues as issue>
+  /** Issue ${issue.id} <#if issue.description??>
+      <p>${issue.description}</p>
+  </#if>*/
+  public static final Term ${issue.javaConstant} = TERM_FACTORY.findTerm("${issue.uri}");
 </#list>
 
   static {

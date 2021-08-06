@@ -6,7 +6,7 @@
       "id" : "v_2",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
-        "source": "v_1"
+        "sources": [ "v_1" ]
       }
     },
     { "id" : "v_3" }

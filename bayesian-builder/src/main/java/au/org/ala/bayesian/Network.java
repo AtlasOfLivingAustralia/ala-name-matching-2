@@ -27,12 +27,17 @@ import java.util.stream.Collectors;
  * information to things like an index builder.
  * </p>
  */
-@JsonPropertyOrder({"id", "description", "uri", "normalisers", "observables", "vertices", "edges", "modifications", "modifiers" })
+@JsonPropertyOrder({"id", "description", "uri", "normalisers", "observables", "vertices", "edges", "issues", "modifications", "modifiers" })
 public class Network extends Identifiable {
     /** The vertex id map */
     private SortedMap<String, Observable> idMap;
     /** The vertex URI map */
     private Map<URI, Observable> uriMap;
+    /** The list of issues */
+    @JsonProperty
+    @Getter
+    @Setter
+    private List<Issue> issues;
     /** The list of modifiers */
     @JsonProperty
     @Getter
@@ -49,6 +54,7 @@ public class Network extends Identifiable {
         this.graph = new DirectedAcyclicGraph<Observable, Dependency>(Dependency.class);
         this.idMap = new TreeMap<>();
         this.uriMap = new HashMap<>();
+        this.issues = new ArrayList<>();
         this.modifiers = new ArrayList<>();
     }
 
@@ -62,6 +68,7 @@ public class Network extends Identifiable {
         this.graph = new DirectedAcyclicGraph<Observable, Dependency>(Dependency.class);
         this.idMap = new TreeMap<>();
         this.uriMap = new HashMap<>();
+        this.issues = new ArrayList<>();
         this.modifiers = new ArrayList<>();
     }
 

@@ -38,7 +38,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
       ${statement}
   </#list>
   <#if modifier.issue??>
-      nc.addIssue(${factoryClassName}.${"ISSUE_" + modifier.javaConstant});
+      nc.addIssue(${factoryClassName}.${modifier.issue.javaConstant});
   </#if>
       return nc;
     };
@@ -140,7 +140,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     ml = new ArrayList();
     ml.add(null);
     <#list ml as modifier>
-    if (<#list modifier.modified as var><#if var?index gt 0> && </#if>this.${var.javaVariable} != null</#list>)
+    if (<#list modifier.modified as var><#if var?index gt 0> || </#if>this.${var.javaVariable} != null</#list>)
       ml.add(${modifier.javaConstant});
     </#list>
     if (ml.size() > 1)

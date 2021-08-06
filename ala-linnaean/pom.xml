@@ -53,6 +53,17 @@
                             <analyserClass>au.org.ala.names.AlaNameAnalyser</analyserClass>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>ala-network-graph</id>
+                        <goals>
+                            <goal>generate-graph</goal>
+                        </goals>
+                        <configuration>
+                            <source>${project.basedir}/src/main/resources/ala-linnaean.json</source>
+                            <output>${project.basedir}/target/diagrams/ala-linnaean.dot</output>
+                            <full>false</full>
+                        </configuration>
+                    </execution>
                  </executions>
                 <dependencies>
                     <dependency>

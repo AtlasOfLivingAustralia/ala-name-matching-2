@@ -51,6 +51,7 @@ public class DwCASourceTest {
         assertNotNull(value);
         assertEquals("Canarium acutifolium", value.get(SimpleLinnaeanFactory.scientificName));
         assertEquals("species", value.get(SimpleLinnaeanFactory.taxonRank));
+        assertEquals("accepted", value.get(SimpleLinnaeanFactory.taxonomicStatus));
 
         value = this.store.get(GbifTerm.VernacularName, SimpleLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2913682");
         assertNotNull(value);
@@ -69,6 +70,7 @@ public class DwCASourceTest {
         assertNotNull(value);
         assertEquals("Canarium acutifolium", value.get(SimpleLinnaeanFactory.scientificName));
         assertNull(value.get(SimpleLinnaeanFactory.taxonRank));
+        assertNull(value.get(SimpleLinnaeanFactory.taxonomicStatus));
 
         value = this.store.get(GbifTerm.VernacularName, SimpleLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2913682");
         assertNotNull(value);

@@ -2,6 +2,7 @@ package au.org.ala.bayesian;
 
 import lombok.Value;
 import lombok.With;
+import org.gbif.dwc.terms.Term;
 
 /**
  * A classification match.
@@ -10,6 +11,7 @@ import lombok.With;
 public class Match<C extends Classification> {
     private C match;
     private Classifier candidate;
+    private C actual;
     private Inference probability;
     private Issues issues;
 
@@ -21,9 +23,10 @@ public class Match<C extends Classification> {
      * @param probability The match probability
      * @param issues The issues list
      */
-    public Match(C match, Classifier candidate, Inference probability, Issues issues) {
+    public Match(C match, Classifier candidate, C actual, Inference probability, Issues issues) {
         this.match = match;
         this.candidate = candidate;
+        this.actual = actual;
         this.probability = probability;
         this.issues = issues.merge(match.getIssues());
     }
@@ -38,6 +41,15 @@ public class Match<C extends Classification> {
     public Match<C> with(Issues additional) {
         if (additional == null || additional.isEmpty())
             return this;
-        return new Match<>(this.match, this.candidate, this.probability, this.issues.merge(additional));
+        return new Match<>(this.match, this.candidate, this.actual, this.probability, this.issues.merge(additional));
+    }
+
+    /**
+     * Add an issue to the match.
+     *
+     * @param issue The issue
+     */
+    public Match<C> with(Term issue) {
+       return new Match<>(this.match, this.candidate, this.actual, this.probability, this.issues.with(issue));
     }
 }

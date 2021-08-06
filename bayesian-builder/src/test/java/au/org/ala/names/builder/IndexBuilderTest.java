@@ -40,9 +40,13 @@ public class IndexBuilderTest {
 
     @Test
     public void testLoad1() throws Exception {
+        Observable taxonID = this.builder.network.getObservable(DwcTerm.taxonID);
+        Observable taxonomicStatus = this.builder.network.getObservable(DwcTerm.taxonomicStatus);
         URL surl = this.getClass().getResource("source-1.csv");
         CSVSource source = new CSVSource(surl, this.builder.getFactory(), this.builder.getNetwork().getObservables());
         this.builder.load(source);
+        Classifier classifier = this.builder.loadStore.get(DwcTerm.Taxon, taxonID, "S-1");
+        assertEquals("accepted", classifier.get(taxonomicStatus));
     }
 
     @Test

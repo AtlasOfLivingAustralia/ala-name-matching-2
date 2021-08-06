@@ -18,6 +18,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.gbif.dwc.terms.Term;
 
@@ -61,8 +62,9 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @param annotator The annotator for this store
      * @param dir The store directory (if temporary is true, this is a work directory under which a temoporray directory is created, null for the standard temporary work area)
      * @param temporary Delete the store on closing (for temporary stores)
+     * @param memory Prefer an in-memory store using {@Link MMapDirectory}
      */
-    public LuceneLoadStore(Annotator annotator, File dir, boolean temporary) throws StoreException {
+    public LuceneLoadStore(Annotator annotator, File dir, boolean temporary, boolean memory) throws StoreException {
         super(annotator);
         this.temporary = temporary;
         this.queryUtils = new QueryUtils();
@@ -77,7 +79,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
             } else {
                 this.dir = dir == null ? Files.createTempDirectory("Load") : dir.toPath();
             }
-            directory = FSDirectory.open(this.dir);
+            directory = memory ? MMapDirectory.open(this.dir) : FSDirectory.open(this.dir);
         } catch (IOException ex) {
             throw new StoreException("Unable to get store directory", ex);
         }
@@ -104,7 +106,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @param work The work directory
      */
     public LuceneLoadStore(Annotator annotator, File work) throws StoreException {
-        this(annotator, work, true);
+        this(annotator, work, true, true);
     }
 
     /**

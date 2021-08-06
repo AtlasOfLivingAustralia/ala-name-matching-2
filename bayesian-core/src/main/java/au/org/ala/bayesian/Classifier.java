@@ -24,13 +24,13 @@ public interface Classifier {
     public <T> T get(Observable observable);
 
     /**
-     * Get the all values for an observable.
+     * Get the all values for some observables.
      *
-     * @param observable The observable
+     * @param observables The observable
      *
      * @return The a set of all present values
      */
-    public <T> Set<T> getAll(Observable observable);
+    public <T> Set<T> getAll(Observable... observables);
 
     /**
      * Does this classifier contain any information about this observable?

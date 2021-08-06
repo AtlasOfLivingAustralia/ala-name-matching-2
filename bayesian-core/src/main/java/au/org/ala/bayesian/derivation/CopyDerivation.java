@@ -5,8 +5,8 @@ import au.org.ala.bayesian.Observable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A null derivation from a source to a target.
@@ -16,10 +16,10 @@ import java.util.Set;
  * </p>
  */
 public class CopyDerivation extends Derivation {
-    /** The source observable for this derivation */
+    /** The source observables for this derivation */
     @JsonProperty
     @Getter
-    private Observable source;
+    private List<Observable> sources;
 
     /**
      * Empty constructor
@@ -29,10 +29,10 @@ public class CopyDerivation extends Derivation {
 
     /**
      * Construct for a source
-     * @param source
+     * @param sources
      */
-    public CopyDerivation(Observable source) {
-        this.source = source;
+    public CopyDerivation(Observable sources) {
+        this.sources = Arrays.asList(sources);
     }
 
     /**
@@ -42,7 +42,7 @@ public class CopyDerivation extends Derivation {
      */
     @Override
     public Set<Observable> getInputs() {
-        return Collections.singleton(this.source);
+        return new HashSet<>(this.sources);
     }
 
     /**
@@ -53,7 +53,11 @@ public class CopyDerivation extends Derivation {
      */
     @Override
     public String generateValues(String documentVar, String observablesClass) {
-        return documentVar + ".getAll(" + observablesClass + "." + this.source.getJavaVariable() + ")";
+        StringBuilder builder = new StringBuilder();
+        builder.append(documentVar + ".getAll(");
+        builder.append(this.sources.stream().map(s -> observablesClass + "." + s.getJavaVariable()).collect(Collectors.joining(", ")));
+        builder.append(")");
+        return builder.toString();
     }
 
     /**

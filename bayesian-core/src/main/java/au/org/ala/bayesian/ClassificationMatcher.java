@@ -25,6 +25,11 @@ public class ClassificationMatcher<C extends Classification<C>, P extends Parame
     public static double IMMEDIATE_THRESHOLD = 0.99;
     /** The default acceptable threshold for something. @see @isAcceptableMatch */
     public static double ACCEPTABLE_THRESHOLD = 0.90;
+    /** The amount that the evidence is allowed to be below the prior priobaility */
+    public static double EVIDENCE_SLOP = 2.0;
+
+    /** The default match sort */
+    protected Comparator<Match<C>> DEFAULT_SORT = (m1, m2) -> - Double.compare(m1.getProbability().getPosterior(), m2.getProbability().getPosterior());
 
     private F factory;
     private ClassifierSearcher<?> searcher;
@@ -45,7 +50,6 @@ public class ClassificationMatcher<C extends Classification<C>, P extends Parame
     }
 
     public Match<C> findMatch(C classification) throws InferenceException, StoreException {
-        C model = classification.clone();
         classification.infer();
         List<? extends Classifier> candidates = this.searcher.search(classification);
         if (candidates.isEmpty())
@@ -59,12 +63,11 @@ public class ClassificationMatcher<C extends Classification<C>, P extends Parame
 
         // Do we have an evidence problem?
         if (results.stream().allMatch(m -> this.isBadEvidence(m))) {
-            Iterator<C> subClassifications = new BacktrackingIterator<C>(model, classification.modificationOrder());
+            Iterator<C> subClassifications = new BacktrackingIterator<C>(classification, classification.modificationOrder());
             while (subClassifications.hasNext()) {
                 C modified = subClassifications.next();
-                if (modified == model) // Skip null case
+                if (modified == classification) // Skip null case
                     continue;
-                modified.infer();
                 results = this.doMatch(modified, candidates);
                 match = this.findSingle(results);
                 if (match != null)
@@ -83,13 +86,26 @@ public class ClassificationMatcher<C extends Classification<C>, P extends Parame
             if (this.isPossible(classification, candidate, inference)) {
                 C candidateClassification = this.factory.createClassification();
                 candidateClassification.read(candidate, true);
-                Match<C> match = new Match<>(candidateClassification, candidate, inference, classification.getIssues());
-                if (this.isImmediateMatch(match))
-                    return Collections.singletonList(match);
+                Match<C> match = new Match<>(candidateClassification, candidate, classification, inference, classification.getIssues());
                 results.add(match);
             }
         }
-        results.sort((m1, m2) -> - Double.compare(m1.getProbability().getPosterior(), m2.getProbability().getPosterior()));
+        results.sort(this.getMatchSorter());
+        results = this.annotate(results);
+        return results;
+    }
+
+    /**
+     * Annotate the result list with additional information and issues.
+     *
+     * @param results The list of results
+     *
+     * @throws StoreException if there is a problem retrieving information
+     * @throws InferenceException if there is a problem making inferences about the data
+     *
+     * @return The modified set of matches
+     */
+    protected List<Match<C>> annotate(List<Match<C>> results) throws StoreException, InferenceException {
         return results;
     }
 
@@ -112,6 +128,15 @@ public class ClassificationMatcher<C extends Classification<C>, P extends Parame
                 return acceptable.get(0);
         }
         return null;
+    }
+
+    /**
+     * Get the sorting method for a list of matches
+     *
+     * @return The sort to use
+     */
+    protected Comparator<Match<C>> getMatchSorter() {
+        return DEFAULT_SORT;
     }
 
     /**
@@ -151,13 +176,35 @@ public class ClassificationMatcher<C extends Classification<C>, P extends Parame
         return p.getPosterior() >= IMMEDIATE_THRESHOLD && p.getConditional() >= IMMEDIATE_THRESHOLD;
     }
 
+    /**
+     * Is this match acceptable?
+     * <p>
+     * Generally, this means something that looks like it might have a chance of
+     * being the right thing.
+     * </p>
+     *
+     * @param match The candidate match
+     *
+     * @return True if this is an acceptable match
+     */
     protected boolean isAcceptableMatch(Match<C> match) {
         Inference p = match.getProbability();
-        return p.getPosterior() >= ACCEPTABLE_THRESHOLD && p.getConditional() > p.getPrior();
+        return p.getPosterior() >= ACCEPTABLE_THRESHOLD && p.getConditional() >= POSSIBLE_THESHOLD;
     }
 
+    /**
+     * Does this match indicate an evidence problem.
+     * <p>
+     * Bad matches can occur when the likelihood of the evidence is so low
+     * that it is overwhelming priors.
+     * </p>
+     *
+     * @param match The candidate match
+     *
+     * @return True if this match is an example of bad evidence.
+     */
     protected boolean isBadEvidence(Match<C> match) {
         Inference p = match.getProbability();
-        return p.getPrior() > p.getEvidence() || p.getPrior() > p.getConditional();
+        return p.getPrior() > p.getEvidence() * EVIDENCE_SLOP || p.getPrior() > p.getConditional();
     }
 }

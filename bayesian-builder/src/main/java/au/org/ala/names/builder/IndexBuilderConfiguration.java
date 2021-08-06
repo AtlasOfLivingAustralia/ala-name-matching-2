@@ -68,6 +68,11 @@ public class IndexBuilderConfiguration {
     @Getter
     @Setter
     private List<Term> types;
+    /** The number of worker threads */
+    @JsonProperty
+    @Getter
+    @Setter
+    private int threads;
 
     public IndexBuilderConfiguration() {
         this.builderClass = EmptyBuilder.class;
@@ -75,6 +80,7 @@ public class IndexBuilderConfiguration {
         this.defaultWeight = 1.0;
         this.logInterval = 10000;
         this.types = Arrays.asList(DwcTerm.Taxon);
+        this.threads = Runtime.getRuntime().availableProcessors();
     }
 
     /**
@@ -97,8 +103,22 @@ public class IndexBuilderConfiguration {
         if (this.loadStoreClass == null)
             throw new StoreException("Load store class not defined");
         try {
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class, IndexBuilderConfiguration.class, boolean.class, boolean.class);
+            return c.newInstance(annotator, this, true, true);
+        } catch (InvocationTargetException ex) {
+            throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
+        } catch (Exception ex) {
+        }
+        try {
             c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class, IndexBuilderConfiguration.class, boolean.class);
             return c.newInstance(annotator, this, true);
+        } catch (InvocationTargetException ex) {
+            throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
+        } catch (Exception ex) {
+        }
+        try {
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class, File.class, boolean.class, boolean.class);
+            return c.newInstance(annotator, this.getWork(), true, true);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {

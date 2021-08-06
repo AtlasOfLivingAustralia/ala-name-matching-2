@@ -4,17 +4,18 @@ import au.org.ala.bayesian.NetworkCompiler;
 import au.org.ala.bayesian.Observable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * Remove the value of an entry
  */
-public class RemoveModifier extends SingleModifier {
+public class RemoveModifier extends BaseModifier {
     protected RemoveModifier() {
     }
 
-    public RemoveModifier(String id, Observable observable) {
-        super(id, observable);
+    public RemoveModifier(String id, Collection<Observable> observables, boolean nullDerived) {
+        super(id, observables, nullDerived);
     }
     /**
      * Generate code that will perform the modification.
@@ -30,7 +31,8 @@ public class RemoveModifier extends SingleModifier {
         statements.add(to + " = " + from + ".clone();");
         for (Observable observable: this.getModified())
             statements.add(to + "." + observable.getJavaVariable() + " = null;");
-        this.nullDependents(compiler, to, statements);
+        if (this.isNullDervived())
+            this.nullDependents(compiler, to, statements);
         return statements;
     }
 }

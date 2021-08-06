@@ -19,11 +19,11 @@ import java.io.IOException;
  */
 public class ALANameSearcher {
     private LuceneClassifierSearcher searcher;
-    private ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanParameters, AlaLinnaeanInferencer, AlaLinnaeanFactory> matcher;
+    private ALAClassificationMatcher matcher;
 
     public ALANameSearcher(File index) throws StoreException {
         this.searcher = new LuceneClassifierSearcher(index);
-        this.matcher = new ClassificationMatcher<>(AlaLinnaeanFactory.instance(), this.searcher);
+        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher);
     }
 
     /**

@@ -47,8 +47,9 @@ public class CSVSourceTest {
         assertEquals(11, this.store.getStore().size());
         LuceneClassifier value = this.store.get(DwcTerm.Taxon, SimpleLinnaeanFactory.taxonId, "S-1");
         assertNotNull(value);
-        assertEquals("Artemia franciscana", value.get(SimpleLinnaeanFactory.scientificName).toString());
-        assertEquals("species", value.get(SimpleLinnaeanFactory.taxonRank).toString());
+        assertEquals("Artemia franciscana", value.get(SimpleLinnaeanFactory.scientificName));
+        assertEquals("species", value.get(SimpleLinnaeanFactory.taxonRank));
+        assertEquals("accepted", value.get(SimpleLinnaeanFactory.taxonomicStatus));
         source.close();
     }
 
@@ -63,6 +64,7 @@ public class CSVSourceTest {
         assertNotNull(value);
         assertEquals("Artemia franciscana", value.get(SimpleLinnaeanFactory.scientificName));
         assertNull(value.get(SimpleLinnaeanFactory.taxonRank));
+        assertNull(value.get(SimpleLinnaeanFactory.taxonomicStatus));
         source.close();
     }
 }

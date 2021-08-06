@@ -37,8 +37,6 @@ public enum ALATerm implements Term {
     status,
     /** A score for taxon/name priority */
     priority,
-    /** A taxon weight - how likely it is to be a matching taxon */
-    weight,
     /** A taxon identifier for the kingdom */
     kingdomID,
     /** An alternate name for a kingdom */
@@ -97,10 +95,6 @@ public enum ALATerm implements Term {
     principalTaxonID,
     /** The principal scientific name, for taxa that may have been re-assigned */
     principalScientificName,
-    /** The class used to build an index */
-    builderClass,
-    /** The class used for parameters */
-    parametersClass,
     /** The scientific name has been canononicalised before searching */
     canonicalMatch,
     /** The match is fuzzy, rather than exact */
@@ -109,8 +103,8 @@ public enum ALATerm implements Term {
     taxonParentLoop,
     /** There is a loop in the taxon's accepted link */
     taxonAcceptedLoop,
-    /** Record type describing document metadata */
-    Metadata,
+    /** The name is unparsable */
+    unparsableName,
     /** Record type describing an unplaced vernacular name */
     UnplacedVernacularName,
     /** Record type describing a variant (different source, spelling etc.) of a taxon */

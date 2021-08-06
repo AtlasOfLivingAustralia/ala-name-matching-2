@@ -9,7 +9,7 @@ import org.gbif.nameparser.api.Rank;
 import org.gbif.nameparser.util.RankUtils;
 
 /**
- * Analysis based on nomenclatureal code.
+ * Analysis based on nomenclatural code.
  */
 public class NomenclaturalCodeAnalysis extends EnumAnalysis<NomenclaturalCode> {
     private NomCodeParser parser = NomCodeParser.getInstance();

@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * Derive a new name based on the taxamatch soundex algorithm.
@@ -64,8 +65,19 @@ public class TaxonNameSoundexDerivation extends CopyDerivation {
 
     @Override
     public String generateClassificationTransform() {
-        String extra = this.rank == null ? "\"species\"" : "this." + this.rank.getJavaVariable();
-        return "this." + INSTANCE_VAR + ".treatWord(this." + this.getSource().getJavaVariable() + ", " + extra + ")";
+        final String extra;
+        if (this.rank != null) {
+            if (org.gbif.api.vocabulary.Rank.class.isAssignableFrom(this.rank.getType()))
+                extra = "this." + this.rank.getJavaVariable() + " == null ? null : org.gbif.nameparser.api.Rank.valueOf(this." + this.rank.getJavaVariable() + ".name())";
+            else if (org.gbif.nameparser.api.Rank.class.isAssignableFrom(this.rank.getType()))
+                extra = "this." + this.rank.getJavaVariable();
+            else if (String.class.isAssignableFrom(this.rank.getType()))
+                extra = "this." + this.rank.getJavaVariable() + " == null ? null : org.gbif.nameparser.api.Rank.valueOf(this." + this.rank.getJavaVariable() + ")";
+            else
+                extra = "this." + this.rank.getJavaVariable() + " == null ? null : org.gbif.nameparser.api.Rank.valueOf(this." + this.rank.getJavaVariable() + ".toString())";
+        } else
+            extra = "null";
+        return this.getSources().stream().map(s -> "this." + INSTANCE_VAR + ".treatWord(this." + s.getJavaVariable() + ", " + extra + ")").collect(Collectors.joining(" + "));
     }
 
 }
