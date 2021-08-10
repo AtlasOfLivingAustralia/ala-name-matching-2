@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
 import lombok.Setter;
 import org.gbif.dwc.terms.Term;
+import org.jgrapht.Graphs;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
@@ -43,6 +44,19 @@ public class Network extends Identifiable {
     @Getter
     @Setter
     private List<List<Modifier>> modifiers;
+    /** The erasure signature of this network.
+     * If null, this is the original network.
+     * Otherwise it contains T/F elements corresponding to the presence or absence of erasable observable groups
+     */
+    @JsonProperty
+    @Getter
+    @Setter
+    private String signature;
+    /** The erasures active in this network */
+    @JsonProperty
+    @Getter
+    @Setter
+    private List<String> erasures;
     /** The inference links between vertices */
     @JsonIgnore
     private DirectedAcyclicGraph<Observable, Dependency> graph;
@@ -56,6 +70,7 @@ public class Network extends Identifiable {
         this.uriMap = new HashMap<>();
         this.issues = new ArrayList<>();
         this.modifiers = new ArrayList<>();
+        this.erasures = new ArrayList<>();
     }
 
     /**
@@ -70,6 +85,20 @@ public class Network extends Identifiable {
         this.uriMap = new HashMap<>();
         this.issues = new ArrayList<>();
         this.modifiers = new ArrayList<>();
+        this.erasures = new ArrayList<>();
+    }
+
+    public Network(Network source, String id, boolean empty) {
+        super(source, id);
+        this.idMap = new TreeMap<>(source.idMap);
+        this.uriMap = new HashMap<>(source.uriMap);
+        this.issues = new ArrayList<>(source.issues);
+        this.modifiers = new ArrayList<>(source.modifiers);
+        this.signature = source.signature;
+        this.erasures = new ArrayList<>(source.erasures);
+        this.graph = new DirectedAcyclicGraph<Observable, Dependency>(Dependency.class);
+        if (!empty)
+            Graphs.addGraph(this.graph, source.graph);
     }
 
     /**
@@ -315,6 +344,94 @@ public class Network extends Identifiable {
      */
     public Set<Dependency> getOutgoing(Observable observable) {
         return this.graph.outgoingEdgesOf(observable);
+    }
+
+    /**
+     * Get the list of erasure groups for this network.
+     *
+     * @return The list of erasure groups, in network order.
+     */
+    public List<String> getErasureGroups() {
+        return this.getVertices().stream()
+                .filter(o -> o.getErasure() != null)
+                .map(Observable::getErasure)
+                .distinct()
+                .collect(Collectors.toList());
+
+    }
+
+    /**
+     * Build a sub network with only a specific set of observables.
+     *
+     * @param include The observables to include
+     * @param id The new network identifier
+     *
+     * @return
+     */
+    public Network createSubNetwork(Collection<Observable> include, String id) {
+        Network subNetwork = new Network(this, id, true);
+         for (Observable o: this.getVertices()) {
+            if (!include.contains(o))
+                continue;
+            Set<Observable> targets = new HashSet<>();
+            Set<Dependency> outgoing = new HashSet<>(this.getOutgoing(o));
+            while (!outgoing.isEmpty()) {
+                Set<Dependency> newOutgoing = new HashSet<>();
+                for (Dependency d : outgoing) {
+                    Observable target = this.graph.getEdgeTarget(d);
+                    if (targets.contains(target))
+                        continue;
+                    if (include.contains(target)) {
+                        targets.add(target);
+                        continue;
+                    }
+                    Set<Dependency> newOut = this.getOutgoing(target);
+                    if (!newOut.isEmpty()) {
+                          newOutgoing.addAll(newOut);
+                    }
+                }
+                outgoing = newOutgoing;
+            }
+            for (Observable t: targets) {
+                subNetwork.graph.addVertex(o);
+                subNetwork.graph.addVertex(t);
+                subNetwork.graph.addEdge(o, t, new Dependency());
+            }
+        }
+        return subNetwork;
+    }
+
+    /**
+     * Recursively build a list of partially erased networks.
+     *
+     * @param erasures The current list of pending erasures
+     * @param accumulator The accoumator for partial netwotks.
+     */
+    protected void createSubNetworks(int index, List<String> erasures, String signature, List<Network> accumulator) {
+        if (index >= erasures.size()) {
+            Network copy = new Network(this, this.getId(), false);
+            copy.setSignature(signature);
+            accumulator.add(copy);
+            return;
+        }
+        final String erasure = erasures.get(index);
+        this.createSubNetworks(index + 1, erasures, signature + "T", accumulator);
+        List<Observable> include = this.getVertices().stream().filter(o -> !erasure.equals(o.getErasure())).collect(Collectors.toList());
+        Network erased = this.createSubNetwork(include, this.getId() + "-" + erasure);
+        erased.getErasures().add(erasure);
+        erased.createSubNetworks(index + 1, erasures, signature + "F", accumulator);
+    }
+
+    /**
+     * Create all subnetworks with erased elements.
+     *
+     * @return The list of sub-networks
+     */
+    public List<Network> createSubNetworks() {
+        List<String> erasures = this.getErasureGroups();
+        List<Network> subNetworks = new ArrayList<>(1 << erasures.size());
+        this.createSubNetworks(0, erasures, "", subNetworks);
+        return subNetworks;
     }
 
     /**

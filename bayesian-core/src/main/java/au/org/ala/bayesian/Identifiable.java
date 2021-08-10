@@ -105,6 +105,20 @@ abstract public class Identifiable {
     }
 
     /**
+     * Copy constructor.
+     *
+     * @param source The source identifiable
+     * @param id The new identifier
+     */
+    public Identifiable(Identifiable source, String id) {
+        this(id, source.uri);
+        this.label = source.label;
+        this.external = new HashMap<>(source.external);
+        this.externalCache = new HashMap<>();
+        this.properties = new TreeMap<>(source.properties);
+    }
+
+    /**
      * Get the term associated with this identifiable.
      * <p>
      * The term is constructed either from the URI, if available, or from the identifier

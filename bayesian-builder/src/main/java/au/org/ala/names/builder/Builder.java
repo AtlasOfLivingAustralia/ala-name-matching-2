@@ -11,7 +11,16 @@ import java.util.Deque;
  * Subclasses are generated based on the network configuration.
  * </p>
  */
-public interface Builder<P extends Parameters> {
+public interface Builder {
+    /**
+     * Get the erasure signature for this builder.
+     *
+     * @return The erasure signature, null for an erasure-insentitive, top-level builder.
+     *
+     * @see Inferencer#getSignature()
+     */
+    public String getSignature();
+
     /**
      * Infer from a classifier during building.
      * <p>
@@ -41,14 +50,27 @@ public interface Builder<P extends Parameters> {
     public void expand(Classifier document, Deque<Classifier> parents) throws InferenceException, StoreException;
 
     /**
+     * Build a signture for a classifier.
+     * This gives the inference required by the type of information available in the classifier.
+     *
+     * @param classifier The classifier to build a signature for
+     *
+     * @return The classifier signature
+     *
+     * @see Inferencer#getSignature()
+     */
+    public String buildSignature(Classifier classifier);
+
+    /**
      * Calculate parameter values for a particular document.
      *
-     * @param parameters The parameters to fill out
      * @param analyser The parameter analyser
      * @param document The document
+     *
+     * @return The parameters for this document
      *
      * @throws InferenceException if unable to calculate the parameters
      * @throws StoreException if unable to retrieve parameter data
      */
-    public void calculate(P parameters, ParameterAnalyser analyser, Classifier document) throws InferenceException, StoreException;
+    public Parameters calculate(ParameterAnalyser analyser, Classifier document) throws InferenceException, StoreException;
 }

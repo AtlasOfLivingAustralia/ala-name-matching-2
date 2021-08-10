@@ -22,7 +22,7 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.test.TestMatcher;
 import au.org.ala.bayesian.ClassificationMatcher;
 
-public class Network9Factory implements NetworkFactory<Network9Classification, Network9Parameters, Network9Inferencer, Network9Factory> {
+public class Network9Factory implements NetworkFactory<Network9Classification, Network9Inferencer, Network9Factory> {
     private static Network9Factory instance = null;
 
 
@@ -82,11 +82,6 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
   @Override
   public Network9Inferencer createInferencer() {
       return new Network9Inferencer();
-  }
-
-  @Override
-  public Network9Parameters createParameters() {
-        return new Network9Parameters();
   }
 
   @Override

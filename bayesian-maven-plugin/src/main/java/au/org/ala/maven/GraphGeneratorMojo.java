@@ -50,7 +50,7 @@ public class GraphGeneratorMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             Network network = Network.read(this.source.toURI().toURL());
-            NetworkCompiler compiler = new NetworkCompiler(network);
+            NetworkCompiler compiler = new NetworkCompiler(network, null);
             compiler.analyse();
             File parentDir = this.output.getParentFile();
             if (!parentDir.exists() && !parentDir.mkdirs())

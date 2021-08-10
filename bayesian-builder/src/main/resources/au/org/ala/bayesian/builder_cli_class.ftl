@@ -17,7 +17,7 @@ import ${variable.clazz.name};
 import ${analyserClass};
 </#if>
 
-public class ${className} implements Cli<${classificationClassName}, ${parametersClassName}, ${builderClassName}, ${inferencerClassName}, ${factoryClassName}> {
+public class ${className} implements Cli<${classificationClassName}, ${builderClassName}, ${inferencerClassName}, ${factoryClassName}> {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
      Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();

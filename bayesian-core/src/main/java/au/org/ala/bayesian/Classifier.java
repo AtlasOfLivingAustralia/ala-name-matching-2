@@ -236,4 +236,24 @@ public interface Classifier {
      * @throws StoreException if unable to store the names in the classifier
      */
     public void setNames(Collection<String> names) throws StoreException;
+
+    /**
+     * Get the signature of the classifier, indicating which erasure groups are in and which are out.
+     *
+     * @return The signature.
+     *
+     * @see Inferencer#getSignature()
+     */
+    public String getSignature();
+
+    /**
+     * Set the signature for tha classifier.
+     *
+     * @param signature The classifier signature
+     *
+     * @see Inferencer#getSignature()
+     */
+    public void setSignature(String signature);
+
+
 }

@@ -36,11 +36,16 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @Getter
     @Setter
     private Style style = Style.CANONICAL;
-    /** Is this a required observable, meaning that it must be present to proceed? */
+    /** Is this a required observable, meaning that a value must be present in a classifier and classification? */
     @JsonProperty
     @Getter
     @Setter
     private boolean required = false;
+    /** The erasure group for this variable. A collection of related  */
+    @JsonProperty
+    @Getter
+    @Setter
+    private String erasure;
     /** The normaliser, if required */
     @JsonProperty
     @Getter

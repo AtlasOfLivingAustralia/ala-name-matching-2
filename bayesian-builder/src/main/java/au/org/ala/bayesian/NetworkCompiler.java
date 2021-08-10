@@ -15,10 +15,15 @@ import java.util.stream.IntStream;
  * Compile a network into a sequence of inference steps.
  */
 public class NetworkCompiler {
-
     /** The source network */
     @Getter
     protected Network network;
+    /** The parent compiler */
+    @Getter
+    protected NetworkCompiler parent;
+    /** The child compiler */
+    @Getter
+    protected List<NetworkCompiler> children;
     /** The reversed graph for dependencies */
     protected DirectedAcyclicGraph<Observable, Dependency> sources;
     /** The horizon computer for vertices */
@@ -46,10 +51,14 @@ public class NetworkCompiler {
 
     /**
      * Construct for a network
-     * @param network
+     *
+     * @param network The network to compile
+     * @param parent The parent compiler for sub-networks. Null for the top-level compiler
      */
-    public NetworkCompiler(Network network) {
+    public NetworkCompiler(Network network, NetworkCompiler parent) {
         this.network = network;
+        this.parent = parent;
+        this.children = new ArrayList<>();
         this.variableConverter = SimpleIdentifierConverter.JAVA_VARIABLE;
         BayesianTerm.weight.toString(); // Ensure loaded
     }
@@ -108,6 +117,18 @@ public class NetworkCompiler {
     }
 
     /**
+     * Get the collections of erased observables
+     */
+    public List<List<Observable>> getErasureStructure() {
+        List<String> erasureGroups = this.network.getErasureGroups();
+        return erasureGroups.stream()
+                .map(g -> this.network.getObservables().stream()
+                    .filter(o -> g.equals(o.getErasure()))
+                    .collect(Collectors.toList()))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Get the list of issue defintitions.
      *
      * @return The list of issues
@@ -142,6 +163,15 @@ public class NetworkCompiler {
         // Computer derived inference variables
         for (Node node: this.orderedNodes) {
             this.buildInterior(node);
+        }
+
+        // Generate children
+        if (this.parent == null) {
+            for (Network sub: this.network.createSubNetworks()) {
+                NetworkCompiler child = new NetworkCompiler(sub, this);
+                child.analyse();
+                this.children.add(child);
+            }
         }
     }
 

@@ -21,7 +21,7 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.analysis.DoubleAnalysis;
 import au.org.ala.bayesian.ClassificationMatcher;
 
-public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClassification, SimpleLinnaeanParameters, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> {
+public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClassification, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> {
     private static SimpleLinnaeanFactory instance = null;
 
   public static final Normaliser lowerCaseNormaliser = new au.org.ala.util.BasicNormaliser("lower_case_normaliser", true, true, true, true, true);
@@ -256,17 +256,12 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   }
 
   @Override
-  public SimpleLinnaeanParameters createParameters() {
-        return new SimpleLinnaeanParameters();
-  }
-
-  @Override
   public Analyser<SimpleLinnaeanClassification> createAnalyser() {
         return new au.org.ala.bayesian.NullAnalyser<>();
   }
 
   @Override
-  public ClassificationMatcher<SimpleLinnaeanClassification, SimpleLinnaeanParameters, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> createMatcher(ClassifierSearcher searcher){
+  public ClassificationMatcher<SimpleLinnaeanClassification, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> createMatcher(ClassifierSearcher searcher){
         return new ClassificationMatcher<>(this, searcher);
   }
 

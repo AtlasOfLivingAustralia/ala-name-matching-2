@@ -1,6 +1,7 @@
-package au.org.ala.names.generated;
+package au.org.ala.names;
 
 import au.org.ala.bayesian.Inference;
+import au.org.ala.names.generated.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,14 +21,14 @@ public class GrassTest {
             0.01 // Wet if !rain and !sprinkler
     };
 
-    private GrassParameters parameters;
-    private GrassInferencer inferencer;
+    private GrassParameters_ parameters;
+    private GrassInferencer_ inferencer;
 
     @Before
     public void setUp() {
-        this.parameters = new GrassParameters();
+        this.parameters = new GrassParameters_();
         parameters.load(PARAMS);
-        this.inferencer = new GrassInferencer();
+        this.inferencer = new GrassInferencer_();
     }
 
     /**

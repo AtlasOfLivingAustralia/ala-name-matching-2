@@ -7,9 +7,20 @@ import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.StoreException;
 
-public class Network2Inferencer implements Inferencer<Network2Classification, Network2Parameters> {
+public class Network2Inferencer_ implements Inferencer<Network2Classification> {
+  public final static String SIGNATURE = "";
 
-  public double infer(Evidence evidence, Network2Parameters parameters, double c$v1) {
+  private ThreadLocal<Network2Parameters_> parameters = ThreadLocal.withInitial(() -> new Network2Parameters_());
+
+  public Network2Inferencer_() {
+  }
+
+  @Override
+  public String getSignature() {
+    return SIGNATURE;
+  }
+
+  public double infer(Network2Inferencer.Evidence evidence, Network2Parameters_ parameters, double c$v1) {
     double nc$v1 = 1.0 - c$v1;
     double c$v2 = 0.0;
     double nc$v2 = 0.0;
@@ -24,7 +35,7 @@ public class Network2Inferencer implements Inferencer<Network2Classification, Ne
     return (c$v2 + nc$v2) * (parameters.prior_t$v1 * c$v1 + parameters.prior_f$v1 * nc$v1);
   }
 
-  public Inference probability(Evidence evidence, Network2Parameters parameters) {
+  public Inference probability(Network2Inferencer.Evidence evidence, Network2Parameters_ parameters) {
     double p;
     double prior = parameters.prior_t$v1;
     double ph = 0.0;
@@ -39,30 +50,11 @@ public class Network2Inferencer implements Inferencer<Network2Classification, Ne
   }
 
   @Override
-  public Inference probability(Network2Classification classification, Classifier classifier, Network2Parameters parameters) throws StoreException, InferenceException {
-    Evidence evidence = classification.match(classifier);
-    return this.probability(evidence, parameters);
+  public Inference probability(Network2Classification classification, Classifier classifier) throws StoreException, InferenceException {
+    Network2Inferencer.Evidence evidence = classification.match(classifier);
+    Network2Parameters_ params = this.parameters.get();
+    classifier.loadParameters(params);
+    return this.probability(evidence, params);
   }
 
-  public static class Evidence {
-    public Boolean e$v1;
-    public Boolean e$v2;
-
-    public boolean isT$e$v1() {
-      return this.e$v1 == null || this.e$v1;
-    }
-
-    public boolean isF$e$v1() {
-      return this.e$v1 == null || !this.e$v1;
-    }
-
-    public boolean isT$e$v2() {
-      return this.e$v2 == null || this.e$v2;
-    }
-
-    public boolean isF$e$v2() {
-      return this.e$v2 == null || !this.e$v2;
-    }
-
-  }
 }

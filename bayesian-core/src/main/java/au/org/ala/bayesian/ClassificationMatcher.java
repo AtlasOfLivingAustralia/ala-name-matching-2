@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * is then returned.
  * </p>
  */
-public class ClassificationMatcher<C extends Classification<C>, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> {
+public class ClassificationMatcher<C extends Classification<C>, I extends Inferencer<C>, F extends NetworkFactory<C, I, F>> {
     /** The default possible theshold for something to be considered. @see #isPossible */
     public static double POSSIBLE_THESHOLD = 0.1;
     /** The default immediately acceptable threshold for something to be regarded as accepted. @see @isImmediateMatch */
@@ -79,10 +79,8 @@ public class ClassificationMatcher<C extends Classification<C>, P extends Parame
 
     protected List<Match<C>> doMatch(C classification, List<? extends Classifier> candidates) throws StoreException, InferenceException {
         List<Match<C>> results = new ArrayList<>(candidates.size());
-        P parameters = this.factory.createParameters();
         for (Classifier candidate: candidates) {
-            candidate.loadParameters(parameters);
-            Inference inference = this.inferencer.probability(classification, candidate, parameters);
+             Inference inference = this.inferencer.probability(classification, candidate);
             if (this.isPossible(classification, candidate, inference)) {
                 C candidateClassification = this.factory.createClassification();
                 candidateClassification.read(candidate, true);

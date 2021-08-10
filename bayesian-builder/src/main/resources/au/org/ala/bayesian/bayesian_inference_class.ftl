@@ -7,80 +7,37 @@ import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.StoreException;
 
-public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements Inferencer<${classificationClassName}, ${parametersClassName}> {
+import java.util.HashMap;
+import java.util.Map;
 
-  public double infer(Evidence evidence, ${parametersClassName} parameters<#list inputs as inp>, double ${inp.CE}</#list>) {
-<#list orderedNodes as node>
-    <#if node.source>
-        <#if node.inference?size == 0>
-    double ${node.CNotE} = 1.0 - ${node.CE};
-        <#else>
-    double ${node.CE} = 0.0;
-    double ${node.CNotE} = 0.0;
-        </#if>
-    <#else>
-    double ${node.CE} = evidence.isT$${node.evidence.id}() ? 1.0 : 0.0;
-    double ${node.CNotE} = evidence.isF$${node.evidence.id}() ? 1.0 : 0.0;
-    </#if>
-</#list>
-<#list orderedNodes as node>
-  <#if !node.source>
-    // Ignoring non-base ${node.observable.id}
-  <#elseif node.interior?size gt 0>
-    if (evidence.isT$${node.evidence.id}()) {
-        <#list node.interior as inf>
-            <#if inf.outcome.match>
-      ${node.CE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
-            </#if>
-        </#list>
-    }
-    if (evidence.isF$${node.evidence.id}()) {
-      <#list node.interior as inf>
-            <#if !inf.outcome.match>
-      ${node.CNotE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
-            </#if>
-      </#list>
-    }
-  <#elseif node.inference?size gt 0>
-    if (evidence.isT$${node.evidence.id}()) {
-      <#list node.inference as inf>
-          <#if inf.outcome.match>
-      ${node.CE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
-          </#if>
-      </#list>
-    }
-    if (evidence.isF$${node.evidence.id}()) {
-      <#list node.inference as inf>
-          <#if !inf.outcome.match>
-      ${node.CNotE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
-          </#if>
-      </#list>
-    }
-  </#if>
-</#list>
-    return <#list outputs as node><#if node?index gt 0> * </#if>(${node.CE.id} + ${node.CNotE.id})</#list><#list inputs as node> * (parameters.${node.prior.id} * ${node.CE.id} + parameters.${node.invertedPrior.id} * ${node.CNotE})</#list>;
-  }
 
-  public Inference probability(Evidence evidence, ${parametersClassName} parameters) {
-    double p;
-    double prior = <#list inputs as node><#if node?index gt 0> * </#if>parameters.${node.prior.id}</#list>;
-    double ph = 0.0;
-    double pe = 0.0;
+public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements Inferencer<${classificationClassName}> {
+  private Map<String, Inferencer<${classificationClassName}>> subInferencers;
 
-<#list inputSignatures as sig>
-    p = <#list sig as s><#assign node = inputs[s?index]>(evidence.is<#if s>T<#else>F</#if>$${node.evidence.id}() ? 1.0 : 0.0) * </#list>this.infer(evidence, parameters<#list sig as s>, <#if s>1.0<#else>0.0</#if></#list>);
-    <#if sig?index == 0>
-    ph += p;
-    </#if>
-    pe += p;
+  // Assumed to be stateless
+  private static final Inferencer<${classificationClassName}>[] INFERENCERS = new Inferencer[] {
+<#list children as child>
+    new ${className}_${child.network.signature}()<#if child_has_next>,</#if>
 </#list>
-    return Inference.forPEH(prior, pe, ph);
+  };
+
+  public ${className}() {
+    this.subInferencers = new HashMap<>(INFERENCERS.length);
+    for (Inferencer<${classificationClassName}> i: INFERENCERS)
+      this.subInferencers.put(i.getSignature(), i);
   }
 
   @Override
-  public Inference probability(${classificationClassName} classification, Classifier classifier, ${parametersClassName} parameters) throws StoreException, InferenceException {
-    Evidence evidence = classification.match(classifier);
-    return this.probability(evidence, parameters);
+  public String getSignature() {
+    return null;
+  }
+
+  @Override
+  public Inference probability(${classificationClassName} classification, Classifier classifier) throws StoreException, InferenceException {
+    Inferencer<${classificationClassName}> sub = this.subInferencers.get(classifier.getSignature());
+    if (sub == null)
+      throw new IllegalArgumentException("Signature '" + classifier.getSignature() + "' is not recognised");
+    return sub.probability(classification, classifier);
   }
 
   public static class Evidence {

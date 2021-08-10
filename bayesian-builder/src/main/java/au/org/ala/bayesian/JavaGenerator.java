@@ -38,12 +38,18 @@ public class JavaGenerator extends Generator {
     private static final String ENCODING = "UTF-8";
     /** The name of the inference class template */
     private static final String INFERENCE_CLASS_TEMPLATE = "bayesian_inference_class.ftl";
-    /** The name of the inference class template */
+    /** The name of the inference erasure-specific class template */
+    private static final String INFERENCE_SPECIFIC_CLASS_TEMPLATE = "bayesian_inference_specific_class.ftl";
+    /** The name of the parameters class template */
     private static final String PARAMETERS_CLASS_TEMPLATE = "bayesian_parameter_class.ftl";
+    /** The name of the parameters erasure-specific class template */
+    private static final String PARAMETERS_SPECIFIC_CLASS_TEMPLATE = "bayesian_parameter_specific_class.ftl";
     /** The name of the classification class template */
     private static final String CLASSIFICATION_CLASS_TEMPLATE = "bayesian_classification_class.ftl";
     /** The name of the builder class template */
     private static final String BUILDER_CLASS_TEMPLATE = "bayesian_builder_class.ftl";
+    /** The name of the inference erasure-specific class template */
+    private static final String BUILDER_SPECIFIC_CLASS_TEMPLATE = "bayesian_builder_specific_class.ftl";
     /** The name of the observables class template */
     private static final String FACTORY_CLASS_TEMPLATE = "bayesian_factory_class.ftl";
     /** The name of the CLI class template */
@@ -73,15 +79,24 @@ public class JavaGenerator extends Generator {
     /** Builder class specification */
     @Getter
     private JavaGeneratorSpecification<Builder> builderSpec;
+    /** Builder specific class specification */
+    @Getter
+    private JavaGeneratorSpecification<Builder> builderSpecificSpec;
     /** Parameter class specification */
     @Getter
     private JavaGeneratorSpecification<Parameters> parametersSpec;
-    /** Parameter class specification */
+    /** Parameter specific class specification */
+    @Getter
+    private JavaGeneratorSpecification<Parameters> parametersSpecificSpec;
+    /** Classification class specification */
     @Getter
     private JavaGeneratorSpecification<Classification> classificationSpec;
     /** Inferencer class specification */
     @Getter
     private JavaGeneratorSpecification<Inferencer> inferencerSpec;
+    /** Inferencer specific class specification */
+    @Getter
+    private JavaGeneratorSpecification<Inferencer> inferencerSpecificSpec;
     /** Analysis class specification */
     @Getter
     private JavaGeneratorSpecification<Analyser> analyserSpec;
@@ -112,14 +127,17 @@ public class JavaGenerator extends Generator {
         this.freemarkerConfig = getConfig();
         this.classConverter = SimpleIdentifierConverter.JAVA_CLASS;
         this.wrapper = new DefaultObjectWrapperBuilder(this.freemarkerConfig.getIncompatibleImprovements()).build();
-        this.parametersSpec = new JavaGeneratorSpecification<>("Parameters", PARAMETERS_CLASS_TEMPLATE, Parameters.class);
-        this.classificationSpec = new JavaGeneratorSpecification<>("Classification", CLASSIFICATION_CLASS_TEMPLATE, Classification.class);
-        this.analyserSpec = new JavaGeneratorSpecification<>("analyser", null, Analyser.class, this.classificationSpec);
-        this.inferencerSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_CLASS_TEMPLATE, Inferencer.class, this.classificationSpec, this.parametersSpec, this.analyserSpec);
-        this.factorySpec = new JavaGeneratorSpecification<>("Factory", FACTORY_CLASS_TEMPLATE, NetworkFactory.class, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.analyserSpec);
-        this.builderSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_CLASS_TEMPLATE, Builder.class, this.parametersSpec, this.factorySpec);
-        this.cliSpec = new JavaGeneratorSpecification<>("Cli", CLI_CLASS_TEMPLATE, Cli.class, this.classificationSpec, this.parametersSpec, this.builderSpec, this.inferencerSpec, this.factorySpec);
-        this.matcherSpec = new JavaGeneratorSpecification<>("matcher", null, ClassificationMatcher.class, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.factorySpec);
+        this.parametersSpec = new JavaGeneratorSpecification<>("Parameters", PARAMETERS_CLASS_TEMPLATE, Parameters.class, false);
+        this.parametersSpecificSpec = new JavaGeneratorSpecification<>("Parameters", PARAMETERS_SPECIFIC_CLASS_TEMPLATE, Parameters.class, true);
+        this.classificationSpec = new JavaGeneratorSpecification<>("Classification", CLASSIFICATION_CLASS_TEMPLATE, Classification.class, false);
+        this.analyserSpec = new JavaGeneratorSpecification<>("Analyser", null, Analyser.class, false, this.classificationSpec);
+        this.inferencerSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_CLASS_TEMPLATE, Inferencer.class, false, this.classificationSpec, this.parametersSpec, this.analyserSpec);
+        this.inferencerSpecificSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_SPECIFIC_CLASS_TEMPLATE, Inferencer.class, true, this.classificationSpec, this.parametersSpecificSpec, this.analyserSpec);
+        this.factorySpec = new JavaGeneratorSpecification<>("Factory", FACTORY_CLASS_TEMPLATE, NetworkFactory.class, false, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.analyserSpec);
+        this.builderSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_CLASS_TEMPLATE, Builder.class, false, this.parametersSpec, this.factorySpec);
+        this.builderSpecificSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_SPECIFIC_CLASS_TEMPLATE, Builder.class, true, this.parametersSpecificSpec, this.factorySpec);
+        this.cliSpec = new JavaGeneratorSpecification<>("Cli", CLI_CLASS_TEMPLATE, Cli.class, false, this.classificationSpec, this.parametersSpec, this.builderSpec, this.inferencerSpec, this.factorySpec);
+        this.matcherSpec = new JavaGeneratorSpecification<>("matcher", null, ClassificationMatcher.class, false, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.factorySpec);
         this.factorySpec.addParameter(this.matcherSpec);
         this.classificationSpec.addParameter(this.factorySpec);
         this.classificationSpec.addParameter(this.inferencerSpec);
@@ -178,14 +196,19 @@ public class JavaGenerator extends Generator {
         log.info("Generating for network " + compiler.getNetwork());
         this.generateClass(compiler, this.classificationSpec, javaTarget, compiler.getClassificationVariables());
         this.generateClass(compiler, this.inferencerSpec, javaTarget, null);
-        this.generateClass(compiler, this.parametersSpec, javaTarget, null);
+        // this.generateClass(compiler, this.parametersSpec, javaTarget, null);
         this.generateClass(compiler, this.factorySpec, javaTarget, null);
         this.generateClass(compiler, this.builderSpec, javaTarget, compiler.getBuilderVariables());
-        this.generateClass(compiler, this.cliSpec, javaTarget,null);
+        this.generateClass(compiler, this.cliSpec, javaTarget, null);
         if (this.cliSpec.isGenerate()) {
             writer = new FileWriter(new File(resourceTarget, this.getNetworkFileName(compiler)));
             this.generateNetworkFile(compiler, writer);
             writer.close();
+        }
+        for (NetworkCompiler child: compiler.getChildren()) {
+            this.generateClass(child, this.parametersSpecificSpec, javaTarget, null);
+            this.generateClass(child, this.inferencerSpecificSpec, javaTarget, null);
+            this.generateClass(child, this.builderSpecificSpec, javaTarget, null);
         }
      }
 
@@ -234,7 +257,7 @@ public class JavaGenerator extends Generator {
         if (spec.getTemplate() == null || !spec.isGenerate())
             return;
         File target = new File(javaTarget, spec.withContext(compiler, this.packageName).getClassName() + ".java");
-        log.info("Generating " + compiler.getNetwork().getId() + "/" + spec.getFunction() + " to file " + target);
+        log.info("Generating " + compiler.getNetwork().getId() + "/" + spec.getFunction()  + "/" + compiler.getNetwork().getSignature() + " to file " + target);
         Writer writer = new FileWriter(target);
         this.generateClass(compiler, spec, writer, variables);
         writer.close();
@@ -301,7 +324,7 @@ public class JavaGenerator extends Generator {
             if (!source.exists())
                 throw new IllegalArgumentException("Base network " + source + " does not exist");
             Network network = Network.read(source.toURI().toURL());
-            NetworkCompiler compiler = new NetworkCompiler(network);
+            NetworkCompiler compiler = new NetworkCompiler(network, null);
             compiler.analyse();
             generator.generate(compiler);
         }

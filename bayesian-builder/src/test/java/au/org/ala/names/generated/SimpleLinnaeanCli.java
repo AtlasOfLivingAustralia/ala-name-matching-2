@@ -12,7 +12,7 @@ import java.net.URL;
 import org.apache.commons.codec.language.Soundex;
 
 
-public class SimpleLinnaeanCli implements Cli<SimpleLinnaeanClassification, SimpleLinnaeanParameters, SimpleLinnaeanBuilder, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> {
+public class SimpleLinnaeanCli implements Cli<SimpleLinnaeanClassification, SimpleLinnaeanBuilder, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
      Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();

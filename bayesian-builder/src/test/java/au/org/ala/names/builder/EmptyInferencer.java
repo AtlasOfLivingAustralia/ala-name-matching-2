@@ -7,9 +7,14 @@ import au.org.ala.bayesian.Inferencer;
 /**
  * Empty inferencer for testing.
  */
-public class EmptyInferencer implements Inferencer<EmptyClassification, EmptyParameters> {
+public class EmptyInferencer implements Inferencer<EmptyClassification> {
     @Override
-    public Inference probability(EmptyClassification classification, Classifier classifier, EmptyParameters parameters) {
+    public String getSignature() {
+        return "";
+    }
+
+    @Override
+    public Inference probability(EmptyClassification classification, Classifier classifier) {
         return Inference.forPEC(0.0, 0.0, 0.0);
     }
 }

@@ -41,6 +41,9 @@ public class JavaGeneratorSpecification<I> {
     /** The full interface class this implements */
     @Getter
     private final Class<I> interfaceClass;
+    /** Does this generate for a child class? */
+    @Getter
+    private final boolean child;
     /** The parameters used to specialise the interface/other classes */
     @Getter
     private final Map<Class<?>, JavaGeneratorSpecification> parameters;
@@ -63,12 +66,14 @@ public class JavaGeneratorSpecification<I> {
      * @param function The name of the function this class performs
      * @param template The name of the template that this class generates. Null for a non-generating placeholder spec.
      * @param interfaceClass The interface that the generated class implements
+     * @param child Is this a specification for a child class?
      * @param parameters Any other classes that this class depends upon.
      */
-    public JavaGeneratorSpecification(@NonNull String function, String template, @NonNull Class<I> interfaceClass, JavaGeneratorSpecification<?>... parameters) {
+    public JavaGeneratorSpecification(@NonNull String function, String template, @NonNull Class<I> interfaceClass, boolean child, JavaGeneratorSpecification<?>... parameters) {
         this.function = function.toLowerCase();
         this.template = template;
         this.interfaceClass = interfaceClass;
+        this.child = child;
         this.generate = true;
         this.parameters = Arrays.stream(parameters).collect(Collectors.toMap(p -> p.getInterfaceClass(), p -> p));
     }
@@ -122,6 +127,10 @@ public class JavaGeneratorSpecification<I> {
         public String getClassName() {
             if (JavaGeneratorSpecification.this.template == null)
                 return JavaGeneratorSpecification.this.interfaceClass.getSimpleName();
+            if (JavaGeneratorSpecification.this.isChild() && compiler.getParent() != null) {
+                Context parentContext = new Context(compiler.getParent(), this.packageName);
+                return parentContext.getClassName() + "_" + compiler.getNetwork().getSignature();
+            }
             return this.baseClassName + StringUtils.capitalize(JavaGeneratorSpecification.this.function);
         }
 
@@ -213,7 +222,7 @@ public class JavaGeneratorSpecification<I> {
             log.debug("Adding variable {}={}", "implementationClassName", this.getImplementationClassName());
             environment.setVariable("implementationClassName", new StringModel(this.getImplementationClassName(), wrapper));
             for (JavaGeneratorSpecification ps: JavaGeneratorSpecification.this.parameters.values()) {
-                Context c = ps.withContext(this.compiler, this.packageName);
+                Context c = ps.withContext(JavaGeneratorSpecification.this.isChild() && !ps.isChild() && this.compiler.getParent() != null ? this.compiler.getParent() : this.compiler, this.packageName);
                 log.debug("Adding variable {}={}", c.getClassVariable(), c.getClassName());
                 environment.setVariable(c.getClassVariable(), new StringModel(c.getClassName(), wrapper));
                 if (c.getImplementationClassName() != null) {
@@ -223,6 +232,11 @@ public class JavaGeneratorSpecification<I> {
                 if (c.getFullImplementationClassName() != null)
                     this.addImport(c.getFullImplementationClassName(), imports);
                 this.addImport(c.getFullClassName(), imports);
+            }
+            if (JavaGeneratorSpecification.this.isChild() && compiler.getParent() != null) {
+                log.debug("Adding parent information");
+                Context parentContext = new Context(compiler.getParent(), this.packageName);
+                environment.setVariable("parentClassName", new StringModel(parentContext.getClassName(), wrapper));
             }
         }
 

@@ -42,12 +42,12 @@ public class IndexBuilderConfiguration {
     @JsonProperty
     @Getter
     @Setter
-    private Class<? extends NetworkFactory<?, ?, ?, ?>> factoryClass;
+    private Class<? extends NetworkFactory<?, ?, ?>> factoryClass;
     /** The class of the builder */
     @JsonProperty
     @Getter
     @Setter
-    private Class<? extends Builder<?>> builderClass;
+    private Class<? extends Builder> builderClass;
     /** The class of the load store */
     @JsonProperty
     @Getter
@@ -156,7 +156,7 @@ public class IndexBuilderConfiguration {
      *
      * @throws StoreException if unable to build the store
      */
-    public <C extends Classification<C>, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> F createFactory(Annotator annotator) throws StoreException {
+    public <C extends Classification<C>, I extends Inferencer<C>, F extends NetworkFactory<C, I, F>> F createFactory(Annotator annotator) throws StoreException {
         Constructor<F> c;
 
         if (this.factoryClass == null)
@@ -197,7 +197,7 @@ public class IndexBuilderConfiguration {
      *
      * @throws StoreException if unable to build the store
      */
-    public <P extends Parameters, F extends NetworkFactory<?, P, ?, F>> Builder<P> createBuilder(Annotator annotator, F factory) throws StoreException {
+    public <F extends NetworkFactory<?, ?, F>> Builder createBuilder(Annotator annotator, F factory) throws StoreException {
         Constructor<? extends Builder> c;
 
         if (this.builderClass == null)

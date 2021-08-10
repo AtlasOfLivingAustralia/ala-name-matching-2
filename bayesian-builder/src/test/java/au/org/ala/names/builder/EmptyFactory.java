@@ -6,7 +6,7 @@ import lombok.NonNull;
 import java.util.Collections;
 import java.util.List;
 
-public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyParameters, EmptyInferencer, EmptyFactory> {
+public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyInferencer, EmptyFactory> {
     @Override
     public @NonNull List<Observable> getObservables() {
         return Collections.emptyList();
@@ -33,16 +33,6 @@ public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyPa
     }
 
     /**
-     * Create a new, empty parameter set for the network
-     *
-     * @return The parameters
-     */
-    @Override
-    public EmptyParameters createParameters() {
-        return new EmptyParameters();
-    }
-
-    /**
      * Create an optional evidence analyser for this network.
      *
      * @return The analyser, or null for no analyser
@@ -59,7 +49,7 @@ public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyPa
      * @return The new matcher
      */
     @Override
-    public @NonNull ClassificationMatcher<EmptyClassification, EmptyParameters, EmptyInferencer, EmptyFactory> createMatcher(ClassifierSearcher searcher) {
+    public @NonNull ClassificationMatcher<EmptyClassification, EmptyInferencer, EmptyFactory> createMatcher(ClassifierSearcher searcher) {
         return null;
     }
 }

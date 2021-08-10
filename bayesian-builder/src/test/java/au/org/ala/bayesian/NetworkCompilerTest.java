@@ -11,7 +11,7 @@ public class NetworkCompilerTest {
     @Test
     public void testCompile1() throws Exception {
         Network network = Network.read(this.getClass().getResource("network-1.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         assertEquals(1, compiler.getInputs().size());
         assertEquals("v_1", compiler.getInputs().get(0).getObservable().getId());
@@ -42,7 +42,7 @@ public class NetworkCompilerTest {
     @Test
     public void testCompile2() throws Exception {
         Network network = Network.read(this.getClass().getResource("network-2.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         assertEquals(1, compiler.getInputs().size());
         assertEquals("v_1", compiler.getInputs().get(0).getObservable().getId());

@@ -38,8 +38,10 @@ public class LuceneClassifier implements Classifier {
     public static final String ANNOTATION_FIELD = "_annotations";
     /** The default field name for parameters */
     public static final String PARAMETERS_FIELD = "_parameters";
-    /** The default field name for the left value */
+    /** The default field name for the left/right values */
     public static final String INDEX_FIELD = "_index";
+    /** The default field name for classifier signature */
+    public static final String SIGNATURE_FIELD = "_signature";
 
     /** The underlying lucene document */
     @Getter
@@ -446,6 +448,31 @@ public class LuceneClassifier implements Classifier {
         this.document.removeFields(NAMES_FIELD);
         for (String name: names)
             document.add(new TextField(NAMES_FIELD, name, Field.Store.YES));
+    }
+
+    /**
+     * Get the classifier signature
+     *
+     * @return The signature, or null for no identifier found.
+     */
+    @Override
+    public String getSignature() {
+        return this.document.get(SIGNATURE_FIELD);
+    }
+
+    /**
+     * Set the signature for the classifier.
+     * <p>
+     * Replaces any existing signature.
+     * </p>
+     *
+     * @param signature The classifier signature
+     */
+    @Override
+    public void setSignature(String signature) {
+        this.document.removeFields(NAMES_FIELD);
+        if (signature != null)
+            this.document.add(new StringField(SIGNATURE_FIELD, signature, Field.Store.YES));
     }
 
     /**

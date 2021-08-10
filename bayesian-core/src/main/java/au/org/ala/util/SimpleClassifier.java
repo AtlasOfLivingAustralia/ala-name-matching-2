@@ -13,6 +13,7 @@ import java.util.*;
  */
 public class SimpleClassifier implements Classifier {
     private String identifier;
+    private String signature;
     private Term type;
     private Set<Term> annotations;
     private double[] parameters;
@@ -293,5 +294,27 @@ public class SimpleClassifier implements Classifier {
     @Override
     public void setNames(Collection<String> names) throws StoreException {
         this.names = new HashSet<>(names);
+    }
+
+    /**
+     * Get the signature of the classifier, indicating which erasure groups are in and which are out.
+     *
+     * @return The signature.
+     * @see Inferencer#getSignature()
+     */
+    @Override
+    public String getSignature() {
+        return this.signature;
+    }
+
+    /**
+     * Set the signature for tha classifier.
+     *
+     * @param signature The classifier signature
+     * @see Inferencer#getSignature()
+     */
+    @Override
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 }

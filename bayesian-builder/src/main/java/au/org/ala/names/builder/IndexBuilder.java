@@ -41,7 +41,7 @@ import java.util.stream.IntStream;
  *     <li>Produce an output lucene index optimised for subsequent searching</li>
  * </ol>
  */
-public class IndexBuilder<C extends Classification<C>, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> implements Annotator {
+public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, F extends NetworkFactory<C, I, F>> implements Annotator {
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexBuilder.class);
 
     /** The date format for timestamping backups */
@@ -57,7 +57,7 @@ public class IndexBuilder<C extends Classification<C>, P extends Parameters, I e
     @Getter
     protected F factory;
     /** The builder to use in processing */
-    protected Builder<P> builder;
+    protected Builder builder;
     /** The weight observable (required) */
     protected Observable weight;
     /** The parent observable (required) */
@@ -372,10 +372,9 @@ public class IndexBuilder<C extends Classification<C>, P extends Parameters, I e
 
     protected void buildParameters(Classifier classifier, ParameterAnalyser analyser) throws StoreException, InferenceException {
         String id = classifier.get(this.taxonId);
-        if (id.equals("9c237030-9af9-41d2-bc3c-3a18adcd43ac"))
-            System.out.println("Found it");
-        P parameters = this.factory.createParameters();
-        this.builder.calculate(parameters, analyser, classifier);
+        String signature = this.builder.buildSignature(classifier);
+        classifier.setSignature(signature);
+        Parameters parameters = this.builder.calculate(analyser, classifier);
         classifier.storeParameters(parameters);
         this.parameterisedStore.store(classifier);
 

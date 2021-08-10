@@ -10,7 +10,7 @@ public class JavaGeneratorTest {
     public void testGenerateInference1() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-1.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.generateClass(compiler, generator.getInferencerSpec(), writer, null);
@@ -22,60 +22,60 @@ public class JavaGeneratorTest {
     public void testGenerateInference2() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-2.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
-        generator.generateClass(compiler, generator.getInferencerSpec(), writer, null);
+        generator.generateClass(compiler.getChildren().get(0), generator.getInferencerSpecificSpec(), writer, null);
         // System.out.println(writer.toString());
-        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-2-inference.java.txt"), writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-2-inference_.java.txt"), writer.toString());
     }
 
     @Test
     public void testGenerateInference3() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-3.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
-        generator.generateClass(compiler, generator.getInferencerSpec(), writer, null);
+        generator.generateClass(compiler.getChildren().get(0), generator.getInferencerSpecificSpec(), writer, null);
         // System.out.println(writer.toString());
-        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-3-inference.java.txt"), writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-3-inference_.java.txt"), writer.toString());
     }
 
     @Test
     public void testGenerateParameters1() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-1.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
-        generator.generateClass(compiler, generator.getParametersSpec(), writer, null);
+        generator.generateClass(compiler.getChildren().get(0), generator.getParametersSpecificSpec(), writer, null);
         // System.out.println(writer.toString());
-        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-1-parameter.java.txt"), writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-1-parameter_.java.txt"), writer.toString());
     }
 
     @Test
     public void testGenerateParameters2() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-2.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
-        generator.generateClass(compiler, generator.getParametersSpec(), writer, null);
+        generator.generateClass(compiler.getChildren().get(0), generator.getParametersSpecificSpec(), writer, null);
         // System.out.println(writer.toString());
-        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-2-parameter.java.txt"), writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-2-parameter_.java.txt"), writer.toString());
     }
 
     @Test
     public void testGenerateParameters3() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-3.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
-        generator.generateClass(compiler, generator.getParametersSpec(), writer, null);
+        generator.generateClass(compiler.getChildren().get(0), generator.getParametersSpecificSpec(), writer, null);
         // System.out.println(writer.toString());
-        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-3-parameter.java.txt"), writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-3-parameter_.java.txt"), writer.toString());
     }
 
 
@@ -83,7 +83,7 @@ public class JavaGeneratorTest {
     public void testGenerateClassification1() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-9.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.generateClass(compiler, generator.getClassificationSpec(), writer, compiler.getClassificationVariables());
@@ -96,7 +96,7 @@ public class JavaGeneratorTest {
     public void testGenerateClassification2() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("/au/org/ala/names/lucene/simple-network.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.generateClass(compiler, generator.getClassificationSpec(), writer, compiler.getClassificationVariables());
@@ -108,7 +108,7 @@ public class JavaGeneratorTest {
     public void testGenerateFactory1() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-9.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.getMatcherSpec().setImplementationClassName("au.org.ala.test.TestMatcher");
@@ -122,7 +122,7 @@ public class JavaGeneratorTest {
     public void testGenerateFactory2() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("/au/org/ala/names/lucene/simple-network.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.generateClass(compiler, generator.getFactorySpec(), writer, null);
@@ -134,7 +134,7 @@ public class JavaGeneratorTest {
     public void testGenerateBuilder1() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-9.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.generateClass(compiler, generator.getBuilderSpec(), writer, compiler.getBuilderVariables());
@@ -143,10 +143,23 @@ public class JavaGeneratorTest {
     }
 
     @Test
+    public void testGenerateBuilder2() throws Exception {
+        StringWriter writer = new StringWriter();
+        Network network = Network.read(this.getClass().getResource("network-9.json"));
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
+        compiler.analyse();
+        JavaGenerator generator = new JavaGenerator();
+        generator.generateClass(compiler.getChildren().get(0), generator.getBuilderSpecificSpec(), writer, compiler.getBuilderVariables());
+        // System.out.println(writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-9-builder_.java.txt"), writer.toString());
+    }
+
+
+    @Test
     public void testGenerateCli1() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-9.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         JavaGenerator generator = new JavaGenerator();
         generator.generateClass(compiler, generator.getCliSpec(), writer, null);

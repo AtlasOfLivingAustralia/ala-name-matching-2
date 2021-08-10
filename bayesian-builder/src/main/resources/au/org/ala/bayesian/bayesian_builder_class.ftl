@@ -4,18 +4,30 @@ package ${packageName};
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
+import au.org.ala.bayesian.Parameters;
 import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.builder.Builder;
 
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 <#list imports as import>
 import ${import};
 </#list>
 
-public class ${className} implements Builder<${parametersClassName}> {
+public class ${className} implements Builder {
+  // Assumed to be stateless
+  private static final Builder[] BUILDERS = new Builder[] {
+<#list children as child>
+    new ${className}_${child.network.signature}()<#if child_has_next>,</#if>
+</#list>
+  };
+
+  private Map<String, Builder> subBuilders;
+
   <#list builderVariables as variable>
   private ${variable.clazz.simpleName} ${variable.name};
   </#list>
@@ -24,6 +36,14 @@ public class ${className} implements Builder<${parametersClassName}> {
   <#list builderVariables as variable>
     this.${variable.name} = new ${variable.clazz.simpleName}();
   </#list>
+    this.subBuilders = new HashMap<>(BUILDERS.length);
+    for (Builder b: BUILDERS)
+      this.subBuilders.put(b.getSignature(), b);
+  }
+
+  @Override
+  public String getSignature() {
+    return null;
   }
 
   @Override
@@ -69,16 +89,19 @@ public class ${className} implements Builder<${parametersClassName}> {
   }
 
   @Override
-  public void calculate(${parametersClassName} parameters, ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
-    <#list inputs as inc>
-    parameters.${inc.prior.id} = analyser.computePrior(analyser.getObservation(true, ${factoryClassName}.${inc.observable.javaVariable}, classifier));
-    </#list>
-    <#list orderedNodes as node>
-        <#list node.inference as inf>
-            <#if !inf.derived>
-    parameters.${inf.id} = analyser.computeConditional(analyser.getObservation(true, ${factoryClassName}.${inf.outcome.observable.javaVariable}, classifier) <#list inf.contributors as c>, analyser.getObservation(${c.match?c}, ${factoryClassName}.${c.observable.javaVariable}, classifier)</#list>);
-            </#if>
-        </#list>
-    </#list>
+  public String buildSignature(Classifier classifier) {
+    char[] sig = new char[${erasureStructure?size}];
+<#list erasureStructure as erasure>
+    sig[${erasure_index}] = (<#list erasure as observable>classifier.has(${factoryClassName}.${observable.javaVariable})<#if observable_has_next> || </#if></#list>) ? 'T' : 'F';
+</#list>
+    return new String(sig);
+  }
+
+  @Override
+  public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
+    Builder sub = this.subBuilders.get(classifier.getSignature());
+    if (sub == null)
+        throw new IllegalArgumentException("Signature " + classifier.getSignature() + " not found");
+    return sub.calculate(analyser, classifier);
   }
 }

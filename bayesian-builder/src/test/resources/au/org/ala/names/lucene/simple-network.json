@@ -53,7 +53,8 @@
     {
       "id": "specificEpithet",
       "uri": "http://rs.tdwg.org/dwc/terms/specificEpithet",
-      "normaliser": "simple_normaliser"
+      "normaliser": "simple_normaliser",
+      "erasure": "species"
     },
     {
       "id": "genus",
@@ -62,6 +63,7 @@
         "http://id.ala.org.au/bayesian/1.0/copy": true
       },
       "normaliser": "simple_normaliser",
+      "erasure": "genus",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "sources": [ "scientificName" ],

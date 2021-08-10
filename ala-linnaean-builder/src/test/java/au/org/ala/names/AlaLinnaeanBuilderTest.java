@@ -28,7 +28,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
 
     private AlaLinnaeanFactory factory;
     private LuceneClassifierSearcher searcher;
-    private ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanParameters, AlaLinnaeanInferencer, AlaLinnaeanFactory> matcher;
+    private ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory> matcher;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -81,9 +81,9 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals("Canarium", doc.get(AlaLinnaeanFactory.genus));
         assertEquals("https://id.biodiversity.org.au/node/apni/2918714", doc.get(AlaLinnaeanFactory.genusId));
         assertEquals(TaxonomicStatus.accepted, doc.get(AlaLinnaeanFactory.taxonomicStatus));
-        AlaLinnaeanParameters params = new AlaLinnaeanParameters();
+        AlaLinnaeanParameters_ params = new AlaLinnaeanParameters_();
         doc.loadParameters(params);
-        AlaLinnaeanInferencer inference = new AlaLinnaeanInferencer();
+        AlaLinnaeanInferencer_ inference = new AlaLinnaeanInferencer_();
         AlaLinnaeanInferencer.Evidence evidence = new AlaLinnaeanInferencer.Evidence();
         evidence.e$scientificName = true;
         Inference prob = inference.probability(evidence, params);
@@ -125,14 +125,14 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals("urn:lsid:indexfungorum.org:names:90156", doc.get(AlaLinnaeanFactory.kingdomId));
         assertEquals(TaxonomicStatus.synonym, doc.get(AlaLinnaeanFactory.taxonomicStatus));
         assertEquals("b465f067-a2c1-4c6c-88cc-e394c23e4f87", doc.get(AlaLinnaeanFactory.acceptedNameUsageId));
-        AlaLinnaeanParameters params = new AlaLinnaeanParameters();
+        AlaLinnaeanParameters_ params = new AlaLinnaeanParameters_();
         doc.loadParameters(params);
         assertEquals(1.0, params.inf_t_t$family, 0.00001);
         assertEquals(1.0, params.inf_t_t$order, 0.00001);
         assertEquals(1.0, params.inf_t_t$class_, 0.00001);
         assertEquals(1.0, params.inf_t_t$phylum, 0.00001);
         assertEquals(1.0, params.inf_t_t$kingdom, 0.00001);
-        AlaLinnaeanInferencer inference = new AlaLinnaeanInferencer();
+        AlaLinnaeanInferencer_ inference = new AlaLinnaeanInferencer_();
         AlaLinnaeanInferencer.Evidence evidence = new AlaLinnaeanInferencer.Evidence();
         evidence.e$scientificName = true;
         Inference prob = inference.probability(evidence, params);

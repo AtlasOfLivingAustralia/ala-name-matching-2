@@ -8,10 +8,9 @@ import java.util.List;
  * Interface to objects that create network information.
  *
  * @param <C> The classifier to use
- * @param <P> The parameters class to use
  * @param <I> The inferencer class to user
  */
-public interface NetworkFactory<C extends Classification<C>, P extends Parameters, I extends Inferencer<C, P>, F extends NetworkFactory<C, P, I, F>> {
+public interface NetworkFactory<C extends Classification<C>, I extends Inferencer<C>, F extends NetworkFactory<C, I, F>> {
     /**
      * Get a list of all the observables used by the network.
      *
@@ -37,14 +36,6 @@ public interface NetworkFactory<C extends Classification<C>, P extends Parameter
     public I createInferencer();
 
     /**
-     * Create a new, empty parameter set for the network
-     *
-     * @return The parameters
-     */
-    @NonNull
-    public P createParameters();
-
-    /**
      * Create an optional evidence analyser for this network.
      *
      * @return The analyser, or null for no analyser
@@ -59,5 +50,5 @@ public interface NetworkFactory<C extends Classification<C>, P extends Parameter
      * @return The new matcher
      */
     @NonNull
-    public ClassificationMatcher<C, P, I, F> createMatcher(ClassifierSearcher searcher);
+    public ClassificationMatcher<C, I, F> createMatcher(ClassifierSearcher searcher);
 }

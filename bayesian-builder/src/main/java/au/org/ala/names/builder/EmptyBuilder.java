@@ -10,11 +10,16 @@ import java.util.Deque;
 /**
  * A null builder that does nothing in particular.
  */
-public class EmptyBuilder implements Builder<EmptyBuilder.EmptyParameters> {
+public class EmptyBuilder implements Builder {
     /**
      * Default constructor
      */
     public EmptyBuilder() {
+    }
+
+    @Override
+    public String getSignature() {
+        return null;
     }
 
     /**
@@ -37,15 +42,23 @@ public class EmptyBuilder implements Builder<EmptyBuilder.EmptyParameters> {
     }
 
     /**
+     * Null signature.
+     */
+    @Override
+    public String buildSignature(Classifier classifier) {
+        return null;
+    }
+
+    /**
      * Null parameter calculation
      *
-     * @param parameters The parameters to fill out
      * @param analyser   The parameter analyser
      * @param classifier   The classifier
      * @throws InferenceException if unable to calculate the parameters
      */
     @Override
-    public void calculate(EmptyParameters parameters, ParameterAnalyser analyser, Classifier classifier) throws InferenceException {
+    public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws InferenceException {
+        return new EmptyParameters();
     }
 
     public static class EmptyParameters implements Parameters {

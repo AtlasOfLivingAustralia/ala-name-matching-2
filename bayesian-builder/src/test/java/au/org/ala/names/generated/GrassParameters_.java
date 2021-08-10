@@ -4,7 +4,10 @@ import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 
-public class GrassParameters implements Parameters {
+public class GrassParameters_ implements Parameters {
+
+  public final static String SIGNATURE = "";
+
   public double prior_t$rain; // rain prior probability
   public double prior_f$rain; // 1 - rain prior probability
   public double inf_t_t$sprinkler; // p(sprinkler | rain) conditional probability
@@ -28,7 +31,7 @@ public class GrassParameters implements Parameters {
   public double derived_t_ff$wet; // p(wet | ¬sprinkler, ¬rain) = p(wet | ¬rain, ¬sprinkler).p(¬sprinkler | ¬rain)  derived conditional probability
   public double derived_f_ff$wet; // p(¬wet | ¬sprinkler, ¬rain) = p(¬wet | ¬rain, ¬sprinkler).p(¬sprinkler | ¬rain)  derived conditional probability
 
-  public GrassParameters() {
+  public GrassParameters_() {
   }
 
   @Override

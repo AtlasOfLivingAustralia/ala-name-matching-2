@@ -4,6 +4,7 @@ import au.org.ala.bayesian.modifier.RemoveModifier;
 import au.org.ala.util.JsonUtils;
 import au.org.ala.util.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.gbif.common.shaded.com.google.common.graph.Graphs;
 import org.junit.Test;
 
 import java.io.StringWriter;
@@ -11,6 +12,8 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -151,5 +154,126 @@ public class NetworkTest {
         assertEquals(RemoveModifier.class, modifier.getClass());
         assertEquals(Collections.singleton(vertices.get(0)), ((RemoveModifier) modifier).getObservables());
     }
+
+    @Test
+    public void testCreateSubNetwork1() throws Exception {
+        ObjectMapper mapper = JsonUtils.createMapper();
+        Network network = mapper.readValue(TestUtils.getResource(this.getClass(), "network-6.json"), Network.class);
+        Observable a = network.getObservable("A");
+        Observable b = network.getObservable("B");
+        Observable f = network.getObservable("F");
+        Network subNetwork = network.createSubNetwork(Arrays.asList(a, b, f), "sub");
+        assertEquals(6, subNetwork.getObservables().size());
+        assertEquals(3, subNetwork.getVertices().size());
+        assertTrue(subNetwork.getVertices().contains(a));
+        assertTrue(subNetwork.getVertices().contains(b));
+        assertTrue(subNetwork.getVertices().contains(f));
+        List<Observable> outgoing = subNetwork.getOutgoing(a).stream().map(d -> subNetwork.getTarget(d)).collect(Collectors.toList());
+        assertEquals(2, outgoing.size());
+        assertTrue(outgoing.contains(b));
+        assertTrue(outgoing.contains(f));
+        outgoing = subNetwork.getOutgoing(b).stream().map(d -> subNetwork.getTarget(d)).collect(Collectors.toList());
+        assertEquals(1, outgoing.size());
+        assertSame(f, outgoing.get(0));
+        outgoing = subNetwork.getOutgoing(f).stream().map(d -> subNetwork.getTarget(d)).collect(Collectors.toList());
+        assertEquals(0, outgoing.size());
+   }
+
+
+    @Test
+    public void testCreateSubNetwork2() throws Exception {
+        ObjectMapper mapper = JsonUtils.createMapper();
+        Network network = mapper.readValue(TestUtils.getResource(this.getClass(), "network-8.json"), Network.class);
+        Observable a = network.getObservable("A");
+        Observable b = network.getObservable("B");
+        Observable c = network.getObservable("C");
+        Observable g = network.getObservable("G");
+        Observable h = network.getObservable("H");
+        Network subNetwork = network.createSubNetwork(Arrays.asList(a, b, c, g, h), "sub");
+        assertEquals(8, subNetwork.getObservables().size());
+        assertEquals(5, subNetwork.getVertices().size());
+        assertTrue(subNetwork.getVertices().contains(a));
+        assertTrue(subNetwork.getVertices().contains(b));
+        assertTrue(subNetwork.getVertices().contains(c));
+        assertTrue(subNetwork.getVertices().contains(g));
+        assertTrue(subNetwork.getVertices().contains(h));
+        List<Observable> outgoing = subNetwork.getOutgoing(a).stream().map(d -> subNetwork.getTarget(d)).collect(Collectors.toList());
+        assertEquals(2, outgoing.size());
+        assertTrue(outgoing.contains(b));
+        assertTrue(outgoing.contains(c));
+        outgoing = subNetwork.getOutgoing(b).stream().map(d -> subNetwork.getTarget(d)).collect(Collectors.toList());
+        assertEquals(1, outgoing.size());
+        assertSame(g, outgoing.get(0));
+        outgoing = subNetwork.getOutgoing(c).stream().map(d -> subNetwork.getTarget(d)).collect(Collectors.toList());
+        assertEquals(1, outgoing.size());
+        assertSame(g, outgoing.get(0));
+        outgoing = subNetwork.getOutgoing(g).stream().map(d -> subNetwork.getTarget(d)).collect(Collectors.toList());
+        assertEquals(1, outgoing.size());
+        assertSame(h, outgoing.get(0));
+        outgoing = subNetwork.getOutgoing(h).stream().map(d -> subNetwork.getTarget(d)).collect(Collectors.toList());
+        assertEquals(0, outgoing.size());
+    }
+
+    @Test
+    public void testGetErasureGroups1() throws Exception {
+        ObjectMapper mapper = JsonUtils.createMapper();
+        Network network = mapper.readValue(TestUtils.getResource(this.getClass(), "network-6.json"), Network.class);
+        List<String> erasures = network.getErasureGroups();
+        assertTrue(erasures.isEmpty());
+    }
+
+    @Test
+    public void testGetErasureGroups2() throws Exception {
+        ObjectMapper mapper = JsonUtils.createMapper();
+        Network network = mapper.readValue(TestUtils.getResource(this.getClass(), "network-11.json"), Network.class);
+        List<String> erasures = network.getErasureGroups();
+        assertEquals(Arrays.asList("B", "C"), erasures);
+    }
+
+    @Test
+    public void testCreateSubNetworks1() throws Exception {
+        ObjectMapper mapper = JsonUtils.createMapper();
+        Network network = mapper.readValue(TestUtils.getResource(this.getClass(), "network-6.json"), Network.class);
+        List<Network> networks = network.createSubNetworks();
+        assertEquals(1, networks.size());
+        Network sub = networks.get(0);
+        assertEquals(network.getGraph(), sub.getGraph());
+        assertEquals("", sub.getSignature());
+    }
+
+    @Test
+    public void testCreateSubNetworks2() throws Exception {
+        ObjectMapper mapper = JsonUtils.createMapper();
+        Network network = mapper.readValue(TestUtils.getResource(this.getClass(), "network-11.json"), Network.class);
+        Observable a = network.getObservable("A");
+        Observable b1 = network.getObservable("B1");
+        Observable b2 = network.getObservable("B2");
+        Observable c1 = network.getObservable("C1");
+        Observable d = network.getObservable("D");
+        List<Network> networks = network.createSubNetworks();
+        assertEquals(4, networks.size());
+        Network sub = networks.get(0);
+        assertEquals(network.getGraph(), sub.getGraph());
+        assertEquals("TT", sub.getSignature());
+        sub = networks.get(1);
+        assertEquals(Arrays.asList("C"), sub.getErasures());
+        assertTrue(sub.getVertices().contains(b1));
+        assertFalse(sub.getVertices().contains(c1));
+        assertTrue(sub.getGraph().containsEdge(b2, d));
+        assertEquals("TF", sub.getSignature());
+        sub = networks.get(2);
+        assertEquals(Arrays.asList("B"), sub.getErasures());
+        assertFalse(sub.getVertices().contains(b1));
+        assertTrue(sub.getVertices().contains(c1));
+        assertTrue(sub.getGraph().containsEdge(a, c1));
+        assertEquals("FT", sub.getSignature());
+        sub = networks.get(3);
+        assertEquals(Arrays.asList("B", "C"), sub.getErasures());
+        assertFalse(sub.getVertices().contains(b1));
+        assertFalse(sub.getVertices().contains(c1));
+        assertTrue(sub.getGraph().containsEdge(a, d));
+        assertEquals("FF", sub.getSignature());
+    }
+
 
 }

@@ -10,7 +10,7 @@ public class DotGeneratorTest {
     public void testGenerateDot1() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-1.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         DotGenerator generator = new DotGenerator(writer, false);
         generator.generate(compiler, null);
@@ -22,7 +22,7 @@ public class DotGeneratorTest {
     public void testGenerateDot2() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-2.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         DotGenerator generator = new DotGenerator(writer, false);
         generator.generate(compiler, null);
@@ -34,7 +34,7 @@ public class DotGeneratorTest {
     public void testGenerateDot3() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-3.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         DotGenerator generator = new DotGenerator(writer, false);
         generator.generate(compiler, null);
@@ -46,7 +46,7 @@ public class DotGeneratorTest {
     public void testGenerateDotGrass() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("grass-network.json"));
-        NetworkCompiler compiler = new NetworkCompiler(network);
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
         compiler.analyse();
         DotGenerator generator = new DotGenerator(writer, false);
         generator.generate(compiler, null);

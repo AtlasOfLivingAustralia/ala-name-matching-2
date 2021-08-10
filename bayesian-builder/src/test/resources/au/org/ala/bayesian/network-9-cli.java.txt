@@ -12,7 +12,7 @@ import java.net.URL;
 import org.apache.commons.codec.language.Soundex;
 
 
-public class Network9Cli implements Cli<Network9Classification, Network9Parameters, Network9Builder, Network9Inferencer, Network9Factory> {
+public class Network9Cli implements Cli<Network9Classification, Network9Builder, Network9Inferencer, Network9Factory> {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
      Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();

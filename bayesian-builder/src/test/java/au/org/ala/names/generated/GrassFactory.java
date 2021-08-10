@@ -20,7 +20,7 @@ import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.ClassificationMatcher;
 
-public class GrassFactory implements NetworkFactory<GrassClassification, GrassParameters, GrassInferencer, GrassFactory> {
+public class GrassFactory implements NetworkFactory<GrassClassification, GrassInferencer, GrassFactory> {
     private static GrassFactory instance = null;
 
 
@@ -86,17 +86,12 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassPa
   }
 
   @Override
-  public GrassParameters createParameters() {
-        return new GrassParameters();
-  }
-
-  @Override
   public Analyser<GrassClassification> createAnalyser() {
         return new au.org.ala.bayesian.NullAnalyser<>();
   }
 
   @Override
-  public ClassificationMatcher<GrassClassification, GrassParameters, GrassInferencer, GrassFactory> createMatcher(ClassifierSearcher searcher){
+  public ClassificationMatcher<GrassClassification, GrassInferencer, GrassFactory> createMatcher(ClassifierSearcher searcher){
         return new ClassificationMatcher<>(this, searcher);
   }
 

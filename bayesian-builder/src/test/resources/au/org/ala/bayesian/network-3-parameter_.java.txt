@@ -4,7 +4,10 @@ import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 
-public class Network3Parameters implements Parameters {
+public class Network3Parameters_ implements Parameters {
+
+  public final static String SIGNATURE = "";
+
   public double prior_t$v1; // v_1 prior probability
   public double prior_f$v1; // 1 - v_1 prior probability
   public double inf_t_t$v2; // p(v_2 | v_1) conditional probability
@@ -28,7 +31,7 @@ public class Network3Parameters implements Parameters {
   public double derived_t_ff$v3; // p(v_3 | ¬v_2, ¬v_1) = p(v_3 | ¬v_1, ¬v_2).p(¬v_2 | ¬v_1)  derived conditional probability
   public double derived_f_ff$v3; // p(¬v_3 | ¬v_2, ¬v_1) = p(¬v_3 | ¬v_1, ¬v_2).p(¬v_2 | ¬v_1)  derived conditional probability
 
-  public Network3Parameters() {
+  public Network3Parameters_() {
   }
 
   @Override

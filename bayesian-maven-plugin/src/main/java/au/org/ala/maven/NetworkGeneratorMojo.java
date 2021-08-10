@@ -142,12 +142,13 @@ public class NetworkGeneratorMojo extends AbstractMojo {
             resource.setFiltering(false);
             this.project.addResource(resource);
             Network network = Network.read(this.source.toURI().toURL());
-            NetworkCompiler compiler = new NetworkCompiler(network);
+            NetworkCompiler compiler = new NetworkCompiler(network, null);
             compiler.analyse();
             JavaGenerator generator = new JavaGenerator(javaOutput, resourcesOutput, this.outputPackage);
             generator.getBuilderSpec().setGenerate(this.generateBuilder);
             generator.getBuilderSpec().setSuperClassName(this.builderSuperClass);
             generator.getBuilderSpec().setImplementationClassName(this.builderImplementationClass);
+            generator.getBuilderSpecificSpec().setGenerate(this.generateBuilder);
             generator.getClassificationSpec().setGenerate(this.generateClassification);
             generator.getClassificationSpec().setSuperClassName(this.classificationSuperClass);
             generator.getClassificationSpec().setImplementationClassName(this.classificationImplementationClass);
@@ -160,9 +161,10 @@ public class NetworkGeneratorMojo extends AbstractMojo {
             generator.getInferencerSpec().setGenerate(this.generateInferencer);
             generator.getInferencerSpec().setSuperClassName(this.inferencerSuperClass);
             generator.getInferencerSpec().setImplementationClassName(this.inferencerImplementationClass);
-            generator.getParametersSpec().setGenerate(this.generateParameters);
-            generator.getParametersSpec().setSuperClassName(this.parametersSuperClass);
-            generator.getParametersSpec().setImplementationClassName(this.parametersImplementationClass);
+            generator.getInferencerSpecificSpec().setGenerate(this.generateInferencer);
+            generator.getParametersSpecificSpec().setGenerate(this.generateParameters);
+            generator.getParametersSpecificSpec().setSuperClassName(this.parametersSuperClass);
+            generator.getParametersSpecificSpec().setImplementationClassName(this.parametersImplementationClass);
             generator.setArtifactName(this.project.getArtifactId());
             generator.getMatcherSpec().setImplementationClassName(this.matcherClass);
             generator.getAnalyserSpec().setImplementationClassName(this.analyserClass);

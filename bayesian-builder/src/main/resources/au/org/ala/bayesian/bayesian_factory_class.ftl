@@ -22,7 +22,7 @@ import org.gbif.dwc.terms.TermFactory;
 import ${import};
 </#list>
 
-public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements NetworkFactory<${classificationClassName}, ${parametersClassName}, ${inferencerClassName}, ${className}> {
+public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements NetworkFactory<${classificationClassName}, ${inferencerClassName}, ${className}> {
     private static ${className} instance = null;
 
 <#list network.normalisers as normaliser>
@@ -87,11 +87,6 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public ${parametersClassName} createParameters() {
-        return new ${parametersImplementationClassName}();
-  }
-
-  @Override
   public ${analyserType} createAnalyser() {
 <#if analyserImplementationClassName??>
         return new ${analyserImplementationClassName}();
@@ -106,7 +101,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
         return new ${matcherImplementationClassName}(this,searcher);
   }
 <#else>
-  public ClassificationMatcher<${classificationClassName}, ${parametersClassName}, ${inferencerClassName}, ${className}> createMatcher(ClassifierSearcher searcher){
+  public ClassificationMatcher<${classificationClassName}, ${inferencerClassName}, ${className}> createMatcher(ClassifierSearcher searcher){
         return new ClassificationMatcher<>(this, searcher);
   }
 </#if>

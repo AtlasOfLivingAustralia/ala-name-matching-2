@@ -3,18 +3,36 @@ package au.org.ala.names.generated;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
+import au.org.ala.bayesian.Parameters;
 import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.builder.Builder;
 
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import au.org.ala.bayesian.analysis.StringAnalysis;
 
-public class GrassBuilder implements Builder<GrassParameters> {
+public class GrassBuilder implements Builder {
+  // Assumed to be stateless
+  private static final Builder[] BUILDERS = new Builder[] {
+    new GrassBuilder_()
+  };
+
+  private Map<String, Builder> subBuilders;
+
 
   public GrassBuilder() {
+    this.subBuilders = new HashMap<>(BUILDERS.length);
+    for (Builder b: BUILDERS)
+      this.subBuilders.put(b.getSignature(), b);
+  }
+
+  @Override
+  public String getSignature() {
+    return null;
   }
 
   @Override
@@ -26,13 +44,16 @@ public class GrassBuilder implements Builder<GrassParameters> {
   }
 
   @Override
-  public void calculate(GrassParameters parameters, ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
-    parameters.prior_t$rain = analyser.computePrior(analyser.getObservation(true, GrassFactory.rain, classifier));
-    parameters.inf_t_t$sprinkler = analyser.computeConditional(analyser.getObservation(true, GrassFactory.sprinkler, classifier) , analyser.getObservation(true, GrassFactory.rain, classifier));
-    parameters.inf_t_f$sprinkler = analyser.computeConditional(analyser.getObservation(true, GrassFactory.sprinkler, classifier) , analyser.getObservation(false, GrassFactory.rain, classifier));
-    parameters.inf_t_tt$wet = analyser.computeConditional(analyser.getObservation(true, GrassFactory.wet, classifier) , analyser.getObservation(true, GrassFactory.rain, classifier), analyser.getObservation(true, GrassFactory.sprinkler, classifier));
-    parameters.inf_t_tf$wet = analyser.computeConditional(analyser.getObservation(true, GrassFactory.wet, classifier) , analyser.getObservation(true, GrassFactory.rain, classifier), analyser.getObservation(false, GrassFactory.sprinkler, classifier));
-    parameters.inf_t_ft$wet = analyser.computeConditional(analyser.getObservation(true, GrassFactory.wet, classifier) , analyser.getObservation(false, GrassFactory.rain, classifier), analyser.getObservation(true, GrassFactory.sprinkler, classifier));
-    parameters.inf_t_ff$wet = analyser.computeConditional(analyser.getObservation(true, GrassFactory.wet, classifier) , analyser.getObservation(false, GrassFactory.rain, classifier), analyser.getObservation(false, GrassFactory.sprinkler, classifier));
+  public String buildSignature(Classifier classifier) {
+    char[] sig = new char[0];
+    return new String(sig);
+  }
+
+  @Override
+  public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
+    Builder sub = this.subBuilders.get(classifier.getSignature());
+    if (sub == null)
+        throw new IllegalArgumentException("Signature " + classifier.getSignature() + " not found");
+    return sub.calculate(analyser, classifier);
   }
 }

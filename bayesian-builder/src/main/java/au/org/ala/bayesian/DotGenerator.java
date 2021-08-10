@@ -167,7 +167,7 @@ public class DotGenerator extends Generator {
             if (!source.exists())
                 throw new IllegalArgumentException("Base network " + source + " does not exist");
             Network network = Network.read(source.toURI().toURL());
-            NetworkCompiler compiler = new NetworkCompiler(network);
+            NetworkCompiler compiler = new NetworkCompiler(network, null);
             compiler.analyse();
             generator.generate(compiler);
         }

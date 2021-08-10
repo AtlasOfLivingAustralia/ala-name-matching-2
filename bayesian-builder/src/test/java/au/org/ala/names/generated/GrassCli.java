@@ -11,7 +11,7 @@ import java.net.URL;
 
 
 
-public class GrassCli implements Cli<GrassClassification, GrassParameters, GrassBuilder, GrassInferencer, GrassFactory> {
+public class GrassCli implements Cli<GrassClassification, GrassBuilder, GrassInferencer, GrassFactory> {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
      Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
