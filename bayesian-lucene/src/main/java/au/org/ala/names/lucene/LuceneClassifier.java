@@ -134,7 +134,8 @@ public class LuceneClassifier implements Classifier {
      * @param observable The observable to match
      * @param value      The value to match against (may be null)
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
-     * @throws InferenceException if there was a problem matching the result
+     * @throws StoreException if there was a problem matching the result
+     * @throws InferenceException if unable to test for equivalence.
      */
     @Override
     public <T> Boolean match(Observable observable, T value) throws StoreException, InferenceException {
@@ -170,14 +171,28 @@ public class LuceneClassifier implements Classifier {
 
     /**
      * Add a value to the classifier.
+     * <p>
+     * Values are not added if already present.
+     * </p>
      *
      * @param observable The observable to store
      * @param value      The value to store
      * @throws StoreException if unable to add this variable to the classifier
+     * @throws InferenceException if unable to check for a match.
      */
     @Override
     public <T> void add(Observable observable, T value) throws StoreException {
-        Field field = this.convert(observable, value);
+        if (value == null)
+            return;
+        Boolean match = null;
+        try {
+            match = this.match(observable, value);
+        } catch (InferenceException ex) {
+            throw new StoreException("Unable to test for presence", ex);
+        }
+        if (match != null && match)
+            return;
+        final Field field = this.convert(observable, value);
         if (field != null)
             this.document.add(field);
     }

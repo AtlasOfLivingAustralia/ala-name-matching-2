@@ -15,13 +15,13 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         public int compare(Match<AlaLinnaeanClassification> o1, Match<AlaLinnaeanClassification> o2) {
             double p1 = o1.getProbability().getPosterior();
             double p2 = o2.getProbability().getPosterior();
-            AlaLinnaeanClassification m1 = o2.getMatch();
+            AlaLinnaeanClassification m1 = o1.getMatch();
             AlaLinnaeanClassification m2 = o2.getMatch();
             if (Math.abs(p1 - p2) < DISTANCE) {
                 TaxonomicStatus t1 = m1.taxonomicStatus != null ? m1.taxonomicStatus : TaxonomicStatus.unknown;
                 TaxonomicStatus t2 = m2.taxonomicStatus != null ? m2.taxonomicStatus : TaxonomicStatus.unknown;
                 if (t1 != t2)
-                    t2.compareTo(t1);
+                    return t1.compareTo(t2);
             }
             return Double.compare(p2, p1);
         }
@@ -105,6 +105,26 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         return match;
     }
 
+
+    /**
+     * Mark any accepted/synonym results which also have misapplied values.
+     *
+     * @param results The list of candidate matches
+     */
+    protected Match<AlaLinnaeanClassification> detectAcceptedSynonymPair(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
+        AlaLinnaeanClassification m = match.getMatch();
+        String referenceName = m.scientificName;
+        NomenclaturalCode referenceCode = m.nomenclaturalCode;
+        if (m.taxonomicStatus != null && referenceName != null && referenceCode != null && m.taxonomicStatus.isPlaced()) {
+            for (Match<AlaLinnaeanClassification> match2: results) {
+                AlaLinnaeanClassification m2 = match2.getMatch();
+                if (match2 != match && referenceName.equalsIgnoreCase(m2.scientificName) && referenceCode != m.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isPlaced())
+                    return match.with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);
+            }
+        }
+        return match;
+    }
+
     /**
      * Find a single match that is acceptable.
      *
@@ -135,6 +155,9 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
             if (acceptable.stream().allMatch(m -> bc.acceptedNameUsageId.equals(m.getMatch().acceptedNameUsageId)))
                 return best;
         }
+        // See if we have a single accepted/variety of synonyms
+        if (bts.isAcceptedFlag() && acceptable.stream().allMatch(m -> m == best || (m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike())))
+            return best.with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
         return null;
     }
 

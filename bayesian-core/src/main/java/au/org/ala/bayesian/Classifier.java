@@ -63,12 +63,14 @@ public interface Classifier {
      * <p>
      * Note, the classifier needs to parse and normalise any values before
      * adding them to the classifier.
+     * A value should not be added twice.
      * </p>
      *
      * @param observable The observable to store
      * @param value The value to store
      *
      * @throws StoreException if unable to add this variable to the classifier
+     * @throws InferenceException if unable to check to see if the value has been added twice
      */
     public <T> void add(Observable observable, T value) throws StoreException;
 
@@ -77,6 +79,7 @@ public interface Classifier {
      * Copy all values from another classifier
      * <p>
      * Parsing and normalisation has assumed to have already taken place.
+     * Values should not be added twice.
      * </p>
      *
      * @param observable The observable for the values

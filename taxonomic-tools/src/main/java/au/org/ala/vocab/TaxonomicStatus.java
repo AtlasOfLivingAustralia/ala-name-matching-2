@@ -98,4 +98,13 @@ public enum TaxonomicStatus implements Term, AlternativeNames {
     public boolean isPlaced() {
         return this.isAcceptedFlag() || this.isSynonymFlag();
     }
+
+    /**
+     * Is this a redirecting synonym-like taxonomic entry?
+     *
+     * @return True for a synonym-like status
+     */
+    public boolean isSynonymLike() {
+        return !this.isAcceptedFlag() && (this.isSynonymFlag() || this.isMisappliedFlag() || this.isExcludedFlag());
+    }
 }

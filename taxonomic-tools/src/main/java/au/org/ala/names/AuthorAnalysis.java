@@ -17,7 +17,7 @@ public class AuthorAnalysis extends StringAnalysis {
     /**
      * Test for equivalence.
      * <p>
-     * Authors are declared equivalent based on the
+     * Authors are declared equivalent based on the GBIF author comparator
      * </p>
      *
      * @param value1 The first value to test

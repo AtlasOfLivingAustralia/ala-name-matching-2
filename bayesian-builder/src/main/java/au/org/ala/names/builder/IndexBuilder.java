@@ -271,8 +271,6 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         counter.start();
         for (Classifier classifier: synonyms) {
             String id = classifier.get(this.taxonId);
-            if (id.equals("9c237030-9af9-41d2-bc3c-3a18adcd43ac"))
-                LOGGER.info("Found it");
             Optional<String> aid = this.accepted.map(acc -> classifier.get(acc));
             Optional<Classifier> acpt = Optional.empty();
             if (!aid.isPresent()) {
