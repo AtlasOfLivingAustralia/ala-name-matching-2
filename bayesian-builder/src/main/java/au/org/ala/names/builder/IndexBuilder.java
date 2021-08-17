@@ -206,38 +206,16 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         // Perform all derivations
         this.builder.expand(classifier, parents);
         String id = classifier.get(this.taxonId);
-        Set<String> allNames = new HashSet<>();
-        Set<String> altNames = new HashSet<>();
+         Set<String> altNames = new HashSet<>();
 
-        String name = classifier.get(this.scientificName);
-        CleanedScientificName n = new CleanedScientificName(name);
-        allNames.add(n.getName());
-        allNames.add(n.getBasic());
-        allNames.add(n.getNormalised());
-        // Ensure that the normalised version of the name is used.
-        if (!name.equals(n.getNormalised())) {
-            classifier.replace(this.scientificName, n.getNormalised());
-        }
-
-        Optional<String> authorship = this.scientificNameAuthorship.map(sna -> classifier.get(sna));
-        String nameComplete = this.nameComplete.map(nc -> (String) classifier.get(nc)).orElseGet(() -> (name + " " + authorship.orElse("")).trim());
-        CleanedScientificName nc = new CleanedScientificName(nameComplete);
-        allNames.add(nc.getName());
-        allNames.add(nc.getBasic());
-        allNames.add(nc.getNormalised());
-
-        classifier.setNames(allNames);
+        classifier.setNames(this.analyser.analyseNames(classifier));
 
         if (this.altScientificName.isPresent()) {
             if (this.accepted.isPresent()) {
                 Iterable<Classifier> synonyms = this.loadStore.getAll(DwcTerm.Taxon, new Observation(true, this.accepted.get(), id));
                 for (Classifier synonym : synonyms) {
-                    String syn = synonym.get(this.scientificName);
-                    CleanedScientificName s = new CleanedScientificName(syn);
-                    altNames.add(s.getName());
-                    altNames.add(s.getBasic());
-                    altNames.add(s.getNormalised());
-                }
+                    altNames.addAll(this.analyser.analyseNames(synonym));
+                 }
             }
             for (String nm : altNames) {
                 classifier.add(this.altScientificName.get(), nm);
@@ -303,15 +281,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      */
     public void expandSynonym(Classifier classifier, Optional<Classifier> accepted) throws InferenceException, StoreException {
         Set<String> allNames = new HashSet<>();
-        String name = classifier.get(this.scientificName);
-        CleanedScientificName n = new CleanedScientificName(name);
-        allNames.add(n.getName());
-        allNames.add(n.getBasic());
-        allNames.add(n.getNormalised());
-        // Ensure that the normalised version of the name is used.
-        if (!name.equals(n.getNormalised())) {
-             classifier.replace(this.scientificName, n.getNormalised());
-        }
+        allNames.addAll(this.analyser.analyseNames(classifier));
         if (this.altScientificName.isPresent()) {
             for (String nm : allNames) {
                 classifier.add(this.altScientificName.get(), nm);

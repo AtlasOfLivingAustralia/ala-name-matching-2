@@ -13,6 +13,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Goal that generates java code for bayesian networks.
@@ -34,7 +36,6 @@ public class NetworkGeneratorMojo extends AbstractMojo {
     /** The directory to write to (generated java and resources subdirectories are added as required) */
     @Parameter(property="outputDirectory", defaultValue = "${project.build.directory}")
     private File outputDirectory;
-
 
     /** Any matcher class to use. If null, a parameterised matcher will be used */
     @Parameter(property="matcher")
@@ -116,6 +117,10 @@ public class NetworkGeneratorMojo extends AbstractMojo {
     @Parameter(property="cliImplementationClass")
     private String cliImplementationClass;
 
+    /** Additional vocabulary classes to load */
+    @Parameter(property="vocabularyClass")
+    private List<String> vocabularyClass = new ArrayList<>();
+
     /**
      * Run the goal.
      * <p>
@@ -132,6 +137,14 @@ public class NetworkGeneratorMojo extends AbstractMojo {
         try {
             if (this.project == null)
                 throw new MojoExecutionException("Network code generator requires a project");
+            for (String vc: this.vocabularyClass) {
+                try {
+                    this.getLog().info("Loading vocabulary " + vc);
+                    Class.forName(vc);
+                } catch (ClassNotFoundException ex) {
+                    throw new MojoExecutionException("Unable to load vocabulary class " + vc, ex);
+                }
+            }
             File javaOutput = new File(outputDirectory, "generated-sources/java");
             File resourcesOutput = new File(outputDirectory, "generated-resources");
             this.getLog().info("Compiling " + this.source + " to " + this.outputDirectory + " under " + this.outputPackage);

@@ -3,8 +3,10 @@ package au.org.ala.bayesian;
 import au.org.ala.bayesian.modifier.RemoveModifier;
 import au.org.ala.util.JsonUtils;
 import au.org.ala.util.TestUtils;
+import au.org.ala.vocab.TestTerms;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gbif.common.shaded.com.google.common.graph.Graphs;
+import org.gbif.dwc.terms.Term;
 import org.junit.Test;
 
 import java.io.StringWriter;
@@ -82,6 +84,18 @@ public class NetworkTest {
     }
 
     @Test
+    public void testToJson12() throws Exception {
+        Observable v1 = new Observable(TestTerms.test1);
+        Network network = new Network("network_12");
+        network.setVertices(Arrays.asList(v1));
+        network.getVocabularies().add(TestTerms.class);
+        ObjectMapper mapper = JsonUtils.createMapper();
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, network);
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-12.json"), writer.toString());
+    }
+
+    @Test
     public void testFromJson1() throws Exception {
         ObjectMapper mapper = JsonUtils.createMapper();
         Network network = mapper.readValue(TestUtils.getResource(this.getClass(), "network-1.json"), Network.class);
@@ -154,6 +168,24 @@ public class NetworkTest {
         assertEquals(RemoveModifier.class, modifier.getClass());
         assertEquals(Collections.singleton(vertices.get(0)), ((RemoveModifier) modifier).getObservables());
     }
+
+
+    @Test
+    public void testFromJson12() throws Exception {
+        ObjectMapper mapper = JsonUtils.createMapper();
+        Network network = mapper.readValue(TestUtils.getResource(this.getClass(), "network-12.json"), Network.class);
+        assertEquals("network_12", network.getId());
+        assertNotNull(network.getVocabularies());
+        assertEquals(1, network.getVocabularies().size());
+        assertTrue(network.getVocabularies().contains(TestTerms.class));
+        List<Observable> vertices = network.getVertices();
+        assertEquals(1, vertices.size());
+        Observable test1 = vertices.get(0);
+        assertEquals("test1", test1.getId());
+        assertEquals(TestTerms.test1, test1.getTerm());
+        assertEquals("test_test1", test1.getExternal(ExternalContext.LUCENE));
+    }
+
 
     @Test
     public void testCreateSubNetwork1() throws Exception {

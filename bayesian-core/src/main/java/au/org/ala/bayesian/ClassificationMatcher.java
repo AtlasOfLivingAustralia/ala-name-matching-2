@@ -26,7 +26,9 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     /** The default acceptable threshold for something. @see @isAcceptableMatch */
     public static double ACCEPTABLE_THRESHOLD = 0.90;
     /** The amount that the evidence is allowed to be below the prior priobaility */
-    public static double EVIDENCE_SLOP = 5.0;
+    public static double EVIDENCE_SLOP = 20.0;
+    /** The amount of evidence before something is too unlikely */
+    public static double EVIDENCE_THRESHOLD = Inference.MINIMUM_PROBABILITY * 10.0;
 
     /** The default match sort */
     protected Comparator<Match<C>> DEFAULT_SORT = (m1, m2) -> - Double.compare(m1.getProbability().getPosterior(), m2.getProbability().getPosterior());
@@ -188,7 +190,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      */
     protected boolean isAcceptableMatch(Match<C> match) {
         Inference p = match.getProbability();
-        return p.getPosterior() >= ACCEPTABLE_THRESHOLD && p.getConditional() >= POSSIBLE_THESHOLD;
+        return p.getPosterior() >= ACCEPTABLE_THRESHOLD && p.getEvidence() >= EVIDENCE_THRESHOLD && p.getConditional() >= POSSIBLE_THESHOLD;
     }
 
     /**

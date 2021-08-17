@@ -4,8 +4,6 @@ import au.org.ala.util.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
 import lombok.Setter;
 import org.gbif.dwc.terms.Term;
@@ -28,7 +26,7 @@ import java.util.stream.Collectors;
  * information to things like an index builder.
  * </p>
  */
-@JsonPropertyOrder({"id", "description", "uri", "normalisers", "observables", "vertices", "edges", "issues", "modifications", "modifiers" })
+@JsonPropertyOrder({"id", "description", "uri", "vocabularies", "normalisers", "observables", "vertices", "edges", "issues", "modifications", "modifiers" })
 public class Network extends Identifiable {
     /** The vertex id map */
     private SortedMap<String, Observable> idMap;
@@ -39,6 +37,11 @@ public class Network extends Identifiable {
     @Getter
     @Setter
     private List<Issue> issues;
+    /** The additional vocabularies used in this network. {@link au.org.ala.vocab.BayesianTerm} is included by default */
+    @JsonProperty
+    @Getter
+    @Setter
+    private List<Class> vocabularies;
     /** The list of modifiers */
     @JsonProperty
     @Getter
@@ -65,10 +68,11 @@ public class Network extends Identifiable {
      * Construct an empty network
      */
     public Network() {
-        this.graph = new DirectedAcyclicGraph<Observable, Dependency>(Dependency.class);
+        this.graph = new DirectedAcyclicGraph<>(Dependency.class);
         this.idMap = new TreeMap<>();
         this.uriMap = new HashMap<>();
         this.issues = new ArrayList<>();
+        this.vocabularies = new ArrayList<>();
         this.modifiers = new ArrayList<>();
         this.erasures = new ArrayList<>();
     }
@@ -80,10 +84,11 @@ public class Network extends Identifiable {
      */
     public Network(String id) {
         super(id);
-        this.graph = new DirectedAcyclicGraph<Observable, Dependency>(Dependency.class);
+        this.graph = new DirectedAcyclicGraph<>(Dependency.class);
         this.idMap = new TreeMap<>();
         this.uriMap = new HashMap<>();
         this.issues = new ArrayList<>();
+        this.vocabularies = new ArrayList<>();
         this.modifiers = new ArrayList<>();
         this.erasures = new ArrayList<>();
     }
@@ -93,10 +98,11 @@ public class Network extends Identifiable {
         this.idMap = new TreeMap<>(source.idMap);
         this.uriMap = new HashMap<>(source.uriMap);
         this.issues = new ArrayList<>(source.issues);
+        this.vocabularies = new ArrayList<>(source.vocabularies);
         this.modifiers = new ArrayList<>(source.modifiers);
         this.signature = source.signature;
         this.erasures = new ArrayList<>(source.erasures);
-        this.graph = new DirectedAcyclicGraph<Observable, Dependency>(Dependency.class);
+        this.graph = new DirectedAcyclicGraph<>(Dependency.class);
         if (!empty)
             Graphs.addGraph(this.graph, source.graph);
     }
@@ -112,8 +118,10 @@ public class Network extends Identifiable {
 
     /**
      * Get a vertex via Id
-     * @param id
-     * @return
+     *
+     * @param id The id to look for
+     *
+     * @return The matching observable, or null for none
      */
     public Observable getObservable(String id) {
         return this.idMap.get(id);
@@ -143,7 +151,7 @@ public class Network extends Identifiable {
 
     @JsonProperty("normalisers")
     public List<Normaliser> getNormalisers() {
-        Set<Normaliser> norms = this.getVertices().stream().map(Observable::getNormaliser).filter(n -> n != null).collect(Collectors.toSet());
+        Set<Normaliser> norms = this.getVertices().stream().map(Observable::getNormaliser).filter(Objects::nonNull).collect(Collectors.toSet());
         List<Normaliser> normalisers = new ArrayList<>(norms);
         normalisers.sort(Comparator.comparing(Identifiable::getId));
         return normalisers;
@@ -174,7 +182,7 @@ public class Network extends Identifiable {
      */
     @JsonProperty("vertices")
     public void setVertices(Collection<Observable> vertices) {
-        this.graph = new DirectedAcyclicGraph<Observable, Dependency>(Dependency.class);
+        this.graph = new DirectedAcyclicGraph<>(Dependency.class);
         for (Observable v: vertices) {
             Observable used = this.idMap.get(v.getId());
             if (used == null) {
@@ -214,7 +222,7 @@ public class Network extends Identifiable {
     @JsonIgnore
     public List<Observable> getObservablesById() {
         List<Observable> observables = new ArrayList<>(this.idMap.values());
-        observables.sort((o1, o2) -> o1.getId().compareTo(o2.getId()));
+        observables.sort(Comparator.comparing(Identifiable::getId));
         return observables;
     }
 
@@ -292,7 +300,7 @@ public class Network extends Identifiable {
      */
     @JsonProperty("edges")
     public List<FullEdge> getEdges() {
-        Iterator<Observable> vi = new BreadthFirstIterator<Observable, Dependency>(this.graph);
+        Iterator<Observable> vi = new BreadthFirstIterator<>(this.graph);
         List<FullEdge> edges = new ArrayList<>(this.graph.edgeSet().size());
         while (vi.hasNext()) {
             Observable v = vi.next();
@@ -366,7 +374,7 @@ public class Network extends Identifiable {
      * @param include The observables to include
      * @param id The new network identifier
      *
-     * @return
+     * @return The sub-network
      */
     public Network createSubNetwork(Collection<Observable> include, String id) {
         Network subNetwork = new Network(this, id, true);

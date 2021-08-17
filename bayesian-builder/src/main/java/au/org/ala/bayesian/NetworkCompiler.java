@@ -137,6 +137,19 @@ public class NetworkCompiler {
         return this.network.getIssues();
     }
 
+    /**
+     * Get all the vocabularies in use by the network.
+     * <p>
+     * This includes the {@link BayesianTerm} vocabulary by default.
+     * </p>
+     *
+     * @return The vocabularies in use.
+     */
+    public Set<Class> getAllVocabularies() {
+        Set<Class> all = new LinkedHashSet<>(this.network.getVocabularies());
+        all.add(BayesianTerm.class);
+        return all;
+    }
     public void analyse() throws InferenceException {
         this.sources = new DirectedAcyclicGraph<>(Dependency.class);
         Graphs.addGraphReversed(this.sources, this.network.getGraph());

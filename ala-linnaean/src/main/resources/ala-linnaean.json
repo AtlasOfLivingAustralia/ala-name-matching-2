@@ -1,6 +1,10 @@
 {
   "id": "ALA:Linnaean",
   "description": "A Linnaean heirarchy containing all evidence, used by the ALA",
+  "vocabularies": [
+    "au.org.ala.vocab.ALATerm",
+    "org.gbif.dwc.terms.DwcTerm"
+  ],
   "normalisers": [
     {
       "@class" : "au.org.ala.util.BasicNormaliser",

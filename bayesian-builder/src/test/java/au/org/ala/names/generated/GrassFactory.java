@@ -63,6 +63,10 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
 
   public static final TermFactory TERM_FACTORY = TermFactory.instance();
 
+  public static final List<Class> VOCABULARIES = Collections.unmodifiableList(Arrays.asList(
+    au.org.ala.vocab.BayesianTerm.class
+  ));
+
 
   static {
     rain.setExternal(LUCENE, "rain");

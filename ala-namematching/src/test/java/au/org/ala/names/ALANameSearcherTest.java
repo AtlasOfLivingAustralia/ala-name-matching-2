@@ -38,7 +38,7 @@ public class ALANameSearcherTest {
         assertNotNull(result);
         assertNotNull(result.getMatch());
         assertEquals("https://biodiversity.org.au/afd/taxa/061fef09-7c9d-4b6d-9827-4da13a350dc6", result.getMatch().taxonId);
-        assertEquals(0.99961, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
     }
 
     @Test
@@ -132,6 +132,21 @@ public class ALANameSearcherTest {
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_PHYLUM, AlaLinnaeanFactory.REMOVED_ORDER), result.getIssues());
     }
 
+
+
+    @Test
+    public void testRemoveSearch3() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Canarium acutifolium var. acutifolium";
+        template.genus = "Canarim"; // Canarium
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertNotNull(result);
+        assertNotNull(result.getMatch());
+        assertEquals("https://id.biodiversity.org.au/node/apni/2904909", result.getMatch().taxonId);
+        assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(Issues.of(AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME), result.getIssues());
+    }
+
     @Test
     public void testSoundexSearch1() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
@@ -140,7 +155,7 @@ public class ALANameSearcherTest {
         assertNotNull(result);
         assertNotNull(result.getMatch());
         assertEquals("https://biodiversity.org.au/afd/taxa/061fef09-7c9d-4b6d-9827-4da13a350dc6", result.getMatch().taxonId);
-        assertEquals(0.99961, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
         assertTrue(result.getIssues().contains(AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME));
     }
 
@@ -151,6 +166,7 @@ public class ALANameSearcherTest {
         Match<AlaLinnaeanClassification> result = this.searcher.search(template);
         assertNotNull(result);
         assertNotNull(result.getMatch());
+        // The actusl value may change bewteen instances of the index here, since there are multiple possibilities
         assertEquals("https://id.biodiversity.org.au/instance/apni/51400952", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51401037", result.getMatch().acceptedNameUsageId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
@@ -199,6 +215,9 @@ public class ALANameSearcherTest {
             template.scientificName = "Bracteolatae";
             template.taxonRank = Rank.SERIES;
             Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+            assertNotNull(result);
+            assertEquals("https://id.biodiversity.org.au/name/apni/89092", result.getMatch().taxonId);
+            assertTrue(result.getIssues().isEmpty());
     }
 
 

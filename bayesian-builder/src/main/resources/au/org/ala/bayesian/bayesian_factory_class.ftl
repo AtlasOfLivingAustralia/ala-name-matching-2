@@ -56,6 +56,12 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
   public static final TermFactory TERM_FACTORY = TermFactory.instance();
 
+  public static final List<Class> VOCABULARIES = Collections.unmodifiableList(Arrays.asList(
+<#list allVocabularies as vocab>
+    ${vocab.name}.class<#if vocab?has_next>,</#if>
+</#list>
+  ));
+
 <#list issues as issue>
   /** Issue ${issue.id} <#if issue.description??>
       <p>${issue.description}</p>

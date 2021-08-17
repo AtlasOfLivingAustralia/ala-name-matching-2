@@ -1,5 +1,8 @@
 package au.org.ala.bayesian;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * A default, null analyser that performs no special analysis.
  * <p>
@@ -17,5 +20,10 @@ public class NullAnalyser<C extends Classification> implements Analyser<C> {
      */
     @Override
     public void analyse(C classification) {
+    }
+
+     @Override
+    public Set<String> analyseNames(Classifier classifier) {
+        return Collections.emptySet();
     }
 }

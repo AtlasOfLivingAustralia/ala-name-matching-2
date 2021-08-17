@@ -145,8 +145,8 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         final Match<AlaLinnaeanClassification> best = acceptable.get(0);
         final AlaLinnaeanClassification bc = best.getMatch();
         final TaxonomicStatus bts = bc.taxonomicStatus != null ? bc.taxonomicStatus : TaxonomicStatus.unknown;
-        // See if all the rest are misapplied/excluded or whatever
         if (bts.isPlaced()) {
+            // See if all the rest are misapplied/excluded or whatever
             if (acceptable.stream().allMatch(m -> m == best || m.getMatch().taxonomicStatus == null || !m.getMatch().taxonomicStatus.isPlaced()))
                 return best;
         }
@@ -158,6 +158,12 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         // See if we have a single accepted/variety of synonyms
         if (bts.isAcceptedFlag() && acceptable.stream().allMatch(m -> m == best || (m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike())))
             return best.with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
+        // See if the rest have the same name
+        final String soundexScientificName = bc.soundexScientificName;
+        if (soundexScientificName != null) {
+            if (acceptable.stream().allMatch(m -> m == best || soundexScientificName.equals(m.getMatch().soundexScientificName)))
+                return best;
+        }
         return null;
     }
 

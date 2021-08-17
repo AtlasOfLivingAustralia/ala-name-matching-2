@@ -62,6 +62,10 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
 
   public static final TermFactory TERM_FACTORY = TermFactory.instance();
 
+  public static final List<Class> VOCABULARIES = Collections.unmodifiableList(Arrays.asList(
+    au.org.ala.vocab.BayesianTerm.class
+  ));
+
 
   static {
     v1.setExternal(LUCENE, "v_1");

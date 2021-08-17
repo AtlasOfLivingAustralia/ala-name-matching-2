@@ -27,6 +27,12 @@
             <artifactId>taxonomic-tools</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>au.org.ala.names</groupId>
+            <artifactId>bayesian-lucene</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -203,6 +203,10 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
 
   public static final TermFactory TERM_FACTORY = TermFactory.instance();
 
+  public static final List<Class> VOCABULARIES = Collections.unmodifiableList(Arrays.asList(
+    au.org.ala.vocab.BayesianTerm.class
+  ));
+
   /** Issue removed_rank
       <p>Ignored supplied rank to find a match.</p>
   */

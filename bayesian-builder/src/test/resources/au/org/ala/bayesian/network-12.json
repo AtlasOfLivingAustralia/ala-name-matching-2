@@ -1,0 +1,9 @@
+{
+  "id" : "network_12",
+  "vocabularies" : [ "au.org.ala.vocab.TestTerms" ],
+  "observables" : [ {
+    "id" : "test1",
+    "uri" : "http://id.ala.org.au/test/1.0/test1"
+  } ],
+  "vertices" : [ "test1" ]
+}

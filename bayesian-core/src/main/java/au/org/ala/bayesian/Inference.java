@@ -7,6 +7,11 @@ import lombok.Value;
  */
 @Value
 public class Inference {
+    /** The minimum probability we can get to. This is defined so that #MAXIMUM_PROBABILITY does not evaluate to 1 */
+    public static final double MINIMUM_PROBABILITY = 1.0e-9;
+    /** The maximum probability we can get to, 1 - #MINIMUM_PROABILITY This must be (just) less than 1. */
+    public static final double MAXIMUM_PROBABILITY = 1.0 - MINIMUM_PROBABILITY;
+
     /** The prior probability p(H) */
     private double prior;
     /** The probability of the evidence p(E) */
@@ -34,7 +39,7 @@ public class Inference {
      * @return The boost
      */
     public double getBoost() {
-        return this.evidence > 0 ? this.conditional / this.evidence : 0.0;
+        return this.evidence > MINIMUM_PROBABILITY ? this.conditional / this.evidence : 0.0;
     }
 
     /**
@@ -51,7 +56,7 @@ public class Inference {
      * @return An inference with the correct values pre-calculated
      */
     public static Inference forPEC(double prior, double evidence, double conditional) {
-        double posterior = evidence == 0.0 ? 0.0 : prior * conditional / evidence;
+        double posterior = evidence < MINIMUM_PROBABILITY ? 0.0 : prior * conditional / evidence;
         return new Inference(prior, evidence, conditional, posterior);
     }
 
@@ -71,8 +76,8 @@ public class Inference {
      * @return An inference with the correct values pre-calculated
      */
     public static Inference forPEH(double prior, double evidence, double hypothesis) {
-        double posterior = evidence == 0.0 ? 0.0 : hypothesis / evidence;
-        double conditional = prior == 0.0 ? 0.0 : hypothesis / prior;
+        double posterior = evidence < MINIMUM_PROBABILITY ? 0.0 : hypothesis / evidence;
+        double conditional = prior < MINIMUM_PROBABILITY ? 0.0 : hypothesis / prior;
         return new Inference(prior, evidence, conditional, posterior);
     }
 }

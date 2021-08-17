@@ -20,13 +20,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 import static au.org.ala.bayesian.ExternalContext.LUCENE;
+import static au.org.ala.bayesian.Inference.MAXIMUM_PROBABILITY;
+import static au.org.ala.bayesian.Inference.MINIMUM_PROBABILITY;
 
 public class LuceneParameterAnalyser implements ParameterAnalyser {
-    /** The minimum probability we can get to. This is defined so that #MAXIMUM_PROBABILITY does not evaluate to 1 */
-    public static final double MINIMUM_PROBABILITY = 1.0e-9;
-    /** The maximum probability we can get to, 1 - #MINIMUM_PROABILITY This must be (just) less than 1. */
-    public static final double MAXIMUM_PROBABILITY = 1.0 - MINIMUM_PROBABILITY;
-
     /** The network for this analyser */
     protected final Network network;
     /** The annotator for this analyser  */
