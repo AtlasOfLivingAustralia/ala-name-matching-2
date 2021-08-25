@@ -8,6 +8,8 @@ import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
 import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
  * </p>
  */
 public class DotGenerator extends Generator {
+    private static final Logger logger = LoggerFactory.getLogger(DotGenerator.class);
+
     /** The encoding to use for code generation */
     private static final String ENCODING = "UTF-8";
     /** The dot template name */
@@ -163,7 +167,7 @@ public class DotGenerator extends Generator {
         DotGenerator generator = new DotGenerator(output, cmd.hasOption("f"));
         for (String s: cmd.getArgList()) {
             File source = new File(s);
-            System.out.println("Generating " + source.getAbsolutePath());
+            logger.info("Generating " + source.getAbsolutePath());
             if (!source.exists())
                 throw new IllegalArgumentException("Base network " + source + " does not exist");
             Network network = Network.read(source.toURI().toURL());

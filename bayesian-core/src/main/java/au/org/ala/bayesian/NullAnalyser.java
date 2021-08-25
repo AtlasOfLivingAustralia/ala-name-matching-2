@@ -1,6 +1,7 @@
 package au.org.ala.bayesian;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -13,17 +14,12 @@ import java.util.Set;
  * @param <C> The classification type.
  */
 public class NullAnalyser<C extends Classification> implements Analyser<C> {
-    /**
-     * Null analysis on a classification
-     *
-     * @param classification The classification
-     */
     @Override
-    public void analyse(C classification) {
+    public void analyse(C classification, boolean strict) {
     }
 
-     @Override
-    public Set<String> analyseNames(Classifier classifier) {
+    @Override
+    public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) {
         return Collections.emptySet();
     }
 }

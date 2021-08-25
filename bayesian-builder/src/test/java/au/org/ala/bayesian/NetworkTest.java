@@ -72,11 +72,11 @@ public class NetworkTest {
         network.setVertices(Arrays.asList(v1, v2));
         network.setEdges(Arrays.asList(e1));
         Modifier modifier = new RemoveModifier("mod_1", Arrays.asList(v1), false);
-        network.setModifiers(Arrays.asList(Arrays.asList(modifier)));
+        network.setMatchModifiers(Arrays.asList(Arrays.asList(modifier)));
         Issue issue = new Issue(URI.create("http://localhost/issue_1"));
         network.getIssues().add(issue);
         modifier.setIssue(issue);
-        network.setModifiers(Arrays.asList(Arrays.asList(modifier)));
+        network.setMatchModifiers(Arrays.asList(Arrays.asList(modifier)));
         ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, network);

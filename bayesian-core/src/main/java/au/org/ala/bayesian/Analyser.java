@@ -1,5 +1,6 @@
 package au.org.ala.bayesian;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -18,11 +19,12 @@ public interface Analyser<C extends Classification> {
      * as required.
      *
      * @param classification The classification
+     * @param strict Throw an exception if there is a problem, rather than fix it
      *
      * @throws InferenceException if an error occurs during inference
      * @throws StoreException if an error occurs updating the classifier
      */
-    public void analyse(C classification) throws InferenceException, StoreException;
+    public void analyse(C classification, boolean strict) throws InferenceException, StoreException;
 
     /**
      * Build a collection of base names for the classification.
@@ -32,11 +34,15 @@ public interface Analyser<C extends Classification> {
      * </p>
      *
      * @param classifier The classification
+     * @param name The observable that gives the name
+     * @param complete The observable that gives the complete name
+     * @param additional The observable that gives additional disambiguation, geneerally complete = name + ' ' + additional
+     * @param canonical Only include canonical names
      *
      * @return All the names that refer to the classification
      *
      * @throws InferenceException if unable to analyuse the names
      * @throws StoreException if unable to modifiy the classifier
      */
-    public Set<String> analyseNames(Classifier classifier) throws InferenceException, StoreException;
+    public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) throws InferenceException, StoreException;
 }

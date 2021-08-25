@@ -16,23 +16,23 @@ abstract public class BaseModifier extends Modifier {
     /** The observable to modify */
     @JsonProperty
     @Getter
-    private Set<Observable> observables;
+    protected Set<Observable> observables;
     /** Null derived values, as well (false by default) */
     @JsonProperty
     @Getter
-    private boolean nullDervived = false;
+    protected boolean nullDerived = false;
 
     protected BaseModifier() {
     }
 
-    public BaseModifier(String id, Collection<Observable> observables, boolean nullDervived) {
+    public BaseModifier(String id, Collection<Observable> observables, boolean nullDerived) {
         super(id);
         this.observables = new HashSet<>(observables);
-        this.nullDervived = nullDervived;
+        this.nullDerived = nullDerived;
     }
 
     /**
-     * Get the single base variable this will alter
+     * Get the base variables that this will alter
      *
      * @return A singleton set with the observable in it.
      */

@@ -15,10 +15,20 @@ import java.net.URI;
 public enum BayesianTerm implements Term {
     /** A category weight - how likely it is to be a matching category */
     weight,
+    /** A unique identifier */
+    identifier,
+    /** The concept name */
+    name,
     /** The full name of a category */
     fullName,
     /** An alternate name for a category */
     altName,
+    /** Additional (disambiguating) name information */
+    additionalName,
+    /** This identifier navigates to the parent category */
+    parent,
+    /** This identifier navigates to the accepted category for synonyms */
+    accepted,
     /** A term that should be copied from the actual category when something is a synonym of something else */
     copy,
     /** An observable that contains additional classification values */
@@ -37,6 +47,8 @@ public enum BayesianTerm implements Term {
     analysisMethod,
     /** An equivalence method - a method on an analyser that can be used to decide equality */
     equalityMethod,
+    /** Default concept type */
+    Concept,
     /** Record type describing document metadata */
     Metadata;
 

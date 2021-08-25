@@ -79,7 +79,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2904909");
         assertEquals("TTTTTTT", doc.getSignature());
         assertEquals("Canarium acutifolium var. acutifolium", doc.get(AlaLinnaeanFactory.scientificName));
-        assertEquals("CANARIM ACITIFALIM VAR. ACITIFALIM", doc.get(AlaLinnaeanFactory.soundexScientificName));
+        assertEquals("CANARIM ACITIFALIM VAR. ACITIFALA", doc.get(AlaLinnaeanFactory.soundexScientificName));
         assertEquals("Canarium", doc.get(AlaLinnaeanFactory.genus));
         assertEquals("https://id.biodiversity.org.au/node/apni/2918714", doc.get(AlaLinnaeanFactory.genusId));
         assertEquals(TaxonomicStatus.accepted, doc.get(AlaLinnaeanFactory.taxonomicStatus));
@@ -92,13 +92,13 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals(1.0, prob.getPosterior(), 0.00001);
         evidence.e$genus = false;
         prob = inference.probability(evidence, params);
-        assertEquals(1.0, prob.getPosterior(), 0.00001);
+        assertEquals(0.0, prob.getPosterior(), 0.00001);
         evidence.e$soundexGenus = true;
         prob = inference.probability(evidence, params);
         assertEquals(0.0, prob.getPosterior(), 0.00001); // Zero because genus is still false see modifiers
         evidence.e$soundexGenus = false;
         prob = inference.probability(evidence, params);
-        assertEquals(1.0, prob.getPosterior(), 0.00001);
+        assertEquals(0.0, prob.getPosterior(), 0.00001);
         evidence.e$scientificName = false;
         prob = inference.probability(evidence, params);
         assertEquals(0.0, prob.getPosterior(), 0.00001);
@@ -106,7 +106,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         evidence.e$genus = true;
         evidence.e$soundexGenus = true;
         prob = inference.probability(evidence, params);
-        assertEquals(0.002049, prob.getEvidence(), 0.00001);
+        assertEquals(0.008197, prob.getEvidence(), 0.00001);
         assertEquals(1.0, prob.getPosterior(), 0.00001);
     }
 
@@ -163,7 +163,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", match.getMatch().taxonId);
-        assertEquals(0.002049, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.008197, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -175,7 +175,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.002049, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.008197, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -188,7 +188,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.002049, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.008197, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -212,8 +212,47 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertNotNull(match);
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.002049, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.008197, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
+
+    // Higher order
+    @Test
+    public void testMatch6() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Canarium notanameum";
+        template.family = "Burseraceae";
+        Match<AlaLinnaeanClassification> result = matcher.findMatch(template);
+        assertNotNull(result);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2918714", result.getMatch().taxonId);
+        assertEquals(Rank.GENUS, result.getMatch().taxonRank);
+        assertTrue(result.getIssues().contains(AlaLinnaeanFactory.HIGHER_ORDER_MATCH));
+    }
+
+    // Higher order
+    @Test
+    public void testMatch7() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Othernama notanamea";
+        template.family = "Burseraceae";
+        Match<AlaLinnaeanClassification> result = matcher.findMatch(template);
+        assertNotNull(result);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2900189", result.getMatch().taxonId);
+        assertEquals(Rank.FAMILY, result.getMatch().taxonRank);
+        assertTrue(result.getIssues().contains(AlaLinnaeanFactory.HIGHER_ORDER_MATCH));
+    }
+
+    // Genus with odd sub-taxa
+    @Test
+    public void testMatch8() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Canarium";
+        Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
+        assertNotNull(match);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2918714", match.getMatch().taxonId);
+        assertEquals(0.008197, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
+    }
+
 
 }

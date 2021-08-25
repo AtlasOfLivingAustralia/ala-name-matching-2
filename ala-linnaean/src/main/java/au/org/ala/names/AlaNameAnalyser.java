@@ -14,22 +14,33 @@ import org.gbif.nameparser.util.NameFormatter;
 import org.gbif.nameparser.util.RankUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
     private static final ThreadLocal<NameParser> PARSER = ThreadLocal.withInitial(NameParserGBIF::new);
-    private static final Observable NAME_COMPLETE = new Observable(ALATerm.nameComplete);
+    private static final Pattern MARKER_ENDING = Pattern.compile(
+           "(^|\\s+)(" + String.join("|",
+                   Arrays.stream(Rank.values())
+                           .map(r -> r.getMarker())
+                           .filter(Objects::nonNull)
+                           .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
+                           .collect(Collectors.toList()
+                           )
+           ) + ")\\.?$");
 
     /**
      * Analyse the information in a classifier and extend the classifier
      * as required.
      *
      * @param classification The classification
+     * @param strict Impose strict limits on analysus
      *
      * @throws StoreException     if an error occurs updating the classification
      */
     @Override
-    public void analyse(AlaLinnaeanClassification classification) throws StoreException {
+    public void analyse(AlaLinnaeanClassification classification, boolean strict) throws StoreException, InferenceException {
         final NameParser parser = PARSER.get();
         final String scientificName = classification.scientificName;
         final String acceptedNameUsageId = classification.acceptedNameUsageId;
@@ -39,6 +50,9 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
         final NomCode nomCode = nomenclaturalCode == null ? null : Enums.getIfPresent(NomCode.class, nomenclaturalCode.name()).orNull();
         if (rank == null)
             rank = Rank.UNRANKED;
+
+
+        // Fill out parsed entities
         try {
             ParsedName name = parser.parse(scientificName, rank, nomCode);
             rank = name.getRank();
@@ -60,6 +74,24 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
         } catch (UnparsableNameException e) {
             classification.addIssue(ALATerm.unparsableName);
         }
+
+        // Remove rank marker, if present, and flag
+        if (classification.scientificName != null) {
+            Matcher matcher = MARKER_ENDING.matcher(classification.scientificName);
+            if (matcher.find()) {
+                classification.addIssue(AlaLinnaeanFactory.INDETERMINATE_NAME);
+                if (strict) {
+                    classification.scientificName = classification.scientificName.substring(0, matcher.start()).trim();
+                    classification.taxonRank = null;
+                    rank = Rank.UNRANKED;
+                    if (classification.scientificName.isEmpty()) {
+                        throw new InferenceException("Supplied scientific name is a rank marker.");
+                    }
+                }
+            }
+        }
+
+        // Infer rank
         if (classification.scientificName == null) {
             if (classification.specificEpithet != null && classification.genus != null) {
                 classification.scientificName = classification.genus + " " + classification.specificEpithet;
@@ -84,6 +116,8 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
                 rank = Rank.KINGDOM;
             }
         }
+
+        // Generalise sub-species ranks
         if (rank != null && rank.notOtherOrUnranked()) {
             if (Rank.SPECIES.higherThan(rank)) {
                 rank = Rank.INFRASPECIFIC_NAME;
@@ -91,6 +125,8 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             } else if (classification.taxonRank == null && rank.notOtherOrUnranked())
                 classification.taxonRank = rank;
         }
+
+        // Remove loops in taxonomy
         if (classification.parentNameUsageId != null && classification.parentNameUsageId.equals(classification.taxonId)) {
             classification.addIssue(ALATerm.taxonParentLoop);
             classification.parentNameUsageId = null;
@@ -109,19 +145,23 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
      * </p>
      *
      * @param classifier The classification
+     * @param name The observable that gives the name
+     * @param complete The observable that gives the complete name
+     * @param additional The observable that gives additional disambiguation, geneerally complete = name + ' ' + additional
+     * @param canonical Only include canonical names
+
      * @return All the names that refer to the classification
      */
     @Override
-    public Set<String> analyseNames(Classifier classifier) throws InferenceException, StoreException {
-        Set<String> allNames = new HashSet<>();
+    public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) throws InferenceException, StoreException {
+        Set<String> allNames = new LinkedHashSet<>();
 
         Rank rank = classifier.has(AlaLinnaeanFactory.taxonRank) ? classifier.get(AlaLinnaeanFactory.taxonRank) : Rank.UNRANKED;
         final NomenclaturalCode nomenclaturalCode = classifier.get(AlaLinnaeanFactory.nomenclaturalCode);
         final NomCode nomCode = nomenclaturalCode == null ? null : Enums.getIfPresent(NomCode.class, nomenclaturalCode.name()).orNull();
-        Set<String> allScientificNameAuthorship = classifier.getAll(AlaLinnaeanFactory.scientificNameAuthorship);
-        Set<String> allScientificNames = classifier.getAll(AlaLinnaeanFactory.scientificName);
-        Set<String> allCompleteNames = classifier.getAll(NAME_COMPLETE);
-        // Get name if not directly specified
+        Set<String> allScientificNameAuthorship = !canonical && additional.isPresent() ? classifier.getAll(additional.get()) : Collections.emptySet();
+        Set<String> allScientificNames = classifier.getAll(name);
+        Set<String> allCompleteNames = !canonical && complete.isPresent() ? classifier.getAll(complete.get()) : Collections.emptySet();
         if (allScientificNames.isEmpty() && classifier.has(AlaLinnaeanFactory.genus) && classifier.has(AlaLinnaeanFactory.specificEpithet)) {
             allScientificNames = classifier.getAll(AlaLinnaeanFactory.genus).stream().flatMap(g -> classifier.getAll(AlaLinnaeanFactory.specificEpithet).stream().map(s -> g + " " + s)).collect(Collectors.toSet());
             rank = rank == Rank.UNRANKED ? Rank.SPECIES : rank;
@@ -153,31 +193,23 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
 
         if (allScientificNames.isEmpty())
             throw new InferenceException("No scientific name for " + classifier.get(AlaLinnaeanFactory.taxonId));
-        for (String name: allScientificNames) {
-            CleanedScientificName n = new CleanedScientificName(name);
+        for (String nm: allScientificNames) {
+            CleanedScientificName n = new CleanedScientificName(nm);
             allNames.add(n.getName());
             allNames.add(n.getBasic());
             allNames.add(n.getNormalised());
 
             // Add parsed versions of the name
             try {
-                ParsedName pn = PARSER.get().parse(name, rank, nomCode);
-                n = new CleanedScientificName(pn.canonicalName());
-                if (!allNames.contains(n.getNormalised())) {
-                    allNames.add(n.getNormalised());
-                    classifier.add(AlaLinnaeanFactory.scientificName, n.getNormalised());
+                ParsedName pn = PARSER.get().parse(n.getNormalised(), rank, nomCode);
+                allNames.add(pn.canonicalName());
+                // More minimal version if a linnaean rank
+                if (pn.getType() == NameType.SCIENTIFIC && ((rank != null && rank.isLinnean()) || (pn.getRank() != null && pn.getRank().isLinnean()))) {
+                    allNames.add(pn.canonicalNameMinimal());
                 }
-                n = new CleanedScientificName(pn.canonicalNameMinimal());
-                if (!allNames.contains(n.getNormalised())) {
-                    allNames.add(n.getNormalised());
-                    classifier.add(AlaLinnaeanFactory.scientificName, n.getNormalised());
-                }
-                if (pn.getInfragenericEpithet() != null) {
-                    n = new CleanedScientificName(pn.getInfragenericEpithet());
-                    if (!allNames.contains(n.getNormalised())) {
-                        allNames.add(n.getNormalised());
-                        classifier.add(AlaLinnaeanFactory.scientificName, n.getNormalised());
-                    }
+                // Add infrageneric name without enclosing genus
+                if (pn.getType() == NameType.SCIENTIFIC && pn.getInfragenericEpithet() != null && pn.getRank().isInfrageneric() && !pn.getInfragenericEpithet().equals(pn.getGenus())) {
+                    allNames.add(pn.getInfragenericEpithet());
                 }
             } catch (UnparsableNameException e) {
                 // Ignore unparsable names
@@ -188,8 +220,8 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
         if (allCompleteNames.isEmpty() && !allScientificNameAuthorship.isEmpty()) {
             allCompleteNames = allScientificNames.stream().flatMap(n -> allScientificNameAuthorship.stream().map(a -> n + " " + a)).collect(Collectors.toSet());
         }
-        for (String name: allCompleteNames) {
-            CleanedScientificName n = new CleanedScientificName(name);
+        for (String nm: allCompleteNames) {
+            CleanedScientificName n = new CleanedScientificName(nm);
             allNames.add(n.getName());
             allNames.add(n.getBasic());
             allNames.add(n.getNormalised());

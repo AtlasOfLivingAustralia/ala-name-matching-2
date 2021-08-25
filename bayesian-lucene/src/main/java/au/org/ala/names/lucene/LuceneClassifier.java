@@ -17,6 +17,7 @@ import org.gbif.dwc.terms.TermFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static au.org.ala.bayesian.ExternalContext.LUCENE;
 
@@ -485,7 +486,7 @@ public class LuceneClassifier implements Classifier {
      */
     @Override
     public void setSignature(String signature) {
-        this.document.removeFields(NAMES_FIELD);
+        this.document.removeFields(SIGNATURE_FIELD);
         if (signature != null)
             this.document.add(new StringField(SIGNATURE_FIELD, signature, Field.Store.YES));
     }
@@ -561,5 +562,18 @@ public class LuceneClassifier implements Classifier {
             log.error("Unable to convert " + field + " to " + observable + " returning null instead", ex);
             return null;
         }
+    }
+
+    /**
+     * Get a list of all the values set in the classifier.
+     * <p>
+     * This can be used to dump the classifer during debugging.
+     * </p>
+     *
+     * @return The values in the form of key -> value pairs, with the keys a useful internal representation
+     */
+    @Override
+    public Collection<String[]> getAllValues() {
+        return this.document.getFields().stream().map(f -> new String[] {f.name(), f.stringValue() }).collect(Collectors.toList());
     }
 }

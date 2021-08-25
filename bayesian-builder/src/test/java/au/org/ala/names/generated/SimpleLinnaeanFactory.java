@@ -207,6 +207,8 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     au.org.ala.vocab.BayesianTerm.class
   ));
 
+  private static final Term CONCEPT = TERM_FACTORY.findTerm("http://rs.tdwg.org/dwc/terms/Taxon");
+
   /** Issue removed_rank 
       <p>Ignored supplied rank to find a match.</p>
   */

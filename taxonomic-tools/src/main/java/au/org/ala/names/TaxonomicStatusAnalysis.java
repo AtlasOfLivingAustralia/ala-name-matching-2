@@ -10,11 +10,11 @@ import org.gbif.common.parsers.NomCodeParser;
 /**
  * Analysis based on taxonomic status.
  */
-public class TaxonomicStatusAnalysis extends TermAnalysis {
+public class TaxonomicStatusAnalysis extends EnumAnalysis<TaxonomicStatus> {
     /**
      * Default constructor
      */
     public TaxonomicStatusAnalysis() {
-        TaxonomicStatus.values(); // Ensure class is loaded
+        super(TaxonomicStatus.class);
     }
 }

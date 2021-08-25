@@ -1,6 +1,7 @@
 {
   "id": "ALA:Linnaean",
   "description": "A Linnaean heirarchy containing all evidence, used by the ALA",
+  "concept": "http://rs.tdwg.org/dwc/terms/Taxon",
   "vocabularies": [
     "au.org.ala.vocab.ALATerm",
     "org.gbif.dwc.terms.DwcTerm"
@@ -31,7 +32,7 @@
       "label": "tID",
       "uri": "http://rs.tdwg.org/dwc/terms/taxonID",
       "properties": {
-        "http://rs.tdwg.org/dwc/terms/taxonID": true
+        "http://id.ala.org.au/bayesian/1.0/identifier": true
       },
       "style": "IDENTIFIER"
     },
@@ -49,7 +50,7 @@
       "label":"SN",
       "uri": "http://rs.tdwg.org/dwc/terms/scientificName",
       "properties": {
-        "http://rs.tdwg.org/dwc/terms/scientificName": true
+        "http://id.ala.org.au/bayesian/1.0/name": true
       },
       "normaliser": "simple_normaliser",
       "style": "PHRASE"
@@ -61,7 +62,7 @@
       "derivation": {
         "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "sources": [ "scientificName" ],
-        "rank": "taxonRank"
+        "rank": "SPECIES"
       }
     },
     {
@@ -80,7 +81,7 @@
       "derivation": {
         "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "sources": [ "specificEpithet" ],
-        "rank": "taxonRank"
+        "rank": "SPECIES"
       }
     },
     {
@@ -124,7 +125,7 @@
       "derivation": {
         "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "sources": [ "genus" ],
-        "rank": "taxonRank"
+        "rank": "GENUS"
       }
     },
     {
@@ -168,7 +169,7 @@
       "derivation": {
         "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "sources": [ "family" ],
-        "rank": "taxonRank"
+        "rank": "FAMILY"
       }
     },
     {
@@ -212,7 +213,7 @@
       "derivation": {
         "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "sources": [ "order" ],
-        "rank": "taxonRank"
+        "rank": "ORDER"
       }
     },
     {
@@ -256,7 +257,7 @@
       "derivation": {
         "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "sources": [ "class" ],
-        "rank": "taxonRank"
+        "rank": "CLASS"
       }
     },
     {
@@ -300,7 +301,7 @@
       "derivation": {
         "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "sources": [ "phylum" ],
-        "rank": "taxonRank"
+        "rank": "PHYLUM"
       }
     },
     {
@@ -347,7 +348,7 @@
       "derivation": {
         "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
         "sources": [ "kingdom" ],
-        "rank": "taxonRank"
+        "rank": "KINGDOM"
       }
     },
     {
@@ -376,7 +377,7 @@
       "normaliser": "simple_normaliser",
       "style": "PHRASE",
       "properties": {
-        "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship": true
+        "http://id.ala.org.au/bayesian/1.0/additionalName": true
       },
       "analysis": {
         "@class": "au.org.ala.names.AuthorAnalysis"
@@ -433,7 +434,7 @@
       "label": "pID",
       "uri": "http://rs.tdwg.org/dwc/terms/parentNameUsageID",
       "properties": {
-        "http://rs.tdwg.org/dwc/terms/parentNameUsageID": true,
+        "http://id.ala.org.au/bayesian/1.0/parent": true,
         "http://id.ala.org.au/bayesian/1.0/additional": true
       },
       "style": "IDENTIFIER"
@@ -443,7 +444,7 @@
       "label": "aID",
       "uri": "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
       "properties": {
-        "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID": true,
+        "http://id.ala.org.au/bayesian/1.0/accepted": true,
         "http://id.ala.org.au/bayesian/1.0/additional": true
       },
       "style": "IDENTIFIER"
@@ -478,6 +479,7 @@
     "soundexScientificName",
     "specificEpithet",
     "soundexSpecificEpithet",
+    "speciesID",
     "genus",
     "soundexGenus",
     "genusID",
@@ -513,11 +515,12 @@
     { "source": "scientificName", "target": "specificEpithet",  "edge": { } },
     { "source": "scientificName", "target": "cultivarEpithet",  "edge": { } },
     { "source": "scientificName", "target": "phraseName",  "edge": { } },
-    { "source": "scientificName", "target": "genus",  "edge": { } },
-    { "source": "soundexScientificName", "target": "genus",  "edge": { } },
-    { "source": "specificEpithet", "target": "genus",  "edge": { } },
+    { "source": "scientificName", "target": "speciesID",  "edge": { } },
+    { "source": "soundexScientificName", "target": "speciesID",  "edge": { } },
+    { "source": "specificEpithet", "target": "speciesID",  "edge": { } },
     { "source": "specificEpithet", "target": "soundexSpecificEpithet",  "edge": { } },
-    { "source": "soundexSpecificEpithet", "target": "genus",  "edge": { } },
+    { "source": "soundexSpecificEpithet", "target": "speciesID",  "edge": { } },
+    { "source": "speciesID", "target": "genus",  "edge": { } },
     { "source": "genus", "target": "soundexGenus",  "edge": { } },
     { "source": "genus", "target": "genusID",  "edge": { } },
     { "source": "soundexGenus", "target": "genusID",  "edge": { } },
@@ -608,6 +611,21 @@
       "id": "accepted_and_synonym",
       "uri": "http://id.ala.org.au/issues/1.0/acceptedAndSynonym",
       "description": "There are multiple names that match, one accepted and others synonyms."
+    },
+    {
+      "id": "higher_order_match",
+      "uri": "http://id.ala.org.au/issues/1.0/higherOrderMatch",
+      "description": "The supplied data has been matched to a higher-order taxon."
+    },
+    {
+      "id": "indeterminate_name",
+      "uri": "http://id.ala.org.au/issues/1.0/indeterminateName",
+      "description": "The supplied name has a rank marker at the end, indicating a vague identification."
+    },
+    {
+      "id": "parent_child_synonym",
+      "uri": "http://id.ala.org.au/issues/1.0/parentChildSynonym",
+      "description": "The name has an accepted name and a synonym that points to a sub-taxon"
     }
   ],
   "modifications": [
@@ -670,9 +688,77 @@
       "id" : "remove_phylum",
       "issue" : "removed_phylum",
       "observables" : [ "phylum", "soundexPhylum" ]
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.HigherModifier",
+      "id" : "higher_species",
+      "issue" : "higher_order_match",
+      "observables" : [ "taxonRank", "scientificNameAuthorship", "cultivarEpithet", "phraseName" ],
+      "sources": [ "genus", "specificEpithet" ],
+      "target": "scientificName",
+      "nullDerived": true
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.HigherModifier",
+      "id" : "higher_genus",
+      "issue" : "higher_order_match",
+      "observables" : [ "taxonRank", "scientificNameAuthorship", "cultivarEpithet", "phraseName", "specificEpithet", "speciesID" ],
+      "sources": [ "genus" ],
+      "target": "scientificName",
+      "nullDerived": true
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.HigherModifier",
+      "id" : "higher_family",
+      "issue" : "higher_order_match",
+      "observables" : [ "taxonRank", "scientificNameAuthorship", "cultivarEpithet", "phraseName", "specificEpithet", "speciesID", "genus", "genusID" ],
+      "sources": [ "family" ],
+      "target": "scientificName",
+      "nullDerived": true
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.HigherModifier",
+      "id" : "higher_order",
+      "issue" : "higher_order_match",
+      "observables" : [ "taxonRank", "scientificNameAuthorship", "cultivarEpithet", "phraseName", "specificEpithet", "speciesID", "genus", "genusID", "family", "familyID" ],
+      "sources": [ "order" ],
+      "target": "scientificName",
+      "nullDerived": true
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.HigherModifier",
+      "id" : "higher_class",
+      "issue" : "higher_order_match",
+      "observables" : [ "taxonRank", "scientificNameAuthorship", "cultivarEpithet", "phraseName", "specificEpithet", "speciesID", "genus", "genusID", "family", "familyID", "order", "orderID" ],
+      "sources": [ "class" ],
+      "target": "scientificName",
+      "nullDerived": true
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.HigherModifier",
+      "id" : "higher_phylum",
+      "issue" : "higher_order_match",
+      "observables" : [ "taxonRank", "scientificNameAuthorship", "cultivarEpithet", "phraseName", "specificEpithet", "speciesID", "genus", "genusID", "family", "familyID", "order", "orderID", "class", "classID" ],
+      "sources": [ "phylum" ],
+      "target": "scientificName",
+      "nullDerived": true
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.HigherModifier",
+      "id" : "higher_kingdom",
+      "issue" : "higher_order_match",
+      "observables" : [ "taxonRank", "scientificNameAuthorship", "cultivarEpithet", "phraseName", "specificEpithet", "speciesID", "genus", "genusID", "family", "familyID", "order", "orderID", "class", "classID", "phylum", "phylumID" ],
+      "sources": [ "kingdom" ],
+      "target": "scientificName",
+      "nullDerived": true
     }
   ],
-  "modifiers": [
+  "sourceModifiers": [
+    [
+      "higher_species", "higher_genus", "higher_family", "higher_order", "higher_class", "higher_phylum", "higher_kingdom"
+    ]
+  ],
+  "matchModifiers": [
     [
       "remove_order", "remove_class", "remove_phylum"
     ],

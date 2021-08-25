@@ -71,11 +71,11 @@ public class EnumAnalysis<E extends Enum<E>> extends Analysis<E> {
         if (value == null || value.isEmpty())
             return null;
         try {
-            return E.valueOf(this.clazz, value.toUpperCase());
+            return E.valueOf(this.clazz, value);
         } catch (IllegalArgumentException ex) {
         }
         try {
-            return E.valueOf(this.clazz, value);
+            return E.valueOf(this.clazz, value.toUpperCase());
         } catch (IllegalArgumentException ex) {
         }
         return null;

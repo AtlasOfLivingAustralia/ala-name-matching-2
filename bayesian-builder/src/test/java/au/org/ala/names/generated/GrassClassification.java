@@ -42,7 +42,7 @@ public class GrassClassification implements Classification<GrassClassification> 
   public GrassClassification(Classifier classifier, Analyser<GrassClassification> analyser) throws InferenceException, StoreException {
     this(analyser);
     this.read(classifier, true);
-    this.infer();
+    this.infer(false);
   }
 
   @Override
@@ -87,15 +87,22 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
-  public void infer() throws InferenceException, StoreException {
+  public void infer(boolean strict) throws InferenceException, StoreException {
     this.rain = (String) GrassFactory.rain.getAnalysis().analyse(this.rain);
     this.sprinkler = (String) GrassFactory.sprinkler.getAnalysis().analyse(this.sprinkler);
     this.wet = (String) GrassFactory.wet.getAnalysis().analyse(this.wet);
-    this.analyser.analyse(this);
+    this.analyser.analyse(this, strict);
+  }
+
+
+  @Override
+  public List<List<Function<GrassClassification, GrassClassification>>> sourceModificationOrder() {
+        List<List<Function<GrassClassification, GrassClassification>>> modifications = new ArrayList();
+    return modifications;
   }
 
   @Override
-  public List<List<Function<GrassClassification, GrassClassification>>> modificationOrder() {
+  public List<List<Function<GrassClassification, GrassClassification>>> matchModificationOrder() {
     List<List<Function<GrassClassification, GrassClassification>>> modifications = new ArrayList();
     return modifications;
   }

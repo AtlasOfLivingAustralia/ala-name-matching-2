@@ -85,7 +85,7 @@ abstract public class Source {
     public void infer(Classifier classifier) throws StoreException, InferenceException {
         Classification classification = this.createClassification();
         classification.read(classifier, true);
-        classification.infer();
+        classification.infer(false);
         classification.write(classifier, true);
     }
 

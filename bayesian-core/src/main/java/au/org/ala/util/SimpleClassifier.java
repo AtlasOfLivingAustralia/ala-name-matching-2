@@ -5,6 +5,7 @@ import au.org.ala.bayesian.*;
 import org.gbif.dwc.terms.Term;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A simple classifier structured as a dictionary with a few special case elements.
@@ -316,5 +317,18 @@ public class SimpleClassifier implements Classifier {
     @Override
     public void setSignature(String signature) {
         this.signature = signature;
+    }
+
+    /**
+     * Get a list of all the values set in the classifier.
+     * <p>
+     * This can be used to dump the classifer during debugging.
+     * </p>
+     *
+     * @return The values in the form of key -> value pairs, with the keys a useful internal representation
+     */
+    @Override
+    public Collection<String[]> getAllValues() {
+        return this.values.entrySet().stream().map(e -> new String[] { e.getKey().getId(), e.getValue().toString() }).collect(Collectors.toList());
     }
 }

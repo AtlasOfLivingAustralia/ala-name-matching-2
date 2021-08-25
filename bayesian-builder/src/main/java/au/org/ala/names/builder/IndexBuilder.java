@@ -3,7 +3,6 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneLoadStore;
-import au.org.ala.util.CleanedScientificName;
 import au.org.ala.util.Counter;
 import au.org.ala.util.SimpleClassifier;
 import au.org.ala.vocab.BayesianTerm;
@@ -11,10 +10,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.apache.commons.cli.*;
 import org.gbif.dwc.terms.DcTerm;
-import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,22 +58,24 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     protected F factory;
     /** The builder to use in processing */
     protected Builder builder;
+    /** The class term to use for the concept */
+    protected Term conceptTerm;
     /** The weight observable (required) */
     protected Observable weight;
     /** The parent observable (required) */
     protected Observable parent;
     /** The accepted name observable */
     protected Optional<Observable> accepted;
-    /** The taxon ID observable (required) */
-    protected Observable taxonId;
-    /** The scientific name observable */
-    protected Observable scientificName;
-    /** The alternartive name observable */
-    protected Optional<Observable> altScientificName;
-    /** The scientific name authorship */
-    protected Optional<Observable> scientificNameAuthorship;
-    /** The complete, propertly formatted name/author pair */
-    protected Optional<Observable> nameComplete;
+    /** The category identifier observable (required) */
+    protected Observable identifier;
+    /** The concept name observable */
+    protected Observable name;
+    /** The alternative concept name observable */
+    protected Optional<Observable> altName;
+    /** The concept name additional terms */
+    protected Optional<Observable> additionalName;
+    /** The complete, propertly formatted concept name */
+    protected Optional<Observable> fullName;
     /** The set of terms to copy from an accepted taxon to a synonym */
     protected Set<Observable> synonymCopy;
     /** The set of terms that need to be stored */
@@ -105,24 +107,27 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.builder = config.createBuilder(this, this.factory);
         this.loadStore = config.createLoadStore(this);
         this.analyser = this.factory.createAnalyser();
+        if (this.network.getConcept() == null)
+            throw new BuilderException("Network requires concept term");
+        this.conceptTerm = TermFactory.instance().findTerm(this.network.getConcept().toASCIIString());
         this.weight = this.network.findObservable(BayesianTerm.weight, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.weight + ":true property"));
-        this.parent = this.network.findObservable(DwcTerm.parentNameUsageID, true).orElseThrow(() -> new BuilderException("Require observable " + DwcTerm.parentNameUsageID + ":true property"));
-        this.accepted = this.network.findObservable(DwcTerm.acceptedNameUsageID, true);
-        this.taxonId = this.network.findObservable(DwcTerm.taxonID, true).orElseThrow(() -> new BuilderException("Require observable " + DwcTerm.taxonID + ":true property"));
-        this.scientificName = this.network.findObservable(DwcTerm.scientificName, true).orElseThrow(() -> new BuilderException("Require observable " + DwcTerm.scientificName + ":true property"));
-        this.scientificNameAuthorship = this.network.findObservable(DwcTerm.scientificNameAuthorship, true);
-        this.nameComplete = this.network.findObservable(BayesianTerm.fullName, true);
-        this.altScientificName = this.network.findObservable(BayesianTerm.altName, true);
+        this.parent = this.network.findObservable(BayesianTerm.parent, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.parent + ":true property"));
+        this.accepted = this.network.findObservable(BayesianTerm.accepted, true);
+        this.identifier = this.network.findObservable(BayesianTerm.identifier, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.identifier + ":true property"));
+        this.name = this.network.findObservable(BayesianTerm.name, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.name + ":true property"));
+        this.additionalName = this.network.findObservable(BayesianTerm.additionalName, true);
+        this.fullName = this.network.findObservable(BayesianTerm.fullName, true);
+        this.altName = this.network.findObservable(BayesianTerm.altName, true);
         this.synonymCopy = new HashSet<>(this.network.findObservables(BayesianTerm.copy, true));
         this.stored = new HashSet<>(this.network.getObservables()); // The defined observables in the network
         this.stored.add(this.weight);
         this.stored.add(this.parent);
         this.accepted.ifPresent(o -> this.stored.add(o));
-        this.stored.add(this.taxonId);
-        this.stored.add(this.scientificName);
-        this.scientificNameAuthorship.ifPresent(o -> this.stored.add(o));
-        this.nameComplete.ifPresent(o -> this.stored.add(o));
-        this.altScientificName.ifPresent(o -> this.stored.add(o));
+        this.stored.add(this.identifier);
+        this.stored.add(this.name);
+        this.additionalName.ifPresent(o -> this.stored.add(o));
+        this.fullName.ifPresent(o -> this.stored.add(o));
+        this.altName.ifPresent(o -> this.stored.add(o));
         this.stored.addAll(this.synonymCopy);
     }
 
@@ -187,7 +192,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.expandedStore = this.config.createLoadStore(Annotator.NULL);
         int index = 1;
         Observation isRoot = this.loadStore.getAnnotationObservation(BayesianTerm.isRoot);
-        List<Classifier> top = this.loadStore.getAllClassifiers(DwcTerm.Taxon, isRoot); // Keep across commits
+        List<Classifier> top = this.loadStore.getAllClassifiers(this.conceptTerm, isRoot); // Keep across commits
         Counter topCounter = new Counter("Processed {0} top level documents, {1}s, {3,number,0.0}%", LOGGER, 100, top.size());
         Counter counter = new Counter("Processed {0} accepted taxa, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
         topCounter.start();
@@ -205,26 +210,33 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         int left = index;
         // Perform all derivations
         this.builder.expand(classifier, parents);
-        String id = classifier.get(this.taxonId);
-         Set<String> altNames = new HashSet<>();
+        String id = classifier.get(this.identifier);
+        final Set<String> names = new LinkedHashSet<>(); // Require order
+        Set<String> altNames = new LinkedHashSet<>();
 
-        classifier.setNames(this.analyser.analyseNames(classifier));
+        names.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
+        classifier.setNames(names);
+        for (String nm: names) { // Add any new and interesting variants of the name
+            if (!classifier.match(this.name, nm))
+                classifier.add(this.name, nm);
+        }
 
-        if (this.altScientificName.isPresent()) {
+        if (this.altName.isPresent()) {
+            altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName,false).stream().filter(n -> !names.contains(n)).collect(Collectors.toSet()));
             if (this.accepted.isPresent()) {
-                Iterable<Classifier> synonyms = this.loadStore.getAll(DwcTerm.Taxon, new Observation(true, this.accepted.get(), id));
+                Iterable<Classifier> synonyms = this.loadStore.getAll(this.conceptTerm, new Observation(true, this.accepted.get(), id));
                 for (Classifier synonym : synonyms) {
-                    altNames.addAll(this.analyser.analyseNames(synonym));
+                    altNames.addAll(this.analyser.analyseNames(synonym, this.name, this.fullName, this.additionalName, true));
                  }
             }
             for (String nm : altNames) {
-                classifier.add(this.altScientificName.get(), nm);
+                classifier.add(this.altName.get(), nm);
             }
         }
         this.builder.infer(classifier);
         if (this.parent != null) {
             parents.push(classifier);
-            Iterable<Classifier> children = this.loadStore.getAll(DwcTerm.Taxon, new Observation(true, this.parent, id));
+            Iterable<Classifier> children = this.loadStore.getAll(this.conceptTerm, new Observation(true, this.parent, id));
             for (Classifier child : children) {
                 index = this.expandTree(child, parents, index, counter);
             }
@@ -232,7 +244,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         }
         classifier.setIndex(left, index);
         this.expandedStore.store(classifier);
-        counter.increment(classifier.getIdentifier());
+        counter.increment(classifier.getIdentifier() + ": " + id);
         return index + 1;
     }
 
@@ -245,16 +257,16 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         LOGGER.info("Expanding synonyms");
         Counter counter = new Counter("Processed {0} synonyms, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
         Observation isSynonym = this.loadStore.getAnnotationObservation(BayesianTerm.isSynonym);
-        Iterable<Classifier> synonyms = this.loadStore.getAll(DwcTerm.Taxon, isSynonym);
+        Iterable<Classifier> synonyms = this.loadStore.getAll(this.conceptTerm, isSynonym);
         counter.start();
         for (Classifier classifier: synonyms) {
-            String id = classifier.get(this.taxonId);
+            String id = classifier.get(this.identifier);
             Optional<String> aid = this.accepted.map(acc -> classifier.get(acc));
             Optional<Classifier> acpt = Optional.empty();
             if (!aid.isPresent()) {
                 LOGGER.error("Synonym document " + id + " does not have an accepted taxon id");
             } else {
-                acpt = Optional.ofNullable(this.expandedStore.get(DwcTerm.Taxon, this.taxonId, aid.get()));
+                acpt = Optional.ofNullable(this.expandedStore.get(this.conceptTerm, this.identifier, aid.get()));
                 if (!acpt.isPresent()) {
                     LOGGER.error("Taxon " + id + " with accepted id " + aid + " does not have a matching accepted taxon");
                 }
@@ -280,11 +292,13 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * @throws StoreException if unable to write the updated document
      */
     public void expandSynonym(Classifier classifier, Optional<Classifier> accepted) throws InferenceException, StoreException {
-        Set<String> allNames = new HashSet<>();
-        allNames.addAll(this.analyser.analyseNames(classifier));
-        if (this.altScientificName.isPresent()) {
+        Set<String> allNames = new LinkedHashSet<>();
+        allNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
+        classifier.setNames(allNames);
+        if (this.altName.isPresent()) {
             for (String nm : allNames) {
-                classifier.add(this.altScientificName.get(), nm);
+                if (!classifier.match(this.name, nm))
+                    classifier.add(this.altName.get(), nm);
             }
         }
         if (accepted.isPresent()){
@@ -313,7 +327,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         final ParameterAnalyser analyser = this.expandedStore.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight());
         final BlockingQueue<Classifier> workQueue = new LinkedBlockingQueue<Classifier>(this.config.getThreads() * 4);
         final Classifier poisonPill = new SimpleClassifier();
-        Iterable<Classifier> taxa = this.expandedStore.getAll(DwcTerm.Taxon);
+        Iterable<Classifier> taxa = this.expandedStore.getAll(this.conceptTerm);
         List<ParameterConsumer> consumers = IntStream.range(0, this.config.getThreads()).mapToObj(i -> new ParameterConsumer(analyser, workQueue, counter, poisonPill)).collect(Collectors.toList());
         List<Thread> consumerThreads = consumers.stream().map(Thread::new).collect(Collectors.toList());
         consumerThreads.forEach(t -> t.start());
@@ -339,7 +353,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     }
 
     protected void buildParameters(Classifier classifier, ParameterAnalyser analyser) throws StoreException, InferenceException {
-        String id = classifier.get(this.taxonId);
+        String id = classifier.get(this.identifier);
         String signature = this.builder.buildSignature(classifier);
         classifier.setSignature(signature);
         Parameters parameters = this.builder.calculate(analyser, classifier);
@@ -360,7 +374,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
             throw new IllegalArgumentException("Unable to create " + output);
         LoadStore index = new LuceneLoadStore(this, output, false, false);
         // Copy taxa across
-        Iterable<Classifier> taxa = this.parameterisedStore.getAll(DwcTerm.Taxon);
+        Iterable<Classifier> taxa = this.parameterisedStore.getAll(this.conceptTerm);
         for (Classifier classifier : taxa) {
             index.store(classifier);
         }
@@ -429,7 +443,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         String p = classifier.get(this.parent);
         String a = this.accepted.isPresent() ? classifier.get(this.accepted.get()) : null;
 
-        if (type != DwcTerm.Taxon)
+        if (type != this.conceptTerm)
             return;
         if (( p == null || p.isEmpty()) && (a == null || a.isEmpty()))
             classifier.annotate(BayesianTerm.isRoot);
@@ -502,7 +516,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
                 System.exit(1);
             }
             if (input.endsWith(".csv")) {
-                source = new CSVSource(DwcTerm.Taxon, new FileReader(in), builder.getFactory(), builder.getNetwork().getObservables());
+                source = new CSVSource(builder.conceptTerm, new FileReader(in), builder.getFactory(), builder.getNetwork().getObservables());
             } else {
                 System.err.println("Unable to determine the type of " + in);
             }

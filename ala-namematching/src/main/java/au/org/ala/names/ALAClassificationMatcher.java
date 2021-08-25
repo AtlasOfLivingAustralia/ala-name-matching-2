@@ -53,6 +53,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
             .map(m -> this.detectMisapplied(m, results1))
             .map(m -> this.detectPartialMisapplied(m, results1))
             .map(m -> this.detectHomonym(m, results1))
+            .map(m -> this.detectParentChildSynonym(m, results1))
             .collect(Collectors.toList());
     }
 
@@ -78,7 +79,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         if (m.taxonomicStatus != null && m.scientificName != null && m.taxonomicStatus.isPlaced()) {
             for (Match<AlaLinnaeanClassification> match2: results) {
                 AlaLinnaeanClassification m2 = match2.getMatch();
-                if (match2 != match && m.scientificName.equalsIgnoreCase(m2.scientificName) && m.taxonomicStatus != null && m2.taxonomicStatus.isMisappliedFlag())
+                if (match2 != match && m.scientificName.equalsIgnoreCase(m2.scientificName) && m2.taxonomicStatus != null && m2.taxonomicStatus.isMisappliedFlag())
                     return match.with(AlaLinnaeanFactory.PARTIALLY_MISAPPLIED_NAME);
              }
         }
@@ -87,7 +88,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
 
 
     /**
-     * Mark any accepted/synonym results which also have misapplied values.
+     * Mark any cross-code homonyms
      *
      * @param results The list of candidate matches
      */
@@ -115,11 +116,31 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         AlaLinnaeanClassification m = match.getMatch();
         String referenceName = m.scientificName;
         NomenclaturalCode referenceCode = m.nomenclaturalCode;
-        if (m.taxonomicStatus != null && referenceName != null && referenceCode != null && m.taxonomicStatus.isPlaced()) {
+        if (m.taxonomicStatus != null && referenceName != null && referenceCode != null && m.taxonomicStatus.isAcceptedFlag()) {
             for (Match<AlaLinnaeanClassification> match2: results) {
                 AlaLinnaeanClassification m2 = match2.getMatch();
-                if (match2 != match && referenceName.equalsIgnoreCase(m2.scientificName) && referenceCode != m.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isPlaced())
-                    return match.with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);
+                if (match2 != match && referenceName.equalsIgnoreCase(m2.scientificName) && referenceCode == m.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isSynonymLike())
+                    return match.with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
+            }
+        }
+        return match;
+    }
+
+
+    /**
+     * Mark any parent-child synonym pairs
+     *
+     * @param results The list of candidate matches
+     */
+    protected Match<AlaLinnaeanClassification> detectParentChildSynonym(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
+        AlaLinnaeanClassification m = match.getMatch();
+        String referenceName = m.scientificName;
+        NomenclaturalCode referenceCode = m.nomenclaturalCode;
+        if (m.taxonomicStatus != null && referenceName != null && referenceCode != null && m.taxonomicStatus.isAcceptedFlag()) {
+            for (Match<AlaLinnaeanClassification> match2: results) {
+                AlaLinnaeanClassification m2 = match2.getMatch();
+                if (match2 != match && m2.scientificName != null && m2.scientificName.startsWith(referenceName) && referenceCode == m.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isSynonymFlag())
+                    return match.with(AlaLinnaeanFactory.PARENT_CHILD_SYNONYM);
             }
         }
         return match;

@@ -69,7 +69,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   public ${className}(Classifier classifier, ${analyserType} analyser) throws InferenceException, StoreException {
     this(analyser);
     this.read(classifier, true);
-    this.infer();
+    this.infer(false);
   }
 
   @Override
@@ -112,14 +112,14 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public void infer() throws InferenceException, StoreException {
+  public void infer(boolean strict) throws InferenceException, StoreException {
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.analysis??>
     this.${observable.javaVariable} = (${observable.type.simpleName}) ${factoryClassName}.${observable.javaVariable}.getAnalysis().analyse(this.${observable.javaVariable});
   </#if>
 </#list>
-    this.analyser.analyse(this);
+    this.analyser.analyse(this, strict);
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.derivation??>
@@ -131,16 +131,36 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 </#list>
   }
 
+
   @Override
-  public List<List<Function<${className}, ${className}>>> modificationOrder() {
-    List<List<Function<${className}, ${className}>>> modifications = new ArrayList();
-<#if network.modifiers?? && network.modifiers?size gt 0>
+  public List<List<Function<${className}, ${className}>>> sourceModificationOrder() {
+        List<List<Function<${className}, ${className}>>> modifications = new ArrayList();
+<#if network.sourceModifiers?? && network.sourceModifiers?size gt 0>
     List<Function<${className}, ${className}>> ml;
-<#list network.modifiers as ml>
+  <#list network.sourceModifiers as ml>
     ml = new ArrayList();
     ml.add(null);
     <#list ml as modifier>
-    if (<#list modifier.modified as var><#if var?index gt 0> || </#if>this.${var.javaVariable} != null</#list>)
+    if (<#list modifier.conditions as var><#if var?index gt 0><#if modifier.anyCondition> || <#else> && </#if></#if>this.${var.javaVariable} != null</#list>)
+      ml.add(${modifier.javaConstant});
+    </#list>
+    if (ml.size() > 1)
+      modifications.add(ml);
+  </#list>
+</#if>
+    return modifications;
+  }
+
+  @Override
+  public List<List<Function<${className}, ${className}>>> matchModificationOrder() {
+    List<List<Function<${className}, ${className}>>> modifications = new ArrayList();
+<#if network.matchModifiers?? && network.matchModifiers?size gt 0>
+    List<Function<${className}, ${className}>> ml;
+<#list network.matchModifiers as ml>
+    ml = new ArrayList();
+    ml.add(null);
+    <#list ml as modifier>
+    if (<#list modifier.conditions as var><#if var?index gt 0><#if modifier.anyCondition> || <#else> && </#if></#if>this.${var.javaVariable} != null</#list>)
       ml.add(${modifier.javaConstant});
     </#list>
     if (ml.size() > 1)

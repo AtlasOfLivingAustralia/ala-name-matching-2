@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -66,13 +67,30 @@ public abstract class Modifier extends Identifiable {
      * The base set of observables this modification will alter.
      * <p>
      * This set does not include any derived observations and can, therefore
-     * be
+     * be used to leave things alone if you just want to do something to the original.
      * </p>
      * @return
      */
     @JsonIgnore
     abstract public Set<Observable> getModified();
 
+    /**
+     * The set of observables that need to be present for this modification to succeed.
+     *
+     * @return The set of observavles that need to be present
+     *
+     * @see #getAnyCondition()
+     */
+    @JsonIgnore
+    abstract public Collection<Observable> getConditions();
+
+    /**
+     * Can we proceed with any conditonal variable being true or must we have all of them?
+     *
+     * @return True if any variable being present allows the modifier
+     */
+    @JsonIgnore
+    abstract public boolean getAnyCondition();
 
     /**
      * The set of and derived observables this modification will alter
@@ -116,5 +134,26 @@ public abstract class Modifier extends Identifiable {
     protected void nullDependents(NetworkCompiler compiler, String var, List<String> statements) {
         for (Observable observable: this.getDependents(compiler))
             statements.add(var + "." + observable.getJavaVariable() + " = null;");
+    }
+
+    /**
+     * Check to see whether the proposed modification makes any difference.
+     *
+     * @param compiler The compiled network
+     * @param var The variable to check
+     * @param statements The list of statements to add to
+     */
+    protected void checkModifiable(NetworkCompiler compiler, String var, List<String> statements) {
+        Collection<Observable> conditions = this.getConditions();
+        if (conditions.isEmpty())
+            return;
+        final String connector = this.getAnyCondition() ? " && " : " || ";
+        StringBuilder statement = new StringBuilder();
+        statement.append("if (");
+        statement.append(conditions.stream().map(o -> var + "." + o.getJavaVariable() + " == null").collect(Collectors.joining(connector)));
+        statement.append(") return ");
+        statement.append(var);
+        statement.append(";");
+        statements.add(statement.toString());
     }
 }

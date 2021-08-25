@@ -20,7 +20,7 @@
     "id" : "mod_1",
     "issue" : "issue_1",
     "observables" : [ "v_1" ],
-    "nullDervived" : false
+    "nullDerived" : false
   } ],
-  "modifiers" : [ [ "mod_1" ] ]
+  "matchModifiers" : [ [ "mod_1" ] ]
 }

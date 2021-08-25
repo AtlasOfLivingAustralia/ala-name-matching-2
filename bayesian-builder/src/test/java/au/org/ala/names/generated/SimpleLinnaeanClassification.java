@@ -31,6 +31,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_CLASS =
     c -> {
       SimpleLinnaeanClassification nc;
+      if (c.class_ == null) return c;
       nc = c.clone();
       nc.class_ = null;
       nc.addIssue(SimpleLinnaeanFactory.REMOVED_CLASS);
@@ -39,6 +40,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_ORDER =
     c -> {
       SimpleLinnaeanClassification nc;
+      if (c.order == null) return c;
       nc = c.clone();
       nc.order = null;
       nc.addIssue(SimpleLinnaeanFactory.REMOVED_ORDER);
@@ -47,6 +49,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_PHYLUM =
     c -> {
       SimpleLinnaeanClassification nc;
+      if (c.phylum == null) return c;
       nc = c.clone();
       nc.phylum = null;
       nc.addIssue(SimpleLinnaeanFactory.REMOVED_PHYLUM);
@@ -55,6 +58,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_RANK =
     c -> {
       SimpleLinnaeanClassification nc;
+      if (c.taxonRank == null) return c;
       nc = c.clone();
       nc.taxonRank = null;
       nc.addIssue(SimpleLinnaeanFactory.REMOVED_RANK);
@@ -87,7 +91,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   public SimpleLinnaeanClassification(Classifier classifier, Analyser<SimpleLinnaeanClassification> analyser) throws InferenceException, StoreException {
     this(analyser);
     this.read(classifier, true);
-    this.infer();
+    this.infer(false);
   }
 
   @Override
@@ -150,7 +154,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
-  public void infer() throws InferenceException, StoreException {
+  public void infer(boolean strict) throws InferenceException, StoreException {
     this.taxonId = (String) SimpleLinnaeanFactory.taxonId.getAnalysis().analyse(this.taxonId);
     this.taxonRank = (String) SimpleLinnaeanFactory.taxonRank.getAnalysis().analyse(this.taxonRank);
     this.specificEpithet = (String) SimpleLinnaeanFactory.specificEpithet.getAnalysis().analyse(this.specificEpithet);
@@ -163,14 +167,21 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     this.class_ = (String) SimpleLinnaeanFactory.class_.getAnalysis().analyse(this.class_);
     this.phylum = (String) SimpleLinnaeanFactory.phylum.getAnalysis().analyse(this.phylum);
     this.kingdom = (String) SimpleLinnaeanFactory.kingdom.getAnalysis().analyse(this.kingdom);
-    this.analyser.analyse(this);
+    this.analyser.analyse(this, strict);
     if (this.soundexScientificName == null) {
       this.soundexScientificName = this.soundex.soundex(this.scientificName);
     }
   }
 
+
   @Override
-  public List<List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>>> modificationOrder() {
+  public List<List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>>> sourceModificationOrder() {
+        List<List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>>> modifications = new ArrayList();
+    return modifications;
+  }
+
+  @Override
+  public List<List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>>> matchModificationOrder() {
     List<List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>>> modifications = new ArrayList();
     List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>> ml;
     ml = new ArrayList();

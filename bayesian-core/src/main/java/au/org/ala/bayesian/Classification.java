@@ -75,10 +75,12 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * The method can be used to perform common derivations without requiring further coding.
      * </p>
      *
+     * @param strict If true, throw an exception if there is a problem, otherwise try to work around it.
+     *
      * @throws InferenceException if unable to calculate an inferred value
      * @throws StoreException if unable to retrieve a source value
      */
-    void infer() throws InferenceException, StoreException;
+    void infer(boolean strict) throws InferenceException, StoreException;
 
     /**
      *
@@ -105,13 +107,31 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      */
     void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException;
 
+
     /**
-     * The order in which to modify this classification.
+     * The order in which to modify this classification when attempting source searches.
+     * <p>
+     * Source modifications assume that the search for possible candidates is needs to be done again.
+     * </p>
      * <p>
      * Returned is a list of functions that will take a classification and return
      * a modified classification
      * </p>
      * @return
      */
-    public List<List<Function<C, C>>> modificationOrder();
+    public List<List<Function<C, C>>> sourceModificationOrder();
+
+    /**
+     * The order in which to modify this classification when attempting matches.
+     * <p>
+     * Match modifications assume that the search for possible candidates is acceptable and
+     * need not be done again.
+     * </p>
+     * <p>
+     * Returned is a list of functions that will take a classification and return
+     * a modified classification
+     * </p>
+     * @return
+     */
+    public List<List<Function<C, C>>> matchModificationOrder();
 }

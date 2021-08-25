@@ -1,15 +1,9 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.util.BacktrackingIterator;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
 
-import java.lang.reflect.Field;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Provide search services for a classification.
@@ -52,7 +46,23 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     }
 
     public Match<C> findMatch(C classification) throws InferenceException, StoreException {
-        classification.infer();
+        classification.infer(true);
+        Iterator<C> sourceClassifications = new BacktrackingIterator<>(classification, classification.sourceModificationOrder());
+        C previous = null;
+        while (sourceClassifications.hasNext()) {
+            C modified = sourceClassifications.next();
+            if (modified == previous)
+                continue;
+            Match<C> match = this.findSource(modified);
+            if (match != null)
+                return match;
+            previous = modified;
+        }
+        return null;
+    }
+
+    protected Match<C> findSource(C classification) throws InferenceException, StoreException {
+        classification.infer(true);
         List<? extends Classifier> candidates = this.searcher.search(classification);
         if (candidates.isEmpty())
             return null;
@@ -64,16 +74,18 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             return match;
 
         // Do we have an evidence problem?
+        C previous = classification;
         if (results.stream().allMatch(m -> this.isBadEvidence(m))) {
-            Iterator<C> subClassifications = new BacktrackingIterator<C>(classification, classification.modificationOrder());
+            Iterator<C> subClassifications = new BacktrackingIterator<C>(classification, classification.matchModificationOrder());
             while (subClassifications.hasNext()) {
                 C modified = subClassifications.next();
-                if (modified == classification) // Skip null case
+                if (modified == classification || modified == previous) // Skip null case
                     continue;
                 results = this.doMatch(modified, candidates);
                 match = this.findSingle(results);
                 if (match != null)
                     return match;
+                previous = modified;
              }
         }
 

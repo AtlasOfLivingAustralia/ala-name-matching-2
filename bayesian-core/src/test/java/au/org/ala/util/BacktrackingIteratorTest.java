@@ -107,4 +107,35 @@ public class BacktrackingIteratorTest {
         assertFalse(bi.hasNext());
     }
 
+
+    @Test
+    public void testEnumerate6() throws Exception {
+        BacktrackingIterator<String> bi = new BacktrackingIterator<>(
+                "a",
+                Arrays.asList(
+                        Arrays.asList(null, i -> i, i -> i + "a"),
+                        Arrays.asList(null, i -> i + "b", i -> i + "c")
+                )
+        );
+        assertTrue(bi.hasNext());
+        assertEquals("a", bi.next());
+        assertTrue(bi.hasNext());
+        assertEquals("ab", bi.next());
+        assertTrue(bi.hasNext());
+        assertEquals("ac", bi.next());
+        assertTrue(bi.hasNext());
+        assertEquals("a", bi.next());
+        assertTrue(bi.hasNext());
+        assertEquals("ab", bi.next());
+        assertTrue(bi.hasNext());
+        assertEquals("ac", bi.next());
+        assertTrue(bi.hasNext());
+        assertEquals("aa", bi.next());
+        assertTrue(bi.hasNext());
+        assertEquals("aab", bi.next());
+        assertTrue(bi.hasNext());
+        assertEquals("aac", bi.next());
+        assertFalse(bi.hasNext());
+    }
+
 }

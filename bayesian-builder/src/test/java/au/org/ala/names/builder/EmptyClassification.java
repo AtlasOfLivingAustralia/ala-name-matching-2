@@ -31,8 +31,7 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     }
 
     @Override
-    public void infer() {
-
+    public void infer(boolean strict) {
     }
 
     /**
@@ -58,6 +57,7 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     public void addIssue(Term issue) {
     }
 
+
     /**
      * The order in which to modify this classification.
      * <p>
@@ -68,7 +68,21 @@ public class EmptyClassification implements Classification<EmptyClassification> 
      * @return
      */
     @Override
-    public List<List<Function<EmptyClassification, EmptyClassification>>> modificationOrder() {
+    public List<List<Function<EmptyClassification, EmptyClassification>>> sourceModificationOrder() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * The order in which to modify this classification.
+     * <p>
+     * Returned is a list of functions that will take a classification and return
+     * a modified classification
+     * </p>
+     *
+     * @return
+     */
+    @Override
+    public List<List<Function<EmptyClassification, EmptyClassification>>> matchModificationOrder() {
         return Collections.emptyList();
     }
 

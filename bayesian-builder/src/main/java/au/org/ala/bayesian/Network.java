@@ -1,7 +1,9 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.util.JsonUtils;
+import au.org.ala.vocab.BayesianTerm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
@@ -26,12 +28,18 @@ import java.util.stream.Collectors;
  * information to things like an index builder.
  * </p>
  */
-@JsonPropertyOrder({"id", "description", "uri", "vocabularies", "normalisers", "observables", "vertices", "edges", "issues", "modifications", "modifiers" })
+@JsonPropertyOrder({"id", "description", "uri", "concept", "vocabularies", "normalisers", "observables", "vertices", "edges", "issues", "modifications", "sourceModifiers", "matchModifiers" })
 public class Network extends Identifiable {
     /** The vertex id map */
-    private SortedMap<String, Observable> idMap;
+    private final SortedMap<String, Observable> idMap;
     /** The vertex URI map */
-    private Map<URI, Observable> uriMap;
+    private final Map<URI, Observable> uriMap;
+    /** The concept that this network reflects */
+    @JsonProperty
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @Getter
+    @Setter
+    private URI concept;
     /** The list of issues */
     @JsonProperty
     @Getter
@@ -41,12 +49,17 @@ public class Network extends Identifiable {
     @JsonProperty
     @Getter
     @Setter
-    private List<Class> vocabularies;
-    /** The list of modifiers */
+    private List<Class<?>> vocabularies;
+    /** The list of source modifiers */
     @JsonProperty
     @Getter
     @Setter
-    private List<List<Modifier>> modifiers;
+    private List<List<Modifier>> sourceModifiers;
+    /** The list of match modifiers */
+    @JsonProperty
+    @Getter
+    @Setter
+    private List<List<Modifier>> matchModifiers;
     /** The erasure signature of this network.
      * If null, this is the original network.
      * Otherwise it contains T/F elements corresponding to the presence or absence of erasable observable groups
@@ -73,7 +86,8 @@ public class Network extends Identifiable {
         this.uriMap = new HashMap<>();
         this.issues = new ArrayList<>();
         this.vocabularies = new ArrayList<>();
-        this.modifiers = new ArrayList<>();
+        this.sourceModifiers = new ArrayList<>();
+        this.matchModifiers = new ArrayList<>();
         this.erasures = new ArrayList<>();
     }
 
@@ -89,7 +103,8 @@ public class Network extends Identifiable {
         this.uriMap = new HashMap<>();
         this.issues = new ArrayList<>();
         this.vocabularies = new ArrayList<>();
-        this.modifiers = new ArrayList<>();
+        this.sourceModifiers = new ArrayList<>();
+        this.matchModifiers = new ArrayList<>();
         this.erasures = new ArrayList<>();
     }
 
@@ -97,9 +112,11 @@ public class Network extends Identifiable {
         super(source, id);
         this.idMap = new TreeMap<>(source.idMap);
         this.uriMap = new HashMap<>(source.uriMap);
+        this.concept = source.concept;
         this.issues = new ArrayList<>(source.issues);
         this.vocabularies = new ArrayList<>(source.vocabularies);
-        this.modifiers = new ArrayList<>(source.modifiers);
+        this.sourceModifiers = new ArrayList<>(source.sourceModifiers);
+        this.matchModifiers = new ArrayList<>(source.matchModifiers);
         this.signature = source.signature;
         this.erasures = new ArrayList<>(source.erasures);
         this.graph = new DirectedAcyclicGraph<>(Dependency.class);
@@ -197,7 +214,8 @@ public class Network extends Identifiable {
 
     @JsonProperty("modifications")
     public List<Modifier> getModifications() {
-        Set<Modifier> mods = this.modifiers.stream().flatMap(List::stream).collect(Collectors.toSet());
+        Set<Modifier> mods = this.sourceModifiers.stream().flatMap(List::stream).collect(Collectors.toSet());
+        mods.addAll(this.matchModifiers.stream().flatMap(List::stream).collect(Collectors.toSet()));
         List<Modifier> modifiers = new ArrayList<>(mods);
         modifiers.sort(Comparator.comparing(Identifiable::getId));
         return modifiers;
@@ -361,8 +379,8 @@ public class Network extends Identifiable {
      */
     public List<String> getErasureGroups() {
         return this.getVertices().stream()
-                .filter(o -> o.getErasure() != null)
                 .map(Observable::getErasure)
+                .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
 

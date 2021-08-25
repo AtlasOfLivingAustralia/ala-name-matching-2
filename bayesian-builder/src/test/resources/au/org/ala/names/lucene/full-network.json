@@ -1,6 +1,7 @@
 {
   "id": "linnaean",
   "description": "A Linnaean heirarchy containing all evidence",
+  "concept": "http://rs.tdwg.org/dwc/terms/Taxon",
   "normalisers": [
     {
       "@class" : "au.org.ala.util.BasicNormaliser",
@@ -48,7 +49,7 @@
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "source": "scientificName"
-      },
+      }
     },
     {
       "id": "specificEpithet",

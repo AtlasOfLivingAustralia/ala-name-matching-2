@@ -67,6 +67,8 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
     au.org.ala.vocab.BayesianTerm.class
   ));
 
+  private static final Term CONCEPT = TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/Concept");
+
 
   static {
     rain.setExternal(LUCENE, "rain");

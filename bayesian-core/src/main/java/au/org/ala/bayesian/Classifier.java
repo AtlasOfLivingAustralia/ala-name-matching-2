@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -13,6 +14,12 @@ import java.util.Set;
  * <p>
  * Implementations can implement classifiers in various ways.
  * For example, for a lucene index a classifier is just a wrapper around a lucene document.
+ * </p>
+ * <p>
+ * Classifiers <em>must</em> adhere to the principle that fields added in a specific order are
+ * also retrived in the same order.
+ * This is necessary so that {@link Classification}s can be filled out with the correct
+ * information.
  * </p>
  */
 public interface Classifier {
@@ -258,5 +265,14 @@ public interface Classifier {
      */
     public void setSignature(String signature);
 
+    /**
+     * Get a list of all the values set in the classifier.
+     * <p>
+     * This can be used to dump the classifer during debugging.
+     * </p>
+     *
+     * @return The values in the form of key -> value pairs, with the keys a useful internal representation
+     */
+    public Collection<String[]> getAllValues();
 
 }

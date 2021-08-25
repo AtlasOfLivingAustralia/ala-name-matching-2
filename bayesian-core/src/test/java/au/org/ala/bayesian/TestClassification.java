@@ -75,8 +75,22 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public void infer() {
+    public void infer(boolean strict) {
+    }
 
+    /**
+     * The order in which to modify this classification for searches.
+     * <p>
+     * Returned is a list of functions that will take a classification and return
+     * a modified classification
+     * </p>
+     *
+     * @return The modification options for the classifier
+     */
+    @Override
+    public List<List<Function<TestClassification, TestClassification>>> sourceModificationOrder() {
+        List<List<Function<TestClassification, TestClassification>>> modifiers = new ArrayList<>();
+        return modifiers;
     }
 
     /**
@@ -89,7 +103,7 @@ public class TestClassification implements Classification<TestClassification> {
      * @return The modification options for the classifier
      */
     @Override
-    public List<List<Function<TestClassification, TestClassification>>> modificationOrder() {
+    public List<List<Function<TestClassification, TestClassification>>> matchModificationOrder() {
         List<List<Function<TestClassification, TestClassification>>> modifiers = new ArrayList<>();
         if (this.class_ != null) {
             modifiers.add(Arrays.asList(

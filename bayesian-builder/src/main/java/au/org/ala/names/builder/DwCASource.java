@@ -138,9 +138,14 @@ public class DwCASource extends Source {
                     classifier.add(term, val);
                 }
             }
-            if (core)
-                this.infer(classifier);
-            store.store(classifier, type);
+            try {
+                if (core)
+                    this.infer(classifier);
+                store.store(classifier, type);
+            } catch (Exception ex) {
+                log.error("Skipping invalid classifier: " + ex.getMessage());
+                log.info("Classifier " + classifier.getAllValues().stream().map(s -> s[0] + ": " + s[1]).sorted().collect(Collectors.joining(", ")));
+            }
             this.counter.increment(classifier.getIdentifier());
         }
     }

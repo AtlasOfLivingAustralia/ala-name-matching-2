@@ -2,20 +2,46 @@ package au.org.ala.bayesian.modifier;
 
 import au.org.ala.bayesian.NetworkCompiler;
 import au.org.ala.bayesian.Observable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * Remove the value of an entry
+ * Wind a target back to a higher level in the network.
+ * <p>
+ * This basically works by nulling all the listed observables and copying
+ * the source value into the target.
+ * </p>
  */
-public class RemoveModifier extends BaseModifier {
-    protected RemoveModifier() {
+public class HigherModifier extends BaseModifier {
+    /** The source of the name */
+    @JsonProperty
+    @Getter
+    protected List<Observable> sources;
+    /** The target of the name */
+    @JsonProperty
+    @Getter
+    protected Observable target;
+
+    protected HigherModifier() {
     }
 
-    public RemoveModifier(String id, Collection<Observable> observables, boolean nullDerived) {
+    public HigherModifier(String id, Collection<Observable> observables, boolean nullDerived) {
         super(id, observables, nullDerived);
+    }
+
+    /**
+     * Get the base variables that this will alter
+     *
+     * @return All modifiable variables, plus the target.
+     */
+    @Override
+    public Set<Observable> getModified() {
+        Set<Observable> modified = new HashSet<>(super.getModified());
+        modified.add(this.target);
+        return modified;
     }
 
     /**
@@ -26,7 +52,7 @@ public class RemoveModifier extends BaseModifier {
      */
     @Override
     public Collection<Observable> getConditions() {
-        return this.getModified();
+        return this.sources;
     }
 
     /**
@@ -36,7 +62,7 @@ public class RemoveModifier extends BaseModifier {
      */
     @Override
     public boolean getAnyCondition() {
-        return true;
+        return false;
     }
 
     /**
@@ -56,6 +82,9 @@ public class RemoveModifier extends BaseModifier {
             statements.add(to + "." + observable.getJavaVariable() + " = null;");
         if (this.isNullDerived())
             this.nullDependents(compiler, to, statements);
+        statements.add(to + "." + this.target.getJavaVariable() + " = " +
+                this.sources.stream().map(s -> from + "." + s.getJavaVariable()).collect(Collectors.joining(" + \" \" + "))
+                + ";");
         return statements;
     }
 }
