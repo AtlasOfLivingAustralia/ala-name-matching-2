@@ -12,6 +12,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
@@ -249,6 +250,26 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   @Override
   public List<Observable> getObservables() {
       return OBSERVABLES;
+  }
+
+  @Override
+  public Optional<Observable> getIdentifier() {
+    return Optional.of(taxonId);
+  }
+
+  @Override
+  public Optional<Observable> getName() {
+    return Optional.of(scientificName);
+  }
+
+  @Override
+  public Optional<Observable> getParent() {
+    return Optional.of(parentNameUsageId);
+  }
+
+  @Override
+  public Optional<Observable> getAccepted() {
+    return Optional.of(acceptedNameUsageId);
   }
 
   @Override

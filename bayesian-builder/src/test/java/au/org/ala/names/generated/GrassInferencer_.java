@@ -20,27 +20,52 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
     return SIGNATURE;
   }
 
-  public double infer(GrassInferencer.Evidence evidence, GrassParameters_ parameters, double c$rain) {
-    double nc$rain = 1.0 - c$rain;
+  public double infer_t(GrassInferencer.Evidence evidence, GrassParameters_ parameters) {
+    double c$rain = 1.0;
+    double nc$rain = 0.0;
     double c$sprinkler = evidence.isT$e$sprinkler() ? 1.0 : 0.0;
     double nc$sprinkler = evidence.isF$e$sprinkler() ? 1.0 : 0.0;
     double c$wet = 0.0;
     double nc$wet = 0.0;
     // Ignoring non-base sprinkler
     if (evidence.isT$e$wet()) {
-      c$wet += parameters.derived_t_tt$wet * c$sprinkler * c$rain;
-      c$wet += parameters.derived_t_tf$wet * c$sprinkler * nc$rain;
-      c$wet += parameters.derived_t_ft$wet * nc$sprinkler * c$rain;
-      c$wet += parameters.derived_t_ff$wet * nc$sprinkler * nc$rain;
+      c$wet += parameters.derived_t_tt$wet$t * c$sprinkler * c$rain;
+      c$wet += parameters.derived_t_tf$wet$t * c$sprinkler * nc$rain;
+      c$wet += parameters.derived_t_ft$wet$t * nc$sprinkler * c$rain;
+      c$wet += parameters.derived_t_ff$wet$t * nc$sprinkler * nc$rain;
     }
     if (evidence.isF$e$wet()) {
-      nc$wet += parameters.derived_f_tt$wet * c$sprinkler * c$rain;
-      nc$wet += parameters.derived_f_tf$wet * c$sprinkler * nc$rain;
-      nc$wet += parameters.derived_f_ft$wet * nc$sprinkler * c$rain;
-      nc$wet += parameters.derived_f_ff$wet * nc$sprinkler * nc$rain;
+      nc$wet += parameters.derived_f_tt$wet$t * c$sprinkler * c$rain;
+      nc$wet += parameters.derived_f_tf$wet$t * c$sprinkler * nc$rain;
+      nc$wet += parameters.derived_f_ft$wet$t * nc$sprinkler * c$rain;
+      nc$wet += parameters.derived_f_ff$wet$t * nc$sprinkler * nc$rain;
     }
-    return (c$wet + nc$wet) * (parameters.prior_t$rain * c$rain + parameters.prior_f$rain * nc$rain);
+    return (c$wet + nc$wet);
   }
+
+  public double infer_f(GrassInferencer.Evidence evidence, GrassParameters_ parameters) {
+    double c$rain = 0.0;
+    double nc$rain = 1.0;
+    double c$sprinkler = evidence.isT$e$sprinkler() ? 1.0 : 0.0;
+    double nc$sprinkler = evidence.isF$e$sprinkler() ? 1.0 : 0.0;
+    double c$wet = 0.0;
+    double nc$wet = 0.0;
+    // Ignoring non-base sprinkler
+    if (evidence.isT$e$wet()) {
+      c$wet += parameters.derived_t_tt$wet$f * c$sprinkler * c$rain;
+      c$wet += parameters.derived_t_tf$wet$f * c$sprinkler * nc$rain;
+      c$wet += parameters.derived_t_ft$wet$f * nc$sprinkler * c$rain;
+      c$wet += parameters.derived_t_ff$wet$f * nc$sprinkler * nc$rain;
+    }
+    if (evidence.isF$e$wet()) {
+      nc$wet += parameters.derived_f_tt$wet$f * c$sprinkler * c$rain;
+      nc$wet += parameters.derived_f_tf$wet$f * c$sprinkler * nc$rain;
+      nc$wet += parameters.derived_f_ft$wet$f * nc$sprinkler * c$rain;
+      nc$wet += parameters.derived_f_ff$wet$f * nc$sprinkler * nc$rain;
+    }
+    return (c$wet + nc$wet);
+  }
+
 
   public Inference probability(GrassInferencer.Evidence evidence, GrassParameters_ parameters) {
     double p;
@@ -48,11 +73,15 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
     double ph = 0.0;
     double pe = 0.0;
 
-    p = (evidence.isT$e$rain() ? 1.0 : 0.0) * this.infer(evidence, parameters, 1.0);
-    ph += p;
-    pe += p;
-    p = (evidence.isF$e$rain() ? 1.0 : 0.0) * this.infer(evidence, parameters, 0.0);
-    pe += p;
+    if (evidence.isT$e$rain()) {
+      p = this.infer_t(evidence, parameters) * parameters.prior_t$rain;
+      ph += p;
+      pe += p;
+    }
+    if (evidence.isF$e$rain()) {
+      p = this.infer_f(evidence, parameters) * parameters.prior_f$rain;
+      pe += p;
+    }
     return Inference.forPEH(prior, pe, ph);
   }
 

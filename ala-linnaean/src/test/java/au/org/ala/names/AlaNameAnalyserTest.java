@@ -207,12 +207,10 @@ public class AlaNameAnalyserTest {
         classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Mill.");
         classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
-        System.out.println(names);
         assertNotNull(names);
         assertEquals(1, names.size());
         assertTrue(names.contains("Acacia sect. Acacia"));
     }
-
 
 
     @Test
@@ -226,6 +224,68 @@ public class AlaNameAnalyserTest {
         assertEquals(2, names.size());
         assertTrue(names.contains("Goodenia subsect. Bracteolatae"));
         assertTrue(names.contains("Bracteolatae"));
+    }
+
+    @Test
+    public void testAnalyseNames11() throws Exception {
+        Classifier classifier = new LuceneClassifier();
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia 'H.L.White'");
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.UNRANKED);
+        Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
+        assertNotNull(names);
+        assertEquals(1, names.size());
+        assertTrue(names.contains("Acacia 'H.L.White'"));
+    }
+
+    @Test
+    public void testAnalyseNames12() throws Exception {
+        Classifier classifier = new LuceneClassifier();
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia $ Brunioideae");
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.INFRAGENUS);
+        Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
+        assertNotNull(names);
+        assertEquals(1, names.size());
+        assertTrue(names.contains("Acacia $ Brunioideae"));
+    }
+
+    @Test
+    public void testAnalyseNames13() throws Exception {
+        Classifier classifier = new LuceneClassifier();
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia Div. II Bipinnatae");
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.INFRAGENUS);
+        Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
+        assertNotNull(names);
+        assertEquals(2, names.size());
+        assertTrue(names.contains("Acacia Div. II Bipinnatae"));
+        assertTrue(names.contains("infrag. Acacia Div.II Bipinnatae"));
+    }
+
+    @Test
+    public void testAnalyseNames14() throws Exception {
+        Classifier classifier = new LuceneClassifier();
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp. laterite");
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.UNRANKED);
+        Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
+        assertNotNull(names);
+        assertEquals(1, names.size());
+        assertTrue(names.contains("Acacia sp. laterite"));
+    }
+
+
+    @Test
+    public void testAnalyseNames15() throws Exception {
+        Classifier classifier = new LuceneClassifier();
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp. holey trunk");
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.UNRANKED);
+        Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
+        assertNotNull(names);
+        assertEquals(1, names.size());
+        assertTrue(names.contains("Acacia sp. holey trunk"));
     }
 
 }

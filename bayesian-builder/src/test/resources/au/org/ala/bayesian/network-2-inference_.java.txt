@@ -20,20 +20,38 @@ public class Network2Inferencer_ implements Inferencer<Network2Classification> {
     return SIGNATURE;
   }
 
-  public double infer(Network2Inferencer.Evidence evidence, Network2Parameters_ parameters, double c$v1) {
-    double nc$v1 = 1.0 - c$v1;
+  public double infer_t(Network2Inferencer.Evidence evidence, Network2Parameters_ parameters) {
+    double c$v1 = 1.0;
+    double nc$v1 = 0.0;
     double c$v2 = 0.0;
     double nc$v2 = 0.0;
     if (evidence.isT$e$v2()) {
-      c$v2 += parameters.inf_t_t$v2 * c$v1;
-      c$v2 += parameters.inf_t_f$v2 * nc$v1;
+      c$v2 += parameters.inf_t_t$v2$t * c$v1;
+      c$v2 += parameters.inf_t_f$v2$t * nc$v1;
     }
     if (evidence.isF$e$v2()) {
-      nc$v2 += parameters.inf_f_t$v2 * c$v1;
-      nc$v2 += parameters.inf_f_f$v2 * nc$v1;
+      nc$v2 += parameters.inf_f_t$v2$t * c$v1;
+      nc$v2 += parameters.inf_f_f$v2$t * nc$v1;
     }
-    return (c$v2 + nc$v2) * (parameters.prior_t$v1 * c$v1 + parameters.prior_f$v1 * nc$v1);
+    return (c$v2 + nc$v2);
   }
+
+  public double infer_f(Network2Inferencer.Evidence evidence, Network2Parameters_ parameters) {
+    double c$v1 = 0.0;
+    double nc$v1 = 1.0;
+    double c$v2 = 0.0;
+    double nc$v2 = 0.0;
+    if (evidence.isT$e$v2()) {
+      c$v2 += parameters.inf_t_t$v2$f * c$v1;
+      c$v2 += parameters.inf_t_f$v2$f * nc$v1;
+    }
+    if (evidence.isF$e$v2()) {
+      nc$v2 += parameters.inf_f_t$v2$f * c$v1;
+      nc$v2 += parameters.inf_f_f$v2$f * nc$v1;
+    }
+    return (c$v2 + nc$v2);
+  }
+
 
   public Inference probability(Network2Inferencer.Evidence evidence, Network2Parameters_ parameters) {
     double p;
@@ -41,11 +59,15 @@ public class Network2Inferencer_ implements Inferencer<Network2Classification> {
     double ph = 0.0;
     double pe = 0.0;
 
-    p = (evidence.isT$e$v1() ? 1.0 : 0.0) * this.infer(evidence, parameters, 1.0);
-    ph += p;
-    pe += p;
-    p = (evidence.isF$e$v1() ? 1.0 : 0.0) * this.infer(evidence, parameters, 0.0);
-    pe += p;
+    if (evidence.isT$e$v1()) {
+      p = this.infer_t(evidence, parameters) * parameters.prior_t$v1;
+      ph += p;
+      pe += p;
+    }
+    if (evidence.isF$e$v1()) {
+      p = this.infer_f(evidence, parameters) * parameters.prior_f$v1;
+      pe += p;
+    }
     return Inference.forPEH(prior, pe, ph);
   }
 

@@ -97,8 +97,9 @@ public class IndexBuilderTest {
         SimpleLinnaeanParameters_FT parameters = new SimpleLinnaeanParameters_FT();
         classifier.loadParameters(parameters);
         assertEquals(0.0909, parameters.prior_t$taxonId, 0.0001);
-        assertEquals(0.0, parameters.inf_f_t$kingdom, 0.0001);
-        assertEquals(0.5, parameters.inf_t_f$phylum, 0.0001);
+        assertEquals(0.0, parameters.inf_f_t$kingdom$t, 0.0001);
+        assertEquals(0.5, parameters.inf_t_f$phylum$f, 0.0001);
+        assertEquals(0.0, parameters.inf_t_f$phylum$t, 0.0001);
     }
 
 }

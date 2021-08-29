@@ -77,6 +77,10 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   public java.lang.String class_;
   public java.lang.String phylum;
   public java.lang.String kingdom;
+  // Additional stored classification information not used in inference
+  public java.lang.String acceptedNameUsageId;
+  public java.lang.String parentNameUsageId;
+  public java.lang.String taxonomicStatus;
 
   public SimpleLinnaeanClassification(Analyser<SimpleLinnaeanClassification> analyser) {
     this.analyser = SimpleLinnaeanFactory.instance().createAnalyser();
@@ -120,6 +124,27 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   @Override
   public Issues getIssues() {
     return this.issues;
+  }
+
+
+  @Override
+  public String getIdentifier() {
+    return this.taxonId;
+  }
+
+  @Override
+  public String getName() {
+    return this.scientificName;
+  }
+
+  @Override
+  public String getParent() {
+    return this.parentNameUsageId;
+  }
+
+  @Override
+  public String getAccepted() {
+    return this.acceptedNameUsageId;
   }
 
   @Override
@@ -167,6 +192,9 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     this.class_ = (String) SimpleLinnaeanFactory.class_.getAnalysis().analyse(this.class_);
     this.phylum = (String) SimpleLinnaeanFactory.phylum.getAnalysis().analyse(this.phylum);
     this.kingdom = (String) SimpleLinnaeanFactory.kingdom.getAnalysis().analyse(this.kingdom);
+    this.acceptedNameUsageId = (String) SimpleLinnaeanFactory.acceptedNameUsageId.getAnalysis().analyse(this.acceptedNameUsageId);
+    this.parentNameUsageId = (String) SimpleLinnaeanFactory.parentNameUsageId.getAnalysis().analyse(this.parentNameUsageId);
+    this.taxonomicStatus = (String) SimpleLinnaeanFactory.taxonomicStatus.getAnalysis().analyse(this.taxonomicStatus);
     this.analyser.analyse(this, strict);
     if (this.soundexScientificName == null) {
       this.soundexScientificName = this.soundex.soundex(this.scientificName);
@@ -241,6 +269,15 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     if (overwrite || this.kingdom == null) {
       this.kingdom = classifier.get(SimpleLinnaeanFactory.kingdom);
     }
+    if (overwrite || this.acceptedNameUsageId == null) {
+      this.acceptedNameUsageId = classifier.get(SimpleLinnaeanFactory.acceptedNameUsageId);
+    }
+    if (overwrite || this.parentNameUsageId == null) {
+      this.parentNameUsageId = classifier.get(SimpleLinnaeanFactory.parentNameUsageId);
+    }
+    if (overwrite || this.taxonomicStatus == null) {
+      this.taxonomicStatus = classifier.get(SimpleLinnaeanFactory.taxonomicStatus);
+    }
   }
 
   @Override
@@ -258,6 +295,9 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       classifier.replace(SimpleLinnaeanFactory.class_,this.class_);
       classifier.replace(SimpleLinnaeanFactory.phylum,this.phylum);
       classifier.replace(SimpleLinnaeanFactory.kingdom,this.kingdom);
+      classifier.replace(SimpleLinnaeanFactory.acceptedNameUsageId,this.acceptedNameUsageId);
+      classifier.replace(SimpleLinnaeanFactory.parentNameUsageId,this.parentNameUsageId);
+      classifier.replace(SimpleLinnaeanFactory.taxonomicStatus,this.taxonomicStatus);
     } else {
       classifier.add(SimpleLinnaeanFactory.taxonId,this.taxonId);
       classifier.add(SimpleLinnaeanFactory.taxonRank,this.taxonRank);
@@ -271,6 +311,9 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       classifier.add(SimpleLinnaeanFactory.class_,this.class_);
       classifier.add(SimpleLinnaeanFactory.phylum,this.phylum);
       classifier.add(SimpleLinnaeanFactory.kingdom,this.kingdom);
+      classifier.add(SimpleLinnaeanFactory.acceptedNameUsageId,this.acceptedNameUsageId);
+      classifier.add(SimpleLinnaeanFactory.parentNameUsageId,this.parentNameUsageId);
+      classifier.add(SimpleLinnaeanFactory.taxonomicStatus,this.taxonomicStatus);
     }
   }
 

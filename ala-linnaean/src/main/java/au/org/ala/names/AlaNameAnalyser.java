@@ -202,14 +202,18 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             // Add parsed versions of the name
             try {
                 ParsedName pn = PARSER.get().parse(n.getNormalised(), rank, nomCode);
-                allNames.add(pn.canonicalName());
-                // More minimal version if a linnaean rank
-                if (pn.getType() == NameType.SCIENTIFIC && ((rank != null && rank.isLinnean()) || (pn.getRank() != null && pn.getRank().isLinnean()))) {
-                    allNames.add(pn.canonicalNameMinimal());
-                }
-                // Add infrageneric name without enclosing genus
-                if (pn.getType() == NameType.SCIENTIFIC && pn.getInfragenericEpithet() != null && pn.getRank().isInfrageneric() && !pn.getInfragenericEpithet().equals(pn.getGenus())) {
-                    allNames.add(pn.getInfragenericEpithet());
+                if (pn.getState() == ParsedName.State.COMPLETE) {
+                    allNames.add(pn.canonicalName());
+                    if (pn.getType() == NameType.SCIENTIFIC) {
+                        // More minimal version if a recognised linnaean rank
+                        if (pn.getRank() != null && pn.getRank().isLinnean()) {
+                            allNames.add(pn.canonicalNameMinimal());
+                        }
+                        // Add infrageneric name without enclosing genus
+                        if (pn.getInfragenericEpithet() != null && pn.getRank().isInfrageneric() && pn.getGenus() != null && !pn.getInfragenericEpithet().equals(pn.getGenus())) {
+                            allNames.add(pn.getInfragenericEpithet());
+                        }
+                    }
                 }
             } catch (UnparsableNameException e) {
                 // Ignore unparsable names

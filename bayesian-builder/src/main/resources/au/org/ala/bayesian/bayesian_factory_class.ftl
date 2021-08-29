@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
@@ -82,6 +83,26 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   @Override
   public List<Observable> getObservables() {
       return OBSERVABLES;
+  }
+
+  @Override
+  public Optional<Observable> getIdentifier() {
+    return Optional.<#if network.identifierObservable??>of(${network.identifierObservable.javaVariable})<#else>empty()</#if>;
+  }
+
+  @Override
+  public Optional<Observable> getName() {
+    return Optional.<#if network.nameObservable??>of(${network.nameObservable.javaVariable})<#else>empty()</#if>;
+  }
+
+  @Override
+  public Optional<Observable> getParent() {
+    return Optional.<#if network.parentObservable??>of(${network.parentObservable.javaVariable})<#else>empty()</#if>;
+  }
+
+  @Override
+  public Optional<Observable> getAccepted() {
+    return Optional.<#if network.acceptedObservable??>of(${network.acceptedObservable.javaVariable})<#else>empty()</#if>;
   }
 
   @Override

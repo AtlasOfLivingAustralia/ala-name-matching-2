@@ -18,10 +18,12 @@ public class SimpleLinnaeanCli implements Cli<SimpleLinnaeanClassification, Simp
      Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
      Option workOption = Option.builder("w").longOpt("work").desc("Working directory").hasArg().argName("DIR").type(File.class).build();
      Option outputOption = Option.builder("o").longOpt("output").desc("Output index directory").hasArg().argName("DIR").type(File.class).build();
+     Option threadsOption = Option.builder("t").longOpt("threads").desc("Number of parallel threads to use").hasArg().argName("N").type(Integer.class).build();
      Option helpOption = Option.builder("h").longOpt("help").desc("Print help").build();
      options.addOption(configOption);
      options.addOption(workOption);
      options.addOption(outputOption);
+     options.addOption(threadsOption);
      options.addOption(helpOption);
      IndexBuilderConfiguration config;
      File output;
@@ -49,6 +51,9 @@ public class SimpleLinnaeanCli implements Cli<SimpleLinnaeanClassification, Simp
        output = (File) cmd.getParsedOptionValue(outputOption.getOpt());
      } else {
        output = new File(config.getWork(), "output");
+     }
+     if (cmd.hasOption(threadsOption.getOpt())) {
+       config.setThreads(Integer.parseInt(cmd.getOptionValue(threadsOption.getOpt())));
      }
      IndexBuilder builder = new IndexBuilder(config);
      for (String input: cmd.getArgs()) {

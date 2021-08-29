@@ -73,6 +73,27 @@ public class GrassClassification implements Classification<GrassClassification> 
     return this.issues;
   }
 
+
+  @Override
+  public String getIdentifier() {
+    return null;
+  }
+
+  @Override
+  public String getName() {
+    return null;
+  }
+
+  @Override
+  public String getParent() {
+    return null;
+  }
+
+  @Override
+  public String getAccepted() {
+    return null;
+  }
+
   @Override
   public Collection<Observation> toObservations() {
     Collection<Observation> obs = new ArrayList(3);

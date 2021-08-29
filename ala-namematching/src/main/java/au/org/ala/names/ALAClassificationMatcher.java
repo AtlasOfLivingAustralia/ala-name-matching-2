@@ -5,12 +5,15 @@ import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory> {
     private static final Comparator<Match<AlaLinnaeanClassification>> MATCH_SORTER = new Comparator<Match<AlaLinnaeanClassification>>() {
         private static final double DISTANCE = 0.05;
+
         @Override
         public int compare(Match<AlaLinnaeanClassification> o1, Match<AlaLinnaeanClassification> o2) {
             double p1 = o1.getProbability().getPosterior();
@@ -41,20 +44,21 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * Annotate the result list with additional information and issues.
      *
      * @param results The list of results
+     * @return the annotated and otherwise modified list
      * @throws StoreException     if there is a problem retrieving information
      * @throws InferenceException if there is a problem making inferences about the data
-     *
-     * @return the annotated and otherwise modified list
      */
     @Override
     protected List<Match<AlaLinnaeanClassification>> annotate(List<Match<AlaLinnaeanClassification>> results) throws StoreException, InferenceException {
         List<Match<AlaLinnaeanClassification>> results1 = super.annotate(results);
         return results1.stream()
-            .map(m -> this.detectMisapplied(m, results1))
-            .map(m -> this.detectPartialMisapplied(m, results1))
-            .map(m -> this.detectHomonym(m, results1))
-            .map(m -> this.detectParentChildSynonym(m, results1))
-            .collect(Collectors.toList());
+                .map(m -> this.detectMisapplied(m, results1))
+                .map(m -> this.detectExcluded(m, results1))
+                .map(m -> this.detectPartialMisapplied(m, results1))
+                .map(m -> this.detectPartialExcluded(m, results1))
+                .map(m -> this.detectHomonym(m, results1))
+                .map(m -> this.detectParentChildSynonym(m, results1))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -67,7 +71,20 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         if (m.taxonomicStatus != null && m.taxonomicStatus.isMisappliedFlag())
             return match.with(AlaLinnaeanFactory.MISAPPLIED_NAME);
         return match;
-     }
+    }
+
+
+    /**
+     * Mark any results with excluded taxonomic status
+     *
+     * @param results The list of candidate matches
+     */
+    protected Match<AlaLinnaeanClassification> detectExcluded(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
+        AlaLinnaeanClassification m = match.getMatch();
+        if (m.taxonomicStatus != null && m.taxonomicStatus.isExcludedFlag())
+            return match.with(AlaLinnaeanFactory.EXCLUDED_NAME);
+        return match;
+    }
 
     /**
      * Mark any accepted/synonym results which also have misapplied values.
@@ -77,11 +94,28 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     protected Match<AlaLinnaeanClassification> detectPartialMisapplied(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
         AlaLinnaeanClassification m = match.getMatch();
         if (m.taxonomicStatus != null && m.scientificName != null && m.taxonomicStatus.isPlaced()) {
-            for (Match<AlaLinnaeanClassification> match2: results) {
+            for (Match<AlaLinnaeanClassification> match2 : results) {
                 AlaLinnaeanClassification m2 = match2.getMatch();
                 if (match2 != match && m.scientificName.equalsIgnoreCase(m2.scientificName) && m2.taxonomicStatus != null && m2.taxonomicStatus.isMisappliedFlag())
                     return match.with(AlaLinnaeanFactory.PARTIALLY_MISAPPLIED_NAME);
-             }
+            }
+        }
+        return match;
+    }
+
+    /**
+     * Mark any results that also have excluded names,
+     *
+     * @param results The list of candidate matches
+     */
+    protected Match<AlaLinnaeanClassification> detectPartialExcluded(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
+        AlaLinnaeanClassification m = match.getMatch();
+        if (m.taxonomicStatus != null && m.scientificName != null && m.taxonomicStatus.isPlaced()) {
+            for (Match<AlaLinnaeanClassification> match2 : results) {
+                AlaLinnaeanClassification m2 = match2.getMatch();
+                if (match2 != match && m.scientificName.equalsIgnoreCase(m2.scientificName) && m2.taxonomicStatus != null && m2.taxonomicStatus.isExcludedFlag())
+                    return match.with(AlaLinnaeanFactory.PARTIALLY_EXCLUDED_NAME);
+            }
         }
         return match;
     }
@@ -97,9 +131,9 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         String referenceName = m.scientificName;
         NomenclaturalCode referenceCode = m.nomenclaturalCode;
         if (m.taxonomicStatus != null && referenceName != null && referenceCode != null && m.taxonomicStatus.isPlaced()) {
-            for (Match<AlaLinnaeanClassification> match2: results) {
+            for (Match<AlaLinnaeanClassification> match2 : results) {
                 AlaLinnaeanClassification m2 = match2.getMatch();
-                if (match2 != match && referenceName.equalsIgnoreCase(m2.scientificName) && referenceCode != m.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isPlaced())
+                if (match2 != match && referenceName.equalsIgnoreCase(m2.scientificName) && referenceCode != m2.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isPlaced())
                     return match.with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);
             }
         }
@@ -117,7 +151,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         String referenceName = m.scientificName;
         NomenclaturalCode referenceCode = m.nomenclaturalCode;
         if (m.taxonomicStatus != null && referenceName != null && referenceCode != null && m.taxonomicStatus.isAcceptedFlag()) {
-            for (Match<AlaLinnaeanClassification> match2: results) {
+            for (Match<AlaLinnaeanClassification> match2 : results) {
                 AlaLinnaeanClassification m2 = match2.getMatch();
                 if (match2 != match && referenceName.equalsIgnoreCase(m2.scientificName) && referenceCode == m.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isSynonymLike())
                     return match.with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
@@ -137,7 +171,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         String referenceName = m.scientificName;
         NomenclaturalCode referenceCode = m.nomenclaturalCode;
         if (m.taxonomicStatus != null && referenceName != null && referenceCode != null && m.taxonomicStatus.isAcceptedFlag()) {
-            for (Match<AlaLinnaeanClassification> match2: results) {
+            for (Match<AlaLinnaeanClassification> match2 : results) {
                 AlaLinnaeanClassification m2 = match2.getMatch();
                 if (match2 != match && m2.scientificName != null && m2.scientificName.startsWith(referenceName) && referenceCode == m.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isSynonymFlag())
                     return match.with(AlaLinnaeanFactory.PARENT_CHILD_SYNONYM);
@@ -154,10 +188,24 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      */
     @Override
     protected Match<AlaLinnaeanClassification> findSingle(List<Match<AlaLinnaeanClassification>> results) {
-       if (results.isEmpty())
-           return null;
-       if (results.size() == 1 && !this.isBadEvidence(results.get(0)))
-           return results.get(0);
+        if (results.isEmpty())
+            return null;
+        if (results.size() == 1 && !this.isBadEvidence(results.get(0)))
+            return results.get(0);
+        // See if we have an unresolvable homonym
+        Match<AlaLinnaeanClassification> unresolvedHomonym = this.detectUnresolvableHomonym(results);
+        if (unresolvedHomonym != null)
+            return unresolvedHomonym;
+        final Match<AlaLinnaeanClassification> trial = results.get(0);
+        final AlaLinnaeanClassification tc = trial.getMatch();
+        final String tn = tc.scientificName;
+        final TaxonomicStatus tts = tc.taxonomicStatus != null ? tc.taxonomicStatus : TaxonomicStatus.unknown;
+        // See if we have a single accepted/variety of synonyms
+        if (tts.isAcceptedFlag() && results.stream().allMatch(m -> m == trial || (tn.equalsIgnoreCase(m.getMatch().scientificName) && m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike())))
+            return trial.boost(results).with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
+        // See if we have collection of misapplied results
+        if (tts.isMisappliedFlag() && results.stream().allMatch(m -> m == trial || (tn.equalsIgnoreCase(m.getMatch().scientificName) && m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isMisappliedFlag())))
+            return trial.boost(results).with(AlaLinnaeanFactory.MISAPPLIED_NAME);
         List<Match<AlaLinnaeanClassification>> acceptable = results.stream().filter(m -> this.isAcceptableMatch(m) && !this.isBadEvidence(m)).collect(Collectors.toList());
         if (acceptable.isEmpty())
             return null;
@@ -176,9 +224,9 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
             if (acceptable.stream().allMatch(m -> bc.acceptedNameUsageId.equals(m.getMatch().acceptedNameUsageId)))
                 return best;
         }
-        // See if we have a single accepted/variety of synonyms
+        // See if we have an accepted/synonym mix
         if (bts.isAcceptedFlag() && acceptable.stream().allMatch(m -> m == best || (m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike())))
-            return best.with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
+            return best.boost(acceptable).with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
         // See if the rest have the same name
         final String soundexScientificName = bc.soundexScientificName;
         if (soundexScientificName != null) {
@@ -187,6 +235,25 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         }
         return null;
     }
+
+    /**
+     * Test for results with the same name but different nomenclatural codes.
+     *
+     * @param results The usable results
+     * @return An unresolved homonym match if there is one.
+     */
+    private Match<AlaLinnaeanClassification> detectUnresolvableHomonym(List<Match<AlaLinnaeanClassification>> results) {
+        if (results.size() < 1)
+            return null;
+        Set<NomenclaturalCode> codes = results.stream()
+                .filter(m -> m.getActual().scientificName != null && m.getActual().scientificName.equalsIgnoreCase(m.getMatch().scientificName))
+                .map(m -> m.getMatch().nomenclaturalCode)
+                .collect(Collectors.toSet());
+        if (codes.size() > 1)
+            return (Match<AlaLinnaeanClassification>) Match.invalidMatch().with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);
+        return null;
+    }
+
 
     /**
      * Get the sorting method for a list of matches

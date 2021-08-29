@@ -100,6 +100,27 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     return this.issues;
   }
 
+
+  @Override
+  public String getIdentifier() {
+    return <#if network.identifierObservable??>this.${network.identifierObservable.javaVariable}<#else>null</#if>;
+  }
+
+  @Override
+  public String getName() {
+    return <#if network.nameObservable??>this.${network.nameObservable.javaVariable}<#else>null</#if>;
+  }
+
+  @Override
+  public String getParent() {
+    return <#if network.parentObservable??>this.${network.parentObservable.javaVariable}<#else>null</#if>;
+  }
+
+  @Override
+  public String getAccepted() {
+    return <#if network.acceptedObservable??>this.${network.acceptedObservable.javaVariable}<#else>null</#if>;
+  }
+
   @Override
   public Collection<Observation> toObservations() {
     Collection<Observation> obs = new ArrayList(${orderedNodes?size});

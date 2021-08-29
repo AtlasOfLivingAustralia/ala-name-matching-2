@@ -47,6 +47,8 @@ public enum BayesianTerm implements Term {
     analysisMethod,
     /** An equivalence method - a method on an analyser that can be used to decide equality */
     equalityMethod,
+    /** Issue flagging an invalid match */
+    invalidMatch,
     /** Default concept type */
     Concept,
     /** Record type describing document metadata */

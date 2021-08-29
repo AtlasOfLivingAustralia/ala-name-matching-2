@@ -177,15 +177,17 @@
       "id": "parentNameUsageID",
       "uri": "http://rs.tdwg.org/dwc/terms/parentNameUsageID",
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/parent": true
+        "http://id.ala.org.au/bayesian/1.0/parent": true,
+        "http://id.ala.org.au/bayesian/1.0/additional": true
       }
     },
     {
       "id": "acceptedNameUsageID",
       "uri": "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/accepted": true
-      }
+        "http://id.ala.org.au/bayesian/1.0/accepted": true,
+        "http://id.ala.org.au/bayesian/1.0/additional": true
+     }
     },
     {
       "id": "altScientificName",
@@ -197,7 +199,10 @@
     {
       "id": "taxonomicStatus",
       "uri": "http://rs.tdwg.org/dwc/terms/taxonomicStatus",
-      "normaliser": "simple_normaliser"
+      "normaliser": "simple_normaliser",
+      "properties": {
+        "http://id.ala.org.au/bayesian/1.0/additional": true
+      }
     }
   ],
   "vertices": [

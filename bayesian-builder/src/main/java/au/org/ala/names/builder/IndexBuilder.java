@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
+import lombok.Setter;
 import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.apache.commons.cli.*;
 import org.gbif.dwc.terms.DcTerm;

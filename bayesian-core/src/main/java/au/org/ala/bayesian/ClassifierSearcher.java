@@ -1,6 +1,9 @@
 package au.org.ala.bayesian;
 
+import org.gbif.dwc.terms.Term;
+
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A searcher for classifiers that fit a classification.
@@ -11,6 +14,20 @@ import java.util.List;
  * @param <C> The type of classification used to search
  */
 abstract public class ClassifierSearcher<C extends Classifier> {
+    /**
+     * Search for a classifier by identifier.
+     *
+     * @param type The type of classifier to get
+     * @param identifier The identifier observable
+     * @param id The id to search for
+     *
+     * @return An matching classifier or null for not found
+     *
+     * @throws InferenceException if unable to infer information about the classifier
+     * @throws StoreException if unable to retrieve the classifier
+     */
+    abstract public C get(Term type, Observable identifier, Object id) throws InferenceException, StoreException;
+
     /**
      * Search for a set of possible candidate classifiers that match the supplied classification.
      *

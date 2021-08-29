@@ -278,6 +278,46 @@ public class Network extends Identifiable {
     }
 
     /**
+     * Get the observable associated with the classification identifier.
+     *
+     * @return The identifier observable or null if not present
+     */
+    @JsonIgnore
+    public Observable getIdentifierObservable() {
+        return this.findObservable(BayesianTerm.identifier, true).orElse(null);
+    }
+
+    /**
+     * Get the observable associated with the classification name.
+     *
+     * @return The name observable or null if not present
+     */
+    @JsonIgnore
+    public Observable getNameObservable() {
+        return this.findObservable(BayesianTerm.name, true).orElse(null);
+    }
+
+    /**
+     * Get the observable associated with the classification parent identifier.
+     *
+     * @return The parent identifier observable or null
+     */
+    @JsonIgnore
+    public Observable getParentObservable() {
+        return this.findObservable(BayesianTerm.parent, true).orElse(null);
+    }
+
+    /**
+     * Get the observable associated with the classification accepted identifier.
+     *
+     * @return The accepted identifier observable or null
+     */
+    @JsonIgnore
+    public Observable getAcceptedObservable() {
+        return this.findObservable(BayesianTerm.accepted, true).orElse(null);
+    }
+
+    /**
      * Get a list of all the observables with a particular property.
      *
      * @param property The property

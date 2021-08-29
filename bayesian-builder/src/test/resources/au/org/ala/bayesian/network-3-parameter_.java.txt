@@ -10,26 +10,46 @@ public class Network3Parameters_ implements Parameters {
 
   public double prior_t$v1; // v_1 prior probability
   public double prior_f$v1; // 1 - v_1 prior probability
-  public double inf_t_t$v2; // p(v_2 | v_1) conditional probability
-  public double inf_f_t$v2; // p(¬v_2 | v_1) =  1 - p(v_2 | v_1) conditional probability
-  public double inf_t_f$v2; // p(v_2 | ¬v_1) conditional probability
-  public double inf_f_f$v2; // p(¬v_2 | ¬v_1) =  1 - p(v_2 | ¬v_1) conditional probability
-  public double inf_t_tt$v3; // p(v_3 | v_1, v_2) conditional probability
-  public double inf_f_tt$v3; // p(¬v_3 | v_1, v_2) =  1 - p(v_3 | v_1, v_2) conditional probability
-  public double inf_t_tf$v3; // p(v_3 | v_1, ¬v_2) conditional probability
-  public double inf_f_tf$v3; // p(¬v_3 | v_1, ¬v_2) =  1 - p(v_3 | v_1, ¬v_2) conditional probability
-  public double inf_t_ft$v3; // p(v_3 | ¬v_1, v_2) conditional probability
-  public double inf_f_ft$v3; // p(¬v_3 | ¬v_1, v_2) =  1 - p(v_3 | ¬v_1, v_2) conditional probability
-  public double inf_t_ff$v3; // p(v_3 | ¬v_1, ¬v_2) conditional probability
-  public double inf_f_ff$v3; // p(¬v_3 | ¬v_1, ¬v_2) =  1 - p(v_3 | ¬v_1, ¬v_2) conditional probability
-  public double derived_t_tt$v3; // p(v_3 | v_2, v_1) = p(v_3 | v_1, v_2).p(v_2 | v_1)  derived conditional probability
-  public double derived_f_tt$v3; // p(¬v_3 | v_2, v_1) = p(¬v_3 | v_1, v_2).p(v_2 | v_1)  derived conditional probability
-  public double derived_t_tf$v3; // p(v_3 | v_2, ¬v_1) = p(v_3 | ¬v_1, v_2).p(v_2 | ¬v_1)  derived conditional probability
-  public double derived_f_tf$v3; // p(¬v_3 | v_2, ¬v_1) = p(¬v_3 | ¬v_1, v_2).p(v_2 | ¬v_1)  derived conditional probability
-  public double derived_t_ft$v3; // p(v_3 | ¬v_2, v_1) = p(v_3 | v_1, ¬v_2).p(¬v_2 | v_1)  derived conditional probability
-  public double derived_f_ft$v3; // p(¬v_3 | ¬v_2, v_1) = p(¬v_3 | v_1, ¬v_2).p(¬v_2 | v_1)  derived conditional probability
-  public double derived_t_ff$v3; // p(v_3 | ¬v_2, ¬v_1) = p(v_3 | ¬v_1, ¬v_2).p(¬v_2 | ¬v_1)  derived conditional probability
-  public double derived_f_ff$v3; // p(¬v_3 | ¬v_2, ¬v_1) = p(¬v_3 | ¬v_1, ¬v_2).p(¬v_2 | ¬v_1)  derived conditional probability
+  public double inf_t_t$v2$t; // p(v_2 | v_1) conditional probability
+  public double inf_f_t$v2$t; // p(¬v_2 | v_1) =  1 - p(v_2 | v_1) conditional probability
+  public double inf_t_f$v2$t; // p(v_2 | ¬v_1) conditional probability
+  public double inf_f_f$v2$t; // p(¬v_2 | ¬v_1) =  1 - p(v_2 | ¬v_1) conditional probability
+  public double inf_t_t$v2$f; // p(v_2 | v_1) conditional probability
+  public double inf_f_t$v2$f; // p(¬v_2 | v_1) =  1 - p(v_2 | v_1) conditional probability
+  public double inf_t_f$v2$f; // p(v_2 | ¬v_1) conditional probability
+  public double inf_f_f$v2$f; // p(¬v_2 | ¬v_1) =  1 - p(v_2 | ¬v_1) conditional probability
+  public double inf_t_tt$v3$t; // p(v_3 | v_1, v_2) conditional probability
+  public double inf_f_tt$v3$t; // p(¬v_3 | v_1, v_2) =  1 - p(v_3 | v_1, v_2) conditional probability
+  public double inf_t_tf$v3$t; // p(v_3 | v_1, ¬v_2) conditional probability
+  public double inf_f_tf$v3$t; // p(¬v_3 | v_1, ¬v_2) =  1 - p(v_3 | v_1, ¬v_2) conditional probability
+  public double inf_t_ft$v3$t; // p(v_3 | ¬v_1, v_2) conditional probability
+  public double inf_f_ft$v3$t; // p(¬v_3 | ¬v_1, v_2) =  1 - p(v_3 | ¬v_1, v_2) conditional probability
+  public double inf_t_ff$v3$t; // p(v_3 | ¬v_1, ¬v_2) conditional probability
+  public double inf_f_ff$v3$t; // p(¬v_3 | ¬v_1, ¬v_2) =  1 - p(v_3 | ¬v_1, ¬v_2) conditional probability
+  public double derived_t_tt$v3$t; // p(v_3 | v_2, v_1) = p(v_3 | v_1, v_2).p(v_2 | v_1)  derived conditional probability
+  public double derived_f_tt$v3$t; // p(¬v_3 | v_2, v_1) = p(¬v_3 | v_1, v_2).p(v_2 | v_1)  derived conditional probability
+  public double derived_t_tf$v3$t; // p(v_3 | v_2, ¬v_1) = p(v_3 | ¬v_1, v_2).p(v_2 | ¬v_1)  derived conditional probability
+  public double derived_f_tf$v3$t; // p(¬v_3 | v_2, ¬v_1) = p(¬v_3 | ¬v_1, v_2).p(v_2 | ¬v_1)  derived conditional probability
+  public double derived_t_ft$v3$t; // p(v_3 | ¬v_2, v_1) = p(v_3 | v_1, ¬v_2).p(¬v_2 | v_1)  derived conditional probability
+  public double derived_f_ft$v3$t; // p(¬v_3 | ¬v_2, v_1) = p(¬v_3 | v_1, ¬v_2).p(¬v_2 | v_1)  derived conditional probability
+  public double derived_t_ff$v3$t; // p(v_3 | ¬v_2, ¬v_1) = p(v_3 | ¬v_1, ¬v_2).p(¬v_2 | ¬v_1)  derived conditional probability
+  public double derived_f_ff$v3$t; // p(¬v_3 | ¬v_2, ¬v_1) = p(¬v_3 | ¬v_1, ¬v_2).p(¬v_2 | ¬v_1)  derived conditional probability
+  public double inf_t_tt$v3$f; // p(v_3 | v_1, v_2) conditional probability
+  public double inf_f_tt$v3$f; // p(¬v_3 | v_1, v_2) =  1 - p(v_3 | v_1, v_2) conditional probability
+  public double inf_t_tf$v3$f; // p(v_3 | v_1, ¬v_2) conditional probability
+  public double inf_f_tf$v3$f; // p(¬v_3 | v_1, ¬v_2) =  1 - p(v_3 | v_1, ¬v_2) conditional probability
+  public double inf_t_ft$v3$f; // p(v_3 | ¬v_1, v_2) conditional probability
+  public double inf_f_ft$v3$f; // p(¬v_3 | ¬v_1, v_2) =  1 - p(v_3 | ¬v_1, v_2) conditional probability
+  public double inf_t_ff$v3$f; // p(v_3 | ¬v_1, ¬v_2) conditional probability
+  public double inf_f_ff$v3$f; // p(¬v_3 | ¬v_1, ¬v_2) =  1 - p(v_3 | ¬v_1, ¬v_2) conditional probability
+  public double derived_t_tt$v3$f; // p(v_3 | v_2, v_1) = p(v_3 | v_1, v_2).p(v_2 | v_1)  derived conditional probability
+  public double derived_f_tt$v3$f; // p(¬v_3 | v_2, v_1) = p(¬v_3 | v_1, v_2).p(v_2 | v_1)  derived conditional probability
+  public double derived_t_tf$v3$f; // p(v_3 | v_2, ¬v_1) = p(v_3 | ¬v_1, v_2).p(v_2 | ¬v_1)  derived conditional probability
+  public double derived_f_tf$v3$f; // p(¬v_3 | v_2, ¬v_1) = p(¬v_3 | ¬v_1, v_2).p(v_2 | ¬v_1)  derived conditional probability
+  public double derived_t_ft$v3$f; // p(v_3 | ¬v_2, v_1) = p(v_3 | v_1, ¬v_2).p(¬v_2 | v_1)  derived conditional probability
+  public double derived_f_ft$v3$f; // p(¬v_3 | ¬v_2, v_1) = p(¬v_3 | v_1, ¬v_2).p(¬v_2 | v_1)  derived conditional probability
+  public double derived_t_ff$v3$f; // p(v_3 | ¬v_2, ¬v_1) = p(v_3 | ¬v_1, ¬v_2).p(¬v_2 | ¬v_1)  derived conditional probability
+  public double derived_f_ff$v3$f; // p(¬v_3 | ¬v_2, ¬v_1) = p(¬v_3 | ¬v_1, ¬v_2).p(¬v_2 | ¬v_1)  derived conditional probability
 
   public Network3Parameters_() {
   }
@@ -37,45 +57,71 @@ public class Network3Parameters_ implements Parameters {
   @Override
   public void load(double[] vector) {
     this.prior_t$v1 = vector[0];
-    this.inf_t_t$v2 = vector[1];
-    this.inf_t_f$v2 = vector[2];
-    this.inf_t_tt$v3 = vector[3];
-    this.inf_t_tf$v3 = vector[4];
-    this.inf_t_ft$v3 = vector[5];
-    this.inf_t_ff$v3 = vector[6];
+    this.inf_t_t$v2$t = vector[1];
+    this.inf_t_t$v2$f = vector[2];
+    this.inf_t_f$v2$t = vector[3];
+    this.inf_t_f$v2$f = vector[4];
+    this.inf_t_tt$v3$t = vector[5];
+    this.inf_t_tt$v3$f = vector[6];
+    this.inf_t_tf$v3$t = vector[7];
+    this.inf_t_tf$v3$f = vector[8];
+    this.inf_t_ft$v3$t = vector[9];
+    this.inf_t_ft$v3$f = vector[10];
+    this.inf_t_ff$v3$t = vector[11];
+    this.inf_t_ff$v3$f = vector[12];
     this.build();
   }
 
   @Override
   public double[] store() {
-    double[] vector = new double[7];
+    double[] vector = new double[13];
 
     vector[0] = this.prior_t$v1;
-    vector[1] = this.inf_t_t$v2;
-    vector[2] = this.inf_t_f$v2;
-    vector[3] = this.inf_t_tt$v3;
-    vector[4] = this.inf_t_tf$v3;
-    vector[5] = this.inf_t_ft$v3;
-    vector[6] = this.inf_t_ff$v3;
+    vector[1] = this.inf_t_t$v2$t;
+    vector[2] = this.inf_t_t$v2$f;
+    vector[3] = this.inf_t_f$v2$t;
+    vector[4] = this.inf_t_f$v2$f;
+    vector[5] = this.inf_t_tt$v3$t;
+    vector[6] = this.inf_t_tt$v3$f;
+    vector[7] = this.inf_t_tf$v3$t;
+    vector[8] = this.inf_t_tf$v3$f;
+    vector[9] = this.inf_t_ft$v3$t;
+    vector[10] = this.inf_t_ft$v3$f;
+    vector[11] = this.inf_t_ff$v3$t;
+    vector[12] = this.inf_t_ff$v3$f;
     return vector;
   }
 
   public void build() {
     this.prior_f$v1 = 1.0 - this.prior_t$v1;
-    this.inf_f_t$v2 = 1.0 - this.inf_t_t$v2;
-    this.inf_f_f$v2 = 1.0 - this.inf_t_f$v2;
-    this.inf_f_tt$v3 = 1.0 - this.inf_t_tt$v3;
-    this.inf_f_tf$v3 = 1.0 - this.inf_t_tf$v3;
-    this.inf_f_ft$v3 = 1.0 - this.inf_t_ft$v3;
-    this.inf_f_ff$v3 = 1.0 - this.inf_t_ff$v3;
-    this.derived_t_tt$v3 = this.inf_t_tt$v3 * this.inf_t_t$v2;
-    this.derived_f_tt$v3 = this.inf_f_tt$v3 * this.inf_t_t$v2;
-    this.derived_t_tf$v3 = this.inf_t_ft$v3 * this.inf_t_f$v2;
-    this.derived_f_tf$v3 = this.inf_f_ft$v3 * this.inf_t_f$v2;
-    this.derived_t_ft$v3 = this.inf_t_tf$v3 * this.inf_f_t$v2;
-    this.derived_f_ft$v3 = this.inf_f_tf$v3 * this.inf_f_t$v2;
-    this.derived_t_ff$v3 = this.inf_t_ff$v3 * this.inf_f_f$v2;
-    this.derived_f_ff$v3 = this.inf_f_ff$v3 * this.inf_f_f$v2;
+    this.inf_f_t$v2$t = 1.0 - this.inf_t_t$v2$t;
+    this.inf_f_f$v2$t = 1.0 - this.inf_t_f$v2$t;
+    this.inf_f_t$v2$f = 1.0 - this.inf_t_t$v2$f;
+    this.inf_f_f$v2$f = 1.0 - this.inf_t_f$v2$f;
+    this.inf_f_tt$v3$t = 1.0 - this.inf_t_tt$v3$t;
+    this.inf_f_tf$v3$t = 1.0 - this.inf_t_tf$v3$t;
+    this.inf_f_ft$v3$t = 1.0 - this.inf_t_ft$v3$t;
+    this.inf_f_ff$v3$t = 1.0 - this.inf_t_ff$v3$t;
+    this.derived_t_tt$v3$t = this.inf_t_tt$v3$t * this.inf_t_t$v2$t;
+    this.derived_f_tt$v3$t = this.inf_f_tt$v3$t * this.inf_t_t$v2$t;
+    this.derived_t_tf$v3$t = this.inf_t_ft$v3$t * this.inf_t_f$v2$t;
+    this.derived_f_tf$v3$t = this.inf_f_ft$v3$t * this.inf_t_f$v2$t;
+    this.derived_t_ft$v3$t = this.inf_t_tf$v3$t * this.inf_f_t$v2$t;
+    this.derived_f_ft$v3$t = this.inf_f_tf$v3$t * this.inf_f_t$v2$t;
+    this.derived_t_ff$v3$t = this.inf_t_ff$v3$t * this.inf_f_f$v2$t;
+    this.derived_f_ff$v3$t = this.inf_f_ff$v3$t * this.inf_f_f$v2$t;
+    this.inf_f_tt$v3$f = 1.0 - this.inf_t_tt$v3$f;
+    this.inf_f_tf$v3$f = 1.0 - this.inf_t_tf$v3$f;
+    this.inf_f_ft$v3$f = 1.0 - this.inf_t_ft$v3$f;
+    this.inf_f_ff$v3$f = 1.0 - this.inf_t_ff$v3$f;
+    this.derived_t_tt$v3$f = this.inf_t_tt$v3$f * this.inf_t_t$v2$f;
+    this.derived_f_tt$v3$f = this.inf_f_tt$v3$f * this.inf_t_t$v2$f;
+    this.derived_t_tf$v3$f = this.inf_t_ft$v3$f * this.inf_t_f$v2$f;
+    this.derived_f_tf$v3$f = this.inf_f_ft$v3$f * this.inf_t_f$v2$f;
+    this.derived_t_ft$v3$f = this.inf_t_tf$v3$f * this.inf_f_t$v2$f;
+    this.derived_f_ft$v3$f = this.inf_f_tf$v3$f * this.inf_f_t$v2$f;
+    this.derived_t_ff$v3$f = this.inf_t_ff$v3$f * this.inf_f_f$v2$f;
+    this.derived_f_ff$v3$f = this.inf_f_ff$v3$f * this.inf_f_f$v2$f;
   }
 
 }

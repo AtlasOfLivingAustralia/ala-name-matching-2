@@ -7,6 +7,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.gbif.dwc.terms.Term;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A searcher that searches a lucene index for possible candidates
@@ -61,6 +63,40 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
     }
 
     /**
+     * Search for a classifier by identifier.
+     *
+     * @param identifier The identifier
+     * @return An optional result
+     * @throws InferenceException if unable to infer information about the classifier
+     * @throws StoreException     if unable to retrieve the classifier
+     */
+    @Override
+    public LuceneClassifier get(Term type, Observable identifier, Object id) throws InferenceException, StoreException {
+        BooleanQuery.Builder builder = this.queryUtils.createBuilder();
+        builder.add(LuceneClassifier.getTypeClause(type));
+        builder.add(
+                this.queryUtils.asQuery(
+                        identifier.getExternal(ExternalContext.LUCENE),
+                        identifier.getType(),
+                        identifier.getStyle(),
+                        identifier.getNormaliser(),
+                        identifier.getAnalysis(),
+                        id),
+                BooleanClause.Occur.MUST);
+        try {
+            TopDocs docs = this.searcher.search(builder.build(), 1);
+            if (docs.totalHits.value == 0)
+                return null;
+            if (docs.totalHits.value > 1)
+                throw new StoreException("Multiple matches for identifier " + id);
+            Document document = this.indexReader.document(docs.scoreDocs[0].doc);
+            return new LuceneClassifier(document);
+        } catch (IOException ex) {
+            throw new StoreException("Unable to retrive documents", ex);
+        }
+    }
+
+    /**
      * Search for a set of possible candidate classifiers that match the supplied classification.
      * <p>
      * This uses a lucene
@@ -78,6 +114,9 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
         Collection<Observation> criteria = classification.toObservations();
         BooleanQuery.Builder builder = this.queryUtils.createBuilder();
         builder.add(LuceneClassifier.getTypeClause(classification.getType()));
+        String name = classification.getName();
+        if (name != null)
+            builder.add(this.queryUtils.nameClause(name));
         for (Observation observation: criteria)
             builder.add(this.queryUtils.asClause(observation, observation.getObservable().isRequired()));
         Query query = builder.build();

@@ -13,16 +13,20 @@ import java.util.function.Function;
 
 public class TestClassification implements Classification<TestClassification> {
     public static final Normaliser NORMALISER = new BasicNormaliser("basic", true, true, true, true, false);
-    public static final Observable CLASS_ = new Observable(DwcTerm.class_);
+    public static final Observable TAXON_ID = new Observable(DwcTerm.taxonID);
+   public static final Observable CLASS_ = new Observable(DwcTerm.class_);
     public static final Observable SCIENTIFIC_NAME = new Observable(DwcTerm.scientificName);
     public static final Observable VERNACULAR_NAME = new Observable(DwcTerm.vernacularName);
     public static final List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
+            TAXON_ID,
             CLASS_,
             SCIENTIFIC_NAME,
             VERNACULAR_NAME
     ));
 
     static {
+        TAXON_ID.setRequired(true);
+        TAXON_ID.setStyle(Observable.Style.IDENTIFIER);
         CLASS_.setNormaliser(NORMALISER);
         CLASS_.setStyle(Observable.Style.PHRASE);
         SCIENTIFIC_NAME.setRequired(true);
@@ -32,6 +36,7 @@ public class TestClassification implements Classification<TestClassification> {
         VERNACULAR_NAME.setStyle(Observable.Style.PHRASE);
     }
 
+    public String taxonID;
     public String class_;
     public String scientificName;
     public String vernacularName;
@@ -57,9 +62,31 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
+    public @NonNull String getIdentifier() {
+        return this.taxonID;
+    }
+
+    @Override
+    public String getParent() {
+        return null;
+    }
+
+    @Override
+    public String getAccepted() {
+        return null;
+    }
+
+    @Override
+    public @NonNull String getName() {
+        return this.scientificName;
+    }
+
+    @Override
     public Collection<Observation> toObservations() {
         Collection<Observation> obs = new ArrayList<>(12);
 
+        if (this.taxonID != null)
+            obs.add(new Observation(true, TAXON_ID, this.taxonID));
         if (this.class_ != null)
             obs.add(new Observation(true, CLASS_, this.class_));
         if (this.scientificName != null)
@@ -122,6 +149,8 @@ public class TestClassification implements Classification<TestClassification> {
 
     @Override
     public void read(Classifier classifier, boolean overwrite) throws StoreException, InferenceException {
+        if (overwrite || this.taxonID == null)
+            this.taxonID = classifier.get(TAXON_ID);
         if (overwrite || this.class_ == null)
             this.class_ = classifier.get(CLASS_);
         if (overwrite || this.scientificName == null)
@@ -133,10 +162,12 @@ public class TestClassification implements Classification<TestClassification> {
     @Override
     public void write(Classifier classifier, boolean overwrite) throws StoreException {
         if (overwrite) {
+            classifier.replace(TAXON_ID, this.taxonID);
             classifier.replace(CLASS_, this.class_);
             classifier.replace(SCIENTIFIC_NAME, this.scientificName);
             classifier.replace(VERNACULAR_NAME, this.vernacularName);
         } else {
+            classifier.add(TAXON_ID, this.taxonID);
             classifier.add(CLASS_, this.class_);
             classifier.add(SCIENTIFIC_NAME, this.scientificName);
             classifier.add(VERNACULAR_NAME, this.vernacularName);

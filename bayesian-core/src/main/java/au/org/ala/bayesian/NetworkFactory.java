@@ -3,6 +3,7 @@ package au.org.ala.bayesian;
 import lombok.NonNull;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Interface to objects that create network information.
@@ -18,6 +19,38 @@ public interface NetworkFactory<C extends Classification<C>, I extends Inference
      */
     @NonNull
     public List<Observable> getObservables();
+
+    /**
+     * Get the observable that acts as the identifier for the classification
+     *
+     * @return The identifier observable
+     */
+    @NonNull
+    public Optional<Observable> getIdentifier();
+
+    /**
+     * Get the observable that acts as the name for the classification
+     *
+     * @return The name observable
+     */
+    @NonNull
+    public Optional<Observable> getName();
+
+    /**
+     * Get the observable that acts as the parent link for the classification
+     *
+     * @return An optional parent observable
+     */
+    @NonNull
+    public Optional<Observable> getParent();
+
+    /**
+     * Get the observable that acts as the accepted link for the classification
+     *
+     * @return An optional accepted observable
+     */
+    @NonNull
+    public Optional<Observable> getAccepted();
 
     /**
      * Create a new, empty classification

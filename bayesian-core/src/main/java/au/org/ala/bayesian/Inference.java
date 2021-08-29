@@ -43,6 +43,44 @@ public class Inference {
     }
 
     /**
+     * Calculate the disjunction of both probabilties.
+     * <p>
+     * Essentially p = 1 - (1 - p1) * (1 - p2) but we need to get the other bits in line, too.
+     * </p>
+     * @param other
+     * @return
+     */
+    public Inference or(Inference other) {
+        double p = this.posterior + other.posterior - this.posterior * other.posterior;
+        double e = this.evidence + other.evidence - this.evidence * other.evidence;
+        double c = this.conditional + other.conditional - this.conditional * other.conditional;
+        double h = c < MINIMUM_PROBABILITY ? 0.0 : p * e / c;
+        return new Inference(h, e, c, p);
+    }
+
+    /**
+     * Calculate the conjunction of both probabilties.
+     * <p>
+     * Essentially p = p1 * p2 but we need to get the other bits in line, too.
+     * </p>
+     * @param other
+     * @return
+     */
+    public Inference and(Inference other) {
+        double p = this.posterior * other.posterior;
+        double e = this.evidence * other.evidence;
+        double c = this.conditional * other.conditional;
+        double cl = Math.min(Math.min(this.conditional, other.conditional), 0.1);
+
+        while (c > 0.0 && c < cl) {
+            c *= 10.0;
+            e *= 10.0;
+        }
+        double h = c < MINIMUM_PROBABILITY ? 0.0 : p * e / c;
+        return new Inference(h, e, c, p);
+    }
+
+    /**
      * Construct for prior, evidence and conditional probabilities.
      * <p>
      * This corresponds to the normal way of constructing Bayes theorem

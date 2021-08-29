@@ -20,8 +20,9 @@ public class SimpleLinnaeanInferencer_TT implements Inferencer<SimpleLinnaeanCla
     return SIGNATURE;
   }
 
-  public double infer(SimpleLinnaeanInferencer.Evidence evidence, SimpleLinnaeanParameters_TT parameters, double c$taxonId) {
-    double nc$taxonId = 1.0 - c$taxonId;
+  public double infer_t(SimpleLinnaeanInferencer.Evidence evidence, SimpleLinnaeanParameters_TT parameters) {
+    double c$taxonId = 1.0;
+    double nc$taxonId = 0.0;
     double c$taxonRank = 0.0;
     double nc$taxonRank = 0.0;
     double c$specificEpithet = evidence.isT$e$specificEpithet() ? 1.0 : 0.0;
@@ -45,89 +46,200 @@ public class SimpleLinnaeanInferencer_TT implements Inferencer<SimpleLinnaeanCla
     double c$kingdom = 0.0;
     double nc$kingdom = 0.0;
     if (evidence.isT$e$taxonRank()) {
-      c$taxonRank += parameters.inf_t_t$taxonRank * c$taxonId;
-      c$taxonRank += parameters.inf_t_f$taxonRank * nc$taxonId;
+      c$taxonRank += parameters.inf_t_t$taxonRank$t * c$taxonId;
+      c$taxonRank += parameters.inf_t_f$taxonRank$t * nc$taxonId;
     }
     if (evidence.isF$e$taxonRank()) {
-      nc$taxonRank += parameters.inf_f_t$taxonRank * c$taxonId;
-      nc$taxonRank += parameters.inf_f_f$taxonRank * nc$taxonId;
+      nc$taxonRank += parameters.inf_f_t$taxonRank$t * c$taxonId;
+      nc$taxonRank += parameters.inf_f_f$taxonRank$t * nc$taxonId;
     }
     // Ignoring non-base specificEpithet
     if (evidence.isT$e$scientificNameAuthorship()) {
-      c$scientificNameAuthorship += parameters.inf_t_t$scientificNameAuthorship * c$taxonId;
-      c$scientificNameAuthorship += parameters.inf_t_f$scientificNameAuthorship * nc$taxonId;
+      c$scientificNameAuthorship += parameters.inf_t_t$scientificNameAuthorship$t * c$taxonId;
+      c$scientificNameAuthorship += parameters.inf_t_f$scientificNameAuthorship$t * nc$taxonId;
     }
     if (evidence.isF$e$scientificNameAuthorship()) {
-      nc$scientificNameAuthorship += parameters.inf_f_t$scientificNameAuthorship * c$taxonId;
-      nc$scientificNameAuthorship += parameters.inf_f_f$scientificNameAuthorship * nc$taxonId;
+      nc$scientificNameAuthorship += parameters.inf_f_t$scientificNameAuthorship$t * c$taxonId;
+      nc$scientificNameAuthorship += parameters.inf_f_f$scientificNameAuthorship$t * nc$taxonId;
     }
     if (evidence.isT$e$scientificName()) {
-      c$scientificName += parameters.derived_t_tt$scientificName * c$specificEpithet * c$taxonId;
-      c$scientificName += parameters.derived_t_tf$scientificName * c$specificEpithet * nc$taxonId;
-      c$scientificName += parameters.derived_t_ft$scientificName * nc$specificEpithet * c$taxonId;
-      c$scientificName += parameters.derived_t_ff$scientificName * nc$specificEpithet * nc$taxonId;
+      c$scientificName += parameters.derived_t_tt$scientificName$t * c$specificEpithet * c$taxonId;
+      c$scientificName += parameters.derived_t_tf$scientificName$t * c$specificEpithet * nc$taxonId;
+      c$scientificName += parameters.derived_t_ft$scientificName$t * nc$specificEpithet * c$taxonId;
+      c$scientificName += parameters.derived_t_ff$scientificName$t * nc$specificEpithet * nc$taxonId;
     }
     if (evidence.isF$e$scientificName()) {
-      nc$scientificName += parameters.derived_f_tt$scientificName * c$specificEpithet * c$taxonId;
-      nc$scientificName += parameters.derived_f_tf$scientificName * c$specificEpithet * nc$taxonId;
-      nc$scientificName += parameters.derived_f_ft$scientificName * nc$specificEpithet * c$taxonId;
-      nc$scientificName += parameters.derived_f_ff$scientificName * nc$specificEpithet * nc$taxonId;
+      nc$scientificName += parameters.derived_f_tt$scientificName$t * c$specificEpithet * c$taxonId;
+      nc$scientificName += parameters.derived_f_tf$scientificName$t * c$specificEpithet * nc$taxonId;
+      nc$scientificName += parameters.derived_f_ft$scientificName$t * nc$specificEpithet * c$taxonId;
+      nc$scientificName += parameters.derived_f_ff$scientificName$t * nc$specificEpithet * nc$taxonId;
     }
     // Ignoring non-base soundexScientificName
     if (evidence.isT$e$genus()) {
-      c$genus += parameters.derived_t_tt$genus * c$soundexScientificName * c$scientificName;
-      c$genus += parameters.derived_t_tf$genus * c$soundexScientificName * nc$scientificName;
-      c$genus += parameters.derived_t_ft$genus * nc$soundexScientificName * c$scientificName;
-      c$genus += parameters.derived_t_ff$genus * nc$soundexScientificName * nc$scientificName;
+      c$genus += parameters.derived_t_tt$genus$t * c$soundexScientificName * c$scientificName;
+      c$genus += parameters.derived_t_tf$genus$t * c$soundexScientificName * nc$scientificName;
+      c$genus += parameters.derived_t_ft$genus$t * nc$soundexScientificName * c$scientificName;
+      c$genus += parameters.derived_t_ff$genus$t * nc$soundexScientificName * nc$scientificName;
     }
     if (evidence.isF$e$genus()) {
-      nc$genus += parameters.derived_f_tt$genus * c$soundexScientificName * c$scientificName;
-      nc$genus += parameters.derived_f_tf$genus * c$soundexScientificName * nc$scientificName;
-      nc$genus += parameters.derived_f_ft$genus * nc$soundexScientificName * c$scientificName;
-      nc$genus += parameters.derived_f_ff$genus * nc$soundexScientificName * nc$scientificName;
+      nc$genus += parameters.derived_f_tt$genus$t * c$soundexScientificName * c$scientificName;
+      nc$genus += parameters.derived_f_tf$genus$t * c$soundexScientificName * nc$scientificName;
+      nc$genus += parameters.derived_f_ft$genus$t * nc$soundexScientificName * c$scientificName;
+      nc$genus += parameters.derived_f_ff$genus$t * nc$soundexScientificName * nc$scientificName;
     }
     if (evidence.isT$e$family()) {
-      c$family += parameters.inf_t_t$family * c$genus;
-      c$family += parameters.inf_t_f$family * nc$genus;
+      c$family += parameters.inf_t_t$family$t * c$genus;
+      c$family += parameters.inf_t_f$family$t * nc$genus;
     }
     if (evidence.isF$e$family()) {
-      nc$family += parameters.inf_f_t$family * c$genus;
-      nc$family += parameters.inf_f_f$family * nc$genus;
+      nc$family += parameters.inf_f_t$family$t * c$genus;
+      nc$family += parameters.inf_f_f$family$t * nc$genus;
     }
     if (evidence.isT$e$order()) {
-      c$order += parameters.inf_t_t$order * c$family;
-      c$order += parameters.inf_t_f$order * nc$family;
+      c$order += parameters.inf_t_t$order$t * c$family;
+      c$order += parameters.inf_t_f$order$t * nc$family;
     }
     if (evidence.isF$e$order()) {
-      nc$order += parameters.inf_f_t$order * c$family;
-      nc$order += parameters.inf_f_f$order * nc$family;
+      nc$order += parameters.inf_f_t$order$t * c$family;
+      nc$order += parameters.inf_f_f$order$t * nc$family;
     }
     if (evidence.isT$e$class_()) {
-      c$class_ += parameters.inf_t_t$class_ * c$order;
-      c$class_ += parameters.inf_t_f$class_ * nc$order;
+      c$class_ += parameters.inf_t_t$class_$t * c$order;
+      c$class_ += parameters.inf_t_f$class_$t * nc$order;
     }
     if (evidence.isF$e$class_()) {
-      nc$class_ += parameters.inf_f_t$class_ * c$order;
-      nc$class_ += parameters.inf_f_f$class_ * nc$order;
+      nc$class_ += parameters.inf_f_t$class_$t * c$order;
+      nc$class_ += parameters.inf_f_f$class_$t * nc$order;
     }
     if (evidence.isT$e$phylum()) {
-      c$phylum += parameters.inf_t_t$phylum * c$class_;
-      c$phylum += parameters.inf_t_f$phylum * nc$class_;
+      c$phylum += parameters.inf_t_t$phylum$t * c$class_;
+      c$phylum += parameters.inf_t_f$phylum$t * nc$class_;
     }
     if (evidence.isF$e$phylum()) {
-      nc$phylum += parameters.inf_f_t$phylum * c$class_;
-      nc$phylum += parameters.inf_f_f$phylum * nc$class_;
+      nc$phylum += parameters.inf_f_t$phylum$t * c$class_;
+      nc$phylum += parameters.inf_f_f$phylum$t * nc$class_;
     }
     if (evidence.isT$e$kingdom()) {
-      c$kingdom += parameters.inf_t_t$kingdom * c$phylum;
-      c$kingdom += parameters.inf_t_f$kingdom * nc$phylum;
+      c$kingdom += parameters.inf_t_t$kingdom$t * c$phylum;
+      c$kingdom += parameters.inf_t_f$kingdom$t * nc$phylum;
     }
     if (evidence.isF$e$kingdom()) {
-      nc$kingdom += parameters.inf_f_t$kingdom * c$phylum;
-      nc$kingdom += parameters.inf_f_f$kingdom * nc$phylum;
+      nc$kingdom += parameters.inf_f_t$kingdom$t * c$phylum;
+      nc$kingdom += parameters.inf_f_f$kingdom$t * nc$phylum;
     }
-    return (c$taxonRank + nc$taxonRank) * (c$scientificNameAuthorship + nc$scientificNameAuthorship) * (c$kingdom + nc$kingdom) * (parameters.prior_t$taxonId * c$taxonId + parameters.prior_f$taxonId * nc$taxonId);
+    return (c$taxonRank + nc$taxonRank) * (c$scientificNameAuthorship + nc$scientificNameAuthorship) * (c$kingdom + nc$kingdom);
   }
+
+  public double infer_f(SimpleLinnaeanInferencer.Evidence evidence, SimpleLinnaeanParameters_TT parameters) {
+    double c$taxonId = 0.0;
+    double nc$taxonId = 1.0;
+    double c$taxonRank = 0.0;
+    double nc$taxonRank = 0.0;
+    double c$specificEpithet = evidence.isT$e$specificEpithet() ? 1.0 : 0.0;
+    double nc$specificEpithet = evidence.isF$e$specificEpithet() ? 1.0 : 0.0;
+    double c$scientificNameAuthorship = 0.0;
+    double nc$scientificNameAuthorship = 0.0;
+    double c$scientificName = 0.0;
+    double nc$scientificName = 0.0;
+    double c$soundexScientificName = evidence.isT$e$soundexScientificName() ? 1.0 : 0.0;
+    double nc$soundexScientificName = evidence.isF$e$soundexScientificName() ? 1.0 : 0.0;
+    double c$genus = 0.0;
+    double nc$genus = 0.0;
+    double c$family = 0.0;
+    double nc$family = 0.0;
+    double c$order = 0.0;
+    double nc$order = 0.0;
+    double c$class_ = 0.0;
+    double nc$class_ = 0.0;
+    double c$phylum = 0.0;
+    double nc$phylum = 0.0;
+    double c$kingdom = 0.0;
+    double nc$kingdom = 0.0;
+    if (evidence.isT$e$taxonRank()) {
+      c$taxonRank += parameters.inf_t_t$taxonRank$f * c$taxonId;
+      c$taxonRank += parameters.inf_t_f$taxonRank$f * nc$taxonId;
+    }
+    if (evidence.isF$e$taxonRank()) {
+      nc$taxonRank += parameters.inf_f_t$taxonRank$f * c$taxonId;
+      nc$taxonRank += parameters.inf_f_f$taxonRank$f * nc$taxonId;
+    }
+    // Ignoring non-base specificEpithet
+    if (evidence.isT$e$scientificNameAuthorship()) {
+      c$scientificNameAuthorship += parameters.inf_t_t$scientificNameAuthorship$f * c$taxonId;
+      c$scientificNameAuthorship += parameters.inf_t_f$scientificNameAuthorship$f * nc$taxonId;
+    }
+    if (evidence.isF$e$scientificNameAuthorship()) {
+      nc$scientificNameAuthorship += parameters.inf_f_t$scientificNameAuthorship$f * c$taxonId;
+      nc$scientificNameAuthorship += parameters.inf_f_f$scientificNameAuthorship$f * nc$taxonId;
+    }
+    if (evidence.isT$e$scientificName()) {
+      c$scientificName += parameters.derived_t_tt$scientificName$f * c$specificEpithet * c$taxonId;
+      c$scientificName += parameters.derived_t_tf$scientificName$f * c$specificEpithet * nc$taxonId;
+      c$scientificName += parameters.derived_t_ft$scientificName$f * nc$specificEpithet * c$taxonId;
+      c$scientificName += parameters.derived_t_ff$scientificName$f * nc$specificEpithet * nc$taxonId;
+    }
+    if (evidence.isF$e$scientificName()) {
+      nc$scientificName += parameters.derived_f_tt$scientificName$f * c$specificEpithet * c$taxonId;
+      nc$scientificName += parameters.derived_f_tf$scientificName$f * c$specificEpithet * nc$taxonId;
+      nc$scientificName += parameters.derived_f_ft$scientificName$f * nc$specificEpithet * c$taxonId;
+      nc$scientificName += parameters.derived_f_ff$scientificName$f * nc$specificEpithet * nc$taxonId;
+    }
+    // Ignoring non-base soundexScientificName
+    if (evidence.isT$e$genus()) {
+      c$genus += parameters.derived_t_tt$genus$f * c$soundexScientificName * c$scientificName;
+      c$genus += parameters.derived_t_tf$genus$f * c$soundexScientificName * nc$scientificName;
+      c$genus += parameters.derived_t_ft$genus$f * nc$soundexScientificName * c$scientificName;
+      c$genus += parameters.derived_t_ff$genus$f * nc$soundexScientificName * nc$scientificName;
+    }
+    if (evidence.isF$e$genus()) {
+      nc$genus += parameters.derived_f_tt$genus$f * c$soundexScientificName * c$scientificName;
+      nc$genus += parameters.derived_f_tf$genus$f * c$soundexScientificName * nc$scientificName;
+      nc$genus += parameters.derived_f_ft$genus$f * nc$soundexScientificName * c$scientificName;
+      nc$genus += parameters.derived_f_ff$genus$f * nc$soundexScientificName * nc$scientificName;
+    }
+    if (evidence.isT$e$family()) {
+      c$family += parameters.inf_t_t$family$f * c$genus;
+      c$family += parameters.inf_t_f$family$f * nc$genus;
+    }
+    if (evidence.isF$e$family()) {
+      nc$family += parameters.inf_f_t$family$f * c$genus;
+      nc$family += parameters.inf_f_f$family$f * nc$genus;
+    }
+    if (evidence.isT$e$order()) {
+      c$order += parameters.inf_t_t$order$f * c$family;
+      c$order += parameters.inf_t_f$order$f * nc$family;
+    }
+    if (evidence.isF$e$order()) {
+      nc$order += parameters.inf_f_t$order$f * c$family;
+      nc$order += parameters.inf_f_f$order$f * nc$family;
+    }
+    if (evidence.isT$e$class_()) {
+      c$class_ += parameters.inf_t_t$class_$f * c$order;
+      c$class_ += parameters.inf_t_f$class_$f * nc$order;
+    }
+    if (evidence.isF$e$class_()) {
+      nc$class_ += parameters.inf_f_t$class_$f * c$order;
+      nc$class_ += parameters.inf_f_f$class_$f * nc$order;
+    }
+    if (evidence.isT$e$phylum()) {
+      c$phylum += parameters.inf_t_t$phylum$f * c$class_;
+      c$phylum += parameters.inf_t_f$phylum$f * nc$class_;
+    }
+    if (evidence.isF$e$phylum()) {
+      nc$phylum += parameters.inf_f_t$phylum$f * c$class_;
+      nc$phylum += parameters.inf_f_f$phylum$f * nc$class_;
+    }
+    if (evidence.isT$e$kingdom()) {
+      c$kingdom += parameters.inf_t_t$kingdom$f * c$phylum;
+      c$kingdom += parameters.inf_t_f$kingdom$f * nc$phylum;
+    }
+    if (evidence.isF$e$kingdom()) {
+      nc$kingdom += parameters.inf_f_t$kingdom$f * c$phylum;
+      nc$kingdom += parameters.inf_f_f$kingdom$f * nc$phylum;
+    }
+    return (c$taxonRank + nc$taxonRank) * (c$scientificNameAuthorship + nc$scientificNameAuthorship) * (c$kingdom + nc$kingdom);
+  }
+
 
   public Inference probability(SimpleLinnaeanInferencer.Evidence evidence, SimpleLinnaeanParameters_TT parameters) {
     double p;
@@ -135,11 +247,15 @@ public class SimpleLinnaeanInferencer_TT implements Inferencer<SimpleLinnaeanCla
     double ph = 0.0;
     double pe = 0.0;
 
-    p = (evidence.isT$e$taxonId() ? 1.0 : 0.0) * this.infer(evidence, parameters, 1.0);
-    ph += p;
-    pe += p;
-    p = (evidence.isF$e$taxonId() ? 1.0 : 0.0) * this.infer(evidence, parameters, 0.0);
-    pe += p;
+    if (evidence.isT$e$taxonId()) {
+      p = this.infer_t(evidence, parameters) * parameters.prior_t$taxonId;
+      ph += p;
+      pe += p;
+    }
+    if (evidence.isF$e$taxonId()) {
+      p = this.infer_f(evidence, parameters) * parameters.prior_f$taxonId;
+      pe += p;
+    }
     return Inference.forPEH(prior, pe, ph);
   }
 

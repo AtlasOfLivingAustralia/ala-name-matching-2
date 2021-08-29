@@ -1,6 +1,9 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.util.BacktrackingIterator;
+import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,6 +16,8 @@ import java.util.stream.Collectors;
  * </p>
  */
 public class ClassificationMatcher<C extends Classification<C>, I extends Inferencer<C>, F extends NetworkFactory<C, I, F>> {
+    private static final Logger logger = LoggerFactory.getLogger(ClassificationMatcher.class);
+
     /** The default possible theshold for something to be considered. @see #isPossible */
     public static double POSSIBLE_THESHOLD = 0.1;
     /** The default immediately acceptable threshold for something to be regarded as accepted. @see @isImmediateMatch */
@@ -31,6 +36,8 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     private ClassifierSearcher<?> searcher;
     private I inferencer;
     private Analyser<C> analyser;
+    private Optional<Observable> identifier;
+    private Optional<Observable> accepted;
 
     /**
      * Create with a searcher and inferencer.
@@ -43,8 +50,21 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         this.searcher = searcher;
         this.inferencer = this.factory.createInferencer();
         this.analyser = this.factory.createAnalyser();
+        this.identifier = this.factory.getIdentifier();
+        this.accepted = this.factory.getAccepted();
     }
 
+    /**
+     * Find a match for a classification
+     *
+     * @param classification The classification to match
+     *
+     * @return A match, {@link Match#invalidMatch()} is returned if no match is found
+     *
+     * @throws InferenceException if there is a failure during inference
+     * @throws StoreException if unable to retrieve matches
+     */
+    @NonNull
     public Match<C> findMatch(C classification) throws InferenceException, StoreException {
         classification.infer(true);
         Iterator<C> sourceClassifications = new BacktrackingIterator<>(classification, classification.sourceModificationOrder());
@@ -58,7 +78,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
                 return match;
             previous = modified;
         }
-        return null;
+        return Match.invalidMatch();
     }
 
     protected Match<C> findSource(C classification) throws InferenceException, StoreException {
@@ -99,13 +119,48 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             if (this.isPossible(classification, candidate, inference)) {
                 C candidateClassification = this.factory.createClassification();
                 candidateClassification.read(candidate, true);
-                Match<C> match = new Match<>(candidateClassification, candidate, classification, inference, classification.getIssues());
+                Match<C> match = new Match<>(classification, candidate, candidateClassification, inference);
                 results.add(match);
             }
         }
         results.sort(this.getMatchSorter());
+        results = this.resolve(results);
         results = this.annotate(results);
         return results;
+    }
+
+    /**
+     * Resolve the results to ensure that accepted values are kept.
+     *
+     * @param results The results
+     *
+     * @return The resolved results.
+     */
+    protected List<Match<C>> resolve(List<Match<C>> results) {
+        return results.stream().map(this::resolve).collect(Collectors.toList());
+    }
+
+    /**
+     * Add the accepted taxon to the match for any synonym.
+     *
+     * @param match The match
+     *
+     * @return The original match, if not a synonym or the match with the accepted result
+      */
+    protected Match<C> resolve(Match<C> match)  {
+        try {
+            String acceptedId = match.getMatch().getAccepted();
+            if (acceptedId == null || !accepted.isPresent() || !this.identifier.isPresent())
+                return match;
+            Classifier acceptedCandidate = this.searcher.get(match.getMatch().getType(), this.identifier.get(), acceptedId);
+            if (acceptedCandidate == null)
+                return match;
+            C acceptedClassification = this.factory.createClassification();
+            acceptedClassification.read(acceptedCandidate, true);
+            return match.withAccepted(acceptedCandidate, acceptedClassification);
+        } catch (Exception ex) {
+            throw new IllegalStateException("Unable to match " + match, ex);
+        }
     }
 
     /**

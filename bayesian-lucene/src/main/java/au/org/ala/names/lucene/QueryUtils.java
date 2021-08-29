@@ -22,6 +22,9 @@ import static au.org.ala.bayesian.ExternalContext.LUCENE;
  * Build queries for lucene indexes
  */
 public class QueryUtils {
+    /** The amount to boost results from a matching name */
+    public static final float NAME_BOOST = 5.0f;
+
     private Analyzer analyzer;
 
     /**
@@ -84,6 +87,19 @@ public class QueryUtils {
         return this.asClause(observation, true);
     }
 
+    /**
+     * A clause that searches really hard for a matching name.
+     *
+     * @param value The name
+     *
+     * @return The name search query
+     */
+    public BooleanClause nameClause(String value) {
+        QueryBuilder builder = new QueryBuilder(this.analyzer);
+        Query query = builder.createBooleanQuery(LuceneClassifier.NAMES_FIELD, value);
+        query = new BoostQuery(query, NAME_BOOST);
+        return new BooleanClause(query, BooleanClause.Occur.SHOULD);
+    }
     /**
      * Concert an observation into a potentially required boolean clause.
      * <p>

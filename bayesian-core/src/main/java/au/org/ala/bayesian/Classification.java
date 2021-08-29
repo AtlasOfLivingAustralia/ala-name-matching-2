@@ -7,6 +7,7 @@ import org.gbif.dwc.terms.Term;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -35,6 +36,34 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * @return The analyser
      */
     @NonNull Analyser<C> getAnalyser();
+
+    /**
+     * Get the identifier of this classification
+     *
+     * @return The identifier
+     */
+    String getIdentifier();
+
+    /**
+     * Get the parent identifier of this classification
+     *
+     * @return The parent identifier or null for none
+     */
+    String getParent();
+
+    /**
+     * Get the accepted value of this classification
+     *
+     * @return The accepted identifier or null for none
+     */
+    String getAccepted();
+
+    /**
+     * Get the base name of this classification
+     *
+     * @return The name
+     */
+    String getName();
 
     /**
      * Get any issues recorded with this classification.

@@ -134,8 +134,6 @@ public class ALANameSearcherTest {
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_PHYLUM, AlaLinnaeanFactory.REMOVED_ORDER), result.getIssues());
     }
-
-
     @Test
     public void testRemoveSearch3() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
@@ -146,7 +144,7 @@ public class ALANameSearcherTest {
         assertNotNull(result.getMatch());
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", result.getMatch().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
-        assertEquals(Issues.of(AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME), result.getIssues());
+        assertEquals(Issues.of(AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME, AlaLinnaeanFactory.PARENT_CHILD_SYNONYM), result.getIssues());
     }
 
     @Test
@@ -171,7 +169,7 @@ public class ALANameSearcherTest {
         // The actusl value may change bewteen instances of the index here, since there are multiple possibilities
         assertEquals("https://id.biodiversity.org.au/instance/apni/51400951", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51401037", result.getMatch().acceptedNameUsageId);
-        assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.86636, result.getProbability().getPosterior(), 0.00001);
         assertEquals(TaxonomicStatus.misapplied, result.getMatch().taxonomicStatus);
         assertTrue(result.getIssues().contains(AlaLinnaeanFactory.MISAPPLIED_NAME));
     }
@@ -225,7 +223,6 @@ public class ALANameSearcherTest {
         assertTrue(result.getIssues().contains(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM));
     }
 
-    @Ignore("Until rebuild of index")
     @Test
     public void testSynonymAsHomonym2() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
@@ -238,7 +235,7 @@ public class ALANameSearcherTest {
     }
 
     @Test
-    public void endRankMarkerTest1() throws Exception {
+    public void indeterminateNameTest1() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
         template.scientificName = "Acacia sp";
         Match<AlaLinnaeanClassification> result = this.searcher.search(template);
@@ -248,7 +245,7 @@ public class ALANameSearcherTest {
     }
 
     @Test
-    public void endRankMarkerTest2() throws Exception {
+    public void indeterminateNameTest2() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
         template.scientificName = "Insecta fam.";
         Match<AlaLinnaeanClassification> result = this.searcher.search(template);
@@ -302,5 +299,91 @@ public class ALANameSearcherTest {
         assertEquals(Rank.INFRASPECIFIC_NAME, result.getMatch().taxonRank);
     }
 
+    @Test
+    public void testExcludedNames1() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Cyrtodactylus louisiadensis";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertNotNull(result);
+        assertEquals("https://biodiversity.org.au/afd/taxa/74ac7082-6138-4eb0-86ba-95535deab180", result.getMatch().taxonId);
+        assertTrue(result.getIssues().contains(AlaLinnaeanFactory.EXCLUDED_NAME));
+    }
+
+    @Test
+    public void testExcludedNames2() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Zygophyllum sessilifolium";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertNotNull(result);
+        assertEquals("https://id.biodiversity.org.au/taxon/apni/51311545", result.getMatch().taxonId);
+        assertTrue(result.getIssues().contains(AlaLinnaeanFactory.EXCLUDED_NAME));
+    }
+
+    @Test
+    public void testExcludedNames3() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Callistemon pungens";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertNotNull(result);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2909631", result.getMatch().taxonId);
+        assertTrue(result.getIssues().contains(AlaLinnaeanFactory.PARTIALLY_EXCLUDED_NAME));
+    }
+
+    @Test
+    public void testHomonymsWithResolution1() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Thalia";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertNotNull(result);
+        assertFalse(result.isValid());
+        assertTrue(result.getIssues().contains(AlaLinnaeanFactory.UNRESOLVED_HOMONYM));
+    }
+
+    @Test
+    public void testHomonymsWithResolution2() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Thalia";
+        template.kingdom = "Animalia";
+        template.phylum = "Chordata";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertNotNull(result);
+        assertTrue(result.isValid());
+        assertEquals("https://biodiversity.org.au/afd/taxa/52c68649-47d5-4f2e-9730-417fc54fb080", result.getMatch().taxonId);
+        assertTrue(result.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testHomonymsWithResolution3() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Thalia";
+        template.kingdom = "Plantae";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertNotNull(result);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2908051", result.getMatch().taxonId);
+        assertTrue(result.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testHomonymsWithResolution4() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Thalia";
+        template.scientificNameAuthorship = "Blumenbach, 1798";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertNotNull(result);
+        assertEquals("https://biodiversity.org.au/afd/taxa/52c68649-47d5-4f2e-9730-417fc54fb080", result.getMatch().taxonId);
+        assertTrue(result.getIssues().isEmpty());
+    }
+
+
+    @Test
+    public void testHomonymsWithResolution5() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Thalia";
+        template.scientificNameAuthorship = "Blumenbach";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertNotNull(result);
+        assertEquals("https://biodiversity.org.au/afd/taxa/52c68649-47d5-4f2e-9730-417fc54fb080", result.getMatch().taxonId);
+        assertTrue(result.getIssues().isEmpty());
+    }
 
 }

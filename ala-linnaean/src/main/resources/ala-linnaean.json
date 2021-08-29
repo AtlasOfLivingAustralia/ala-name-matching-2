@@ -511,15 +511,13 @@
     { "source": "taxonID", "target": "scientificNameAuthorship",  "edge": { } },
     { "source": "taxonID", "target": "stateOrProvince",  "edge": { } },
     { "source": "taxonID", "target": "nomenclaturalCode",  "edge": { } },
+    { "source": "taxonID", "target": "cultivarEpithet",  "edge": { } },
+    { "source": "taxonID", "target": "phraseName",  "edge": { } },
+    { "source": "taxonID", "target": "specificEpithet",  "edge": { } },
+    { "source": "specificEpithet", "target": "soundexSpecificEpithet",  "edge": { } },
     { "source": "scientificName", "target": "soundexScientificName",  "edge": { } },
-    { "source": "scientificName", "target": "specificEpithet",  "edge": { } },
-    { "source": "scientificName", "target": "cultivarEpithet",  "edge": { } },
-    { "source": "scientificName", "target": "phraseName",  "edge": { } },
     { "source": "scientificName", "target": "speciesID",  "edge": { } },
     { "source": "soundexScientificName", "target": "speciesID",  "edge": { } },
-    { "source": "specificEpithet", "target": "speciesID",  "edge": { } },
-    { "source": "specificEpithet", "target": "soundexSpecificEpithet",  "edge": { } },
-    { "source": "soundexSpecificEpithet", "target": "speciesID",  "edge": { } },
     { "source": "speciesID", "target": "genus",  "edge": { } },
     { "source": "genus", "target": "soundexGenus",  "edge": { } },
     { "source": "genus", "target": "genusID",  "edge": { } },
@@ -596,6 +594,11 @@
       "id": "partially_misapplied_name",
       "uri": "http://id.ala.org.au/issues/1.0/partiallyMisappliedName",
       "description": "As well as being an accepted name or synonym, the name has also been misapplied."
+    },
+    {
+      "id": "excluded_name",
+      "uri": "http://id.ala.org.au/issues/1.0/excludedName",
+      "description": "The name is excluded."
     },
     {
       "id": "partially_excluded_name",

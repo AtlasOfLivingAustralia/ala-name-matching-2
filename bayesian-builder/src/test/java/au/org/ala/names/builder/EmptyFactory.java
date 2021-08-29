@@ -5,11 +5,32 @@ import lombok.NonNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyInferencer, EmptyFactory> {
     @Override
     public @NonNull List<Observable> getObservables() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public @NonNull Optional<Observable> getIdentifier() {
+        return Optional.empty();
+    }
+
+    @Override
+    public @NonNull Optional<Observable> getName() {
+        return Optional.empty();
+    }
+
+    @Override
+    public @NonNull Optional<Observable> getParent() {
+        return Optional.empty();
+    }
+
+    @Override
+    public @NonNull Optional<Observable> getAccepted() {
+        return Optional.empty();
     }
 
     /**

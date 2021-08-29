@@ -12,6 +12,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
@@ -79,6 +80,26 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
   @Override
   public List<Observable> getObservables() {
       return OBSERVABLES;
+  }
+
+  @Override
+  public Optional<Observable> getIdentifier() {
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<Observable> getName() {
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<Observable> getParent() {
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<Observable> getAccepted() {
+    return Optional.empty();
   }
 
   @Override

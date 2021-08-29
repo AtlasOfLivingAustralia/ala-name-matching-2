@@ -4,9 +4,6 @@ import au.org.ala.bayesian.StoreException;
 import au.org.ala.bayesian.analysis.EnumAnalysis;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.common.parsers.NomCodeParser;
-import org.gbif.nameparser.api.NomCode;
-import org.gbif.nameparser.api.Rank;
-import org.gbif.nameparser.util.RankUtils;
 
 /**
  * Analysis based on nomenclatural code.

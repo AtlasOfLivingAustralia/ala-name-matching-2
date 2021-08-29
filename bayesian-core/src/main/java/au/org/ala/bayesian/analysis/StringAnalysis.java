@@ -65,4 +65,23 @@ public class StringAnalysis extends Analysis<String> {
     public String fromString(String value) throws StoreException {
         return value;
     }
+
+    /**
+     * Test for equivalence.
+     * <p>
+     * If either value1 or value2 is null, the result is null.
+     * Otherwise, case-insensitive equality is used.
+     * </p>
+     *
+     * @param value1 The first value to test
+     * @param value2 The second value to test
+     * @return Null if not comparable, true if equivalent, false otherwise.
+     * @throws InferenceException if unable to determine equivalence
+     */
+    @Override
+    public Boolean equivalent(String value1, String value2) throws InferenceException {
+        if (value1 == null || value2 == null)
+            return null;
+        return value1.equalsIgnoreCase(value2);
+    }
 }
