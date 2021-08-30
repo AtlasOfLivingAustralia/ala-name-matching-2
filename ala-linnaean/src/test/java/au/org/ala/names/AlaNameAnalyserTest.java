@@ -26,10 +26,10 @@ public class AlaNameAnalyserTest {
     }
 
     @Test
-    public void testClassificationNamePopulation1() throws Exception {
+    public void testAnalyseForIndex1() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
         classification.scientificName = "Acacia dealbata";
-        classification.infer(true);
+        this.analyser.analyseForIndex(classification);
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
@@ -37,10 +37,10 @@ public class AlaNameAnalyserTest {
     }
 
     @Test
-    public void testClassificationNamePopulation2() throws Exception {
+    public void testAnalyseForIndex2() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
         classification.scientificName = "Acacia dealbata dealbata";
-        classification.infer(true);
+        this.analyser.analyseForIndex(classification);
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.INFRASPECIFIC_NAME, classification.taxonRank);
@@ -48,11 +48,11 @@ public class AlaNameAnalyserTest {
     }
 
     @Test
-    public void testClassificationNamePopulation3() throws Exception {
+    public void testAnalyseFoIndex3() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
         classification.scientificName = "Acacia dealbata dealbata";
         classification.taxonRank = Rank.VARIETY;
-        classification.infer(true);
+        this.analyser.analyseForIndex(classification);
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.INFRASPECIFIC_NAME, classification.taxonRank);
@@ -60,10 +60,79 @@ public class AlaNameAnalyserTest {
     }
 
     @Test
-    public void testClassificationNamePopulation4() throws Exception {
+    public void testAnalyseForIndex4() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
         classification.scientificName = "Plantae";
-        classification.infer(true);
+        this.analyser.analyseForIndex(classification);
+        assertNull(classification.genus);
+        assertNull(classification.specificEpithet);
+        assertNull(classification.taxonRank);
+        assertTrue(classification.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testAnalyseForIndex5() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Acacia sp.";
+        this.analyser.analyseForIndex(classification);
+        assertEquals("Acacia sp.", classification.scientificName);
+        assertEquals("Acacia", classification.genus);
+        assertNull(classification.specificEpithet);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertTrue(classification.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testAnalyseForIndex6() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Acacia dealbata?";
+        this.analyser.analyseForIndex(classification);
+        assertEquals("Acacia dealbata?", classification.scientificName);
+        assertEquals("Acacia", classification.genus);
+        assertEquals("dealbata", classification.specificEpithet);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertTrue(classification.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testAnalyseForSearch1() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Acacia dealbata";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Acacia", classification.genus);
+        assertEquals("dealbata", classification.specificEpithet);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertTrue(classification.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testAnalyseForSearch2() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Acacia dealbata dealbata";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Acacia", classification.genus);
+        assertEquals("dealbata", classification.specificEpithet);
+        assertEquals(Rank.INFRASPECIFIC_NAME, classification.taxonRank);
+        assertTrue(classification.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testAnalyseFoSearch3() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Acacia dealbata dealbata";
+        classification.taxonRank = Rank.VARIETY;
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Acacia", classification.genus);
+        assertEquals("dealbata", classification.specificEpithet);
+        assertEquals(Rank.INFRASPECIFIC_NAME, classification.taxonRank);
+        assertTrue(classification.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testAnalyseForSearch4() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Plantae";
+        this.analyser.analyseForSearch(classification);
         assertNull(classification.genus);
         assertNull(classification.specificEpithet);
         assertNull(classification.taxonRank);
@@ -72,27 +141,77 @@ public class AlaNameAnalyserTest {
 
 
     @Test
-    public void testClassificationNamePopulation5() throws Exception {
+    public void testAnalyseForSearch5() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
         classification.scientificName = "sp.";
         try {
-            classification.infer(true);
+            this.analyser.analyseForSearch(classification);
             fail("Expecting inference exception");
         } catch (InferenceException e) {
         }
     }
 
     @Test
-    public void testClassificationNamePopulation6() throws Exception {
+    public void testAnalyseForSearch6() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
-        classification.scientificName = "sp.";
-        classification.infer(false);
-        assertNull(classification.genus);
+        classification.scientificName = "Acacia dealbata?";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Acacia dealbata", classification.scientificName);
+        assertEquals("Acacia", classification.genus);
         assertNull(classification.specificEpithet);
-        assertNull(classification.taxonRank);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
         assertTrue(classification.getIssues().contains(AlaLinnaeanFactory.INDETERMINATE_NAME));
     }
 
+    @Test
+    public void testAnalyseForSearch7() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Acacia aff. dealbata";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Acacia dealbata", classification.scientificName);
+        assertEquals("Acacia", classification.genus);
+        assertNull(classification.specificEpithet);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertTrue(classification.getIssues().contains(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME));
+    }
+
+    @Test
+    public void testAnalyseForSearch8() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Acacia cf. dealbata";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Acacia dealbata", classification.scientificName);
+        assertEquals("Acacia", classification.genus);
+        assertNull(classification.specificEpithet);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertTrue(classification.getIssues().contains(AlaLinnaeanFactory.CONFER_SPECIES_NAME));
+    }
+
+
+    @Test
+    public void testAnalyseForSearch9() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Acacia sp. dealbata";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Acacia dealbata", classification.scientificName);
+        assertEquals("Acacia", classification.genus);
+        assertEquals("dealbata", classification.specificEpithet);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertTrue(classification.getIssues().contains(ALATerm.canonicalMatch));
+    }
+
+
+    @Test
+    public void testAnalyseForSearch10() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Sida sp. Walhallow Station (C.Edgood 28/Oct/94)";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Sida sp. Walhallow Station (C.Edgood 28/Oct/94)", classification.scientificName);
+        assertEquals("Sida", classification.genus);
+        assertNull(classification.specificEpithet);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertTrue(classification.getIssues().isEmpty());
+    }
 
     @Test
     public void testAnalyseNames1() throws Exception {
@@ -146,10 +265,11 @@ public class AlaNameAnalyserTest {
         classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SERIES);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), false);
         assertNotNull(names);
-        assertEquals(3, names.size());
+        assertEquals(4, names.size());
         assertTrue(names.contains("Goodenia ser. Bracteolatae"));
         assertTrue(names.contains("Goodenia ser. Bracteolatae Benth."));
         assertTrue(names.contains("Bracteolatae"));
+        assertTrue(names.contains("Goodenia Bracteolatae"));
     }
 
     @Test
@@ -208,8 +328,9 @@ public class AlaNameAnalyserTest {
         classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
-        assertEquals(1, names.size());
+        assertEquals(2, names.size());
         assertTrue(names.contains("Acacia sect. Acacia"));
+        assertTrue(names.contains("Acacia Acacia"));
     }
 
 
@@ -221,9 +342,10 @@ public class AlaNameAnalyserTest {
         classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
-        assertEquals(2, names.size());
+        assertEquals(3, names.size());
         assertTrue(names.contains("Goodenia subsect. Bracteolatae"));
         assertTrue(names.contains("Bracteolatae"));
+        assertTrue(names.contains("Goodenia Bracteolatae"));
     }
 
     @Test
@@ -275,7 +397,6 @@ public class AlaNameAnalyserTest {
         assertTrue(names.contains("Acacia sp. laterite"));
     }
 
-
     @Test
     public void testAnalyseNames15() throws Exception {
         Classifier classifier = new LuceneClassifier();
@@ -287,5 +408,18 @@ public class AlaNameAnalyserTest {
         assertEquals(1, names.size());
         assertTrue(names.contains("Acacia sp. holey trunk"));
     }
+
+
+    @Test
+    public void testAnalyseNames16() throws Exception {
+        Classifier classifier = new LuceneClassifier();
+        classifier.add(AlaLinnaeanFactory.scientificName, "Grevillea brachystylis subsp. Busselton (G.J.Keighery s.n. 28/8/1985)");
+        Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
+        assertNotNull(names);
+        assertEquals(2, names.size());
+        assertTrue(names.contains("Grevillea brachystylis subsp. Busselton (G.J.Keighery s.n. 28/8/1985)"));
+        assertTrue(names.contains("Grevillea brachystylis ssp. Busselton (G.J.Keighery s.n. 28/8/1985)"));
+    }
+
 
 }

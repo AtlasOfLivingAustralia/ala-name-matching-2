@@ -45,7 +45,7 @@ public class Network9Classification implements Classification<Network9Classifica
   public Network9Classification(Classifier classifier, Analyser<Network9Classification> analyser) throws InferenceException, StoreException {
     this(analyser);
     this.read(classifier, true);
-    this.infer(false);
+    this.inferForIndex();
   }
 
   @Override
@@ -111,11 +111,11 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
   @Override
-  public void infer(boolean strict) throws InferenceException, StoreException {
+  public void inferForIndex() throws InferenceException, StoreException {
     this.v1 = (String) Network9Factory.v1.getAnalysis().analyse(this.v1);
     this.v2 = (String) Network9Factory.v2.getAnalysis().analyse(this.v2);
     this.v3 = (String) Network9Factory.v3.getAnalysis().analyse(this.v3);
-    this.analyser.analyse(this, strict);
+    this.analyser.analyseForIndex(this);
     if (this.v2 == null) {
       this.v2 = this.soundex.soundex(this.v1);
     }
@@ -123,7 +123,19 @@ public class Network9Classification implements Classification<Network9Classifica
 
 
   @Override
-  public List<List<Function<Network9Classification, Network9Classification>>> sourceModificationOrder() {
+  public void inferForSearch() throws InferenceException, StoreException {
+    this.v1 = (String) Network9Factory.v1.getAnalysis().analyse(this.v1);
+    this.v2 = (String) Network9Factory.v2.getAnalysis().analyse(this.v2);
+    this.v3 = (String) Network9Factory.v3.getAnalysis().analyse(this.v3);
+        this.analyser.analyseForSearch(this);
+    if (this.v2 == null) {
+      this.v2 = this.soundex.soundex(this.v1);
+    }
+  }
+
+
+  @Override
+  public List<List<Function<Network9Classification, Network9Classification>>> searchModificationOrder() {
         List<List<Function<Network9Classification, Network9Classification>>> modifications = new ArrayList();
     return modifications;
   }

@@ -5,22 +5,24 @@ import java.util.Set;
 
 public class TestAnalyser implements Analyser<TestClassification> {
     /**
-     * Analyse the information in a classification and extend the classification
-     * as required.
-     *
-     * @param classification The classification
-     * @throws InferenceException if an error occurs during inference
-     * @throws StoreException     if an error occurs updating the classifier
+     * No extension
      */
     @Override
-    public void analyse(TestClassification classification, boolean strict) throws InferenceException, StoreException {
+    public void analyseForIndex(TestClassification classification) throws InferenceException {
+    }
+
+    /**
+     * No extension
+     */
+    @Override
+    public void analyseForSearch(TestClassification classification) throws InferenceException {
     }
 
     /**
      * Build a collection of base names for the classification.
      */
     @Override
-    public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) throws InferenceException, StoreException {
+    public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) throws InferenceException {
         return classifier.getAll(TestClassification.SCIENTIFIC_NAME);
     }
 }

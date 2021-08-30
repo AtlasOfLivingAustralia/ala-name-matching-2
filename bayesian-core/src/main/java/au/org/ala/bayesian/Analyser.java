@@ -16,21 +16,39 @@ import java.util.Set;
 public interface Analyser<C extends Classification> {
     /**
      * Analyse the information in a classification and extend the classification
-     * as required.
+     * as required in preparation for building an index.
+     * <p>
+     * Generally, if there is a recoverable problem here, fix it.
+     * And if the name looks weird, then that's what the source says.
+     * </p>
      *
      * @param classification The classification
-     * @param strict Throw an exception if there is a problem, rather than fix it
      *
      * @throws InferenceException if an error occurs during inference
-     * @throws StoreException if an error occurs updating the classifier
      */
-    public void analyse(C classification, boolean strict) throws InferenceException, StoreException;
+    public void analyseForIndex(C classification) throws InferenceException;
+
+    /**
+     * Analyse the information in a classification and extend the classification
+     * as required in preparation for search/inference.
+     *
+     * @param classification The classification
+     *
+     * @throws InferenceException if an error occurs during inference
+     */
+    public void analyseForSearch(C classification) throws InferenceException;
 
     /**
      * Build a collection of base names for the classification.
      * <p>
      * If a classification can be referred to in multiple ways, this method
      * builds the various ways of referring to the classification.
+     * </p>
+     * <p>
+     * As a general principle, if {@link #analyseForIndex(Classification)} and
+     * {@link #analyseForSearch(Classification)} would produce different results,
+     * this method should ensure that whatever is in the search is included in the
+     * set of names.
      * </p>
      *
      * @param classifier The classification
@@ -42,7 +60,6 @@ public interface Analyser<C extends Classification> {
      * @return All the names that refer to the classification
      *
      * @throws InferenceException if unable to analyuse the names
-     * @throws StoreException if unable to modifiy the classifier
      */
-    public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) throws InferenceException, StoreException;
+    public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) throws InferenceException;
 }

@@ -102,7 +102,11 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public void infer(boolean strict) {
+    public void inferForSearch() {
+    }
+
+    @Override
+    public void inferForIndex() {
     }
 
     /**
@@ -115,7 +119,7 @@ public class TestClassification implements Classification<TestClassification> {
      * @return The modification options for the classifier
      */
     @Override
-    public List<List<Function<TestClassification, TestClassification>>> sourceModificationOrder() {
+    public List<List<Function<TestClassification, TestClassification>>> searchModificationOrder() {
         List<List<Function<TestClassification, TestClassification>>> modifiers = new ArrayList<>();
         return modifiers;
     }

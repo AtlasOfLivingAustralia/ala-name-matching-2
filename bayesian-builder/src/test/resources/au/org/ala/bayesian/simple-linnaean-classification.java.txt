@@ -95,7 +95,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   public SimpleLinnaeanClassification(Classifier classifier, Analyser<SimpleLinnaeanClassification> analyser) throws InferenceException, StoreException {
     this(analyser);
     this.read(classifier, true);
-    this.infer(false);
+    this.inferForIndex();
   }
 
   @Override
@@ -179,7 +179,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
-  public void infer(boolean strict) throws InferenceException, StoreException {
+  public void inferForIndex() throws InferenceException, StoreException {
     this.taxonId = (String) SimpleLinnaeanFactory.taxonId.getAnalysis().analyse(this.taxonId);
     this.taxonRank = (String) SimpleLinnaeanFactory.taxonRank.getAnalysis().analyse(this.taxonRank);
     this.specificEpithet = (String) SimpleLinnaeanFactory.specificEpithet.getAnalysis().analyse(this.specificEpithet);
@@ -195,7 +195,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     this.acceptedNameUsageId = (String) SimpleLinnaeanFactory.acceptedNameUsageId.getAnalysis().analyse(this.acceptedNameUsageId);
     this.parentNameUsageId = (String) SimpleLinnaeanFactory.parentNameUsageId.getAnalysis().analyse(this.parentNameUsageId);
     this.taxonomicStatus = (String) SimpleLinnaeanFactory.taxonomicStatus.getAnalysis().analyse(this.taxonomicStatus);
-    this.analyser.analyse(this, strict);
+    this.analyser.analyseForIndex(this);
     if (this.soundexScientificName == null) {
       this.soundexScientificName = this.soundex.soundex(this.scientificName);
     }
@@ -203,7 +203,31 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
 
 
   @Override
-  public List<List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>>> sourceModificationOrder() {
+  public void inferForSearch() throws InferenceException, StoreException {
+    this.taxonId = (String) SimpleLinnaeanFactory.taxonId.getAnalysis().analyse(this.taxonId);
+    this.taxonRank = (String) SimpleLinnaeanFactory.taxonRank.getAnalysis().analyse(this.taxonRank);
+    this.specificEpithet = (String) SimpleLinnaeanFactory.specificEpithet.getAnalysis().analyse(this.specificEpithet);
+    this.scientificNameAuthorship = (String) SimpleLinnaeanFactory.scientificNameAuthorship.getAnalysis().analyse(this.scientificNameAuthorship);
+    this.scientificName = (String) SimpleLinnaeanFactory.scientificName.getAnalysis().analyse(this.scientificName);
+    this.soundexScientificName = (String) SimpleLinnaeanFactory.soundexScientificName.getAnalysis().analyse(this.soundexScientificName);
+    this.genus = (String) SimpleLinnaeanFactory.genus.getAnalysis().analyse(this.genus);
+    this.family = (String) SimpleLinnaeanFactory.family.getAnalysis().analyse(this.family);
+    this.order = (String) SimpleLinnaeanFactory.order.getAnalysis().analyse(this.order);
+    this.class_ = (String) SimpleLinnaeanFactory.class_.getAnalysis().analyse(this.class_);
+    this.phylum = (String) SimpleLinnaeanFactory.phylum.getAnalysis().analyse(this.phylum);
+    this.kingdom = (String) SimpleLinnaeanFactory.kingdom.getAnalysis().analyse(this.kingdom);
+    this.acceptedNameUsageId = (String) SimpleLinnaeanFactory.acceptedNameUsageId.getAnalysis().analyse(this.acceptedNameUsageId);
+    this.parentNameUsageId = (String) SimpleLinnaeanFactory.parentNameUsageId.getAnalysis().analyse(this.parentNameUsageId);
+    this.taxonomicStatus = (String) SimpleLinnaeanFactory.taxonomicStatus.getAnalysis().analyse(this.taxonomicStatus);
+        this.analyser.analyseForSearch(this);
+    if (this.soundexScientificName == null) {
+      this.soundexScientificName = this.soundex.soundex(this.scientificName);
+    }
+  }
+
+
+  @Override
+  public List<List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>>> searchModificationOrder() {
         List<List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>>> modifications = new ArrayList();
     return modifications;
   }

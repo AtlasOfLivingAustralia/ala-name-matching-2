@@ -96,7 +96,7 @@ public class QueryUtils {
      */
     public BooleanClause nameClause(String value) {
         QueryBuilder builder = new QueryBuilder(this.analyzer);
-        Query query = builder.createBooleanQuery(LuceneClassifier.NAMES_FIELD, value);
+        Query query = builder.createPhraseQuery(LuceneClassifier.NAMES_FIELD, value);
         query = new BoostQuery(query, NAME_BOOST);
         return new BooleanClause(query, BooleanClause.Occur.SHOULD);
     }

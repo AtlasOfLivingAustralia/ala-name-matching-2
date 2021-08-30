@@ -629,6 +629,16 @@
       "id": "parent_child_synonym",
       "uri": "http://id.ala.org.au/issues/1.0/parentChildSynonym",
       "description": "The name has an accepted name and a synonym that points to a sub-taxon"
+    },
+    {
+      "id": "confer_species_name",
+      "uri": "http://id.ala.org.au/issues/1.0/conferSpeciesName",
+      "description": "The supplied name has an confer species (cf) marker"
+    },
+    {
+      "id": "affinity_species_name",
+      "uri": "http://id.ala.org.au/issues/1.0/affinitySpeciesName",
+      "description": "The supplied name has am affinity species (af) marker"
     }
   ],
   "modifications": [

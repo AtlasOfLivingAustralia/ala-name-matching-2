@@ -69,7 +69,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   public ${className}(Classifier classifier, ${analyserType} analyser) throws InferenceException, StoreException {
     this(analyser);
     this.read(classifier, true);
-    this.infer(false);
+    this.inferForIndex();
   }
 
   @Override
@@ -133,14 +133,14 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public void infer(boolean strict) throws InferenceException, StoreException {
+  public void inferForIndex() throws InferenceException, StoreException {
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.analysis??>
     this.${observable.javaVariable} = (${observable.type.simpleName}) ${factoryClassName}.${observable.javaVariable}.getAnalysis().analyse(this.${observable.javaVariable});
   </#if>
 </#list>
-    this.analyser.analyse(this, strict);
+    this.analyser.analyseForIndex(this);
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.derivation??>
@@ -154,7 +154,28 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
 
   @Override
-  public List<List<Function<${className}, ${className}>>> sourceModificationOrder() {
+  public void inferForSearch() throws InferenceException, StoreException {
+<#list orderedNodes + additionalNodes as node>
+  <#assign observable = node.observable >
+  <#if observable?? && observable.analysis??>
+    this.${observable.javaVariable} = (${observable.type.simpleName}) ${factoryClassName}.${observable.javaVariable}.getAnalysis().analyse(this.${observable.javaVariable});
+  </#if>
+</#list>
+        this.analyser.analyseForSearch(this);
+<#list orderedNodes + additionalNodes as node>
+  <#assign observable = node.observable >
+  <#if observable?? && observable.derivation??>
+    <#assign derivation = observable.derivation>
+    if (this.${node.observable.javaVariable} == null) {
+      this.${node.observable.javaVariable} = ${derivation.generateClassificationTransform()};
+    }
+  </#if>
+</#list>
+  }
+
+
+  @Override
+  public List<List<Function<${className}, ${className}>>> searchModificationOrder() {
         List<List<Function<${className}, ${className}>>> modifications = new ArrayList();
 <#if network.sourceModifiers?? && network.sourceModifiers?size gt 0>
     List<Function<${className}, ${className}>> ml;

@@ -193,7 +193,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Canarium acutifolium var. acutifolium";
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
-        assertNotNull(match);
+        assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", match.getMatch().taxonId);
         assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
@@ -205,7 +205,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         classification.genus = "Canarium";
         classification.specificEpithet = "acutifolium";
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
-        assertNotNull(match);
+        assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
         assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
@@ -218,7 +218,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         classification.specificEpithet = "acutifolium";
         classification.taxonRank = Rank.SPECIES;
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
-        assertNotNull(match);
+        assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
         assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
@@ -230,7 +230,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Plantae";
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
-        assertNotNull(match);
+        assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51337710", match.getMatch().taxonId);
         assertEquals(0.00806, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
@@ -242,7 +242,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Canarium acutifolium";
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
-        assertNotNull(match);
+        assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
         assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
@@ -255,7 +255,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         template.scientificName = "Canarium notanameum";
         template.family = "Burseraceae";
         Match<AlaLinnaeanClassification> result = matcher.findMatch(template);
-        assertNotNull(result);
+        assertTrue(result.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2918714", result.getMatch().taxonId);
         assertEquals(Rank.GENUS, result.getMatch().taxonRank);
         assertTrue(result.getIssues().contains(AlaLinnaeanFactory.HIGHER_ORDER_MATCH));
@@ -268,7 +268,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         template.scientificName = "Othernama notanamea";
         template.family = "Burseraceae";
         Match<AlaLinnaeanClassification> result = matcher.findMatch(template);
-        assertNotNull(result);
+        assertTrue(result.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2900189", result.getMatch().taxonId);
         assertEquals(Rank.FAMILY, result.getMatch().taxonRank);
         assertTrue(result.getIssues().contains(AlaLinnaeanFactory.HIGHER_ORDER_MATCH));
@@ -280,8 +280,20 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Canarium";
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
-        assertNotNull(match);
+        assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2918714", match.getMatch().taxonId);
+        assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
+    }
+
+    // Phrase name
+    @Test
+    public void testMatch9() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Sida sp. Walhallow Station (C.Edgood 28/Oct/94)";
+        Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
+        assertTrue(match.isValid());
+        assertEquals("https://id.biodiversity.org.au/node/apni/2898305", match.getMatch().taxonId);
         assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }

@@ -51,7 +51,11 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     }
 
     @Override
-    public void infer(boolean strict) {
+    public void inferForIndex() {
+    }
+
+    @Override
+    public void inferForSearch() {
     }
 
     /**
@@ -88,7 +92,7 @@ public class EmptyClassification implements Classification<EmptyClassification> 
      * @return
      */
     @Override
-    public List<List<Function<EmptyClassification, EmptyClassification>>> sourceModificationOrder() {
+    public List<List<Function<EmptyClassification, EmptyClassification>>> searchModificationOrder() {
         return Collections.emptyList();
     }
 

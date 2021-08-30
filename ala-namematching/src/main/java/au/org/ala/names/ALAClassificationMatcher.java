@@ -56,7 +56,6 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
                 .map(m -> this.detectExcluded(m, results1))
                 .map(m -> this.detectPartialMisapplied(m, results1))
                 .map(m -> this.detectPartialExcluded(m, results1))
-                .map(m -> this.detectHomonym(m, results1))
                 .map(m -> this.detectParentChildSynonym(m, results1))
                 .collect(Collectors.toList());
     }
@@ -120,63 +119,28 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         return match;
     }
 
-
     /**
-     * Mark any cross-code homonyms
+     * Detect a parent-child synonym in the possible matches.
      *
-     * @param results The list of candidate matches
-     */
-    protected Match<AlaLinnaeanClassification> detectHomonym(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
-        AlaLinnaeanClassification m = match.getMatch();
-        String referenceName = m.scientificName;
-        NomenclaturalCode referenceCode = m.nomenclaturalCode;
-        if (m.taxonomicStatus != null && referenceName != null && referenceCode != null && m.taxonomicStatus.isPlaced()) {
-            for (Match<AlaLinnaeanClassification> match2 : results) {
-                AlaLinnaeanClassification m2 = match2.getMatch();
-                if (match2 != match && referenceName.equalsIgnoreCase(m2.scientificName) && referenceCode != m2.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isPlaced())
-                    return match.with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);
-            }
-        }
-        return match;
-    }
-
-
-    /**
-     * Mark any accepted/synonym results which also have misapplied values.
+     * @param match The match to test
+     * @param results Other possible results
      *
-     * @param results The list of candidate matches
-     */
-    protected Match<AlaLinnaeanClassification> detectAcceptedSynonymPair(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
-        AlaLinnaeanClassification m = match.getMatch();
-        String referenceName = m.scientificName;
-        NomenclaturalCode referenceCode = m.nomenclaturalCode;
-        if (m.taxonomicStatus != null && referenceName != null && referenceCode != null && m.taxonomicStatus.isAcceptedFlag()) {
-            for (Match<AlaLinnaeanClassification> match2 : results) {
-                AlaLinnaeanClassification m2 = match2.getMatch();
-                if (match2 != match && referenceName.equalsIgnoreCase(m2.scientificName) && referenceCode == m.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isSynonymLike())
-                    return match.with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
-            }
-        }
-        return match;
-    }
-
-
-    /**
-     * Mark any parent-child synonym pairs
-     *
-     * @param results The list of candidate matches
+     * @return If there is a possible parent/child synonym, a match flagged with the synoym
      */
     protected Match<AlaLinnaeanClassification> detectParentChildSynonym(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
-        AlaLinnaeanClassification m = match.getMatch();
-        String referenceName = m.scientificName;
-        NomenclaturalCode referenceCode = m.nomenclaturalCode;
-        if (m.taxonomicStatus != null && referenceName != null && referenceCode != null && m.taxonomicStatus.isAcceptedFlag()) {
-            for (Match<AlaLinnaeanClassification> match2 : results) {
-                AlaLinnaeanClassification m2 = match2.getMatch();
-                if (match2 != match && m2.scientificName != null && m2.scientificName.startsWith(referenceName) && referenceCode == m.nomenclaturalCode && m2.taxonomicStatus != null && m2.taxonomicStatus.isSynonymFlag())
-                    return match.with(AlaLinnaeanFactory.PARENT_CHILD_SYNONYM);
-            }
-        }
+        final String taxonId = match.getMatch().taxonId;
+        final String scientificName = match.getMatch().scientificName;
+
+        if (taxonId == null || scientificName == null)
+            return match;
+        if (results.stream().anyMatch(m ->
+                m != match &&
+                m.getMatch() != m.getAccepted() &&
+                m.getAccepted().parentNameUsageId != null &&
+                taxonId.equals(m.getAccepted().parentNameUsageId) &&
+                scientificName.equalsIgnoreCase(m.getMatch().scientificName)
+          ))
+            return match.with(AlaLinnaeanFactory.PARENT_CHILD_SYNONYM);
         return match;
     }
 
@@ -242,7 +206,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * @param results The usable results
      * @return An unresolved homonym match if there is one.
      */
-    private Match<AlaLinnaeanClassification> detectUnresolvableHomonym(List<Match<AlaLinnaeanClassification>> results) {
+    protected Match<AlaLinnaeanClassification> detectUnresolvableHomonym(List<Match<AlaLinnaeanClassification>> results) {
         if (results.size() < 1)
             return null;
         Set<NomenclaturalCode> codes = results.stream()
@@ -253,7 +217,6 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
             return (Match<AlaLinnaeanClassification>) Match.invalidMatch().with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);
         return null;
     }
-
 
     /**
      * Get the sorting method for a list of matches

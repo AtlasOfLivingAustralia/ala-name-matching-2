@@ -66,8 +66,8 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      */
     @NonNull
     public Match<C> findMatch(C classification) throws InferenceException, StoreException {
-        classification.infer(true);
-        Iterator<C> sourceClassifications = new BacktrackingIterator<>(classification, classification.sourceModificationOrder());
+        classification.inferForSearch();
+        Iterator<C> sourceClassifications = new BacktrackingIterator<>(classification, classification.searchModificationOrder());
         C previous = null;
         while (sourceClassifications.hasNext()) {
             C modified = sourceClassifications.next();
@@ -82,7 +82,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     }
 
     protected Match<C> findSource(C classification) throws InferenceException, StoreException {
-        classification.infer(true);
+        classification.inferForSearch();
         List<? extends Classifier> candidates = this.searcher.search(classification);
         if (candidates.isEmpty())
             return null;

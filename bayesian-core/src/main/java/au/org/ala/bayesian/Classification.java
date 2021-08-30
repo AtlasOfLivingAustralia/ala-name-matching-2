@@ -97,19 +97,33 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
     Collection<Observation> toObservations();
 
     /**
-     * Infer empty elements of the classification from the network definition.
+     * Infer empty elements of the classification from the network definition
+     * in preparation for indexing.
      * <p>
      * This method is usually generated to implement any derivations that are
      * specified by {@link Observable#getDerivation()}.
      * The method can be used to perform common derivations without requiring further coding.
      * </p>
      *
-     * @param strict If true, throw an exception if there is a problem, otherwise try to work around it.
+     * @throws InferenceException if unable to calculate an inferred value
+     * @throws StoreException if unable to retrieve a source value
+     */
+    void inferForIndex() throws InferenceException, StoreException;
+
+
+    /**
+     * Infer empty elements of the classification from the network definition
+     * in preparation for using this as a search template.
+     * <p>
+     * This method is usually generated to implement any derivations that are
+     * specified by {@link Observable#getDerivation()}.
+     * The method can be used to perform common derivations without requiring further coding.
+     * </p>
      *
      * @throws InferenceException if unable to calculate an inferred value
      * @throws StoreException if unable to retrieve a source value
      */
-    void infer(boolean strict) throws InferenceException, StoreException;
+    void inferForSearch() throws InferenceException, StoreException;
 
     /**
      *
@@ -148,7 +162,7 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * </p>
      * @return
      */
-    public List<List<Function<C, C>>> sourceModificationOrder();
+    public List<List<Function<C, C>>> searchModificationOrder();
 
     /**
      * The order in which to modify this classification when attempting matches.
