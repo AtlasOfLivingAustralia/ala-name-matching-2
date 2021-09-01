@@ -405,8 +405,24 @@
     {
       "id": "phraseName",
       "label": "PN",
-      "uri": "http://id.ala.org.au/terms/1.0/phraseName"
+      "uri": "http://id.ala.org.au/terms/1.0/phraseName",
+      "analysis": {
+        "@class": "au.org.ala.names.PhraseAnalysis"
+      }
      },
+    {
+      "id": "voucher",
+      "label": "V",
+      "uri": "http://id.ala.org.au/terms/1.0/voucher",
+      "analysis": {
+        "@class": "au.org.ala.names.PhraseAnalysis"
+      }
+    },
+    {
+      "id": "nominatingParty",
+      "label": "NP",
+      "uri": "http://id.ala.org.au/terms/1.0/nominatingParty"
+    },
     {
       "id": "nomenclaturalCode",
       "label": "NC",
@@ -501,6 +517,8 @@
     "scientificNameAuthorship",
     "cultivarEpithet",
     "phraseName",
+    "voucher",
+    "nominatingParty",
     "stateOrProvince",
     "country",
     "nomenclaturalCode"
@@ -513,6 +531,8 @@
     { "source": "taxonID", "target": "nomenclaturalCode",  "edge": { } },
     { "source": "taxonID", "target": "cultivarEpithet",  "edge": { } },
     { "source": "taxonID", "target": "phraseName",  "edge": { } },
+    { "source": "taxonID", "target": "voucher",  "edge": { } },
+    { "source": "taxonID", "target": "nominatingParty",  "edge": { } },
     { "source": "taxonID", "target": "specificEpithet",  "edge": { } },
     { "source": "specificEpithet", "target": "soundexSpecificEpithet",  "edge": { } },
     { "source": "scientificName", "target": "soundexScientificName",  "edge": { } },

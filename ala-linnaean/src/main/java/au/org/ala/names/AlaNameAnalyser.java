@@ -1,17 +1,15 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.*;
 import au.org.ala.util.CleanedScientificName;
-import au.org.ala.util.SimpleClassifier;
 import au.org.ala.vocab.ALATerm;
-import au.org.ala.vocab.TaxonomicStatus;
 import com.google.common.base.Enums;
 import org.gbif.api.vocabulary.NomenclaturalCode;
+import org.gbif.nameparser.AuthorshipParsingJob;
 import org.gbif.nameparser.NameParserGBIF;
 import org.gbif.nameparser.api.*;
 import org.gbif.nameparser.util.NameFormatter;
-import org.gbif.nameparser.util.RankUtils;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -107,6 +105,18 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
                             classification.scientificName = NameFormatter.canonicalWithoutAuthorship(name);
                         }
                     }
+                    if (name.getType() == NameType.PHRASE) {
+                        if (classification.nominatingParty == null && name.getNominatingParty() != null) {
+                            classification.nominatingParty = name.getNominatingParty();
+                            classification.scientificName = NameFormatter.canonicalWithoutAuthorship(name);
+                        }
+                        if (classification.voucher == null && name.getVoucher() != null) {
+                            classification.voucher = (String) AlaLinnaeanFactory.voucher.getAnalysis().analyse(name.getVoucher());
+                        }
+                        if (classification.phraseName == null && name.getPhrase() != null) {
+                            classification.phraseName = (String) AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getPhrase());
+                        }
+                    }
                     if (name.getType() == NameType.SCIENTIFIC || name.getType() == NameType.INFORMAL || name.getType() == NameType.PLACEHOLDER) {
                         if (acceptedNameUsageId == null) { // Only do this for non-synonyms to avoid dangling speciesID and classID
                             if (classification.specificEpithet == null && name.getSpecificEpithet() != null)
@@ -118,8 +128,6 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
                 }
                 if (classification.cultivarEpithet == null && name.getCultivarEpithet() != null)
                     classification.cultivarEpithet = name.getCultivarEpithet();
-                if (classification.phraseName == null && name.getPhrase() != null)
-                    classification.phraseName = name.getPhrase();
             } catch (UnparsableNameException e) {
                 classification.addIssue(ALATerm.unparsableName);
             }
@@ -181,35 +189,48 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
                 isIndeterminate = true;
             }
 
+            // Phrase names should not have rank markers removed
+            matcher = AuthorshipParsingJob.PHRASE_NAME.matcher(scientificName);
+            if (!matcher.matches()) {
+                // Remove rank marker, if present and flag
+                matcher = MARKER_ENDING.matcher(scientificName);
+                if (matcher.find()) {
+                    classification.addIssue(AlaLinnaeanFactory.INDETERMINATE_NAME);
+                    scientificName = classification.scientificName.substring(0, matcher.start()).trim();
+                    classification.taxonRank = null;
+                    rank = Rank.UNRANKED;
+                }
+                matcher = MARKER_INTERNAL.matcher(scientificName);
+                if (matcher.find()) {
+                    classification.addIssue(ALATerm.canonicalMatch);
+                    scientificName = matcher.replaceAll(" " ).trim();
+                }
+            }
+
+
             // Fill out parsed entities
             try {
                 ParsedName name = parser.parse(scientificName, rank, nomCode);
                 if (name.getRank() != null)
                     rank = name.getRank();
-                if ((name.getState() == ParsedName.State.PARTIAL || name.getState() == ParsedName.State.COMPLETE) && (name.getType() == NameType.SCIENTIFIC || name.getType() == NameType.INFORMAL || name.getType() == NameType.PLACEHOLDER)) {
-                    // Remove rank marker, if present, flag and re-parse
-                    matcher = MARKER_ENDING.matcher(scientificName);
-                    if (matcher.find()) {
-                        classification.addIssue(AlaLinnaeanFactory.INDETERMINATE_NAME);
-                        scientificName = classification.scientificName.substring(0, matcher.start()).trim();
-                        classification.taxonRank = null;
-                        rank = Rank.UNRANKED;
-                        name = parser.parse(scientificName, rank, nomCode);
-                    }
-
-                    matcher = MARKER_INTERNAL.matcher(scientificName);
-                    if (matcher.find()) {
-                        classification.addIssue(ALATerm.canonicalMatch);
-                        scientificName = matcher.replaceAll(" " ).trim();
-                        name = parser.parse(scientificName, rank, nomCode);
-                    }
-                }
                 if (name.getState() == ParsedName.State.COMPLETE) {
                     if (name.getType() == NameType.SCIENTIFIC) {
                         if (classification.scientificNameAuthorship == null && name.hasAuthorship()) {
                             classification.addIssue(ALATerm.canonicalMatch);
                             classification.scientificNameAuthorship = NameFormatter.authorshipComplete(name);
                             scientificName = NameFormatter.canonicalWithoutAuthorship(name);
+                        }
+                    }
+                    if (name.getType() == NameType.PHRASE) {
+                        if (classification.nominatingParty == null && name.getNominatingParty() != null) {
+                            classification.nominatingParty = name.getNominatingParty();
+                            scientificName = NameFormatter.canonicalWithoutAuthorship(name);
+                        }
+                        if (classification.voucher == null && name.getVoucher() != null) {
+                            classification.voucher = (String) AlaLinnaeanFactory.voucher.getAnalysis().analyse(name.getVoucher());
+                        }
+                        if (classification.phraseName == null && name.getPhrase() != null) {
+                            classification.phraseName = (String) AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getPhrase());
                         }
                     }
                     if (name.getType() == NameType.SCIENTIFIC || name.getType() == NameType.INFORMAL || name.getType() == NameType.PLACEHOLDER || name.getType() == NameType.PHRASE) {
@@ -221,9 +242,7 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
                 }
                 if (classification.cultivarEpithet == null && name.getCultivarEpithet() != null)
                     classification.cultivarEpithet = name.getCultivarEpithet();
-                if (classification.phraseName == null && name.getPhrase() != null)
-                    classification.phraseName = name.getPhrase();
-            } catch (UnparsableNameException e) {
+             } catch (UnparsableNameException e) {
                 classification.addIssue(ALATerm.unparsableName);
             }
         }
@@ -312,12 +331,16 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
                             allNames.add(pn.getInfragenericEpithet());
                         }
                     }
+                    if (pn.getType() == NameType.PHRASE) {
+                        // Add bare phrase name without voucher
+                        allNames.add(pn.canonicalNameMinimal() + " " + pn.getRank().getMarker() + " " + pn.getPhrase());
+                    }
 
                     // Remove rank markers
                     if (pn.getType() == NameType.SCIENTIFIC || pn.getType() == NameType.INFORMAL || pn.getType() == NameType.PLACEHOLDER) {
                         Matcher matcher = MARKER_INTERNAL.matcher(nm);
                         if (matcher.find()) {
-                            allNames.add(matcher.replaceAll(" " ).trim());
+                            allNames.add(matcher.replaceAll(" ").trim());
                         }
                     }
                 }

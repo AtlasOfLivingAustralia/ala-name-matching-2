@@ -87,6 +87,10 @@ public enum ALATerm implements Term {
     cultivarEpithet,
     /** The phrase name */
     phraseName,
+    /** The phrase name voucher (ie. person vouching for a name) */
+    voucher,
+    /** The phrase name nominating party */
+    nominatingParty,
     /** Context labels for names. See http://localcontexts.org/ */
     labels,
     /** A value */

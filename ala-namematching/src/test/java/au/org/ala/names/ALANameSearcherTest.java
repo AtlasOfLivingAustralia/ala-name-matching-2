@@ -496,4 +496,70 @@ public class ALANameSearcherTest {
         assertFalse(result.isValid());
     }
 
+
+    @Test
+    public void testPhraseMatch1() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Elaeocarpus sp. Rocky Creek";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        // Higher order match as Rocky Creek interpreted as author
+        assertEquals("https://id.biodiversity.org.au/node/apni/7176196", result.getMatch().taxonId);
+        assertEquals("https://id.biodiversity.org.au/node/apni/7176196", result.getAccepted().taxonId);
+        assertEquals(Issues.of(ALATerm.canonicalMatch, AlaLinnaeanFactory.REMOVED_AUTHORSHIP), result.getIssues());
+    }
+
+    @Test
+    public void testPhraseMatch2() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Elaeocarpus sp. Rocky Creek (Hunter s.n. 16 Sep 1993)";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/instance/apni/871103", result.getMatch().taxonId);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2916168", result.getAccepted().taxonId);
+        assertTrue(result.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testPhraseMatch3() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Pultenaea sp. Olinda (R.Coveny 6616)";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/node/apni/2886985", result.getAccepted().taxonId);
+        assertTrue(result.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testPhraseMatch4() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Goodenia sp. Bachsten Creek (M.D.Barrett 685) WA Herbarium";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/node/apni/2890349", result.getAccepted().taxonId);
+        assertTrue(result.getIssues().isEmpty());
+    }
+
+
+    @Test
+    public void testPhraseMatch5() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Baeckea sp. Bungalbin Hill (B.J.Lepschi & L.A.Craven 4586)";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/node/apni/2903711", result.getAccepted().taxonId);
+        assertTrue(result.getIssues().isEmpty());
+    }
+
+    @Test
+    public void testAcceptedSynonym1() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Thelymitra sp. adorata";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        // Has a nom inval version as well
+        assertEquals("https://id.biodiversity.org.au/taxon/apni/51414212", result.getAccepted().taxonId);
+        assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM, ALATerm.canonicalMatch), result.getIssues());
+    }
+
 }

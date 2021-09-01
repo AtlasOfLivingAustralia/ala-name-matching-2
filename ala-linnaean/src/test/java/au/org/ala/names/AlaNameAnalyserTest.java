@@ -200,7 +200,6 @@ public class AlaNameAnalyserTest {
         assertTrue(classification.getIssues().contains(ALATerm.canonicalMatch));
     }
 
-
     @Test
     public void testAnalyseForSearch10() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
@@ -208,6 +207,21 @@ public class AlaNameAnalyserTest {
         this.analyser.analyseForSearch(classification);
         assertEquals("Sida sp. Walhallow Station (C.Edgood 28/Oct/94)", classification.scientificName);
         assertEquals("Sida", classification.genus);
+        assertNull(classification.specificEpithet);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertTrue(classification.getIssues().isEmpty());
+    }
+
+
+    @Test
+    public void testAnalyseForSearch11() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Goodenia sp. Bachsten Creek (M.D.Barrett 685) WA Herbarium";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Goodenia sp. Bachsten Creek (M.D.Barrett 685)", classification.scientificName);
+        assertEquals("WA Herbarium", classification.nominatingParty);
+        assertEquals("Goodenia", classification.genus);
+        assertEquals("Bachsten Creek", classification.phraseName);
         assertNull(classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
         assertTrue(classification.getIssues().isEmpty());
@@ -291,8 +305,9 @@ public class AlaNameAnalyserTest {
         classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp. Bigge Island (A.A. Mitchell 3436)");
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
-        assertEquals(1, names.size());
+        assertEquals(2, names.size());
         assertTrue(names.contains("Acacia sp. Bigge Island (A.A. Mitchell 3436)"));
+        assertTrue(names.contains("Acacia sp. Bigge Island"));
     }
 
 
@@ -416,9 +431,10 @@ public class AlaNameAnalyserTest {
         classifier.add(AlaLinnaeanFactory.scientificName, "Grevillea brachystylis subsp. Busselton (G.J.Keighery s.n. 28/8/1985)");
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
-        assertEquals(2, names.size());
+        assertEquals(3, names.size());
         assertTrue(names.contains("Grevillea brachystylis subsp. Busselton (G.J.Keighery s.n. 28/8/1985)"));
         assertTrue(names.contains("Grevillea brachystylis ssp. Busselton (G.J.Keighery s.n. 28/8/1985)"));
+        assertTrue(names.contains("Grevillea brachystylis subsp. Busselton"));
     }
 
 
