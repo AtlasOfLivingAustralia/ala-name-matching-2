@@ -92,13 +92,13 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals(1.0, prob.getPosterior(), 0.00001);
         evidence.e$genus = false;
         prob = inference.probability(evidence, params);
-        assertEquals(0.02400, prob.getPosterior(), 0.00001);
+        assertEquals(0.0, prob.getPosterior(), 0.00001);
         evidence.e$soundexGenus = true;
         prob = inference.probability(evidence, params);
         assertEquals(0.0, prob.getPosterior(), 0.00001); // Zero because genus is still false see modifiers
         evidence.e$soundexGenus = false;
         prob = inference.probability(evidence, params);
-        assertEquals(0.02400, prob.getPosterior(), 0.00001);
+        assertEquals(0.0, prob.getPosterior(), 0.00001);
         evidence.e$scientificName = false;
         prob = inference.probability(evidence, params);
         assertEquals(0.0, prob.getPosterior(), 0.00001);
@@ -106,7 +106,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         evidence.e$genus = true;
         evidence.e$soundexGenus = true;
         prob = inference.probability(evidence, params);
-        assertEquals(0.008065, prob.getEvidence(), 0.00001);
+        assertEquals(0.007874, prob.getEvidence(), 0.00001);
         assertEquals(1.0, prob.getPosterior(), 0.00001);
     }
 
@@ -142,11 +142,11 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         prob = inference.probability(evidence, params);
         assertEquals(0.0, prob.getEvidence(), 0.00001);
         assertEquals(0.0, prob.getConditional(), 0.00001);
-        assertEquals(0.016, prob.getPosterior(), 0.00001);
+        assertEquals(0.01562, prob.getPosterior(), 0.00001);
         evidence.e$kingdom = true;
         evidence.e$soundexKingdom = true;
         prob = inference.probability(evidence, params);
-        assertEquals(0.00806, prob.getEvidence(), 0.00001);
+        assertEquals(0.007874, prob.getEvidence(), 0.00001);
         assertEquals(1.0, prob.getConditional(), 0.00001);
         assertEquals(1.0, prob.getPosterior(), 0.00001);
     }
@@ -173,7 +173,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         evidence.e$kingdom = false;
         evidence.e$soundexKingdom = false;
         prob = inference.probability(evidence, params);
-        assertEquals(0.00458, prob.getEvidence(), 0.00001);
+        assertEquals(0.00455, prob.getEvidence(), 0.00001);
         assertEquals(0.0, prob.getConditional(), 0.00001);
         assertEquals(0.0, prob.getPosterior(), 0.00001);
     }
@@ -195,7 +195,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", match.getMatch().taxonId);
-        assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -207,7 +207,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -220,7 +220,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -232,7 +232,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51337710", match.getMatch().taxonId);
-        assertEquals(0.00806, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -244,7 +244,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -282,7 +282,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2918714", match.getMatch().taxonId);
-        assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -294,7 +294,69 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2898305", match.getMatch().taxonId);
-        assertEquals(0.008065, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
+    }
+
+
+    // Cultivar name
+    @Test
+    public void testMatch10() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Canarium sp. 'Testing'";
+        Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
+        assertTrue(match.isValid());
+        assertEquals("x-cultivar-1", match.getMatch().taxonId);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
+    }
+
+
+    // Cultivar name
+    @Test
+    public void testMatch11() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Canarium 'Testing'";
+        Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
+        assertTrue(match.isValid());
+        assertEquals("x-cultivar-1", match.getMatch().taxonId);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
+    }
+
+    // Cultivar name
+    @Test
+    public void testMatch12() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Sida sp. nov. 'Testing'";
+        Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
+        assertTrue(match.isValid());
+        assertEquals("x-cultivar-2", match.getMatch().taxonId);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
+    }
+
+    // Cultivar name
+    @Test
+    public void testMatch13() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Sida sp 'Testing'";
+        Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
+        assertTrue(match.isValid());
+        assertEquals("x-cultivar-2", match.getMatch().taxonId);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
+    }
+
+    // Cultivar name
+    @Test
+    public void testMatch14() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Sida phaeotricha 'Testing'";
+        Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
+        assertTrue(match.isValid());
+        assertEquals("x-cultivar-3", match.getMatch().taxonId);
+        assertEquals(0.007874, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 

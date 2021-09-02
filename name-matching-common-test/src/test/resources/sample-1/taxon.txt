@@ -123,3 +123,7 @@ urn:lsid:biodiversity.org.au:afd.taxon:e9e5bca4-a00d-4288-bef0-b8be900d83a3	urn:
 urn:lsid:biodiversity.org.au:afd.taxon:371caa58-0433-459a-b3ff-fcc076433f73	urn:lsid:biodiversity.org.au:afd.taxon:17babfba-1818-4371-bb03-f09595452fa6		ICZN	CHRYSOMELOIDEA		accepted	superfamily	dr2699			urn:lsid:biodiversity.org.au:afd.taxon:371caa58-0433-459a-b3ff-fcc076433f73	urn:lsid:biodiversity.org.au:afd.name:288633
 x-homonym-1	urn:lsid:biodiversity.org.au:afd.taxon:2ed314e4-17c6-4c9d-8f46-5281a38b73d5		ICZN	Homonymia		accepted	genus	drX			x-homonym-1	x-homonym-1-n
 x-homonym-2	https://id.biodiversity.org.au/taxon/apni/51335953		ICBN	Homonymia		accepted	genus	drX			x-homonym-2	x-homonym-2-n
+x-cultivar-1	https://id.biodiversity.org.au/node/apni/2918714		ICBN	Canarium sp. 'Testing'		accepted	species	drX			x-cultivar-1	x-cultivar-1-n
+x-cultivar-2	https://id.biodiversity.org.au/taxon/apni/51288633		ICBN	Sida sp. nov. 'Testing'		accepted	species	drX			x-cultivar-2	x-cultivar-2-n
+x-cultivar-3	https://id.biodiversity.org.au/node/apni/2898591		ICBN	Sida phaeotricha 'Testing'		accepted	species	drX			x-cultivar-3	x-cultivar-3-n
+x-cultivar-4	urn:lsid:indexfungorum.org:names:7214		ICBN	Arthrinium aff. amnium 'Coastal'		accepted	species	drX			x-cultivar-4	x-cultivar-4-n
