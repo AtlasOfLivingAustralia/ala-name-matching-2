@@ -23,10 +23,9 @@ public class NomenclaturalCodeAnalysis extends EnumAnalysis<NomenclaturalCode> {
      *
      * @param value The value to convert
      * @return The stringified value (null should return null)
-     * @throws StoreException if unable to convert to a string
      */
     @Override
-    public String toString(NomenclaturalCode value) throws StoreException {
+    public String toStore(NomenclaturalCode value) {
         return value== null ? null : value.getAcronym();
     }
 

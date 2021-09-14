@@ -37,10 +37,12 @@ public class GrassBuilder implements Builder {
 
   @Override
   public void infer(Classifier classifier) throws InferenceException, StoreException {
+    Object d;
   }
 
-    @Override
+  @Override
     public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
+      Object d;
   }
 
   @Override

@@ -1,4 +1,4 @@
-dwc_http://rs.tdwg.org/dwc/terms/TaxonID,_type,dwc_scientificName,dwc_scientificNameAuthorship,dwc_specificEpithet,dwc_genus,dwc_family,dwc_order,dwc_class,dwc_phylum,dwc_kingdom,bayesian_weight
+dwc_taxonID,_type,dwc_scientificName,dwc_scientificNameAuthorship,dwc_specificEpithet,dwc_genus,dwc_family,dwc_order,dwc_class,dwc_phylum,dwc_kingdom,bayesian_weight
 ID-1,http://rs.tdwg.org/dwc/terms/Taxon,Osphranter rufus,"Desmarest, 1822",rufus,Osphranter,Macropodidae,Diprotodontia,Mammalia,Chordata,Animalia,70
 ID-2,http://rs.tdwg.org/dwc/terms/Taxon,Acacia dealbata,Link,dealbata,Acacia,Fabaceae,Fabales,Equisetopsida,Charophyta,Plantae,100
 ID-3,http://rs.tdwg.org/dwc/terms/Taxon,Acacia abbreviata,Maslin,abbreviata,Acacia,Fabaceae,Fabales,Equisetopsida,Charophyta,Plantae,20

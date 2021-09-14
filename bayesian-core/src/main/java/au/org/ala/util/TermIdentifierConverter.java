@@ -25,15 +25,21 @@ public class TermIdentifierConverter implements IdentifierConverter {
     private String invalidReplacement;
     /** Append an index to avoid collisions */
     private boolean avoidCollisions;
+    /** The prefix to add */
+    private String prefix;
+    /** The suffix to add */
+    private String suffix;
     /** The map of existing conversions */
     private Map<Term, String> conversions;
 
-    public TermIdentifierConverter(String allowedCharactersRegex, String invalidReplacement, boolean avoidCollisions) {
+    public TermIdentifierConverter(String allowedCharactersRegex, String invalidReplacement, boolean avoidCollisions, String prefix, String suffix) {
         this.characterCheck = new BitSet(127);
         this.maxCh = -1;
         this.allowedCharacter = Pattern.compile(allowedCharactersRegex).asPredicate();
         this.invalidReplacement = invalidReplacement;
         this.avoidCollisions = avoidCollisions;
+        this.prefix = prefix;
+        this.suffix = suffix;
         this.conversions = new HashMap<>();
     }
 
@@ -48,6 +54,8 @@ public class TermIdentifierConverter implements IdentifierConverter {
             identifier = StringUtils.stripAccents(identifier);
             Reader r = new StringReader(identifier);
             StringWriter w = new StringWriter(term.prefixedName().length());
+            if (this.prefix != null)
+                w.append(this.prefix);
             boolean skip = false;
             int ch;
             try {
@@ -74,12 +82,14 @@ public class TermIdentifierConverter implements IdentifierConverter {
                 if (w.toString().isEmpty())
                     w.append("invalid");
             }
+            if (this.suffix != null)
+                w.append(this.suffix);
             String base = w.toString();
-            String suffix = "";
+            String discriminator = "";
             int index = 0;
             do {
-                identifier = base + suffix;
-                suffix = this.invalidReplacement + (index > 0 ? Integer.toString(index) : "");
+                identifier = base + discriminator;
+                discriminator = this.invalidReplacement + (index > 0 ? Integer.toString(index) : "");
                 index++;
             } while (this.avoidCollisions && this.conversions.containsValue(identifier));
             this.conversions.put(term, identifier);

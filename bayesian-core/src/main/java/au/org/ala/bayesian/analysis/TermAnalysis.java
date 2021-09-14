@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Analysis for a GBIF term in a vocabulary.
  */
-public class TermAnalysis extends Analysis<Term> {
+public class TermAnalysis extends Analysis<Term, String, String> {
     private static final Logger logger = LoggerFactory.getLogger(TermAnalysis.class);
 
     /**
@@ -22,6 +22,17 @@ public class TermAnalysis extends Analysis<Term> {
     public Class<Term> getType() {
         return Term.class;
     }
+
+    /**
+     * Get the class of object that this analyser handles.
+     *
+     * @return The class of analyser object
+     */
+    @Override
+    public Class<String> getStoreType() {
+        return String.class;
+    }
+
 
     /**
      * Analyse this object, providing any special interpretation
@@ -48,8 +59,33 @@ public class TermAnalysis extends Analysis<Term> {
      * @see Term#simpleName()
      */
     @Override
-    public String toString(Term value) {
-        return value == null ? null : value.simpleName();
+    public String toStore(Term value) {
+        return value == null ? null : value.qualifiedName();
+    }
+
+    /**
+     * Convert this object into a query
+     * </p>
+     *
+     * @param value The value to convert
+     * @return The stringified value (null should return null)
+     *
+     * @see Term#simpleName()
+     */
+    @Override
+    public String toQuery(Term value) {
+        return this.toStore(value);
+    }
+
+    /**
+     * Parse this value from storage.
+     *
+     * @param value The value
+     * @return The parsed value
+     */
+    @Override
+    public Term fromStore(String value) {
+        return this.fromString(value);
     }
 
     /**
@@ -63,6 +99,8 @@ public class TermAnalysis extends Analysis<Term> {
      */
     @Override
     public Term fromString(String value) {
+        if (value == null || value.isEmpty())
+            return null;
         Term term =  TermFactory.instance().findTerm(value);
         if (term instanceof UnknownTerm)
             logger.warn("Unknown term returned for " + value + " in " + this.getClass());

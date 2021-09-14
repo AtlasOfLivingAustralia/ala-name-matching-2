@@ -7,7 +7,7 @@ import au.org.ala.bayesian.StoreException;
 /**
  * The default integer analysis
  */
-public class DoubleAnalysis extends Analysis<Double> {
+public class DoubleAnalysis extends Analysis<Double, Double, Double> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -15,6 +15,16 @@ public class DoubleAnalysis extends Analysis<Double> {
      */
     @Override
     public Class<Double> getType() {
+        return Double.class;
+    }
+
+    /**
+     * Get the class of object that this analyser handles.
+     *
+     * @return The double class
+     */
+    @Override
+    public Class<Double> getStoreType() {
         return Double.class;
     }
 
@@ -35,15 +45,39 @@ public class DoubleAnalysis extends Analysis<Double> {
     }
 
     /**
-     * Convert this object into a string for storage
+     * Convert this object for storage
+     *
+     * @param value The value to convert
+     * @return The stori value (null should return null)
+     * @throws StoreException if unable to convert to a string
+     */
+    @Override
+    public Double toStore(Double value) throws StoreException {
+        return value;
+    }
+
+    /**
+     * Convert this object into a value for query
+     *
+     * @param value The value to convert
+     *
+     * @return The converted value (null should return null)
+     */
+    @Override
+    public Double toQuery(Double value) {
+        return value;
+    }
+
+    /**
+     * Convert this object form storage
      *
      * @param value The value to convert
      * @return The stringified value (null should return null)
      * @throws StoreException if unable to convert to a string
      */
     @Override
-    public String toString(Double value) throws StoreException {
-        return value == null ? null : value.toString();
+    public Double fromStore(Double value) throws StoreException {
+        return value;
     }
 
     /**

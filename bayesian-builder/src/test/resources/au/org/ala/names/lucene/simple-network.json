@@ -38,6 +38,7 @@
     {
       "id": "scientificName",
       "uri": "http://rs.tdwg.org/dwc/terms/scientificName",
+      "multiplicity" : "*",
       "properties": {
         "http://id.ala.org.au/bayesian/1.0/name": true
       },
@@ -46,6 +47,7 @@
     {
       "id": "soundexScientificName",
       "uri": "http://id.ala.org.au/terms/1.0/soundexScientificName",
+      "multiplicity" : "*",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "sources": [ "scientificName" ]
@@ -55,7 +57,7 @@
       "id": "specificEpithet",
       "uri": "http://rs.tdwg.org/dwc/terms/specificEpithet",
       "normaliser": "simple_normaliser",
-      "erasure": "species"
+      "group": "species"
     },
     {
       "id": "genus",
@@ -64,7 +66,7 @@
         "http://id.ala.org.au/bayesian/1.0/copy": true
       },
       "normaliser": "simple_normaliser",
-      "erasure": "genus",
+      "group": "genus",
       "base": {
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "sources": [ "scientificName" ],

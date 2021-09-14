@@ -19,12 +19,12 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     private static final Logger logger = LoggerFactory.getLogger(ClassificationMatcher.class);
 
     /** The default possible theshold for something to be considered. @see #isPossible */
-    public static double POSSIBLE_THESHOLD = 0.1;
+    public static double POSSIBLE_THRESHOLD = 0.1;
     /** The default immediately acceptable threshold for something to be regarded as accepted. @see @isImmediateMatch */
     public static double IMMEDIATE_THRESHOLD = 0.99;
     /** The default acceptable threshold for something. @see @isAcceptableMatch */
     public static double ACCEPTABLE_THRESHOLD = 0.90;
-    /** The amount that the evidence is allowed to be below the prior priobaility */
+    /** The amount that the evidence is allowed to be below the prior probability */
     public static double EVIDENCE_SLOP = 20.0;
     /** The amount of evidence before something is too unlikely */
     public static double EVIDENCE_THRESHOLD = Inference.MINIMUM_PROBABILITY * 10.0;
@@ -65,15 +65,22 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * @throws StoreException if unable to retrieve matches
      */
     @NonNull
-    public Match<C> findMatch(C classification) throws InferenceException, StoreException {
+    public Match<C> findMatch(@NonNull C classification) throws InferenceException, StoreException {
         classification.inferForSearch();
+
+        // Immediate search
+        Match<C> match = this.findSource(classification);
+        if (match != null)
+            return match;
+
+        // Search for modified version
+        C previous = classification;
         Iterator<C> sourceClassifications = new BacktrackingIterator<>(classification, classification.searchModificationOrder());
-        C previous = null;
-        while (sourceClassifications.hasNext()) {
+         while (sourceClassifications.hasNext()) {
             C modified = sourceClassifications.next();
             if (modified == previous)
                 continue;
-            Match<C> match = this.findSource(modified);
+            match = this.findSource(modified);
             if (match != null)
                 return match;
             previous = modified;
@@ -81,7 +88,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         return Match.invalidMatch();
     }
 
-    protected Match<C> findSource(C classification) throws InferenceException, StoreException {
+    protected Match<C> findSource(@NonNull C classification) throws InferenceException, StoreException {
         classification.inferForSearch();
         List<? extends Classifier> candidates = this.searcher.search(classification);
         if (candidates.isEmpty())
@@ -150,7 +157,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     protected Match<C> resolve(Match<C> match)  {
         try {
             String acceptedId = match.getMatch().getAccepted();
-            if (acceptedId == null || !accepted.isPresent() || !this.identifier.isPresent())
+            if (acceptedId == null || !this.accepted.isPresent() || !this.identifier.isPresent())
                 return match;
             Classifier acceptedCandidate = this.searcher.get(match.getMatch().getType(), this.identifier.get(), acceptedId);
             if (acceptedCandidate == null)
@@ -223,7 +230,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * @return True if this is a possible match
      */
     protected boolean isPossible(C classification, Classifier candidate, Inference inference) {
-        return inference.getPosterior() >= POSSIBLE_THESHOLD && inference.getBoost() >= 1.0;
+        return inference.getPosterior() >= POSSIBLE_THRESHOLD && inference.getBoost() >= 1.0;
     }
 
     /**
@@ -257,7 +264,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      */
     protected boolean isAcceptableMatch(Match<C> match) {
         Inference p = match.getProbability();
-        return p.getPosterior() >= ACCEPTABLE_THRESHOLD && p.getEvidence() >= EVIDENCE_THRESHOLD && p.getConditional() >= POSSIBLE_THESHOLD;
+        return p.getPosterior() >= ACCEPTABLE_THRESHOLD && p.getEvidence() >= EVIDENCE_THRESHOLD && p.getConditional() >= POSSIBLE_THRESHOLD;
     }
 
     /**

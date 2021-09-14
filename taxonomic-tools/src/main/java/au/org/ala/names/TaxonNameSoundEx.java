@@ -3,16 +3,26 @@ package au.org.ala.names;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.nameparser.api.Rank;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * A Java implementation of the sound ex algorithm supplied by Tony Rees
  * Copied from Taxamatch project. We don't need full taxamatch...
  */
 public class TaxonNameSoundEx {
+    private static final String RANK_MARKERS = Arrays.stream(Rank.values())
+            .map(r -> r.getMarker())
+            .filter(Objects::nonNull)
+            .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
+            .collect(Collectors.joining("|" ))
+            + "|ssp|spp";
+    private static final Pattern MARKERS = Pattern.compile(
+            "\\s+(?:cf|near|aff|s\\.n|nov|s\\. str|" +
+            RANK_MARKERS +
+            ")\\.?(?=\\s+|$)"
+    );
 
     private static String translate(String source, String transSource, String transTarget) {
         String result = source;
@@ -36,15 +46,9 @@ public class TaxonNameSoundEx {
         // trim any leading, trailing spaces or line feeds
         //output = ltrim(rtrim(str));
 
-        output = output.replace(" cf ", " ");
-        output = output.replace(" cf. ", " ");
-        output = output.replace(" near ", " ");
-        output = output.replace(" aff. ", " ");
-        output = output.replace(" sp.", " ");
-        output = output.replace(" spp.", " ");
-        output = output.replace(" spp ", " ");
+        output = MARKERS.matcher(output).replaceAll(" ").trim();
 
-        output = str.toUpperCase();
+        output = output.toUpperCase();
 
         // replace any HTML ampersands
         output = output.replace(" &AMP; ", " & ");
@@ -57,6 +61,7 @@ public class TaxonNameSoundEx {
                 "\u00c5\u00c7\u00d8", "AEIOUAEIOUAEIOUAEIOUANOACO");
 
         output = output.replace("\u00c6", "AE");
+        output = output.replaceAll("\\s+", " ");
         output = output.replaceAll("[^a-zA-Z .]", "");
         output = StringUtils.trimToNull(output);
 

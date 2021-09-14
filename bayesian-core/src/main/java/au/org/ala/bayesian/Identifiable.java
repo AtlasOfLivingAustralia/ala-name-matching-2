@@ -59,6 +59,9 @@ abstract public class Identifiable {
     /** Cache of external names, including computed ones */
     @JsonIgnore
     private Map<ExternalContext, String> externalCache;
+    /** Cache of external names, including computed ones for external variants */
+    @JsonIgnore
+    private Map<ExternalContext, String> variantCache;
     /** Any property flags that this observable has */
     // See getter/setter for json properties
     private SortedMap<Term, Object> properties;
@@ -166,9 +169,10 @@ abstract public class Identifiable {
     }
 
     /**
-     * Set
-     * @param context
-     * @param external
+     * Set an external representation.
+     *
+     * @param context The context
+     * @param external If null, remove it (will recompute if needed) otherwise the new representation
      */
     public void setExternal(ExternalContext context, String external) {
         if (external == null) {

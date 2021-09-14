@@ -56,7 +56,7 @@ public enum BayesianTerm implements Term {
 
     public static final String NS = "http://id.ala.org.au/bayesian/1.0/";
     public static final URI NAMESPACE = URI.create(NS);
-    public static final String PREFIX = "bayesian:";
+    public static final String PREFIX = "bayesian";
 
     @Override
     public String qualifiedName() {
@@ -79,7 +79,7 @@ public enum BayesianTerm implements Term {
     }
 
     public String toString() {
-         return PREFIX + name();
+         return this.prefixedName();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package au.org.ala.bayesian;
 
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.util.Objects;
 
@@ -53,6 +54,18 @@ public class Contributor {
         if (o == null || getClass() != o.getClass()) return false;
         Contributor that = (Contributor) o;
         return match == that.match &&
+                observable.equals(that.observable);
+    }
+
+    /**
+     * Contradiction test.
+     *
+     * @param that The other contributor
+     *
+     * @return True if this contribution contradicts the other contibutor
+     */
+    public boolean contradicts(@NonNull Contributor that) {
+        return match != that.match &&
                 observable.equals(that.observable);
     }
 

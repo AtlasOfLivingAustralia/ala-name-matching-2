@@ -120,10 +120,10 @@ public class NetworkCompiler {
      * Get the collections of erased observables
      */
     public List<List<Observable>> getErasureStructure() {
-        List<String> erasureGroups = this.network.getErasureGroups();
+        List<String> erasureGroups = this.network.getGroups();
         return erasureGroups.stream()
                 .map(g -> this.network.getObservables().stream()
-                    .filter(o -> g.equals(o.getErasure()))
+                    .filter(o -> g.equals(o.getGroup()))
                     .collect(Collectors.toList()))
                 .collect(Collectors.toList());
     }
@@ -163,8 +163,8 @@ public class NetworkCompiler {
 
         for (Node node: this.inputs) {
             node.input = true;
-            node.prior = new InferenceParameter("prior", new Contributor(node.observable, true), Collections.EMPTY_LIST);
-            node.invertedPrior = new InferenceParameter("prior", new Contributor(node.observable, false), Collections.EMPTY_LIST, Collections.singletonList(node.prior), true);
+            node.prior = new InferenceParameter("prior", new Contributor(node.observable, true), Collections.emptyList(), Collections.emptyList());
+            node.invertedPrior = new InferenceParameter("prior", new Contributor(node.observable, false), Collections.emptyList(), Collections.emptyList(), Collections.singletonList(node.prior), true);
         }
         for (Node node: this.outputs) {
             node.output = true;
@@ -194,13 +194,18 @@ public class NetworkCompiler {
         node.cNotE = new ResultVariable("nc", node.observable);
         List<Observable> incoming = this.network.getIncoming(node.observable).stream().map(e -> this.network.getSource(e)).collect(Collectors.toList());
         if (!incoming.isEmpty()) {
-            List<boolean[]> signatures = this.signatures(incoming.size());
-            node.inference = new ArrayList<>(signatures.size() * 2);
-            for (boolean[] sig: signatures) {
-                InferenceParameter positive = new InferenceParameter("inf", new Contributor(node.observable, true), incoming, sig);
-                InferenceParameter negative = new InferenceParameter("inf", new Contributor(node.observable, false), positive.getContributors(), Collections.singletonList(positive), true);
-                node.inference.add(positive);
-                node.inference.add(negative);
+            node.inference = new ArrayList<>(incoming.size() * this.inputSignatures.size() * 2);
+            for (boolean[] psig: this.inputSignatures) {
+                List<Contributor> postulates = IntStream.range(0, psig.length).mapToObj(i -> new Contributor(this.inputs.get(i).observable, psig[i])).collect(Collectors.toList());
+                List<boolean[]> signatures = this.signatures(incoming.size());
+                 for (boolean[] sig : signatures) {
+                    InferenceParameter positive = new InferenceParameter("inf", new Contributor(node.observable, true), postulates, incoming, sig);
+                    InferenceParameter negative = new InferenceParameter("inf", new Contributor(node.observable, false), postulates, positive.getContributors(), Collections.singletonList(positive), true);
+                    if (!positive.isContradiction())
+                        node.inference.add(positive);
+                    if (!negative.isContradiction())
+                        node.inference.add(negative);
+                }
             }
         }
         node.horizon = this.horizonAlgorithm.computeHorizon(node.observable);
@@ -221,29 +226,36 @@ public class NetworkCompiler {
             return;
         List<Observable> horizon = node.horizon.getVertices();
         node.interior = new ArrayList<>(2 << horizon.size());
-        for (boolean[] sig: this.signatures(horizon.size())) {
-            List<Contributor> cs = IntStream.range(0, horizon.size()).mapToObj(i -> new Contributor(horizon.get(i), sig[i])).collect(Collectors.toList());
-            List<InferenceParameter> derivedFrom = new ArrayList<>(node.horizon.getInterior().size() + 1);
-            for (Observable in: node.horizon.getInterior()) {
-                Node inn = this.nodes.get(in.getId());
-                if (inn.inference.isEmpty())
-                    throw new InferenceException("Expecting inference nodes on horizon");
-                Set<Observable> inos = inn.inference.get(0).getContributors().stream().map(Contributor::getObservable).collect(Collectors.toSet());
-                List<Contributor> scs = cs.stream().filter(c -> inos.contains(c.getObservable())).collect(Collectors.toList());
-                boolean positive = cs.stream().filter(c -> c.getObservable().equals(in)).map(c -> c.isMatch()).findFirst().get();
-                derivedFrom.add(this.findMatchingParameter(scs, inn.inference, positive));
+        for (boolean[] psig: this.inputSignatures) {
+            List<Contributor> postulates = IntStream.range(0, psig.length).mapToObj(i -> new Contributor(this.inputs.get(i).observable, psig[i])).collect(Collectors.toList());
+            for (boolean[] sig : this.signatures(horizon.size())) {
+                List<Contributor> cs = IntStream.range(0, horizon.size()).mapToObj(i -> new Contributor(horizon.get(i), sig[i])).collect(Collectors.toList());
+                List<InferenceParameter> derivedFrom = new ArrayList<>(node.horizon.getInterior().size() + 1);
+                for (Observable in : node.horizon.getInterior()) {
+                    Node inn = this.nodes.get(in.getId());
+                    if (inn.inference.isEmpty())
+                        throw new InferenceException("Expecting inference nodes on horizon");
+                    Set<Observable> inos = inn.inference.get(0).getContributors().stream().map(Contributor::getObservable).collect(Collectors.toSet());
+                    List<Contributor> scs = cs.stream().filter(c -> inos.contains(c.getObservable())).collect(Collectors.toList());
+                    boolean positive = cs.stream().filter(c -> c.getObservable().equals(in)).map(c -> c.isMatch()).findFirst().get();
+                    derivedFrom.add(this.findMatchingParameter(scs, inn.inference, positive));
+                }
+                List<InferenceParameter> pi = new ArrayList<>(derivedFrom.size() + 1);
+                List<Contributor> local = cs.stream().filter(c -> node.inference.get(0).hasObservable(c.getObservable())).collect(Collectors.toList());
+                InferenceParameter mp = this.findMatchingParameter(local, node.inference, true);
+                pi.add(mp);
+                pi.addAll(derivedFrom);
+                InferenceParameter positive = new InferenceParameter("derived", new Contributor(node.observable, true), postulates, cs, pi, false);
+                if (!positive.isContradiction())
+                    node.interior.add(positive);
+                List<InferenceParameter> ni = new ArrayList<>(derivedFrom.size() + 1);
+                InferenceParameter mn = this.findMatchingParameter(local, node.inference, false);
+                ni.add(mn);
+                ni.addAll(derivedFrom);
+                InferenceParameter negative = new InferenceParameter("derived", new Contributor(node.observable, false), postulates, cs, ni, false);
+                if (!negative.isContradiction())
+                    node.interior.add(negative);
             }
-            List<InferenceParameter> pi = new ArrayList<>(derivedFrom.size() + 1);
-            List<Contributor> local = cs.stream().filter(c -> node.inference.get(0).hasObservable(c.getObservable())).collect(Collectors.toList());
-            pi.add(this.findMatchingParameter(local, node.inference, true));
-            pi.addAll(derivedFrom);
-            InferenceParameter positive = new InferenceParameter("derived", new Contributor(node.observable, true), cs, pi, false);
-            node.interior.add(positive);
-            List<InferenceParameter> ni = new ArrayList<>(derivedFrom.size() + 1);
-            ni.add(this.findMatchingParameter(local, node.inference, false));
-            ni.addAll(derivedFrom);
-            InferenceParameter negative = new InferenceParameter("derived", new Contributor(node.observable, false), cs, ni, false);
-            node.interior.add(negative);
         }
     }
 
@@ -258,7 +270,7 @@ public class NetworkCompiler {
             if (match)
                 return candidate;
         }
-        throw new InferenceException("Unable to match contributor pattern " + pattern + " candidates " + candidates);
+        throw new InferenceException("Unable to find matching parameter for " + pattern + " from " + candidates);
     }
 
 
@@ -330,8 +342,16 @@ public class NetworkCompiler {
             return "p(\u00ac" + this.observable.getLabel() + ")";
         }
 
+        public List<InferenceParameter> matchingInference(final String signature) {
+            return this.inference.stream().filter(p -> signature.equals(p.getPostulateSignature())).collect(Collectors.toList());
+        }
+
+        public List<InferenceParameter> matchingInterior(final String signature) {
+            return this.interior.stream().filter(p -> signature.equals(p.getPostulateSignature())).collect(Collectors.toList());
+        }
+
         /**
-         * Construct an empty node with a observable
+         * Construct an empty node with an observable and a list of postulates
          *
          * @param observable The observable
          */

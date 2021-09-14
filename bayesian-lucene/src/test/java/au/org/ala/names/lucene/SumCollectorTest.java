@@ -33,8 +33,8 @@ public class SumCollectorTest {
     @Test
     public void testSumCollector1() throws Exception {
         this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST);
-        SumCollector collector = new SumCollector(this.lucene.getSearcher(), this.scoreCache,"weight", 1.0);
-        Query query = new TermQuery(new Term("type", "insect"));
+        SumCollector collector = new SumCollector(this.lucene.getSearcher(), this.scoreCache, "bayesian_weight", 1.0);
+        Query query = new TermQuery(new Term("dcterms_type", "insect"));
         this.lucene.getSearcher().search(query, collector);
         Assert.assertEquals(110.0, collector.getSum(), 0.0001);
     }
@@ -42,8 +42,8 @@ public class SumCollectorTest {
     @Test
     public void testSumCollector2() throws Exception {
         this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST);
-        SumCollector collector = new SumCollector(this.lucene.getSearcher(), this.scoreCache, "weight", 1.0);
-        Query query = new TermQuery(new Term("type", "invalid"));
+        SumCollector collector = new SumCollector(this.lucene.getSearcher(), this.scoreCache, "bayesian_weight", 1.0);
+        Query query = new TermQuery(new Term("dcterm_type", "invalid"));
         this.lucene.getSearcher().search(query, collector);
         Assert.assertEquals(0.0, collector.getSum(), 0.0001);
     }
@@ -51,8 +51,8 @@ public class SumCollectorTest {
     @Test
     public void testSumCollector3() throws Exception {
         this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST);
-        SumCollector collector = new SumCollector(this.lucene.getSearcher(), this.scoreCache, "weight", 1.0);
-        Query query = new TermQuery(new Term("name", "Ant"));
+        SumCollector collector = new SumCollector(this.lucene.getSearcher(), this.scoreCache, "bayesian_weight", 1.0);
+        Query query = new TermQuery(new Term("bayesian_name", "Ant"));
         this.lucene.getSearcher().search(query, collector);
         Assert.assertEquals(100.0, collector.getSum(), 0.0001);
     }

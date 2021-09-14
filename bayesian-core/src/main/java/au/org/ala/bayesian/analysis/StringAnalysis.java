@@ -6,7 +6,7 @@ import au.org.ala.bayesian.StoreException;
 
 import java.time.LocalDate;
 
-public class StringAnalysis extends Analysis<String> {
+public class StringAnalysis extends Analysis<String, String, String> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -14,6 +14,16 @@ public class StringAnalysis extends Analysis<String> {
      */
     @Override
     public Class<String> getType() {
+        return String.class;
+    }
+
+    /**
+     * Get the class of object that this analyser stores.
+     *
+     * @return The string class
+     */
+    @Override
+    public Class<String> getStoreType() {
         return String.class;
     }
 
@@ -44,12 +54,25 @@ public class StringAnalysis extends Analysis<String> {
      * </p>
      *
      * @param value The value to convert
-     * @return The stringified value (null should return null)
-     * @throws StoreException if unable to convert to a string
+     * @return The value (null should return null)
      */
     @Override
-    public String toString(String value) throws StoreException {
-        return value == null ? null : value;
+    public String toStore(String value) {
+        return value;
+    }
+
+    /**
+     * Convert this object into a query object
+     * <p>
+     * This just returns the value
+     * </p>
+     *
+     * @param value The value to convert
+     * @return The value (null should return null)
+     */
+    @Override
+    public String toQuery(String value) {
+        return value;
     }
 
     /**
@@ -59,11 +82,23 @@ public class StringAnalysis extends Analysis<String> {
      * </p>
      * @param value The value
      * @return The parsed value
-     * @throws StoreException if unable to interpret the string
      */
     @Override
-    public String fromString(String value) throws StoreException {
+    public String fromStore(String value) {
         return value;
+    }
+
+    /**
+     * Parse this value and return a suitably interpreted object.
+     * <p>
+     * This just returns the value
+     * </p>
+     * @param value The value
+     * @return The parsed value
+     */
+    @Override
+    public String fromString(String value) {
+        return value == null || value.isEmpty()?  null : value;
     }
 
     /**

@@ -4,7 +4,9 @@ import au.org.ala.bayesian.Analysis;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.StoreException;
 
-public class EnumAnalysis<E extends Enum<E>> extends Analysis<E> {
+import java.util.Objects;
+
+public class EnumAnalysis<E extends Enum<E>> extends Analysis<E, String, String> {
     private Class<E> clazz;
 
     /**
@@ -24,6 +26,16 @@ public class EnumAnalysis<E extends Enum<E>> extends Analysis<E> {
     @Override
     public Class<E> getType() {
         return this.clazz;
+    }
+
+    /**
+     * Get the class of object that this analyser handles.
+     *
+     * @return The class of analyser object
+     */
+    @Override
+    public Class<String> getStoreType() {
+        return String.class;
     }
 
     /**
@@ -47,13 +59,39 @@ public class EnumAnalysis<E extends Enum<E>> extends Analysis<E> {
      *
      * @param value The value to convert
      * @return The stringified value (null should return null)
-     * @throws StoreException if unable to convert to a string
      */
     @Override
-    public String toString(E value) throws StoreException {
+    public String toStore(E value) {
         if (value == null)
             return null;
         return value.name().toLowerCase();
+    }
+
+    /**
+     * Convert this object into a value for query
+     *
+     * @param value The value to convert
+     *
+     * @return The converted value (null should return null)
+     */
+    @Override
+    public String toQuery(E value) {
+        return this.toStore(value);
+    }
+
+    /**
+     * Parse this value and return a suitably interpreted object.
+     * <p>
+     * By default, tries the enum name to all upper case and
+     * if that doesn't work, tries the name.
+     * </p>
+     *
+     * @param value The value
+     * @return The parsed value
+     */
+    @Override
+    public E fromStore(String value) {
+        return this.fromString(value);
     }
 
     /**
@@ -97,5 +135,31 @@ public class EnumAnalysis<E extends Enum<E>> extends Analysis<E> {
         if (value1 == null || value2 == null)
             return null;
         return value1 == value2;
+    }
+
+    /**
+     * Equality test.
+     *
+     * @param o The other object
+     *
+     * @return If the same class and for the same class.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        EnumAnalysis<?> that = (EnumAnalysis<?>) o;
+        return clazz.equals(that.clazz);
+    }
+
+    /**
+     * Hash code.
+     *
+     * @return Derived from ther class and the enum class
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), clazz);
     }
 }

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public interface Classifier {
     public <T> T get(Observable observable);
 
     /**
-     * Get the all values for some observables.
+     * Get all the possible values, including variants, for some observables.
      *
      * @param observables The observable
      *
@@ -51,11 +52,14 @@ public interface Classifier {
     /**
      * Does this classifier have a matching term for an observable?
      * <p>
+     * If the observable has variants, also match the variants.
+     * </p>
+     * <p>
      * If the observable has any combination of a type, normaliser and style,
      * the match should respect the appropriate rules.
      * </p>
      *
-     * @param observable The observable to match
+     * @param observables The possible observables to match against
      * @param value The value to match against (may be null)
      *
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
@@ -63,10 +67,16 @@ public interface Classifier {
      * @throws StoreException if there was a problem retrieving a value from the classifier
      * @throws InferenceException if there was a problem matching the result
      */
-    public <T> Boolean match(Observable observable, T value) throws StoreException, InferenceException;
+    public <T> Boolean match(T value, Observable... observables) throws StoreException, InferenceException;
 
     /**
      * Add a value to the classifier.
+     * <p>
+     * The first value added represents the "actual" value of a classifier and
+     * are intended to fill out a classification as well as being searchable/matchable.
+     * Other values are treated as variants.
+     * If the observable does not allow variants, a {@link StoreException} is thrown.
+     * </p>
      * <p>
      * Note, the classifier needs to parse and normalise any values before
      * adding them to the classifier.
@@ -76,11 +86,9 @@ public interface Classifier {
      * @param observable The observable to store
      * @param value The value to store
      *
-     * @throws StoreException if unable to add this variable to the classifier
-     * @throws InferenceException if unable to check to see if the value has been added twice
+     * @throws StoreException if the value is already present or unable to add this variable to the classifier
      */
     public <T> void add(Observable observable, T value) throws StoreException;
-
 
     /**
      * Copy all values from another classifier
@@ -264,6 +272,23 @@ public interface Classifier {
      * @see Inferencer#getSignature()
      */
     public void setSignature(String signature);
+
+    /**
+     * Get the trail of identifiers used in hierarchical classifiers.
+     * <p>
+     * The trail represents the heirarchy of possible identifiers, from most general to least general (this classifier).
+     * </p>
+     *
+     * @return The trail
+     */
+    public List<String> getTrail();
+
+    /**
+     * Set the trail of identifiers used in the classifier hierarchy.
+     *
+     * @param trail The new trail
+     */
+    public void setTrail(List<String> trail);
 
     /**
      * Get a list of all the values set in the classifier.

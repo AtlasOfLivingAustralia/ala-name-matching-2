@@ -43,31 +43,31 @@ public class ${className} implements Inferencer<${classificationClassName}> {
     // Ignoring non-base ${node.observable.id}
   <#elseif node.interior?size gt 0>
     if (evidence.isT$${node.evidence.id}()) {
-        <#list node.interior as inf>
+        <#list node.matchingInterior(signature) as inf>
             <#if inf.outcome.match>
-      ${node.CE} += parameters.${inf.id}$${signature}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
+      ${node.CE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
             </#if>
         </#list>
     }
     if (evidence.isF$${node.evidence.id}()) {
-      <#list node.interior as inf>
+      <#list node.matchingInterior(signature) as inf>
             <#if !inf.outcome.match>
-      ${node.CNotE} += parameters.${inf.id}$${signature}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
+      ${node.CNotE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
             </#if>
       </#list>
     }
   <#elseif node.inference?size gt 0>
     if (evidence.isT$${node.evidence.id}()) {
-      <#list node.inference as inf>
+      <#list node.matchingInference(signature) as inf>
           <#if inf.outcome.match>
-      ${node.CE} += parameters.${inf.id}$${signature}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
+      ${node.CE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
           </#if>
       </#list>
     }
     if (evidence.isF$${node.evidence.id}()) {
-      <#list node.inference as inf>
+      <#list node.matchingInference(signature) as inf>
           <#if !inf.outcome.match>
-      ${node.CNotE} += parameters.${inf.id}$${signature}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
+      ${node.CNotE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
           </#if>
       </#list>
     }

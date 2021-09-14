@@ -16,7 +16,7 @@
 
     <!-- Contains GBIF-specific versions -->
     <properties>
-        <name-parser.version>3.6.2-ala-SNAPSHOT</name-parser.version>
+        <name-parser.version>3.6.2-SNAPSHOT</name-parser.version>
         <gbif-parsers.version>0.54</gbif-parsers.version>
         <checklistbank.version>2.83</checklistbank.version>
     </properties>

@@ -77,7 +77,6 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
         builder.add(
                 this.queryUtils.asQuery(
                         identifier.getExternal(ExternalContext.LUCENE),
-                        identifier.getType(),
                         identifier.getStyle(),
                         identifier.getNormaliser(),
                         identifier.getAnalysis(),
@@ -118,7 +117,7 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
         if (name != null)
             builder.add(this.queryUtils.nameClause(name));
         for (Observation observation: criteria)
-            builder.add(this.queryUtils.asClause(observation, observation.getObservable().isRequired()));
+            builder.add(this.queryUtils.asClause(observation, false));
         Query query = builder.build();
         List<LuceneClassifier> classifiers = null;
         try {

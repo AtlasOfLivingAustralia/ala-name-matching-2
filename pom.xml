@@ -29,7 +29,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <com.fasterxml.jackson.version>2.10.0</com.fasterxml.jackson.version>
-    <org.projectlombok.lombok.version>1.18.18</org.projectlombok.lombok.version>
+    <org.projectlombok.lombok.version>1.18.20</org.projectlombok.lombok.version>
     <org.slf4j.version>1.7.30</org.slf4j.version>
     <maven.version>3.6.1</maven.version>
     <commons-lang3.version>3.11</commons-lang3.version>

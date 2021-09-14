@@ -3,7 +3,6 @@ package au.org.ala.names.lucene;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexOptions;
@@ -17,9 +16,11 @@ import org.gbif.dwc.terms.TermFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static au.org.ala.bayesian.ExternalContext.LUCENE;
+import static au.org.ala.bayesian.ExternalContext.LUCENE_VARIANT;
 
 /**
  * Lucene implementation of a classifier.
@@ -43,13 +44,19 @@ public class LuceneClassifier implements Classifier {
     public static final String INDEX_FIELD = "_index";
     /** The default field name for classifier signature */
     public static final String SIGNATURE_FIELD = "_signature";
+    /** The default field name for classifier trail */
+    public static final String TRAIL_FIELD = "_trail";
+    /** The trail separator */
+    public static final String TRAIL_SEPARATOR = "|";
+    /** The trail separator regular expression */
+    public static final Pattern TRAIL_SEPARATOR_REGEX = Pattern.compile("\\|");
 
     /** The underlying lucene document */
     @Getter
-    private Document document;
+    private final Document document;
     /** Has this document been retrieved from a store (in which case it is hard ti store again */
     @Getter
-    private boolean retrieved;
+    private final boolean retrieved;
 
     /**
      * Construct for an empty document
@@ -79,36 +86,65 @@ public class LuceneClassifier implements Classifier {
      * read-in document information.
      * In particular, fields that should not be analysed get analysed when stored, read and
      * stored again.
+     * Additionally, stored int fields are normally associated with an int point in the index for
+     * searching.
      * Sigh.
      * </p>
      */
     public Document makeDocumentCopy() {
         Document copy = new Document();
         for (IndexableField field: this.document) {
+            if (!field.fieldType().stored()) {
+                continue; // Assume added in by what is below
+            }
             if (field.fieldType().indexOptions() == IndexOptions.NONE) {
                 if (field.binaryValue() != null)
                     copy.add(new StoredField(field.name(), field.binaryValue()));
                 else if (field.numericValue() != null) {
                     Number number = field.numericValue();
-                    if (number instanceof Integer || number instanceof Short || number instanceof Byte)
+                    if (number instanceof Integer || number instanceof Short || number instanceof Byte) {
                         copy.add(new StoredField(field.name(), number.intValue()));
-                    else if (number instanceof Long)
+                        copy.add(new IntPoint(field.name(), number.intValue())); // Assume searchable as well
+                    } else if (number instanceof Long) {
                         copy.add(new StoredField(field.name(), number.longValue()));
-                    else if (number instanceof Float)
+                    } else if (number instanceof Float) {
                         copy.add(new StoredField(field.name(), number.floatValue()));
-                    else
+                    } else {
                         copy.add(new StoredField(field.name(), number.doubleValue()));
+                    }
                 } else if (field.stringValue() != null)
                     copy.add(new StoredField(field.name(), field.stringValue()));
                 else
                     throw new IllegalStateException("Unable to copy field :" + field);
-            } else if (field.fieldType().indexOptions() == IndexOptions.DOCS)
+            } else if (field.fieldType().indexOptions() == IndexOptions.DOCS) {
                 if (field.stringValue() != null)
                     copy.add(new StringField(field.name(), field.stringValue(), Field.Store.YES));
                 else
                     throw new IllegalStateException("Unable to copy field :" + field);
-            else
-                copy.add(field);
+            } else {
+                if (field.binaryValue() != null)
+                    copy.add(new StoredField(field.name(), field.binaryValue()));
+                else if (field.numericValue() != null) {
+                    Number number = field.numericValue();
+                    if (number instanceof Integer || number instanceof Short || number instanceof Byte) {
+                        copy.add(new StoredField(field.name(), number.intValue()));
+                        copy.add(new IntPoint(field.name(), number.intValue()));
+                    } else if (number instanceof Long) {
+                        copy.add(new StoredField(field.name(), number.longValue()));
+                        copy.add(new LongPoint(field.name(), number.longValue()));
+                    } else if (number instanceof Float) {
+                        copy.add(new StoredField(field.name(), number.floatValue()));
+                        copy.add(new FloatPoint(field.name(), number.floatValue()));
+                    } else {
+                        copy.add(new StoredField(field.name(), number.doubleValue()));
+                        copy.add(new DoublePoint(field.name(), number.doubleValue()));
+                    }
+                } else if (field.stringValue() != null) {
+                    copy.add(new TextField(field.name(), field.stringValue(), Field.Store.YES));
+                } else {
+                    throw new IllegalStateException("Unable to copy field :" + field);
+                }
+            }
         }
         return copy;
     }
@@ -128,43 +164,65 @@ public class LuceneClassifier implements Classifier {
     /**
      * Does this classifier have a matching term for an observable?
      * <p>
+     * All variants are tested.
      * Integer types and double types are directly compared.
      * String types are compared according to the normalisation and style rules specified by the observable.
      * </p>
      *
-     * @param observable The observable to match
+     * @param observables The observables to match
      * @param value      The value to match against (may be null)
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
      * @throws StoreException if there was a problem matching the result
      * @throws InferenceException if unable to test for equivalence.
      */
     @Override
-    public <T> Boolean match(Observable observable, T value) throws StoreException, InferenceException {
+    public <T> Boolean match(T value, Observable... observables) throws StoreException, InferenceException {
+        return this.match(value, true, observables);
+    }
+
+    /**
+     * Does this classifier have a matching term for an observable?
+     * <p>
+     * All variants are tested.
+     * Integer types and double types are directly compared.
+     * String types are compared according to the normalisation and style rules specified by the observable.
+     * </p>
+     *
+     * @param observables The observables to match
+     * @param value      The value to match against (may be null)
+     * @param variants  Look for variants
+     * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
+     * @throws StoreException if there was a problem matching the result
+     * @throws InferenceException if unable to test for equivalence.
+     */
+    public <T, C, Q> Boolean match(T value, boolean variants, Observable... observables) throws StoreException, InferenceException {
         if (value == null)
             return null;
-        IndexableField[] fields = this.document.getFields(observable.getExternal(LUCENE));
-        if (fields.length == 0)
-            return null;
-        Analysis analysis = observable.getAnalysis();
         boolean allNull = true;
-        if (Number.class.isAssignableFrom(observable.getType())) {
-            if (!(value instanceof Number))
-                return false;
-            for (IndexableField field: fields) {
-                Number fv = field.numericValue();
-                Boolean match = analysis.equivalent(value, fv);
-                if (match != null && match)
-                    return true;
-                allNull = allNull && match == null;
-            }
-        } else {
-            for (IndexableField field: this.document.getFields(observable.getExternal(LUCENE))) {
-                String sv = field.stringValue();
-                Object cv = analysis.fromString(sv);
-                Boolean match = analysis.equivalent(value, cv);
-                if (match != null && match)
-                    return true;
-                allNull = allNull && match == null;
+        for (Observable observable: observables) {
+            IndexableField[] fields = this.document.getFields(observable.getExternal(variants && observable.getMultiplicity().isMany() ? LUCENE_VARIANT : LUCENE));
+            if (fields.length == 0)
+                continue;
+            Analysis<T, C, Q> analysis = observable.getAnalysis();
+            if (Number.class.isAssignableFrom(observable.getType())) {
+                if (!(value instanceof Number))
+                    return false;
+                for (IndexableField field : fields) {
+                    Number fv = field.numericValue();
+                    Boolean match = analysis.equivalent(value, (T) fv);
+                    if (match != null && match)
+                        return true;
+                    allNull = allNull && match == null;
+                }
+            } else {
+                for (IndexableField field : fields) {
+                    String sv = field.stringValue();
+                    Object cv = analysis.fromString(sv);
+                    Boolean match = analysis.equivalent(value, (T) cv);
+                    if (match != null && match)
+                        return true;
+                    allNull = allNull && match == null;
+                }
             }
         }
         return allNull ? null : false;
@@ -179,23 +237,27 @@ public class LuceneClassifier implements Classifier {
      * @param observable The observable to store
      * @param value      The value to store
      * @throws StoreException if unable to add this variable to the classifier
-     * @throws InferenceException if unable to check for a match.
      */
     @Override
     public <T> void add(Observable observable, T value) throws StoreException {
         if (value == null)
             return;
-        Boolean match = null;
         try {
-            match = this.match(observable, value);
+            Boolean match = this.match(value, false, observable);
+            if (match != null && match && !observable.getMultiplicity().isMany())
+                throw new StoreException("Duplicate value " + value + " for " + observable);
+            if (match == null) {
+                this.store(observable, value, LUCENE, !observable.getMultiplicity().isMany() );
+             }
+            if (observable.getMultiplicity().isMany()) {
+                match = this.match(value, true, observable);
+                if (match == null || !match) {
+                    this.store(observable, value, LUCENE_VARIANT, true);
+                }
+            }
         } catch (InferenceException ex) {
-            throw new StoreException("Unable to test for presence", ex);
+            throw new StoreException("Unable to test for presence of " +  value + " on " + observable, ex);
         }
-        if (match != null && match)
-            return;
-        final Field field = this.convert(observable, value);
-        if (field != null)
-            this.document.add(field);
     }
 
     /**
@@ -203,13 +265,15 @@ public class LuceneClassifier implements Classifier {
      *
      * @param observable The observable for the values
      * @param classifier The classifier to copy from
-     * @throws StoreException if unable to add this variable to the classifier
      */
     @Override
-    public void addAll(Observable observable, Classifier classifier) throws StoreException {
+    public void addAll(Observable observable, Classifier classifier) {
         if (!(classifier instanceof LuceneClassifier))
             throw new IllegalArgumentException("Expecting instnce of LuceneClassifier");
         String fieldName = observable.getExternal(LUCENE);
+        for (IndexableField field: ((LuceneClassifier) classifier).document.getFields(fieldName))
+            this.document.add(field);
+        fieldName = observable.getExternal(LUCENE_VARIANT);
         for (IndexableField field: ((LuceneClassifier) classifier).document.getFields(fieldName))
             this.document.add(field);
     }
@@ -224,6 +288,7 @@ public class LuceneClassifier implements Classifier {
     @Override
     public <T> void replace(Observable observable, T value) throws StoreException {
         this.document.removeFields(observable.getExternal(LUCENE));
+        this.document.removeFields(observable.getExternal(LUCENE_VARIANT));
         this.add(observable, value);
     }
 
@@ -244,14 +309,12 @@ public class LuceneClassifier implements Classifier {
      *
      * @param observables The observable
      * @return The a set of all present values
-     *
-     * @throws StoreException if unable to retrieve a value
      */
     @Override
     public <T> Set<T> getAll(Observable... observables) {
         Set<T> values = new HashSet<>(observables.length);
         for (Observable observable: observables) {
-            IndexableField[] fs = this.document.getFields(observable.getExternal(LUCENE));
+            IndexableField[] fs = this.document.getFields(observable.getExternal(observable.getMultiplicity().isMany() ? LUCENE_VARIANT : LUCENE));
             for (IndexableField f : fs) {
                 T v = this.convert(observable, f);
                 if (v != null)
@@ -322,10 +385,9 @@ public class LuceneClassifier implements Classifier {
      * Set the classifier's type
      *
      * @param type The new type
-     * @throws StoreException If unable to create a type for some reason.
      */
     @Override
-    public void setType(Term type) throws StoreException {
+    public void setType(Term type) {
         String value = type.qualifiedName();
         this.document.removeFields(TYPE_FIELD);
         this.document.add(new StringField(TYPE_FIELD, value, Field.Store.YES));
@@ -339,10 +401,9 @@ public class LuceneClassifier implements Classifier {
      *
      * @param annotation The annotation to test for
      * @return True if the document has the annotation, false otherwise.
-     * @throws StoreException if unable to test for the annotation
      */
     @Override
-    public boolean hasAnnotation(Term annotation) throws StoreException {
+    public boolean hasAnnotation(Term annotation) {
         String value = annotation.qualifiedName();
         for (String v: this.document.getValues(ANNOTATION_FIELD)) {
             if (value.equals(v))
@@ -355,17 +416,16 @@ public class LuceneClassifier implements Classifier {
      * Add an annotation to a classifier.
      *
      * @param annotation The annotation to add
-     * @throws StoreException If unable to annotate for some reason.
      */
     @Override
-    public void annotate(Term annotation) throws StoreException {
+    public void annotate(Term annotation) {
         this.document.add(new StringField(ANNOTATION_FIELD, annotation.qualifiedName(), Field.Store.YES));
     }
 
     /**
      * Get the inference parameters associcated with a classifier.
      *
-     * @return The parameters
+     * @param parameters  The parameters
      * @throws StoreException if unable to retrieve the parameters
      */
     @Override
@@ -402,10 +462,9 @@ public class LuceneClassifier implements Classifier {
      * Get the index values for the classifier.
      *
      * @return An array of [left, right] index integers
-     * @throws StoreException if unable to retrieve the index
      */
     @Override
-    public int[] getIndex() throws StoreException {
+    public int[] getIndex() {
         IndexableField[] fields = this.document.getFields(INDEX_FIELD);
 
         if (fields.length == 0)
@@ -427,10 +486,9 @@ public class LuceneClassifier implements Classifier {
      *
      * @param left  The left-most index value
      * @param right The right-most index value
-     * @throws StoreException If unable to store the index
      */
     @Override
-    public void setIndex(int left, int right) throws StoreException {
+    public void setIndex(int left, int right) {
         this.document.removeFields(INDEX_FIELD);
         this.document.add(new StoredField(INDEX_FIELD, left));
         this.document.add(new StoredField(INDEX_FIELD, right));
@@ -443,10 +501,9 @@ public class LuceneClassifier implements Classifier {
      * </p>
      *
      * @return The names list
-     * @throws StoreException
      */
     @Override
-    public Collection<String> getNames() throws StoreException {
+    public Collection<String> getNames() {
         return Arrays.asList(this.document.getValues(NAMES_FIELD));
     }
 
@@ -457,10 +514,9 @@ public class LuceneClassifier implements Classifier {
      * </p>
      *
      * @param names The names for this classifier
-     * @throws StoreException if unable to store the names in the classifier
      */
     @Override
-    public void setNames(Collection<String> names) throws StoreException {
+    public void setNames(Collection<String> names) {
         this.document.removeFields(NAMES_FIELD);
         for (String name: names)
             document.add(new TextField(NAMES_FIELD, name, Field.Store.YES));
@@ -492,10 +548,42 @@ public class LuceneClassifier implements Classifier {
     }
 
     /**
+     * Get the trail of identifiers used in hierarchical classifiers.
+     * <p>
+     * The trail represents the heirarchy of possible identifiers, from most general to least general (this classifier).
+     * </p>
+     *
+     * @return The trail
+     */
+    @Override
+    public List<String> getTrail() {
+        String trails = this.document.get(TRAIL_FIELD);
+        if (trails == null)
+            return null;
+        return TRAIL_SEPARATOR_REGEX.splitAsStream(trails).collect(Collectors.toList());
+    }
+
+    /**
+     * Set the trail of identifiers used in the classifier hierarchy.
+     *
+     * @param trail The new trail
+     */
+    @Override
+    public void setTrail(List<String> trail) {
+        this.document.removeFields(TRAIL_FIELD);
+        if (trail != null) {
+            String trails = trail.stream().collect(Collectors.joining(TRAIL_SEPARATOR));
+            this.document.add(new StoredField(TRAIL_FIELD, trails));
+        }
+    }
+
+    /**
      * Convert a observable/value pair into a lucene field
      *
      * @param observable The term
      * @param value The object value
+     * @param context The context to use
+     * @param index Index this term
      *
      * @return A corresponding field
      *
@@ -503,25 +591,39 @@ public class LuceneClassifier implements Classifier {
      *
      * @see #convert(Observable, IndexableField)
      */
-    protected <T> Field convert(Observable observable, T value) throws StoreException {
+    protected <T, S, Q> void store(Observable observable, T value, ExternalContext context, boolean index) throws StoreException {
         if (value == null || ((value instanceof String) && ((String) value).isEmpty()))
-            return null;
-        String field = observable.getExternal(LUCENE);
-        if (value instanceof Integer)
-            return new StoredField(field, ((Number) value).intValue());
-        else if (value instanceof Number)
-            return new StoredField(field, ((Number) value).doubleValue());
-        else {
-            String val = observable.getAnalysis().toString(value);
-            Normaliser normaliser = observable.getNormaliser();
-            if (normaliser != null)
-                val = normaliser.normalise(val);
+            return;
+        String field = observable.getExternal(context);
+        Analysis<T, S, Q> analysis = observable.getAnalysis();
+        S val = analysis.toStore(value);
+        Normaliser normaliser = observable.getNormaliser();
+        if (normaliser != null && val instanceof String)
+            val = (S) normaliser.normalise((String) val);
+        if (val instanceof Integer) {
+            int iVal = ((Number) val).intValue();
+            this.document.add(new StoredField(field, iVal));
+            if (index)
+                this.document.add(new IntPoint(field, iVal));
+        } else if (val instanceof Number) {
+            double dVal = ((Number) val).doubleValue();
+            this.document.add(new StoredField(field, dVal));
+            if (index)
+                this.document.add(new DoublePoint(field, dVal));
+        } else {
+            String sv = val.toString();
+            if (!index) {
+                this.document.add(new StoredField(field, sv));
+                return;
+            }
             switch (observable.getStyle()) {
                 case IDENTIFIER:
                 case CANONICAL:
-                    return new StringField(field, val, Field.Store.YES);
+                    this.document.add(new StringField(field, sv, Field.Store.YES));
+                    break;
                 default:
-                    return new TextField(field, val, Field.Store.YES);
+                    this.document.add(new TextField(field, sv, Field.Store.YES));
+                    break;
             }
         }
     }
@@ -539,7 +641,7 @@ public class LuceneClassifier implements Classifier {
      *
      * @return The converted field
      *
-     * @see #convert(Observable, Object)
+     * @see #store(Observable, Object, ExternalContext, boolean)
      */
     protected <T> T convert(Observable observable, IndexableField field) {
         if (field == null)

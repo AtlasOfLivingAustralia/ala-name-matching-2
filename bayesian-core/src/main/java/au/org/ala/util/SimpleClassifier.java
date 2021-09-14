@@ -22,6 +22,7 @@ public class SimpleClassifier implements Classifier {
     private int right;
     private Set<String> names;
     private Map<Observable, Object> values;
+    private List<String> trail;
 
     public SimpleClassifier() {
         this.annotations = new HashSet<>();
@@ -73,15 +74,20 @@ public class SimpleClassifier implements Classifier {
      * the match should respect the appropriate rules.
      * </p>
      *
-     * @param observable The observable to match
+     * @param observables The observables to match
      * @param value      The value to match against (may be null)
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
      * @throws InferenceException if there was a problem matching the result
      */
     @Override
-    public <T> Boolean match(Observable observable, T value) throws InferenceException {
-        Object val = this.values.get(observable);
-        return observable.getAnalysis().equivalent(val, value);
+    public <T> Boolean match(T value, Observable... observables) throws InferenceException {
+        for (Observable observable: observables) {
+            Object val = this.values.get(observable);
+            Boolean match = observable.getAnalysis().equivalent(val, value);
+            if (match != null)
+                return match;
+        }
+        return null;
     }
 
     /**
@@ -120,8 +126,11 @@ public class SimpleClassifier implements Classifier {
      */
     @Override
     public void addAll(Observable observable, Classifier classifier) throws StoreException {
-        for (Object v: classifier.getAll(observable))
-            this.add(observable, v);
+        if (!(classifier instanceof SimpleClassifier))
+            throw new IllegalArgumentException("Expecting a simple classifier");
+        SimpleClassifier sc = (SimpleClassifier) classifier;
+        if (sc.values.containsKey(observable))
+            this.values.put(observable, sc.values.get(observable));
     }
 
     /**
@@ -317,6 +326,29 @@ public class SimpleClassifier implements Classifier {
     @Override
     public void setSignature(String signature) {
         this.signature = signature;
+    }
+
+    /**
+     * Get the trail of identifiers used in hierarchical classifiers.
+     * <p>
+     * The trail represents the heirarchy of possible identifiers, from most general to least general (this classifier).
+     * </p>
+     *
+     * @return The trail
+     */
+    @Override
+    public List<String> getTrail() {
+        return this.trail;
+    }
+
+    /**
+     * Set the trail of identifiers used in the classifier hierarchy.
+     *
+     * @param trail The new trail
+     */
+    @Override
+    public void setTrail(List<String> trail) {
+        this.trail = trail;
     }
 
     /**

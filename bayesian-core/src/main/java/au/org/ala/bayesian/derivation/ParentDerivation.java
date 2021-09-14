@@ -3,7 +3,11 @@ package au.org.ala.bayesian.derivation;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.StoreException;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jdk.nashorn.internal.objects.annotations.Getter;
+
+import java.util.ArrayList;
 
 /**
  * Copy values from a parent source of information.
@@ -16,6 +20,9 @@ public class ParentDerivation extends CopyDerivation {
     /** The observable to test the parent against */
     @JsonProperty
     private Observation condition;
+    /** Include the destination classifier in searches for values. True by default */
+    @JsonProperty
+    private boolean includeSelf = true;
 
     /**
      * Create an empty parent source.
@@ -35,6 +42,16 @@ public class ParentDerivation extends CopyDerivation {
     }
 
     /**
+     * Include the destination classifier in searches for sources to copy from?
+     *
+     * @return As specified by the derivation
+     */
+    @Override
+    public boolean isIncludeSelf() {
+        return this.includeSelf;
+    }
+
+    /**
      * Test to see whether the found document matches the condition.
      *
      * @param foundVar The variable containing the test document
@@ -50,7 +67,7 @@ public class ParentDerivation extends CopyDerivation {
         String valueStatement = null;
         if (value == null)
             valueStatement = "x == null";
-        if (value instanceof Number)
+        else if (value instanceof Number)
             valueStatement = value.toString() + " == x";
         else if (value instanceof Enum)
             valueStatement = value.getClass().getName() + "." + ((Enum<?>) value).name() + " == x";

@@ -6,6 +6,7 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.Observable.Multiplicity;
 import static au.org.ala.bayesian.ExternalContext.*;
 
 import java.net.URI;
@@ -34,7 +35,7 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable v2 = new Observable(
       "v_2",
@@ -43,7 +44,7 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable v3 = new Observable(
       "v_3",
@@ -52,7 +53,7 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
 
   public static List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(

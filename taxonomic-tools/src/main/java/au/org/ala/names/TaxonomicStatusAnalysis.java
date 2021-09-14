@@ -46,7 +46,7 @@ public class TaxonomicStatusAnalysis extends EnumAnalysis<TaxonomicStatus> {
      * @return The stringified value (null should return null)
       */
     @Override
-    public String toString(TaxonomicStatus value) {
+    public String toStore(TaxonomicStatus value) {
         if (value == null)
             return null;
         return value.name();

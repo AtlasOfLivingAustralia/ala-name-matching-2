@@ -10,8 +10,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
-import lombok.Setter;
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.apache.commons.cli.*;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.Term;
@@ -215,13 +213,20 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         final Set<String> names = new LinkedHashSet<>(); // Require order
         Set<String> altNames = new LinkedHashSet<>();
 
+        // Add all possible names something could be seen as
         names.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
         classifier.setNames(names);
-        for (String nm: names) { // Add any new and interesting variants of the name
-            if (!classifier.match(this.name, nm))
-                classifier.add(this.name, nm);
+        if (!this.name.getMultiplicity().isMany() && names.size() > 1) {
+            LOGGER.warn("Classifier " + id + " with single value name " + this.name.getId() + " has multiple names " + names);
+        } else {
+            for (String nm : names) { // Add any new and interesting variants of the name
+                Boolean match = classifier.match(nm, this.name);
+                if (match == null || !match)
+                    classifier.add(this.name, nm);
+            }
         }
 
+        // Add alternative names
         if (this.altName.isPresent()) {
             altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName,false).stream().filter(n -> !names.contains(n)).collect(Collectors.toSet()));
             if (this.accepted.isPresent()) {
@@ -230,10 +235,16 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
                     altNames.addAll(this.analyser.analyseNames(synonym, this.name, this.fullName, this.additionalName, true));
                  }
             }
-            for (String nm : altNames) {
-                classifier.add(this.altName.get(), nm);
+            if (!this.altName.get().getMultiplicity().isMany() && altNames.size() > 1) {
+                LOGGER.warn("Classifier " + id + " with single value alternate name " + this.altName.get().getId() + " has multiple names " + altNames);
+            } else {
+                for (String nm : altNames) {
+                    classifier.add(this.altName.get(), nm);
+                }
             }
         }
+        List<String> trail = parents.stream().map(p -> p.get(this.identifier).toString()).collect(Collectors.toList());
+        classifier.setTrail(trail);
         this.builder.infer(classifier);
         if (this.parent != null) {
             parents.push(classifier);
@@ -296,12 +307,8 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         Set<String> allNames = new LinkedHashSet<>();
         allNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
         classifier.setNames(allNames);
-        if (this.altName.isPresent()) {
-            for (String nm : allNames) {
-                if (!classifier.match(this.name, nm))
-                    classifier.add(this.altName.get(), nm);
-            }
-        }
+        for (String nm: allNames)
+            classifier.add(this.name, nm);
         if (accepted.isPresent()){
             Classifier acc = accepted.get();
             for (Observable obs: this.synonymCopy) {
@@ -418,7 +425,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         try {
             metadata.add(source, mapper.writeValueAsString(this.network));
         } catch (JsonProcessingException ex) {
-            throw new StoreException("Unable to write network condfiguration", ex);
+            throw new StoreException("Unable to write network condiguration", ex);
         }
         return metadata;
     }
@@ -435,11 +442,10 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      *
      * @param classifier The classifier
      *
-     * @throws InferenceException If any analysis fails
-     * @throws StoreException If unable to create an annotation for some reason.
+      * @throws StoreException If unable to create an annotation for some reason.
      */
     @Override
-    public void annotate(Classifier classifier) throws InferenceException, StoreException {
+    public void annotate(Classifier classifier) throws StoreException {
         Term type = classifier.getType();
         String p = classifier.get(this.parent);
         String a = this.accepted.isPresent() ? classifier.get(this.accepted.get()) : null;

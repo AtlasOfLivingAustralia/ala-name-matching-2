@@ -166,9 +166,9 @@ public class GrassClassification implements Classification<GrassClassification> 
 
   public GrassInferencer.Evidence match(Classifier classifier) throws StoreException, InferenceException {
     GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
-    evidence.e$rain = classifier.match(GrassFactory.rain, this.rain);
-    evidence.e$sprinkler = classifier.match(GrassFactory.sprinkler, this.sprinkler);
-    evidence.e$wet = classifier.match(GrassFactory.wet, this.wet);
+    evidence.e$rain = classifier.match(this.rain, GrassFactory.rain);
+    evidence.e$sprinkler = classifier.match(this.sprinkler, GrassFactory.sprinkler);
+    evidence.e$wet = classifier.match(this.wet, GrassFactory.wet);
     return evidence;
   }
 

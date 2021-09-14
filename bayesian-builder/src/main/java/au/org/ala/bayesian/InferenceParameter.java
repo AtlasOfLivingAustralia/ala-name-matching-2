@@ -1,42 +1,63 @@
 package au.org.ala.bayesian;
 
 import lombok.Getter;
+import lombok.Value;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Value
 public class InferenceParameter extends Variable {
     /** The observable this inference is associated with */
-    @Getter
     private Contributor outcome;
+    /** The list of postulates */
+    private List<Contributor> postulates;
     /** The list of incoming contributions */
-    @Getter
     private List<Contributor> contributors;
     /** The variables that this parameter is derived from */
-    @Getter
     private List<InferenceParameter> derivedFrom;
     /** Is this an inverted derivation */
-    @Getter
     private boolean inverted;
+    /** Is this contradictory */
+    private boolean contradiction;
+    /** The postulate signature */
+    private String postulateSignature;
 
-    public InferenceParameter(String prefix, Contributor outcome, List<Observable> sources, boolean[] signature) {
-        this(prefix, outcome, makeContributors(sources, signature));
+    public InferenceParameter(String prefix, Contributor outcome, List<Contributor> postulates, List<Observable> sources, boolean[] signature) {
+        this(prefix, outcome, postulates, makeContributors(sources, signature));
     }
 
-    public InferenceParameter(String prefix, Contributor outcome, List<Contributor> contributors) {
-        super(prefix + "_" + (outcome.isMatch() ? "t" : "f") + (contributors.isEmpty() ? "" : "_") + signatureTrace(contributors) + "$" + outcome.getObservable().getJavaVariable());
-        this.outcome = outcome;
-        this.contributors = contributors;
-        this.inverted = false;
+    public InferenceParameter(String prefix, Contributor outcome, List<Contributor> postulates, List<Contributor> contributors) {
+        this(prefix, outcome, postulates, contributors, null, false);
     }
 
-    public InferenceParameter(String prefix, Contributor outcome, List<Contributor> contributors, List<InferenceParameter> derivedFrom, boolean inverted) {
-        super(prefix + "_" + (outcome.isMatch() ? "t" : "f") + (contributors.isEmpty() ? "" : "_")  + signatureTrace(contributors) + "$" + outcome.getObservable().getJavaVariable());
+
+    public InferenceParameter(String prefix, Contributor outcome, List<Contributor> postulates, List<Contributor> contributors, List<InferenceParameter> derivedFrom, boolean inverted) {
+        this(prefix, outcome, postulates, reduceContributors(postulates, contributors), derivedFrom, inverted, contradiction(postulates, contributors));
+    }
+
+    protected InferenceParameter(String prefix, Contributor outcome, List<Contributor> postulates, List<Contributor> contributors, List<InferenceParameter> derivedFrom, boolean inverted, boolean contradiction) {
+        super(
+                prefix +
+                        "_" +
+                        outcome.getObservable().getJavaVariable() +
+                        "_" +
+                        (outcome.isMatch() ? "t" : "f") +
+                        (postulates.isEmpty() && contributors.isEmpty() ? "" : "$") +
+                        signatureTrace(postulates) +
+                        (contributors.isEmpty() ? "" : "_")  +
+                        signatureTrace(contributors)
+        );
         this.outcome = outcome;
-        this.contributors = contributors;
+        this.postulates = postulates;
+        this.contributors = new ArrayList<>(postulates);
+        this.contributors.addAll(contributors);
         this.derivedFrom = derivedFrom;
         this.inverted = inverted;
+        this.contradiction = contradiction;
+        this.postulateSignature = this.postulates.stream().map(p -> p.isMatch() ? "t" : "f").collect(Collectors.joining());
     }
 
     /**
@@ -47,11 +68,7 @@ public class InferenceParameter extends Variable {
      * @return True if there is a contributor for this observable
      */
     public boolean hasObservable(Observable observable) {
-        for (Contributor c: this.contributors) {
-            if (c.getObservable().equals(observable))
-                return true;
-        }
-        return false;
+        return this.contributors.stream().anyMatch(c -> c.getObservable().equals(observable));
     }
 
     /**
@@ -71,10 +88,7 @@ public class InferenceParameter extends Variable {
      * @return True if present, false otherwise
      */
     public boolean hasContributor(Contributor contributor) {
-        for (Contributor c : this.contributors)
-            if (c.equals(contributor))
-                return true;
-        return false;
+        return this.contributors.stream().anyMatch(c -> c.equals(contributor));
     }
 
     /**
@@ -89,14 +103,10 @@ public class InferenceParameter extends Variable {
         StringBuffer buffer = new StringBuffer();
         buffer.append("p(");
         buffer.append(outcome.getFormula());
-        if (!this.contributors.isEmpty()) {
+        if (!this.contributors.isEmpty() || !this.postulates.isEmpty()) {
            buffer.append(" | ");
-           for (int i = 0; i < this.contributors.size(); i++) {
-               if (i > 0)
-                   buffer.append(", ");
-               buffer.append(this.contributors.get(i).getFormula());
-           }
-        }
+           buffer.append(this.contributors.stream().map(Contributor::getFormula).collect(Collectors.joining(", ")));
+         }
         buffer.append(")");
         return buffer.toString();
     }
@@ -126,4 +136,29 @@ public class InferenceParameter extends Variable {
     public static List<Contributor> makeContributors(List<Observable> sources, boolean[] signature) {
         return IntStream.rangeClosed(0, sources.size() - 1).mapToObj(i -> new Contributor(sources.get(i), signature[i])).collect(Collectors.toList());
     }
+
+    /**
+     * Reduce the contributors to those that haven't already been assumed.
+     *
+     * @param postulates The list of postulates
+     * @param contributors The list of contributors
+     *
+     * @return The reduced list of contributors
+     */
+    public static List<Contributor> reduceContributors(final List<Contributor> postulates, final List<Contributor> contributors) {
+        return contributors.stream().filter(c -> !postulates.stream().anyMatch(p -> p.equals(c))).collect(Collectors.toList());
+    }
+
+    /**
+     * Reduce the contributors to those that haven't already been assumed.
+     *
+     * @param postulates The list of postulates
+     * @param contributors The list of contributors
+     *
+     * @return True if the two are condtradictory
+     */
+    public static boolean contradiction(final List<Contributor> postulates, final List<Contributor> contributors) {
+        return contributors.stream().anyMatch(c -> postulates.stream().anyMatch(p -> p.contradicts(c)));
+    }
+
 }

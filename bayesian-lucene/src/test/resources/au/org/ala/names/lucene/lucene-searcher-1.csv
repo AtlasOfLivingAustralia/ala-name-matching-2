@@ -1,5 +1,5 @@
-_type,dwc_taxonID,dwc_class,dwc_scientificName,dwc_vernacularName,
-http://rs.tdwg.org/dwc/terms/Taxon,id1,ACTINOPTERYGII,Lates calcarifer,Barramundi
-http://rs.tdwg.org/dwc/terms/Taxon,id2,Reptilia,Crocodylus porosus,Saltwater Crocodile
-http://rs.tdwg.org/dwc/terms/Taxon,id3,REPTILIA,Denisonia devisi,De Vis' Banded Snake
-http://rs.tdwg.org/dwc/terms/Taxon,id4,Byropsida,Hennediella,
+_type,dwc_taxonID,dwc_class,dwc_scientificName,dwc_vernacularName,rankID,rankRange,testEnum
+http://rs.tdwg.org/dwc/terms/Taxon,id1,ACTINOPTERYGII,Lates calcarifer,Barramundi,7000,100,foo
+http://rs.tdwg.org/dwc/terms/Taxon,id2,Reptilia,Crocodylus porosus,Saltwater Crocodile,7000,120,BAR
+http://rs.tdwg.org/dwc/terms/Taxon,id3,REPTILIA,Denisonia devisi,De Vis' Banded Snake,7000,125,Baz
+http://rs.tdwg.org/dwc/terms/Taxon,id4,Byropsida,Hennediella,,6000,130

@@ -6,6 +6,7 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.Observable.Multiplicity;
 import static au.org.ala.bayesian.ExternalContext.*;
 
 import java.net.URI;
@@ -35,7 +36,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable altScientificName = new Observable(
       "altScientificName",
@@ -44,7 +45,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable class_ = new Observable(
       "class",
@@ -53,7 +54,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable family = new Observable(
       "family",
@@ -62,7 +63,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable genus = new Observable(
       "genus",
@@ -71,7 +72,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable kingdom = new Observable(
       "kingdom",
@@ -80,7 +81,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable order = new Observable(
       "order",
@@ -89,7 +90,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable parentNameUsageId = new Observable(
       "parentNameUsageID",
@@ -98,7 +99,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable phylum = new Observable(
       "phylum",
@@ -107,7 +108,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable scientificName = new Observable(
       "scientificName",
@@ -116,7 +117,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.MANY
     );
   public static final Observable scientificNameAuthorship = new Observable(
       "scientificNameAuthorship",
@@ -125,7 +126,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable soundexScientificName = new Observable(
       "soundexScientificName",
@@ -134,7 +135,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.MANY
     );
   public static final Observable specificEpithet = new Observable(
       "specificEpithet",
@@ -143,7 +144,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable taxonId = new Observable(
       "taxonID",
@@ -152,7 +153,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable taxonRank = new Observable(
       "taxonRank",
@@ -161,7 +162,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       lowerCaseNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable taxonomicStatus = new Observable(
       "taxonomicStatus",
@@ -170,7 +171,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   public static final Observable weight = new Observable(
       "weight",
@@ -179,7 +180,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new DoubleAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
 
   public static List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
@@ -238,8 +239,10 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     parentNameUsageId.setExternal(LUCENE, "dwc_parentNameUsageID");
     phylum.setExternal(LUCENE, "dwc_phylum");
     scientificName.setExternal(LUCENE, "dwc_scientificName");
+    scientificName.setExternal(LUCENE_VARIANT, "dwc_scientificName_variant");
     scientificNameAuthorship.setExternal(LUCENE, "dwc_scientificNameAuthorship");
     soundexScientificName.setExternal(LUCENE, "soundexScientificName");
+    soundexScientificName.setExternal(LUCENE_VARIANT, "soundexScientificName_variant");
     specificEpithet.setExternal(LUCENE, "dwc_specificEpithet");
     taxonId.setExternal(LUCENE, "dwc_taxonID");
     taxonRank.setExternal(LUCENE, "dwc_taxonRank");

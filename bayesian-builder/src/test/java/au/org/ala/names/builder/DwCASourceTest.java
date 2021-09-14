@@ -46,7 +46,7 @@ public class DwCASourceTest {
         DwCASource source = new DwCASource(sample, this.factory, this.network.getObservables(), Arrays.asList(DwcTerm.Taxon, GbifTerm.VernacularName));
         source.load(this.store, null);
 
-        assertEquals(151, this.store.getStore().size());
+        assertEquals(154, this.store.getStore().size());
         Classifier value = this.store.get(DwcTerm.Taxon, SimpleLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2901022");
         assertNotNull(value);
         assertEquals("Canarium acutifolium", value.get(SimpleLinnaeanFactory.scientificName));
@@ -65,7 +65,7 @@ public class DwCASourceTest {
         DwCASource source = new DwCASource(sample, this.factory, this.network.getObservables(), Arrays.asList(DwcTerm.Taxon, GbifTerm.VernacularName));
         source.load(this.store, Arrays.asList(SimpleLinnaeanFactory.taxonId, SimpleLinnaeanFactory.scientificName));
 
-        assertEquals(151, this.store.getStore().size());
+        assertEquals(154, this.store.getStore().size());
         Classifier value = this.store.get(DwcTerm.Taxon, SimpleLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2901022");
         assertNotNull(value);
         assertEquals("Canarium acutifolium", value.get(SimpleLinnaeanFactory.scientificName));

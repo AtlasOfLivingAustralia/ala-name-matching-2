@@ -48,6 +48,7 @@ public class ${className} implements Builder {
 
   @Override
   public void infer(Classifier classifier) throws InferenceException, StoreException {
+    Object d;
 <#list orderedNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.derivation??>
@@ -55,16 +56,29 @@ public class ${className} implements Builder {
     <#if derivation.hasExtra()>
     ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", factoryClassName)};
     </#if>
-    for (Object v: ${derivation.generateValues("classifier", factoryClassName)}) {
-      Object d = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
+    <#if observable.multiplicity.many>
+    for(Object v: ${derivation.generateVariants("classifier", factoryClassName)}){
+      <#if derivation.hasTransform()>
+      v = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
+      </#if>
+      classifier.add(${factoryClassName}.${observable.javaVariable}, v);
+    }
+    <#else>
+    if (!classifier.has(${factoryClassName}.${observable.javaVariable})){
+      d = ${derivation.generateValue("classifier", factoryClassName)};
+      <#if derivation.hasTransform()>
+      d = ${derivation.generateBuilderTransform("d", "e_${node?index}", "classifier")};
+      </#if>
       classifier.add(${factoryClassName}.${observable.javaVariable}, d);
     }
+    </#if>
   </#if>
 </#list>
   }
 
-    @Override
+  @Override
     public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
+      Object d;
 <#list orderedNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.base??>
@@ -73,16 +87,33 @@ public class ${className} implements Builder {
     <#assign condition = derivation.generateCondition("c", "classifier", factoryClassName, "parents")>
     <#if condition??>
       <#assign docVar = "d_${node?index}">
-    Optional<Classifier> ${docVar} = parents.stream().filter(c -> ${condition}).findFirst();
-    if (${docVar}.isPresent()){
-    <#if derivation.hasExtra()>
-      ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", factoryClassName)};
-    </#if>
-      for(Object v: ${derivation.generateValues("${docVar}.get()", factoryClassName)}){
-        Object d = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
-        classifier.add(${factoryClassName}.${observable.javaVariable}, d);
-      }
-    }
+      <#if derivation.includeSelf>
+          <#assign selfCondition = derivation.generateCondition("classifier", "classifier", factoryClassName, "parents")>
+      Optional<Classifier> ${docVar} = ${selfCondition} ? Optional.of(classifier) : parents.stream().filter(c -> ${condition}).findFirst();
+      <#else>
+      Optional<Classifier> ${docVar} = parents.stream().filter(c -> ${condition}).findFirst();
+      </#if>
+      if (${docVar}.isPresent()) {
+        <#if derivation.hasExtra()>
+        ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", factoryClassName)};
+        </#if>
+        <#if observable.multiplicity.many>
+        for(Object v: ${derivation.generateVariants("${docVar}.get()", factoryClassName)}) {
+            <#if derivation.hasTransform()>
+          v = ${derivation.generateBuilderTransform("v", "e_${node?index}", "classifier")};
+            </#if>
+          classifier.add(${factoryClassName}.${observable.javaVariable}, v);
+        }
+        <#else>
+        if (!classifier.has(${factoryClassName}.${observable.javaVariable})) {
+          d = ${derivation.generateValue("${docVar}.get()", factoryClassName)};
+            <#if derivation.hasTransform()>
+          d = ${derivation.generateBuilderTransform("d", "e_${node?index}", "classifier")};
+            </#if>
+          classifier.add(${factoryClassName}.${observable.javaVariable}, d);
+        }
+        </#if>
+     }
     </#if>
   </#if>
 </#list>

@@ -37,6 +37,17 @@ public class TaxonNameSoundexDerivation extends CopyDerivation {
         super(source);
     }
 
+    /**
+     * Does this have a transform?
+     *
+     * @return True
+     */
+    @Override
+    public boolean hasTransform() {
+        return true;
+    }
+
+
     @Override
     public Collection<Variable> getBuilderVariables() {
         return Arrays.asList(new Variable(TaxonNameSoundEx.class, INSTANCE_VAR));

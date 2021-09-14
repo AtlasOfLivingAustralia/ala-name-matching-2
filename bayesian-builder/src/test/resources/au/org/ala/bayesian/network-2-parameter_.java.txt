@@ -8,48 +8,38 @@ public class Network2Parameters_ implements Parameters {
 
   public final static String SIGNATURE = "";
 
-  public double prior_t$v1; // v_1 prior probability
-  public double prior_f$v1; // 1 - v_1 prior probability
-  public double inf_t_t$v2$t; // p(v_2 | v_1) conditional probability
-  public double inf_f_t$v2$t; // p(¬v_2 | v_1) =  1 - p(v_2 | v_1) conditional probability
-  public double inf_t_f$v2$t; // p(v_2 | ¬v_1) conditional probability
-  public double inf_f_f$v2$t; // p(¬v_2 | ¬v_1) =  1 - p(v_2 | ¬v_1) conditional probability
-  public double inf_t_t$v2$f; // p(v_2 | v_1) conditional probability
-  public double inf_f_t$v2$f; // p(¬v_2 | v_1) =  1 - p(v_2 | v_1) conditional probability
-  public double inf_t_f$v2$f; // p(v_2 | ¬v_1) conditional probability
-  public double inf_f_f$v2$f; // p(¬v_2 | ¬v_1) =  1 - p(v_2 | ¬v_1) conditional probability
+  public double prior_v1_t; // v_1 prior probability
+  public double prior_v1_f; // 1 - v_1 prior probability
+  public double inf_v2_t$t; // p(v_2 | v_1) conditional probability
+  public double inf_v2_f$t; // p(¬v_2 | v_1) =  1 - p(v_2 | v_1) conditional probability
+  public double inf_v2_t$f; // p(v_2 | ¬v_1) conditional probability
+  public double inf_v2_f$f; // p(¬v_2 | ¬v_1) =  1 - p(v_2 | ¬v_1) conditional probability
 
   public Network2Parameters_() {
   }
 
   @Override
   public void load(double[] vector) {
-    this.prior_t$v1 = vector[0];
-    this.inf_t_t$v2$t = vector[1];
-    this.inf_t_t$v2$f = vector[2];
-    this.inf_t_f$v2$t = vector[3];
-    this.inf_t_f$v2$f = vector[4];
+    this.prior_v1_t = vector[0];
+    this.inf_v2_t$t = vector[1];
+    this.inf_v2_t$f = vector[2];
     this.build();
   }
 
   @Override
   public double[] store() {
-    double[] vector = new double[5];
+    double[] vector = new double[3];
 
-    vector[0] = this.prior_t$v1;
-    vector[1] = this.inf_t_t$v2$t;
-    vector[2] = this.inf_t_t$v2$f;
-    vector[3] = this.inf_t_f$v2$t;
-    vector[4] = this.inf_t_f$v2$f;
+    vector[0] = this.prior_v1_t;
+    vector[1] = this.inf_v2_t$t;
+    vector[2] = this.inf_v2_t$f;
     return vector;
   }
 
   public void build() {
-    this.prior_f$v1 = 1.0 - this.prior_t$v1;
-    this.inf_f_t$v2$t = 1.0 - this.inf_t_t$v2$t;
-    this.inf_f_f$v2$t = 1.0 - this.inf_t_f$v2$t;
-    this.inf_f_t$v2$f = 1.0 - this.inf_t_t$v2$f;
-    this.inf_f_f$v2$f = 1.0 - this.inf_t_f$v2$f;
+    this.prior_v1_f = 1.0 - this.prior_v1_t;
+    this.inf_v2_f$t = 1.0 - this.inf_v2_t$t;
+    this.inf_v2_f$f = 1.0 - this.inf_v2_t$f;
   }
 
 }

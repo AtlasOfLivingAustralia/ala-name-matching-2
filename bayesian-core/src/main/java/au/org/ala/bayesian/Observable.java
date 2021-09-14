@@ -1,8 +1,12 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.util.MulitplicitySerializer;
+import au.org.ala.util.MultiplicityDeserializer;
 import au.org.ala.vocab.BayesianTerm;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import org.gbif.dwc.terms.Term;
@@ -36,24 +40,24 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @Getter
     @Setter
     private Style style = Style.CANONICAL;
-    /** Is this a required observable, meaning that a value must be present in a classifier and classification? */
+    /** The number of possible values that this observable can have for a single classifier */
+    @JsonProperty
+    @JsonSerialize(using = MulitplicitySerializer.class)
+    @JsonDeserialize(using = MultiplicityDeserializer.class)
+    @Getter
+    @Setter
+    private Multiplicity multiplicity = Multiplicity.OPTIONAL;
+    /** The group for this variable. A collection of related variables that exist (or not) as a group. */
     @JsonProperty
     @Getter
     @Setter
-    private boolean required = false;
-    /** The erasure group for this variable. A collection of related  */
-    @JsonProperty
-    @Getter
-    @Setter
-    private String erasure;
+    private String group;
     /** The normaliser, if required */
     @JsonProperty
     @Getter
     @Setter
     private Normaliser normaliser;
-    /**
-     * The object that analyses this observable and provides equivalence.
-     */
+    /** The object that analyses this observable and provides equivalence. */
     @JsonProperty
     @Setter
     private Analysis analysis;
@@ -80,15 +84,14 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * @param style The style of value (how to search for the value)
      * @param normaliser Any normaliser
      * @param analysis The analysis object
-     * @param required Is this a required observable
      */
-    public Observable(String id, URI uri, Class type, Style style, Normaliser normaliser, Analysis analysis, boolean required) {
+    public Observable(String id, URI uri, Class type, Style style, Normaliser normaliser, Analysis analysis, Multiplicity multiplicity) {
         super(id, uri);
         this.type = type;
         this.style = style;
         this.normaliser = normaliser;
         this.analysis = analysis;
-        this.required = required;
+        this.multiplicity = multiplicity;
     }
 
     /**
@@ -119,7 +122,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * @param term The term
      */
     public Observable(Term term) {
-        this(term, String.class, Style.CANONICAL, null, null, false);
+        this(term, String.class, Style.CANONICAL, null, null, Multiplicity.OPTIONAL);
     }
 
     /**
@@ -130,10 +133,9 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * @param style The style to usse
      * @param normaliser Any normaliser
      * @param analysis The analysis object
-     * @param required Is this a required value
      */
-    public Observable(Term term, Class<?> type, Style style, Normaliser normaliser, Analysis analysis, boolean required) {
-        this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, analysis, required);
+    public Observable(Term term, Class<?> type, Style style, Normaliser normaliser, Analysis analysis, Multiplicity multiplicity) {
+        this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, analysis, multiplicity);
     }
 
     /**
@@ -214,6 +216,33 @@ public class Observable extends Identifiable implements Comparable<Observable> {
         CANONICAL,
         /** A matchable pieces of text */
         PHRASE
+    }
+
+    public enum Multiplicity {
+        /** Zero or one values */
+        OPTIONAL(false, false, "0..1"),
+        /** One only value */
+        REQUIRED(true, false, "1"),
+        /** Zero to many values */
+        MANY(false, true, "*"),
+        /** One to many values */
+        REQUIRED_MANY(true, true, "+");
+
+        /** At least one value is required */
+        @Getter
+        final private boolean required;
+        /** Multiple values (varaiants) are allowed */
+        @Getter
+        final private boolean many;
+        /** The label to use */
+        @Getter
+        final private String label;
+
+        Multiplicity(boolean required, boolean many, String label) {
+            this.required = required;
+            this.many = many;
+            this.label = label;
+        }
     }
 
 }

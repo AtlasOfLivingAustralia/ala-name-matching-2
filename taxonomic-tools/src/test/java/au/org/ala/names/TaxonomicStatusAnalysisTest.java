@@ -26,12 +26,12 @@ public class TaxonomicStatusAnalysisTest {
     }
 
     @Test
-    public void testToString1() throws Exception {
-        assertNull(analysis.toString(null));
-        assertEquals("accepted", analysis.toString(TaxonomicStatus.accepted));
-        assertEquals("inferredAccepted", analysis.toString(TaxonomicStatus.inferredAccepted));
-        assertEquals("inferredAccepted", analysis.toString(TaxonomicStatus.inferredAccepted));
-        assertEquals("homotypicSynonym", analysis.toString(TaxonomicStatus.homotypicSynonym));
+    public void testToStore1() throws Exception {
+        assertNull(analysis.toStore(null));
+        assertEquals("accepted", analysis.toStore(TaxonomicStatus.accepted));
+        assertEquals("inferredAccepted", analysis.toStore(TaxonomicStatus.inferredAccepted));
+        assertEquals("inferredAccepted", analysis.toStore(TaxonomicStatus.inferredAccepted));
+        assertEquals("homotypicSynonym", analysis.toStore(TaxonomicStatus.homotypicSynonym));
     }
 
     @Test

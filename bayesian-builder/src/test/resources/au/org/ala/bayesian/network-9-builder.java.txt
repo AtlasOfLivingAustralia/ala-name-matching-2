@@ -40,14 +40,17 @@ public class Network9Builder implements Builder {
 
   @Override
   public void infer(Classifier classifier) throws InferenceException, StoreException {
-    for (Object v: classifier.getAll(Network9Factory.v1)) {
-      Object d = this.soundex.soundex((String) v);
+    Object d;
+    if (!classifier.has(Network9Factory.v2)){
+      d = classifier.get(Network9Factory.v1);
+      d = this.soundex.soundex((String) d);
       classifier.add(Network9Factory.v2, d);
     }
   }
 
-    @Override
+  @Override
     public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
+      Object d;
   }
 
   @Override

@@ -40,6 +40,7 @@
       "sources" : [ {
         "id" : "scientificName",
         "uri" : "http://rs.tdwg.org/dwc/terms/scientificName",
+        "multiplicity" : "*",
         "normaliser" : "simple_normaliser",
         "properties" : {
           "bayesian:name" : true
@@ -53,7 +54,8 @@
           "normaliser" : "lower_case_normaliser"
         },
         "value" : "class"
-      }
+      },
+      "includeSelf" : true
     },
     "normaliser" : "simple_normaliser",
     "properties" : {
@@ -69,7 +71,8 @@
         "positive" : true,
         "observable" : "taxonRank",
         "value" : "family"
-      }
+      },
+      "includeSelf" : true
     },
     "normaliser" : "simple_normaliser",
     "properties" : {
@@ -85,9 +88,10 @@
         "positive" : true,
         "observable" : "taxonRank",
         "value" : "genus"
-      }
+      },
+      "includeSelf" : true
     },
-    "erasure" : "genus",
+    "group" : "genus",
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true
@@ -102,7 +106,8 @@
         "positive" : true,
         "observable" : "taxonRank",
         "value" : "kingdom"
-      }
+      },
+      "includeSelf" : true
     },
     "normaliser" : "simple_normaliser",
     "properties" : {
@@ -118,7 +123,8 @@
         "positive" : true,
         "observable" : "taxonRank",
         "value" : "order"
-      }
+      },
+      "includeSelf" : true
     },
     "normaliser" : "simple_normaliser",
     "properties" : {
@@ -141,7 +147,8 @@
         "positive" : true,
         "observable" : "taxonRank",
         "value" : "phylum"
-      }
+      },
+      "includeSelf" : true
     },
     "normaliser" : "simple_normaliser",
     "properties" : {
@@ -157,11 +164,12 @@
     "derivation" : {
       "@class" : "au.org.ala.bayesian.derivation.SoundexDerivation",
       "sources" : [ "scientificName" ]
-    }
+    },
+    "multiplicity" : "*"
   }, {
     "id" : "specificEpithet",
     "uri" : "http://rs.tdwg.org/dwc/terms/specificEpithet",
-    "erasure" : "species",
+    "group" : "species",
     "normaliser" : "simple_normaliser"
   }, {
     "id" : "taxonID",
@@ -284,5 +292,5 @@
     "nullDerived" : false
   } ],
   "matchModifiers" : [ [ "remove_order", "remove_class", "remove_phylum" ], [ "remove_rank" ] ],
-  "erasureGroups" : [ "species", "genus" ]
+  "groups" : [ "species", "genus" ]
 }

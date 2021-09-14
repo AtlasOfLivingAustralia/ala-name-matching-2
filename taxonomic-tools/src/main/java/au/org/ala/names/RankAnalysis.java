@@ -1,8 +1,15 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.analysis.EnumAnalysis;
+import org.apache.commons.lang3.Range;
 import org.gbif.nameparser.api.Rank;
 import org.gbif.nameparser.util.RankUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.gbif.nameparser.api.Rank.*;
+import static org.gbif.nameparser.api.Rank.UNRANKED;
 
 /**
  * Analysis based on taxonomic rank.
@@ -10,20 +17,6 @@ import org.gbif.nameparser.util.RankUtils;
 public class RankAnalysis extends EnumAnalysis<Rank> {
     public RankAnalysis() {
         super(Rank.class);
-    }
-
-    /**
-     * Analyse this object, providing any special interpretation
-     * required.
-     *
-     * @param value The value to analyse
-     * @return The analysed value.
-     */
-    @Override
-    public Rank analyse(Rank value) {
-        if (value == null)
-            return null;
-        return value.isInfraspecific() ? Rank.INFRASPECIFIC_NAME : value;
     }
 
     /**
@@ -45,8 +38,9 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
     /**
      * Test for equivalence.
      * <p>
-     * Generally equality.
      * Incomparable ranks return null.
+     * Otherwise, equivalence is decided on whether the value of one rank overlaps
+     * the range of the other.
      * </p>
      *
      * @param value1 The first value to test
@@ -61,6 +55,14 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
             return true;
         if (value1.isUncomparable() || value2.isUncomparable())
             return null;
+        int id1 = RankIDAnalysis.RANK_MAP.getOrDefault(value1, -1);
+        int id2 = RankIDAnalysis.RANK_MAP.getOrDefault(value2, -1);
+        Range<Integer> range1 = RankIDAnalysis.RANGE_MAP.get(value1);
+        Range<Integer> range2 = RankIDAnalysis.RANGE_MAP.get(value2);
+        if (range1 != null && range1.contains(id2))
+            return true;
+        if (range2 != null && range2.contains(id1))
+            return true;
         return false;
     }
 }

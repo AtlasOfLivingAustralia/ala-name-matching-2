@@ -2,6 +2,7 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.util.BasicNormaliser;
+import org.apache.commons.lang3.Range;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import static au.org.ala.bayesian.ExternalContext.LUCENE;
+import static au.org.ala.bayesian.ExternalContext.LUCENE_VARIANT;
 
 /**
  * Build queries for lucene indexes
@@ -116,7 +118,7 @@ public class QueryUtils {
      */
     public BooleanClause asClause(Observation observation, boolean required) throws StoreException {
         Observable observable = observation.getObservable();
-        String field = observable.getExternal(LUCENE);
+        String field = observable.getExternal(observable.getMultiplicity().isMany() ? LUCENE_VARIANT : LUCENE);
         Query base;
 
         if (observation.isPresent()) {
@@ -125,7 +127,6 @@ public class QueryUtils {
         } else {
             base = this.asQuery(
                 field,
-                observable.getType(),
                 observable.getStyle(),
                 observable.getNormaliser(),
                 observable.getAnalysis(),
@@ -148,8 +149,7 @@ public class QueryUtils {
     public BooleanClause asClause(Observable observable, String value) throws StoreException {
         return new BooleanClause(
                 this.asQuery(
-                        observable.getExternal(LUCENE),
-                        observable.getType(),
+                        observable.getExternal(observable.getMultiplicity().isMany() ? LUCENE_VARIANT : LUCENE),
                         observable.getStyle(),
                         observable.getNormaliser(),
                         observable.getAnalysis(),
@@ -168,30 +168,37 @@ public class QueryUtils {
      *
      * @throws StoreException if unable to convert to a query
      */
-    public <C> Query asQuery(String field, Class<C> type, Observable.Style style, Normaliser normaliser, Analysis<C> analysis, Object value) throws StoreException {
+    public <C, S, Q> Query asQuery(String field, Observable.Style style, Normaliser normaliser, Analysis<C, S, Q> analysis, Object value) throws StoreException {
         if (value instanceof Collection) {
             BooleanQuery.Builder all = new BooleanQuery.Builder();
             for (Object v: (Collection) value) {
-                all.add(new BooleanClause(this.asQuery(field, type, style, normaliser, analysis, v), BooleanClause.Occur.SHOULD));
+                all.add(new BooleanClause(this.asQuery(field, style, normaliser, analysis, v), BooleanClause.Occur.SHOULD));
             }
             return all.build();
         }
-        if (Integer.class.isAssignableFrom(type)) {
-            return IntPoint.newExactQuery(field, ((Number) value).intValue());
+        Class<C> type = analysis.getType();
+        if (value != null && !type.isAssignableFrom(value.getClass()))
+            throw new StoreException("Value " + value + " does not match " + type);
+        Q query = analysis.toQuery((C) value);
+        if (query instanceof String && normaliser != null)
+            query = (Q) normaliser.normalise((String) query);
+        if (query instanceof Integer) {
+            return IntPoint.newExactQuery(field, ((Number) query).intValue());
         }
-        if (Number.class.isAssignableFrom(type)) {
-            return DoublePoint.newExactQuery(field, ((Number) value).doubleValue());
+        if (query instanceof Number) {
+            return DoublePoint.newExactQuery(field, ((Number) query).doubleValue());
         }
-        String val = analysis.toString((C) value);
-        if (normaliser != null)
-            val = normaliser.normalise(val);
+        if (query instanceof Range) {
+            Range<Integer> range = (Range<Integer>) query;
+            return IntPoint.newRangeQuery(field, range.getMinimum(), range.getMaximum());
+        }
         switch (style) {
             case IDENTIFIER:
             case CANONICAL:
-                return new TermQuery(new Term(field, val));
+                return new TermQuery(new Term(field, query.toString()));
             default:
                 QueryBuilder builder = new QueryBuilder(this.getAnalyzer());
-                return builder.createPhraseQuery(field, val);
+                return builder.createPhraseQuery(field, query.toString());
         }
     }
 

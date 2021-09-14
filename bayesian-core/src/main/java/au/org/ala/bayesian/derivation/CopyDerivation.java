@@ -3,7 +3,9 @@ package au.org.ala.bayesian.derivation;
 import au.org.ala.bayesian.Derivation;
 import au.org.ala.bayesian.Observable;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,10 +31,11 @@ public class CopyDerivation extends Derivation {
 
     /**
      * Construct for a source
-     * @param sources
+     *
+     * @param source The source to copy from
      */
-    public CopyDerivation(Observable sources) {
-        this.sources = Arrays.asList(sources);
+    public CopyDerivation(Observable source) {
+        this.sources = Arrays.asList(source);
     }
 
     /**
@@ -46,13 +49,38 @@ public class CopyDerivation extends Derivation {
     }
 
     /**
+     * Does this have a transform?
+     *
+     * @return False, since no transform
+     */
+    @Override
+    public boolean hasTransform() {
+        return false;
+    }
+
+    /**
      * Generate code to get values from the source,
      *
      * @param documentVar The name of the document variable (a lucene document)
      * @return The code to get the values
      */
     @Override
-    public String generateValues(String documentVar, String observablesClass) {
+    public String generateValue(String documentVar, String observablesClass) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(documentVar + ".get(");
+        builder.append(this.sources.stream().map(s -> observablesClass + "." + s.getJavaVariable()).collect(Collectors.joining(", ")));
+        builder.append(")");
+        return builder.toString();
+    }
+
+    /**
+     * Generate code to get values from the source,
+     *
+     * @param documentVar The name of the document variable (a lucene document)
+     * @return The code to get the values
+     */
+    @Override
+    public String generateVariants(String documentVar, String observablesClass) {
         StringBuilder builder = new StringBuilder();
         builder.append(documentVar + ".getAll(");
         builder.append(this.sources.stream().map(s -> observablesClass + "." + s.getJavaVariable()).collect(Collectors.joining(", ")));
@@ -71,7 +99,7 @@ public class CopyDerivation extends Derivation {
      */
     @Override
     public String generateClassificationTransform() {
-        throw new UnsupportedOperationException("Copy derivations do not apply to classifications");
+        throw new UnsupportedOperationException("Copy derivations do not transform");
     }
 
     /**
@@ -84,6 +112,6 @@ public class CopyDerivation extends Derivation {
      */
     @Override
     public String generateBuilderTransform(String var, String extra, String documentVar) {
-        return var;
+        throw new UnsupportedOperationException("Copy derivations do not transform");
     }
 }

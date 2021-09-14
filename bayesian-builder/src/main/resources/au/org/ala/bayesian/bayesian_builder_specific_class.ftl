@@ -51,10 +51,7 @@ public class ${className} implements Builder {
 <#list orderedNodes as node>
   <#list node.inference as inf>
       <#if !inf.derived>
-        <#list inputSignatures as sig>
-          <#assign signature><#list sig as s><#if s>t<#else>f</#if></#list></#assign>
-    parameters.${inf.id}$${signature} = analyser.computeConditional(analyser.getObservation(true, ${factoryClassName}.${inf.outcome.observable.javaVariable}, classifier) <#list inf.contributors as c>, analyser.getObservation(${c.match?c}, ${factoryClassName}.${c.observable.javaVariable}, classifier)</#list><#list inputs as c>, analyser.getObservation(${sig[c?index]?c}, ${factoryClassName}.${c.observable.javaVariable}, classifier)</#list>);
-        </#list>
+    parameters.${inf.id} = analyser.computeConditional(analyser.getObservation(true, ${factoryClassName}.${inf.outcome.observable.javaVariable}, classifier) <#list inf.contributors as c>, analyser.getObservation(${c.match?c}, ${factoryClassName}.${c.observable.javaVariable}, classifier)</#list>);
       </#if>
   </#list>
 </#list>

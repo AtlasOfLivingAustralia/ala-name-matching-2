@@ -297,6 +297,18 @@ public class Network extends Identifiable {
         return this.findObservable(BayesianTerm.name, true).orElse(null);
     }
 
+
+    /**
+     * Get the observable associated with the classification alternate name.
+     *
+     * @return The alt name observable or null if not present
+     */
+    @JsonIgnore
+    public Observable getAltNameObservable() {
+        return this.findObservable(BayesianTerm.altName, true).orElse(null);
+    }
+
+
     /**
      * Get the observable associated with the classification parent identifier.
      *
@@ -413,13 +425,13 @@ public class Network extends Identifiable {
     }
 
     /**
-     * Get the list of erasure groups for this network.
+     * Get the list of groups for this network.
      *
      * @return The list of erasure groups, in network order.
      */
-    public List<String> getErasureGroups() {
+    public List<String> getGroups() {
         return this.getVertices().stream()
-                .map(Observable::getErasure)
+                .map(Observable::getGroup)
                 .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
@@ -482,7 +494,7 @@ public class Network extends Identifiable {
         }
         final String erasure = erasures.get(index);
         this.createSubNetworks(index + 1, erasures, signature + "T", accumulator);
-        List<Observable> include = this.getVertices().stream().filter(o -> !erasure.equals(o.getErasure())).collect(Collectors.toList());
+        List<Observable> include = this.getVertices().stream().filter(o -> !erasure.equals(o.getGroup())).collect(Collectors.toList());
         Network erased = this.createSubNetwork(include, this.getId() + "-" + erasure);
         erased.getErasures().add(erasure);
         erased.createSubNetworks(index + 1, erasures, signature + "F", accumulator);
@@ -494,7 +506,7 @@ public class Network extends Identifiable {
      * @return The list of sub-networks
      */
     public List<Network> createSubNetworks() {
-        List<String> erasures = this.getErasureGroups();
+        List<String> erasures = this.getGroups();
         List<Network> subNetworks = new ArrayList<>(1 << erasures.size());
         this.createSubNetworks(0, erasures, "", subNetworks);
         return subNetworks;

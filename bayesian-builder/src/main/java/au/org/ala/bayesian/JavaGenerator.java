@@ -235,6 +235,7 @@ public class JavaGenerator extends Generator {
         environment.setVariable("artifactName", new StringModel(this.artifactName, this.wrapper));
         environment.setVariable("networkFileName", new StringModel(this.getNetworkFileName(compiler), this.wrapper));
         environment.setVariable("externalContexts", new CollectionModel(Arrays.asList(ExternalContext.LUCENE), this.wrapper));
+        environment.setVariable("variantExternalContexts", new CollectionModel(Arrays.asList(ExternalContext.LUCENE_VARIANT), this.wrapper));
         baseContext.populate(environment, this.wrapper, imports);
         environment.setVariable("imports", new CollectionModel(imports, this.wrapper));
     }

@@ -81,11 +81,21 @@ public class ObservableTest {
     @Test
     public void testToJson6() throws Exception {
         Observable observable = new Observable("test_6");
-        observable.setRequired(true);
+        observable.setMultiplicity(Observable.Multiplicity.REQUIRED);
         ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, observable);
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "observable-6.json"), writer.toString());
+    }
+
+    @Test
+    public void testToJson7() throws Exception {
+        Observable observable = new Observable("test_7");
+        observable.setMultiplicity(Observable.Multiplicity.MANY);
+        ObjectMapper mapper = JsonUtils.createMapper();
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, observable);
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "observable-7.json"), writer.toString());
     }
 
     @Test
@@ -94,7 +104,7 @@ public class ObservableTest {
         Observable observable = mapper.readValue(TestUtils.getResource(this.getClass(), "observable-1.json"), Observable.class);
         assertEquals("test_1", observable.getId());
         assertNull(observable.getDescription());
-        assertFalse(observable.isRequired());
+        assertEquals(Observable.Multiplicity.OPTIONAL, observable.getMultiplicity());
     }
 
     @Test
@@ -147,7 +157,15 @@ public class ObservableTest {
         ObjectMapper mapper = JsonUtils.createMapper();
         Observable observable = mapper.readValue(TestUtils.getResource(this.getClass(), "observable-6.json"), Observable.class);
         assertEquals("test_6", observable.getId());
-        assertTrue(observable.isRequired());
+        assertEquals(Observable.Multiplicity.REQUIRED, observable.getMultiplicity());
+    }
+
+    @Test
+    public void testFromJson7() throws Exception {
+        ObjectMapper mapper = JsonUtils.createMapper();
+        Observable observable = mapper.readValue(TestUtils.getResource(this.getClass(), "observable-7.json"), Observable.class);
+        assertEquals("test_7", observable.getId());
+        assertEquals(Observable.Multiplicity.MANY, observable.getMultiplicity());
     }
 
     @Test

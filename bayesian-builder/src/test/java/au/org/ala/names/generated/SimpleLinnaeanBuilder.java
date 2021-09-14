@@ -44,56 +44,58 @@ public class SimpleLinnaeanBuilder implements Builder {
 
   @Override
   public void infer(Classifier classifier) throws InferenceException, StoreException {
-    for (Object v: classifier.getAll(SimpleLinnaeanFactory.scientificName)) {
-      Object d = this.soundex.soundex((String) v);
-      classifier.add(SimpleLinnaeanFactory.soundexScientificName, d);
+    Object d;
+    for(Object v: classifier.getAll(SimpleLinnaeanFactory.scientificName)){
+      v = this.soundex.soundex((String) v);
+      classifier.add(SimpleLinnaeanFactory.soundexScientificName, v);
     }
   }
 
-    @Override
+  @Override
     public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
-    Optional<Classifier> d_6 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "genus".equals(x))).findFirst();
-    if (d_6.isPresent()){
-      for(Object v: d_6.get().getAll(SimpleLinnaeanFactory.scientificName)){
-        Object d = v;
-        classifier.add(SimpleLinnaeanFactory.genus, d);
-      }
-    }
-    Optional<Classifier> d_7 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "family".equals(x))).findFirst();
-    if (d_7.isPresent()){
-      for(Object v: d_7.get().getAll(SimpleLinnaeanFactory.scientificName)){
-        Object d = v;
-        classifier.add(SimpleLinnaeanFactory.family, d);
-      }
-    }
-    Optional<Classifier> d_8 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "order".equals(x))).findFirst();
-    if (d_8.isPresent()){
-      for(Object v: d_8.get().getAll(SimpleLinnaeanFactory.scientificName)){
-        Object d = v;
-        classifier.add(SimpleLinnaeanFactory.order, d);
-      }
-    }
-    Optional<Classifier> d_9 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "class".equals(x))).findFirst();
-    if (d_9.isPresent()){
-      for(Object v: d_9.get().getAll(SimpleLinnaeanFactory.scientificName)){
-        Object d = v;
-        classifier.add(SimpleLinnaeanFactory.class_, d);
-      }
-    }
-    Optional<Classifier> d_10 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "phylum".equals(x))).findFirst();
-    if (d_10.isPresent()){
-      for(Object v: d_10.get().getAll(SimpleLinnaeanFactory.scientificName)){
-        Object d = v;
-        classifier.add(SimpleLinnaeanFactory.phylum, d);
-      }
-    }
-    Optional<Classifier> d_11 = parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "kingdom".equals(x))).findFirst();
-    if (d_11.isPresent()){
-      for(Object v: d_11.get().getAll(SimpleLinnaeanFactory.scientificName)){
-        Object d = v;
-        classifier.add(SimpleLinnaeanFactory.kingdom, d);
-      }
-    }
+      Object d;
+      Optional<Classifier> d_6 = classifier.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "genus".equals(x)) ? Optional.of(classifier) : parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "genus".equals(x))).findFirst();
+      if (d_6.isPresent()) {
+        if (!classifier.has(SimpleLinnaeanFactory.genus)) {
+          d = d_6.get().get(SimpleLinnaeanFactory.scientificName);
+          classifier.add(SimpleLinnaeanFactory.genus, d);
+        }
+     }
+      Optional<Classifier> d_7 = classifier.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "family".equals(x)) ? Optional.of(classifier) : parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "family".equals(x))).findFirst();
+      if (d_7.isPresent()) {
+        if (!classifier.has(SimpleLinnaeanFactory.family)) {
+          d = d_7.get().get(SimpleLinnaeanFactory.scientificName);
+          classifier.add(SimpleLinnaeanFactory.family, d);
+        }
+     }
+      Optional<Classifier> d_8 = classifier.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "order".equals(x)) ? Optional.of(classifier) : parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "order".equals(x))).findFirst();
+      if (d_8.isPresent()) {
+        if (!classifier.has(SimpleLinnaeanFactory.order)) {
+          d = d_8.get().get(SimpleLinnaeanFactory.scientificName);
+          classifier.add(SimpleLinnaeanFactory.order, d);
+        }
+     }
+      Optional<Classifier> d_9 = classifier.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "class".equals(x)) ? Optional.of(classifier) : parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "class".equals(x))).findFirst();
+      if (d_9.isPresent()) {
+        if (!classifier.has(SimpleLinnaeanFactory.class_)) {
+          d = d_9.get().get(SimpleLinnaeanFactory.scientificName);
+          classifier.add(SimpleLinnaeanFactory.class_, d);
+        }
+     }
+      Optional<Classifier> d_10 = classifier.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "phylum".equals(x)) ? Optional.of(classifier) : parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "phylum".equals(x))).findFirst();
+      if (d_10.isPresent()) {
+        if (!classifier.has(SimpleLinnaeanFactory.phylum)) {
+          d = d_10.get().get(SimpleLinnaeanFactory.scientificName);
+          classifier.add(SimpleLinnaeanFactory.phylum, d);
+        }
+     }
+      Optional<Classifier> d_11 = classifier.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "kingdom".equals(x)) ? Optional.of(classifier) : parents.stream().filter(c -> c.getAll(SimpleLinnaeanFactory.taxonRank).stream().anyMatch(x -> "kingdom".equals(x))).findFirst();
+      if (d_11.isPresent()) {
+        if (!classifier.has(SimpleLinnaeanFactory.kingdom)) {
+          d = d_11.get().get(SimpleLinnaeanFactory.scientificName);
+          classifier.add(SimpleLinnaeanFactory.kingdom, d);
+        }
+     }
   }
 
   @Override

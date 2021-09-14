@@ -96,10 +96,30 @@ public class IndexBuilderTest {
         assertEquals("FT", classifier.getSignature());
         SimpleLinnaeanParameters_FT parameters = new SimpleLinnaeanParameters_FT();
         classifier.loadParameters(parameters);
-        assertEquals(0.0909, parameters.prior_t$taxonId, 0.0001);
-        assertEquals(0.0, parameters.inf_f_t$kingdom$t, 0.0001);
-        assertEquals(0.5, parameters.inf_t_f$phylum$f, 0.0001);
-        assertEquals(0.0, parameters.inf_t_f$phylum$t, 0.0001);
+        assertEquals(0.0909, parameters.prior_taxonId_t, 0.0001);
+        assertEquals(0.0, parameters.inf_kingdom_f$t_t, 0.0001);
+        assertEquals(0.6667, parameters.inf_phylum_t$f_f, 0.0001);
+        assertEquals(0.0, parameters.inf_phylum_t$t_f, 0.0001);
+    }
+
+
+    @Test
+    public void testBuildParameters2() throws Exception {
+        Observable taxonID = this.builder.network.getObservable(DwcTerm.taxonID);
+        URL surl = this.getClass().getResource("source-1.csv");
+        CSVSource source = new CSVSource(surl, this.builder.getFactory(), this.builder.getNetwork().getObservables());
+        this.builder.load(source);
+        this.builder.expandTree();
+        this.builder.expandSynonyms();
+        this.builder.buildParameters();
+        Classifier classifier = this.builder.parameterisedStore.get(DwcTerm.Taxon, taxonID, "S-1");
+        assertEquals("FT", classifier.getSignature());
+        SimpleLinnaeanParameters_FT parameters = new SimpleLinnaeanParameters_FT();
+        classifier.loadParameters(parameters);
+        assertEquals(0.0909, parameters.prior_taxonId_t, 0.0001);
+        assertEquals(0.0, parameters.inf_kingdom_f$t_t, 0.0001);
+        assertEquals(0.0, parameters.inf_genus_t$t_ff, 0.0001);
+        assertEquals(0.75, parameters.inf_genus_t$f_ft, 0.0001);
     }
 
 }

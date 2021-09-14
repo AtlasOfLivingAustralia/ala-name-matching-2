@@ -4,42 +4,58 @@ import au.org.ala.util.BasicNormaliser;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import lombok.With;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
 
 import java.util.*;
 import java.util.function.Function;
 
 public class TestClassification implements Classification<TestClassification> {
+    public static final Term RANK_ID_TERM = TermFactory.instance().findTerm("rankID");
+    public static final Term RANK_RANGE_TERM = TermFactory.instance().findTerm("rankRange");
+    public static final Term TEST_ENUM_TERM = TermFactory.instance().findTerm("testEnum");
     public static final Normaliser NORMALISER = new BasicNormaliser("basic", true, true, true, true, false);
     public static final Observable TAXON_ID = new Observable(DwcTerm.taxonID);
-   public static final Observable CLASS_ = new Observable(DwcTerm.class_);
+    public static final Observable CLASS_ = new Observable(DwcTerm.class_);
     public static final Observable SCIENTIFIC_NAME = new Observable(DwcTerm.scientificName);
     public static final Observable VERNACULAR_NAME = new Observable(DwcTerm.vernacularName);
+    public static final Observable RANK_ID = new Observable(RANK_ID_TERM);
+    public static final Observable RANK_RANGE = new Observable(RANK_RANGE_TERM);
+    public static final Observable TEST_ENUM = new Observable(TEST_ENUM_TERM);
     public static final List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
             TAXON_ID,
             CLASS_,
             SCIENTIFIC_NAME,
-            VERNACULAR_NAME
+            VERNACULAR_NAME,
+            RANK_ID,
+            RANK_RANGE,
+            TEST_ENUM
     ));
 
     static {
-        TAXON_ID.setRequired(true);
+        TAXON_ID.setMultiplicity(Observable.Multiplicity.REQUIRED);
         TAXON_ID.setStyle(Observable.Style.IDENTIFIER);
         CLASS_.setNormaliser(NORMALISER);
         CLASS_.setStyle(Observable.Style.PHRASE);
-        SCIENTIFIC_NAME.setRequired(true);
+        SCIENTIFIC_NAME.setMultiplicity(Observable.Multiplicity.REQUIRED_MANY);
         SCIENTIFIC_NAME.setStyle(Observable.Style.PHRASE);
         SCIENTIFIC_NAME.setNormaliser(NORMALISER);
         VERNACULAR_NAME.setNormaliser(NORMALISER);
         VERNACULAR_NAME.setStyle(Observable.Style.PHRASE);
+        RANK_ID.setType(Integer.class);
+        RANK_RANGE.setType(Integer.class);
+        RANK_RANGE.setAnalysis(new TestRangeAnalysis());
+        TEST_ENUM.setType(TestEnum.class);
     }
 
     public String taxonID;
     public String class_;
     public String scientificName;
     public String vernacularName;
+    public Integer rankID;
+    public Integer rankRange;
+    public TestEnum testEnum;
     @Getter
     private TestAnalyser analyser = new TestAnalyser();
     @Getter
@@ -93,6 +109,12 @@ public class TestClassification implements Classification<TestClassification> {
             obs.add(new Observation(true, SCIENTIFIC_NAME, this.scientificName));
         if (this.vernacularName != null)
             obs.add(new Observation(true, VERNACULAR_NAME, this.vernacularName));
+        if (this.rankID != null)
+            obs.add(new Observation(true, RANK_ID, this.rankID));
+        if (this.rankRange != null)
+            obs.add(new Observation(true, RANK_RANGE, this.rankRange));
+        if (this.testEnum != null)
+            obs.add(new Observation(true, TEST_ENUM, this.testEnum));
         return obs;
     }
 
@@ -161,6 +183,12 @@ public class TestClassification implements Classification<TestClassification> {
             this.scientificName = classifier.get(SCIENTIFIC_NAME);
         if (overwrite || this.vernacularName == null)
             this.vernacularName = classifier.get(VERNACULAR_NAME);
+        if (overwrite || this.rankID == null)
+            this.rankID = classifier.get(RANK_ID);
+        if (overwrite || this.rankRange == null)
+            this.rankRange = classifier.get(RANK_RANGE);
+        if (overwrite || this.testEnum == null)
+            this.testEnum = classifier.get(TEST_ENUM);
     }
 
     @Override
@@ -170,11 +198,17 @@ public class TestClassification implements Classification<TestClassification> {
             classifier.replace(CLASS_, this.class_);
             classifier.replace(SCIENTIFIC_NAME, this.scientificName);
             classifier.replace(VERNACULAR_NAME, this.vernacularName);
+            classifier.replace(RANK_ID, this.rankID);
+            classifier.replace(RANK_RANGE, this.rankRange);
+            classifier.replace(TEST_ENUM, this.testEnum);
         } else {
             classifier.add(TAXON_ID, this.taxonID);
             classifier.add(CLASS_, this.class_);
             classifier.add(SCIENTIFIC_NAME, this.scientificName);
             classifier.add(VERNACULAR_NAME, this.vernacularName);
+            classifier.add(RANK_ID, this.rankID);
+            classifier.add(RANK_RANGE, this.rankRange);
+            classifier.add(TEST_ENUM, this.testEnum);
         }
     }
 }

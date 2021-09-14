@@ -175,9 +175,9 @@ public class Network9Classification implements Classification<Network9Classifica
 
   public Network9Inferencer.Evidence match(Classifier classifier) throws StoreException, InferenceException {
     Network9Inferencer.Evidence evidence = new Network9Inferencer.Evidence();
-    evidence.e$v1 = classifier.match(Network9Factory.v1, this.v1);
-    evidence.e$v2 = classifier.match(Network9Factory.v2, this.v2);
-    evidence.e$v3 = classifier.match(Network9Factory.v3, this.v3);
+    evidence.e$v1 = classifier.match(this.v1, Network9Factory.v1);
+    evidence.e$v2 = classifier.match(this.v2, Network9Factory.v2);
+    evidence.e$v3 = classifier.match(this.v3, Network9Factory.v3);
     return evidence;
   }
 

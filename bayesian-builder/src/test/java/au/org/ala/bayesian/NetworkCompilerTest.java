@@ -26,7 +26,7 @@ public class NetworkCompilerTest {
         NetworkCompiler.Node node = compiler.getOrderedNodes().get(0);
         assertEquals("v_1", node.getObservable().getId());
         assertEquals("e$v1", node.getEvidence().getId());
-        assertEquals("prior_t$v1", node.getPrior().getId());
+        assertEquals("prior_v1_t", node.getPrior().getId());
         assertEquals("c$v1", node.getCE().getId());
         assertEquals("nc$v1", node.getCNotE().getId());
         assertEquals(0, node.getInference().size());
@@ -57,7 +57,7 @@ public class NetworkCompilerTest {
         NetworkCompiler.Node node = compiler.getOrderedNodes().get(0);
         assertEquals("v_1", node.getObservable().getId());
         assertEquals("e$v1", node.getEvidence().getId());
-        assertEquals("prior_t$v1", node.getPrior().getId());
+        assertEquals("prior_v1_t", node.getPrior().getId());
         assertEquals("c$v1", node.getCE().getId());
         assertEquals("nc$v1", node.getCNotE().getId());
         assertEquals(0, node.getInference().size());

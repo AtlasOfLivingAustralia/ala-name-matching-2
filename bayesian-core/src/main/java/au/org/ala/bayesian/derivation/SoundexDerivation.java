@@ -30,6 +30,17 @@ public class SoundexDerivation extends CopyDerivation {
         super(source);
     }
 
+    /**
+     * Does this have a transform?
+     *
+     * @return True
+     */
+    @Override
+    public boolean hasTransform() {
+        return true;
+    }
+
+
     @Override
     public Collection<Derivation.Variable> getBuilderVariables() {
         return Arrays.asList(new Derivation.Variable(Soundex.class, INSTANCE_VAR));

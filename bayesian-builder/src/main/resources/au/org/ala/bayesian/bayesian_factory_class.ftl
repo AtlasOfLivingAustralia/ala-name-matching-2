@@ -8,6 +8,7 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.Observable.Multiplicity;
 import static au.org.ala.bayesian.ExternalContext.*;
 
 import java.net.URI;
@@ -45,7 +46,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
       Observable.Style.${observable.style},
       <#if observable.normaliser??>${observable.normaliser.javaVariable}<#else>null</#if>,
       new ${observable.analysis.class.simpleName}(),
-      ${observable.required?c}
+      Multiplicity.${observable.multiplicity}
     );
   </#list>
 
@@ -77,6 +78,11 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   <#list externalContexts as context>
     ${observable.javaVariable}.setExternal(${context.name()}, "${observable.getExternal(context)}");
   </#list>
+  <#if observable.multiplicity.many>
+    <#list variantExternalContexts as context>
+    ${observable.javaVariable}.setExternal(${context.name()}, "${observable.getExternal(context)}");
+    </#list>
+  </#if>
 </#list>
   }
 

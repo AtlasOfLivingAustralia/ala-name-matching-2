@@ -7,7 +7,7 @@ import au.org.ala.bayesian.StoreException;
 /**
  * The default integer analysis
  */
-public class IntegerAnalysis extends Analysis<Integer> {
+public class IntegerAnalysis extends Analysis<Integer, Integer, Integer> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -15,6 +15,16 @@ public class IntegerAnalysis extends Analysis<Integer> {
      */
     @Override
     public Class<Integer> getType() {
+        return Integer.class;
+    }
+
+    /**
+     * Get the class of object that this analyser stores.
+     *
+     * @return The integer class
+     */
+    @Override
+    public Class<Integer> getStoreType() {
         return Integer.class;
     }
 
@@ -35,15 +45,38 @@ public class IntegerAnalysis extends Analysis<Integer> {
     }
 
     /**
-     * Convert this object into a string for storage
+     * Convert this object for storage
      *
      * @param value The value to convert
-     * @return The stringified value (null should return null)
+     * @return The storage value (null should return null)
+     */
+    @Override
+    public Integer toStore(Integer value) {
+        return value;
+    }
+
+    /**
+     * Convert this object for query
+     *
+     * @param value The value to convert
+     * @return The storage value (null should return null)
+     */
+    @Override
+    public Integer toQuery(Integer value) {
+        return value;
+    }
+
+
+    /**
+     * Convert this object from storage
+     *
+     * @param value The value to convert
+     * @return The comverted value (null should return null)
      * @throws StoreException if unable to convert to a string
      */
     @Override
-    public String toString(Integer value) throws StoreException {
-        return value == null ? null : value.toString();
+    public Integer fromStore(Integer value) {
+        return value;
     }
 
     /**

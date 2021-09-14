@@ -37,6 +37,8 @@ public enum ALATerm implements Term {
     status,
     /** A score for taxon/name priority */
     priority,
+    /** A numerical rank identifier for the taxon rank */
+    rankID,
     /** A taxon identifier for the kingdom */
     kingdomID,
     /** An alternate name for a kingdom */

@@ -6,6 +6,7 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.Observable.Multiplicity;
 import static au.org.ala.bayesian.ExternalContext.*;
 
 import java.net.URI;
@@ -33,7 +34,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   /** The sprinkler is on */
   public static final Observable sprinkler = new Observable(
@@ -43,7 +44,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
   /** The grass is wet */
   public static final Observable wet = new Observable(
@@ -53,7 +54,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      false
+      Multiplicity.OPTIONAL
     );
 
   public static List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(

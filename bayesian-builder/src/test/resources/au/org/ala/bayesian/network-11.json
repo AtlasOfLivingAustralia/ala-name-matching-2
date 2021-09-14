@@ -4,19 +4,19 @@
     { "id" : "A" },
     {
       "id" : "B1",
-      "erasure": "B"
+      "group": "B"
     },
     {
       "id" : "B2",
-      "erasure": "B"
+      "group": "B"
     },
     {
       "id" : "C1",
-      "erasure": "C"
+      "group": "C"
     },
     {
       "id" : "C2",
-      "erasure": "C" },
+      "group": "C" },
     { "id" : "D" }
   ],
   "edges" : [

@@ -10,8 +10,6 @@ import org.gbif.dwc.DwcFiles;
 import org.gbif.dwc.UnsupportedArchiveException;
 import org.gbif.dwc.record.Record;
 import org.gbif.dwc.terms.Term;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -344,18 +344,18 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
 
   public SimpleLinnaeanInferencer.Evidence match(Classifier classifier) throws StoreException, InferenceException {
     SimpleLinnaeanInferencer.Evidence evidence = new SimpleLinnaeanInferencer.Evidence();
-    evidence.e$taxonId = classifier.match(SimpleLinnaeanFactory.taxonId, this.taxonId);
-    evidence.e$taxonRank = classifier.match(SimpleLinnaeanFactory.taxonRank, this.taxonRank);
-    evidence.e$specificEpithet = classifier.match(SimpleLinnaeanFactory.specificEpithet, this.specificEpithet);
-    evidence.e$scientificNameAuthorship = classifier.match(SimpleLinnaeanFactory.scientificNameAuthorship, this.scientificNameAuthorship);
-    evidence.e$scientificName = classifier.match(SimpleLinnaeanFactory.scientificName, this.scientificName);
-    evidence.e$soundexScientificName = classifier.match(SimpleLinnaeanFactory.soundexScientificName, this.soundexScientificName);
-    evidence.e$genus = classifier.match(SimpleLinnaeanFactory.genus, this.genus);
-    evidence.e$family = classifier.match(SimpleLinnaeanFactory.family, this.family);
-    evidence.e$order = classifier.match(SimpleLinnaeanFactory.order, this.order);
-    evidence.e$class_ = classifier.match(SimpleLinnaeanFactory.class_, this.class_);
-    evidence.e$phylum = classifier.match(SimpleLinnaeanFactory.phylum, this.phylum);
-    evidence.e$kingdom = classifier.match(SimpleLinnaeanFactory.kingdom, this.kingdom);
+    evidence.e$taxonId = classifier.match(this.taxonId, SimpleLinnaeanFactory.taxonId);
+    evidence.e$taxonRank = classifier.match(this.taxonRank, SimpleLinnaeanFactory.taxonRank);
+    evidence.e$specificEpithet = classifier.match(this.specificEpithet, SimpleLinnaeanFactory.specificEpithet);
+    evidence.e$scientificNameAuthorship = classifier.match(this.scientificNameAuthorship, SimpleLinnaeanFactory.scientificNameAuthorship);
+    evidence.e$scientificName = classifier.match(this.scientificName, SimpleLinnaeanFactory.scientificName, SimpleLinnaeanFactory.altScientificName);
+    evidence.e$soundexScientificName = classifier.match(this.soundexScientificName, SimpleLinnaeanFactory.soundexScientificName);
+    evidence.e$genus = classifier.match(this.genus, SimpleLinnaeanFactory.genus);
+    evidence.e$family = classifier.match(this.family, SimpleLinnaeanFactory.family);
+    evidence.e$order = classifier.match(this.order, SimpleLinnaeanFactory.order);
+    evidence.e$class_ = classifier.match(this.class_, SimpleLinnaeanFactory.class_);
+    evidence.e$phylum = classifier.match(this.phylum, SimpleLinnaeanFactory.phylum);
+    evidence.e$kingdom = classifier.match(this.kingdom, SimpleLinnaeanFactory.kingdom);
     return evidence;
   }
 

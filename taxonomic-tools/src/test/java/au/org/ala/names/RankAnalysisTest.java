@@ -27,15 +27,15 @@ public class RankAnalysisTest {
 
     @Test
     public void testAnalyse3() throws Exception {
-        assertEquals(Rank.INFRASPECIFIC_NAME, analysis.analyse(Rank.SUBSPECIES));
-        assertEquals(Rank.INFRASPECIFIC_NAME, analysis.analyse(Rank.VARIETY));
+        assertEquals(Rank.SUBSPECIES, analysis.analyse(Rank.SUBSPECIES));
+        assertEquals(Rank.VARIETY, analysis.analyse(Rank.VARIETY));
     }
 
     @Test
-    public void testToString1() throws Exception {
-        assertNull(analysis.toString(null));
-        assertEquals("class", analysis.toString(Rank.CLASS));
-        assertEquals("subfamily", analysis.toString(Rank.SUBFAMILY));
+    public void testToStore1() throws Exception {
+        assertNull(analysis.toStore(null));
+        assertEquals("class", analysis.toStore(Rank.CLASS));
+        assertEquals("subfamily", analysis.toStore(Rank.SUBFAMILY));
     }
 
     @Test
@@ -63,9 +63,18 @@ public class RankAnalysisTest {
 
     @Test
     public void testEquivalent3() throws Exception {
-        assertFalse(analysis.equivalent(Rank.FAMILY, Rank.SUBFAMILY));
-        assertFalse(analysis.equivalent(Rank.GENUS, Rank.SPECIES));
+        assertTrue(analysis.equivalent(Rank.FAMILY, Rank.SUBFAMILY));
+        assertTrue(analysis.equivalent(Rank.GENUS, Rank.SUBGENUS));
+        assertTrue(analysis.equivalent(Rank.GENUS, Rank.INFRAFAMILY));
+        assertTrue(analysis.equivalent(Rank.SUBSPECIES, Rank.FORM));
     }
+
+    @Test
+    public void testEquivalent4() throws Exception {
+        assertFalse(analysis.equivalent(Rank.FAMILY, Rank.GENUS));
+        assertFalse(analysis.equivalent(Rank.CLASS, Rank.SUBGENUS));
+        assertFalse(analysis.equivalent(Rank.INFRAGENUS, Rank.SUBFAMILY));
+     }
 
 
 }

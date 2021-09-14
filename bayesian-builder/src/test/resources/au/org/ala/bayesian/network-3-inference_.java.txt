@@ -29,16 +29,12 @@ public class Network3Inferencer_ implements Inferencer<Network3Classification> {
     double nc$v3 = 0.0;
     // Ignoring non-base v_2
     if (evidence.isT$e$v3()) {
-      c$v3 += parameters.derived_t_tt$v3$t * c$v2 * c$v1;
-      c$v3 += parameters.derived_t_tf$v3$t * c$v2 * nc$v1;
-      c$v3 += parameters.derived_t_ft$v3$t * nc$v2 * c$v1;
-      c$v3 += parameters.derived_t_ff$v3$t * nc$v2 * nc$v1;
+      c$v3 += parameters.derived_v3_t$t_t * c$v1 * c$v2;
+      c$v3 += parameters.derived_v3_t$t_f * c$v1 * nc$v2;
     }
     if (evidence.isF$e$v3()) {
-      nc$v3 += parameters.derived_f_tt$v3$t * c$v2 * c$v1;
-      nc$v3 += parameters.derived_f_tf$v3$t * c$v2 * nc$v1;
-      nc$v3 += parameters.derived_f_ft$v3$t * nc$v2 * c$v1;
-      nc$v3 += parameters.derived_f_ff$v3$t * nc$v2 * nc$v1;
+      nc$v3 += parameters.derived_v3_f$t_t * c$v1 * c$v2;
+      nc$v3 += parameters.derived_v3_f$t_f * c$v1 * nc$v2;
     }
     return (c$v3 + nc$v3);
   }
@@ -52,16 +48,12 @@ public class Network3Inferencer_ implements Inferencer<Network3Classification> {
     double nc$v3 = 0.0;
     // Ignoring non-base v_2
     if (evidence.isT$e$v3()) {
-      c$v3 += parameters.derived_t_tt$v3$f * c$v2 * c$v1;
-      c$v3 += parameters.derived_t_tf$v3$f * c$v2 * nc$v1;
-      c$v3 += parameters.derived_t_ft$v3$f * nc$v2 * c$v1;
-      c$v3 += parameters.derived_t_ff$v3$f * nc$v2 * nc$v1;
+      c$v3 += parameters.derived_v3_t$f_t * nc$v1 * c$v2;
+      c$v3 += parameters.derived_v3_t$f_f * nc$v1 * nc$v2;
     }
     if (evidence.isF$e$v3()) {
-      nc$v3 += parameters.derived_f_tt$v3$f * c$v2 * c$v1;
-      nc$v3 += parameters.derived_f_tf$v3$f * c$v2 * nc$v1;
-      nc$v3 += parameters.derived_f_ft$v3$f * nc$v2 * c$v1;
-      nc$v3 += parameters.derived_f_ff$v3$f * nc$v2 * nc$v1;
+      nc$v3 += parameters.derived_v3_f$f_t * nc$v1 * c$v2;
+      nc$v3 += parameters.derived_v3_f$f_f * nc$v1 * nc$v2;
     }
     return (c$v3 + nc$v3);
   }
@@ -69,17 +61,17 @@ public class Network3Inferencer_ implements Inferencer<Network3Classification> {
 
   public Inference probability(Network3Inferencer.Evidence evidence, Network3Parameters_ parameters) {
     double p;
-    double prior = parameters.prior_t$v1;
+    double prior = parameters.prior_v1_t;
     double ph = 0.0;
     double pe = 0.0;
 
     if (evidence.isT$e$v1()) {
-      p = this.infer_t(evidence, parameters) * parameters.prior_t$v1;
+      p = this.infer_t(evidence, parameters) * parameters.prior_v1_t;
       ph += p;
       pe += p;
     }
     if (evidence.isF$e$v1()) {
-      p = this.infer_f(evidence, parameters) * parameters.prior_f$v1;
+      p = this.infer_f(evidence, parameters) * parameters.prior_v1_f;
       pe += p;
     }
     return Inference.forPEH(prior, pe, ph);

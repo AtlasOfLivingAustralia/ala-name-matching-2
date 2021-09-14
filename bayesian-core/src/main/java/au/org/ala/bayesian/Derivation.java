@@ -66,6 +66,24 @@ abstract public class Derivation {
     abstract public Set<Observable> getInputs();
 
     /**
+     * Does this have a transform?
+     *
+     * @return True if the data is transformed, rather than copied
+     */
+    @JsonIgnore
+    abstract public boolean hasTransform();
+
+    /**
+     * Include the destination classifier in searches for sources to copy from?
+     *
+     * @return False by default
+     */
+    @JsonIgnore // Override in subclasses if needed
+    public boolean isIncludeSelf() {
+        return false;
+    }
+
+    /**
      * Test to see whether we have any extra observable needed
      *
      * @return The extra observables needed
@@ -98,8 +116,9 @@ abstract public class Derivation {
         return extra == null ? "null" : classifierVar + ".get(" + observablesClass + "." + extra.getJavaVariable() + ")";
     }
 
+
     /**
-     * Generate the piece of code that generates the values required
+     * Generate the piece of code that generates the set value required
      * for derivation.
      *
      * @param classifierVar The name of the classifier variable
@@ -107,7 +126,18 @@ abstract public class Derivation {
      *
      * @return The code to get the values
      */
-    abstract public String generateValues(String classifierVar, String observablesClass);
+    abstract public String generateValue(String classifierVar, String observablesClass);
+
+    /**
+     * Generate the piece of code that generates the variant values required
+     * for derivation.
+     *
+     * @param classifierVar The name of the classifier variable
+     * @param observablesClass The class that holds observable definfitions
+     *
+     * @return The code to get the values
+     */
+    abstract public String generateVariants(String classifierVar, String observablesClass);
 
     /**
      * Generate the piece of code that transforms the values required

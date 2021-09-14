@@ -13,17 +13,11 @@ import static org.junit.Assert.assertEquals;
 public class GrassTest {
     private double[] PARAMS = {
             0.2, // Prior rain
-            0.01, // Sprinkler if rain (rain)
-            0.0, // Sprinkler if rain (!rain)
-            0.0, // Sprinkler if !rain (rain)
-            0.4, // Sprinkler if !rain (!rain)
-            0.99, // Wet if rain and sprinkler (rain)
-            0.0, // Wet if rain and sprinkler (!rain)
-            0.8, // Wet if rain and !sprinkler (rain)
-            0.8, // Wet if rain and !sprinkler (!rain)
-            0.0, // Wet if !rain and sprinkler (rain)
-            0.9, // Wet if !rain and sprinkler (!rain)
-            0.0, // Wet if !rain and !sprinkler (rain)
+            0.01, // Sprinkler if rain
+            0.4, // Sprinkler if !rain
+            0.99, // Wet if rain and sprinkler
+            0.8, // Wet if rain and !sprinkler
+            0.9, // Wet if !rain and sprinkler
             0.01 // Wet if !rain and !sprinkler (!rain)
     };
 

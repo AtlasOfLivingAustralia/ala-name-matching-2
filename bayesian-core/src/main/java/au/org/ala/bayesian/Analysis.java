@@ -1,9 +1,6 @@
 package au.org.ala.bayesian;
 
-import au.org.ala.bayesian.analysis.DoubleAnalysis;
-import au.org.ala.bayesian.analysis.IntegerAnalysis;
-import au.org.ala.bayesian.analysis.LocalDateAnalysis;
-import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.analysis.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -17,9 +14,11 @@ import java.util.HashMap;
  * </p>
  *
  * @param <C> The type of object this analyser handles.
+ * @param <S> The type of object this analyser reads/writes.
+ * @param <Q> The type of object this analyser uses to query the store
  */
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
-abstract public class Analysis<C> {
+abstract public class Analysis<C, S, Q> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -27,6 +26,14 @@ abstract public class Analysis<C> {
      */
     @JsonIgnore
     abstract public Class<C> getType();
+
+    /**
+     * Get the class of object that this analyser stores.
+     *
+     * @return The class of store object
+     */
+    @JsonIgnore
+    abstract public Class<S> getStoreType();
 
     /**
      * Analyse this object, providing any special interpretation
@@ -41,18 +48,41 @@ abstract public class Analysis<C> {
     abstract public C analyse(C value) throws InferenceException;
 
     /**
-     * Convert this object into a string for storage
+     * Convert this object into a value for storage
      *
      * @param value The value to convert
      *
-     * @return The stringified value (null should return null)
+     * @return The converted value (null should return null)
      *
      * @throws StoreException if unable to convert to a string
      */
-    abstract public String toString(C value) throws StoreException;
+    abstract public S toStore(C value) throws StoreException;
+
 
     /**
-     * Parse this value and return a suitably interpreted object.
+     * Convert this object into a value for query
+     *
+     * @param value The value to convert
+     *
+     * @return The converted value (null should return null)
+     *
+     * @throws StoreException if unable to convert to a query object
+     */
+    abstract public Q toQuery(C value) throws StoreException;
+
+    /**
+     * Parse a stored value and return a suitably interpreted object.
+     *
+     * @param value The value
+     *
+     * @return The parsed value
+     *
+     * @throws StoreException if unable to interpret the stored value
+     */
+    abstract public C fromStore(S value) throws StoreException;
+
+    /**
+     * Parse this value from a string and return a suitably interpreted object.
      *
      * @param value The value
      *
@@ -60,7 +90,7 @@ abstract public class Analysis<C> {
      *
      * @throws StoreException if unable to interpret the string
      */
-    abstract public Object fromString(String value) throws StoreException;
+    abstract public C fromString(String value) throws StoreException;
 
     /**
      * Test for equivalence.
@@ -92,15 +122,17 @@ abstract public class Analysis<C> {
      *
      * @param <C> The type of object this analyses
      */
-    public static <C> Analysis<C> defaultAnalyser(Class<C> clazz) throws IllegalArgumentException {
+    public static <C, S, Q> Analysis<C, S, Q> defaultAnalyser(Class<C> clazz) throws IllegalArgumentException {
         if (clazz == LocalDateAnalysis.class)
-            return (Analysis<C>) new LocalDateAnalysis();
+            return (Analysis<C, S, Q>) new LocalDateAnalysis();
         if (clazz == Double.class)
-            return (Analysis<C>) new DoubleAnalysis();
+            return (Analysis<C, S, Q>) new DoubleAnalysis();
         if (clazz == Integer.class)
-            return (Analysis<C>) new IntegerAnalysis();
+            return (Analysis<C, S, Q>) new IntegerAnalysis();
         if (clazz == String.class)
-            return (Analysis<C>) new StringAnalysis();
+            return (Analysis<C, S, Q>) new StringAnalysis();
+        if (Enum.class.isAssignableFrom(clazz))
+            return (Analysis<C, S, Q>) new EnumAnalysis(clazz);
         throw new IllegalArgumentException("Unable to build default analysis object for " + clazz);
     }
 

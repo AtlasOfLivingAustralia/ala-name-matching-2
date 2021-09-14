@@ -247,19 +247,19 @@ public class NetworkTest {
     }
 
     @Test
-    public void testGetErasureGroups1() throws Exception {
+    public void testGetGroups1() throws Exception {
         ObjectMapper mapper = JsonUtils.createMapper();
         Network network = mapper.readValue(TestUtils.getResource(this.getClass(), "network-6.json"), Network.class);
-        List<String> erasures = network.getErasureGroups();
-        assertTrue(erasures.isEmpty());
+        List<String> groups = network.getGroups();
+        assertTrue(groups.isEmpty());
     }
 
     @Test
-    public void testGetErasureGroups2() throws Exception {
+    public void testGetGroups2() throws Exception {
         ObjectMapper mapper = JsonUtils.createMapper();
         Network network = mapper.readValue(TestUtils.getResource(this.getClass(), "network-11.json"), Network.class);
-        List<String> erasures = network.getErasureGroups();
-        assertEquals(Arrays.asList("B", "C"), erasures);
+        List<String> groups = network.getGroups();
+        assertEquals(Arrays.asList("B", "C"), groups);
     }
 
     @Test

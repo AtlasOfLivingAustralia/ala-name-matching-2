@@ -1,4 +1,4 @@
 {
   "id" : "test_6",
-  "required" : true
+  "multiplicity" : "1"
 }

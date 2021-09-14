@@ -145,9 +145,11 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   <#assign observable = node.observable >
   <#if observable?? && observable.derivation??>
     <#assign derivation = observable.derivation>
+    <#if derivation.hasTransform()>
     if (this.${node.observable.javaVariable} == null) {
       this.${node.observable.javaVariable} = ${derivation.generateClassificationTransform()};
     }
+    </#if>
   </#if>
 </#list>
   }
@@ -166,9 +168,11 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   <#assign observable = node.observable >
   <#if observable?? && observable.derivation??>
     <#assign derivation = observable.derivation>
+    <#if derivation.hasTransform()>
     if (this.${node.observable.javaVariable} == null) {
       this.${node.observable.javaVariable} = ${derivation.generateClassificationTransform()};
     }
+    </#if>
   </#if>
 </#list>
   }
@@ -239,7 +243,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     ${inferencerClassName}.Evidence evidence = new ${inferencerClassName}.Evidence();
 <#list orderedNodes as node>
   <#assign observable = node.observable >
-    evidence.${node.evidence.id} = classifier.match(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable});
+    evidence.${node.evidence.id} = classifier.match(this.${node.observable.javaVariable}, ${factoryClassName}.${node.observable.javaVariable}<#if network.nameObservable?? && network.altNameObservable?? && node.observable.id == network.nameObservable.id>, ${factoryClassName}.${network.altNameObservable.javaVariable}</#if>);
 </#list>
     return evidence;
   }
