@@ -8,8 +8,9 @@ import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 
-import org.apache.commons.codec.language.Soundex;
+import au.org.ala.bayesian.derivation.SoundexGenerator;
 
 
 public class Network9Cli implements Cli<Network9Classification, Network9Builder, Network9Inferencer, Network9Factory> {
@@ -43,6 +44,7 @@ public class Network9Cli implements Cli<Network9Classification, Network9Builder,
        config.setBuilderClass(Network9Builder.class);
        config.setFactoryClass(Network9Factory.class);
        config.setNetwork(Network9Builder.class.getResource("network-9.json"));
+       config.setTypes(Arrays.asList(Network9Factory.CONCEPT));
      }
      if (cmd.hasOption(workOption.getOpt())) {
        config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));

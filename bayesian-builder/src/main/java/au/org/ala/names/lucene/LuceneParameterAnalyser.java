@@ -7,8 +7,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
-import org.cache2k.integration.CacheLoader;
-import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,6 +26,8 @@ import static au.org.ala.bayesian.Inference.MINIMUM_PROBABILITY;
 public class LuceneParameterAnalyser implements ParameterAnalyser {
     /** The network for this analyser */
     protected final Network network;
+    /** The type of term this analyses */
+    private final Term type;
     /** The annotator for this analyser  */
     protected final Annotator annotator;
     /** The index */
@@ -56,6 +58,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      */
     public LuceneParameterAnalyser(Network network, Annotator annotator, IndexSearcher searcher, Observable weight, double defaultWeight) throws InferenceException, StoreException {
         this.network = network;
+        this.type = TermFactory.instance().findTerm(network.getConcept().toASCIIString());
         this.annotator = annotator;
         this.searcher = searcher;
         this.weightCache = new ConcurrentHashMap<>();
@@ -67,7 +70,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
         this.weight = weight;
         this.defaultWeight = defaultWeight;
         this.queryUtils = new QueryUtils();
-        this.taxonQuery = this.queryUtils.createBuilder().add(LuceneClassifier.getTypeClause(DwcTerm.Taxon)).build();
+        this.taxonQuery = this.queryUtils.createBuilder().add(LuceneClassifier.getTypeClause(this.type)).build();
         this.totalWeight = this.sum(this.taxonQuery);
     }
 

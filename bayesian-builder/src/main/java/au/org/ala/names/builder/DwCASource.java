@@ -125,6 +125,7 @@ public class DwCASource extends Source {
         if (!this.isLoadable(type))
             return;
         Set<Observable> terms = file.getTerms().stream().map(t -> this.getObservable(t)).collect(Collectors.toSet());
+        log.info("Loading " + file.getLocation() + " of type " + type);
         for (Record record: file) {
             Classifier classifier = store.newClassifier();
             for (Observable term: terms) {

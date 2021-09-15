@@ -12,7 +12,7 @@ import java.util.Deque;
 import java.util.Optional;
 
 import au.org.ala.bayesian.analysis.StringAnalysis;
-import org.apache.commons.codec.language.Soundex;
+import au.org.ala.bayesian.derivation.SoundexGenerator;
 
 public class Network9Builder_ implements Builder {
   public final static String SIGNATURE = "";

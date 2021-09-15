@@ -43,12 +43,12 @@ public class SoundexDerivation extends CopyDerivation {
 
     @Override
     public Collection<Derivation.Variable> getBuilderVariables() {
-        return Arrays.asList(new Derivation.Variable(Soundex.class, INSTANCE_VAR));
+        return Arrays.asList(new Derivation.Variable(SoundexGenerator.class, INSTANCE_VAR));
     }
 
     @Override
     public Collection<Derivation.Variable> getClassificationVariables() {
-        return Arrays.asList(new Derivation.Variable(Soundex.class, INSTANCE_VAR));
+        return Arrays.asList(new Derivation.Variable(SoundexGenerator.class, INSTANCE_VAR));
     }
 
     @Override

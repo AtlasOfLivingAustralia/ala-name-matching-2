@@ -21,12 +21,12 @@ import org.gbif.dwc.terms.Term;
 
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.Analyser;
-import org.apache.commons.codec.language.Soundex;
+import au.org.ala.bayesian.derivation.SoundexGenerator;
 
 public class Network9Classification implements Classification<Network9Classification> {
   private Analyser<Network9Classification> analyser;
   private Issues issues;
-  private Soundex soundex;
+  private SoundexGenerator soundex;
 
   public java.lang.String v1;
   public java.lang.String v2;
@@ -35,7 +35,7 @@ public class Network9Classification implements Classification<Network9Classifica
   public Network9Classification(Analyser<Network9Classification> analyser) {
     this.analyser = Network9Factory.instance().createAnalyser();
     this.issues = new Issues();
-    this.soundex = new Soundex();
+    this.soundex = new SoundexGenerator();
   }
 
   public Network9Classification() {
@@ -63,7 +63,7 @@ public class Network9Classification implements Classification<Network9Classifica
 
   @Override
   public Term getType() {
-    return DwcTerm.Taxon;
+    return Network9Factory.CONCEPT;
   }
 
   @Override

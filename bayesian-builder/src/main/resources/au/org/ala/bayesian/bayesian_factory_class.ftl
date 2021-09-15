@@ -64,7 +64,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 </#list>
   ));
 
-  private static final Term CONCEPT = TERM_FACTORY.findTerm("${network.concept!"http://id.ala.org.au/bayesian/1.0/Concept"}");
+  public static final Term CONCEPT = TERM_FACTORY.findTerm("${network.concept!"http://id.ala.org.au/bayesian/1.0/Concept"}");
 
 <#list issues as issue>
   /** Issue ${issue.id} <#if issue.description??>

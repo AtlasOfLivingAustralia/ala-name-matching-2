@@ -8,6 +8,7 @@ import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 
 
 
@@ -42,6 +43,7 @@ public class GrassCli implements Cli<GrassClassification, GrassBuilder, GrassInf
        config.setBuilderClass(GrassBuilder.class);
        config.setFactoryClass(GrassFactory.class);
        config.setNetwork(GrassBuilder.class.getResource("grass.json"));
+       config.setTypes(Arrays.asList(GrassFactory.CONCEPT));
      }
      if (cmd.hasOption(workOption.getOpt())) {
        config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));

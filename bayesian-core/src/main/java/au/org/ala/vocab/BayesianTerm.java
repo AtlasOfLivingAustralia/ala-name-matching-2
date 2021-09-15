@@ -37,6 +37,8 @@ public enum BayesianTerm implements Term {
     isRoot,
     /** Is this a synonym category? */
     isSynonym,
+    /** Is this something with an identifier that alredy exists? */
+    identifierCreated,
     /** The class used to build an index */
     builderClass,
     /** The class used for parameters */

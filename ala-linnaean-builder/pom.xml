@@ -71,6 +71,23 @@
                             <analyserClass>au.org.ala.names.AlaNameAnalyser</analyserClass>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>ala-vernacular-build</id>
+                        <goals>
+                            <goal>generate-network</goal>
+                        </goals>
+                        <configuration>
+                            <source>../ala-linnaean/src/main/resources/ala-vernacular.json</source>
+                            <outputPackage>au.org.ala.names</outputPackage>
+                            <generateBuilder>true</generateBuilder>
+                            <generateCli>true</generateCli>
+                            <generateInferencer>false</generateInferencer>
+                            <generateParameters>false</generateParameters>
+                            <generateClassification>false</generateClassification>
+                            <generateFactory>false</generateFactory>
+                            <analyserClass>au.org.ala.names.AlaVernacularAnalyser</analyserClass>
+                        </configuration>
+                    </execution>
                 </executions>
                 <dependencies>
                     <dependency>

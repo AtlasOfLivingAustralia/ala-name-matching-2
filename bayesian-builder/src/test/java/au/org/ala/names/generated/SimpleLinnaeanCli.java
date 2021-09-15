@@ -8,8 +8,9 @@ import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 
-import org.apache.commons.codec.language.Soundex;
+import au.org.ala.bayesian.derivation.SoundexGenerator;
 
 
 public class SimpleLinnaeanCli implements Cli<SimpleLinnaeanClassification, SimpleLinnaeanBuilder, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> {
@@ -43,6 +44,7 @@ public class SimpleLinnaeanCli implements Cli<SimpleLinnaeanClassification, Simp
        config.setBuilderClass(SimpleLinnaeanBuilder.class);
        config.setFactoryClass(SimpleLinnaeanFactory.class);
        config.setNetwork(SimpleLinnaeanBuilder.class.getResource("simple-linnaean.json"));
+       config.setTypes(Arrays.asList(SimpleLinnaeanFactory.CONCEPT));
      }
      if (cmd.hasOption(workOption.getOpt())) {
        config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));

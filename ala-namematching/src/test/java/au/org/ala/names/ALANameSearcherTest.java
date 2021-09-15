@@ -19,15 +19,19 @@ import static org.junit.Assert.*;
 
 public class ALANameSearcherTest {
     public static final String INDEX = "/data/lucene/index-20210811";
+    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811";
 
     private ALANameSearcher searcher;
 
     @Before
     public void setUp() throws Exception {
         File index = new File(INDEX);
+        File vernacular = new File(VERNACULAR_INDEX);
         if (!index.exists())
             throw new IllegalStateException("Index " + index + " not present");
-        this.searcher = new ALANameSearcher(index);
+        if (!vernacular.exists())
+            throw new IllegalStateException("Vernacular Index " + vernacular + " not present");
+        this.searcher = new ALANameSearcher(index, vernacular);
     }
 
     @After
@@ -118,6 +122,21 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/03ff8172-bda5-4751-819e-fbfaf8c98c8e", result.getAccepted().taxonId);
         assertEquals("Rhinotia", result.getMatch().scientificName);
         assertEquals(0.99992, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(Issues.of(), result.getIssues());
+    }
+
+
+    // Subject to multiple versions of the name
+    @Test
+    public void testSimpleSearch8() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Acacia";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/taxon/apni/51382879", result.getMatch().taxonId);
+        assertEquals("https://id.biodiversity.org.au/taxon/apni/51382879", result.getAccepted().taxonId);
+        assertEquals("Acacia", result.getMatch().scientificName);
+        assertEquals(0.99934, result.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -253,14 +272,13 @@ public class ALANameSearcherTest {
         assertTrue(result.getIssues().isEmpty());
     }
 
-    @Ignore("Requires handling of wierd names")
     @Test
     public void indeterminateNameTest1() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
         template.scientificName = "Acacia sp";
         Match<AlaLinnaeanClassification> result = this.searcher.search(template);
         assertTrue(result.isValid());
-        assertEquals("https://biodiversity.org.au/afd/taxa/b1d9bf29-648f-47e6-8544-2c2fbdf632b1", result.getAccepted().taxonId);
+        assertEquals("https://id.biodiversity.org.au/taxon/apni/51382879", result.getAccepted().taxonId);
         assertTrue(result.getIssues().contains(AlaLinnaeanFactory.INDETERMINATE_NAME));
     }
 
@@ -740,6 +758,99 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/instance/apni/51411288", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51412124", result.getAccepted().taxonId);
         assertEquals(Issues.of(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME, AlaLinnaeanFactory.REMOVED_RANK), result.getIssues());
+    }
+
+    @Test
+    public void testVernacular1() throws Exception {
+        AlaVernacularClassification template = new AlaVernacularClassification();
+        template.vernacularName = "Red Kangaroo";
+        Match<AlaVernacularClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://biodiversity.org.au/afd/taxa/e6aff6af-ff36-4ad5-95f2-2dfdcca8caff", result.getMatch().taxonId);
+        assertEquals("https://biodiversity.org.au/afd/taxa/e6aff6af-ff36-4ad5-95f2-2dfdcca8caff", result.getAccepted().taxonId);
+        assertEquals(Issues.of(), result.getIssues());
+    }
+
+    @Test
+    public void testVernacular2() throws Exception {
+        AlaVernacularClassification template = new AlaVernacularClassification();
+        template.vernacularName = "Blue Gum"; // Multiple possibilities
+        Match<AlaVernacularClassification> result = this.searcher.search(template);
+        assertFalse(result.isValid());
+        assertEquals(Issues.of(BayesianTerm.invalidMatch), result.getIssues());
+    }
+
+
+    @Test
+    public void testVernacular3() throws Exception {
+        AlaVernacularClassification template = new AlaVernacularClassification();
+        template.vernacularName = "Aka-kōpū-kererū";
+        Match<AlaVernacularClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("NZOR-6-122129", result.getMatch().taxonId);
+        assertEquals("NZOR-6-122129", result.getAccepted().taxonId);
+        assertEquals(Issues.of(), result.getIssues());
+    }
+
+    @Test
+    public void testVernacular4() throws Exception {
+        AlaVernacularClassification template = new AlaVernacularClassification();
+        template.vernacularName = "Aka-kopu-kereru";
+        Match<AlaVernacularClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("NZOR-6-122129", result.getMatch().taxonId);
+        assertEquals("NZOR-6-122129", result.getAccepted().taxonId);
+        assertEquals(Issues.of(), result.getIssues());
+    }
+
+
+    @Test
+    public void testVernacularSameTaxon1() throws Exception {
+        AlaVernacularClassification template = new AlaVernacularClassification();
+        template.vernacularName = "Wedge-leaved Rattlepod";
+        Match<AlaVernacularClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/node/apni/2895442", result.getMatch().taxonId);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2895442", result.getAccepted().taxonId);
+        assertEquals(Issues.of(), result.getIssues());
+    }
+
+
+    @Test
+    public void testVernacularRemove1() throws Exception {
+        AlaVernacularClassification template = new AlaVernacularClassification();
+        template.vernacularName = "Red Kangaroo";
+        template.language = "fr";
+        Match<AlaVernacularClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://biodiversity.org.au/afd/taxa/e6aff6af-ff36-4ad5-95f2-2dfdcca8caff", result.getMatch().taxonId);
+        assertEquals("https://biodiversity.org.au/afd/taxa/e6aff6af-ff36-4ad5-95f2-2dfdcca8caff", result.getAccepted().taxonId);
+        assertEquals(Issues.of(AlaVernacularFactory.REMOVED_LANGUAGE), result.getIssues());
+    }
+
+
+
+    @Test
+    public void testVernacularMisspelled1() throws Exception {
+        AlaVernacularClassification template = new AlaVernacularClassification();
+        template.vernacularName = "Red Kangaru";
+        Match<AlaVernacularClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://biodiversity.org.au/afd/taxa/e6aff6af-ff36-4ad5-95f2-2dfdcca8caff", result.getMatch().taxonId);
+        assertEquals("https://biodiversity.org.au/afd/taxa/e6aff6af-ff36-4ad5-95f2-2dfdcca8caff", result.getAccepted().taxonId);
+        assertEquals(Issues.of(AlaVernacularFactory.MISSPELLED_VERNACULAR_NAME), result.getIssues());
+    }
+
+
+    @Test
+    public void testVernacularMisspelled2() throws Exception {
+        AlaVernacularClassification template = new AlaVernacularClassification();
+        template.vernacularName = "Aka-kopu-kereroo";
+        Match<AlaVernacularClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("NZOR-6-122129", result.getMatch().taxonId);
+        assertEquals("NZOR-6-122129", result.getAccepted().taxonId);
+        assertEquals(Issues.of(AlaVernacularFactory.MISSPELLED_VERNACULAR_NAME), result.getIssues());
     }
 
 }

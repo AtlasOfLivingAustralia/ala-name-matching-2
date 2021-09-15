@@ -20,10 +20,14 @@ import java.io.IOException;
 public class ALANameSearcher {
     private LuceneClassifierSearcher searcher;
     private ALAClassificationMatcher matcher;
+    private LuceneClassifierSearcher vernacularSearcher;
+    private ALAVernacularClassificationMatcher vernacularMatcher;
 
-    public ALANameSearcher(File index) throws StoreException {
+    public ALANameSearcher(File index, File vernacular) throws StoreException {
         this.searcher = new LuceneClassifierSearcher(index);
+        this.vernacularSearcher = new LuceneClassifierSearcher(vernacular);
         this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher);
+        this.vernacularMatcher = new ALAVernacularClassificationMatcher(AlaVernacularFactory.instance(), this.vernacularSearcher);
     }
 
     /**
@@ -46,4 +50,20 @@ public class ALANameSearcher {
     public Match<AlaLinnaeanClassification> search(AlaLinnaeanClassification template) throws InferenceException, StoreException {
         return this.matcher.findMatch(template);
     }
+
+
+    /**
+     * Search for a classification, based on template vernacular data.
+     *
+     * @param template The template classification with various amounts of information filled in.
+     *
+     * @return The closest possible match.
+     *
+     * @throws InferenceException if unable to compuete match charactersics
+     * @throws StoreException if unable to read the index
+     */
+    public Match<AlaVernacularClassification> search(AlaVernacularClassification template) throws InferenceException, StoreException {
+        return this.vernacularMatcher.findMatch(template);
+    }
+
 }

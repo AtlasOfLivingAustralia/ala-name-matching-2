@@ -8,6 +8,7 @@ import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 
 <#list builderVariables as variable>
 import ${variable.clazz.name};
@@ -48,6 +49,7 @@ public class ${className} implements Cli<${classificationClassName}, ${builderCl
        config.setBuilderClass(${builderClassName}.class);
        config.setFactoryClass(${factoryClassName}.class);
        config.setNetwork(${builderClassName}.class.getResource("${networkFileName}"));
+       config.setTypes(Arrays.asList(${factoryClassName}.CONCEPT));
      }
      if (cmd.hasOption(workOption.getOpt())) {
        config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));

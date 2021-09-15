@@ -47,6 +47,8 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     public static final SimpleDateFormat BACKUP_TAG = new SimpleDateFormat("yyyyMMddHHmmss");
     /** The data format for timestamping metadata */
     public static final SimpleDateFormat TIMESTAMP = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+    /** The number of documents to commit in a batch */
+    public static final int COMMIT_BATCH = 5000;
 
     protected IndexBuilderConfiguration config;
     /** The network that this is a builder for */
@@ -61,8 +63,8 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     protected Term conceptTerm;
     /** The weight observable (required) */
     protected Observable weight;
-    /** The parent observable (required) */
-    protected Observable parent;
+    /** The parent observable */
+    protected Optional<Observable> parent;
     /** The accepted name observable */
     protected Optional<Observable> accepted;
     /** The category identifier observable (required) */
@@ -90,6 +92,8 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     protected LoadStore parameterisedStore;
     /** The analyser. Used to add extra information to loaded classifiers. Accessed via the annotation interface */
     protected Analyser<C> analyser;
+    /** The identifiers used. Non-unique identifiers are disambiguated */
+    protected Set<Object> identifiers;
 
     /**
      * Construct with a configuration.
@@ -110,7 +114,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
             throw new BuilderException("Network requires concept term");
         this.conceptTerm = TermFactory.instance().findTerm(this.network.getConcept().toASCIIString());
         this.weight = this.network.findObservable(BayesianTerm.weight, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.weight + ":true property"));
-        this.parent = this.network.findObservable(BayesianTerm.parent, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.parent + ":true property"));
+        this.parent = this.network.findObservable(BayesianTerm.parent, true);
         this.accepted = this.network.findObservable(BayesianTerm.accepted, true);
         this.identifier = this.network.findObservable(BayesianTerm.identifier, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.identifier + ":true property"));
         this.name = this.network.findObservable(BayesianTerm.name, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.name + ":true property"));
@@ -120,7 +124,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.synonymCopy = new HashSet<>(this.network.findObservables(BayesianTerm.copy, true));
         this.stored = new HashSet<>(this.network.getObservables()); // The defined observables in the network
         this.stored.add(this.weight);
-        this.stored.add(this.parent);
+        this.parent.ifPresent(o -> this.stored.add(o));
         this.accepted.ifPresent(o -> this.stored.add(o));
         this.stored.add(this.identifier);
         this.stored.add(this.name);
@@ -128,6 +132,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.fullName.ifPresent(o -> this.stored.add(o));
         this.altName.ifPresent(o -> this.stored.add(o));
         this.stored.addAll(this.synonymCopy);
+        this.identifiers = new HashSet<>();
     }
 
     /**
@@ -190,6 +195,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         LOGGER.info("Expanding accepted concept tree");
         this.expandedStore = this.config.createLoadStore(Annotator.NULL);
         int index = 1;
+        int oldIndex = index;
         Observation isRoot = this.loadStore.getAnnotationObservation(BayesianTerm.isRoot);
         List<Classifier> top = this.loadStore.getAllClassifiers(this.conceptTerm, isRoot); // Keep across commits
         Counter topCounter = new Counter("Processed {0} top level documents, {1}s, {3,number,0.0}%", LOGGER, 100, top.size());
@@ -199,8 +205,12 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         for (Classifier classifier: top) {
             topCounter.increment(classifier.getIdentifier());
             index = this.expandTree(classifier, new LinkedList<Classifier>(), index, counter);
-            this.expandedStore.commit();
+            if (index - oldIndex > COMMIT_BATCH) {
+                this.expandedStore.commit();
+                oldIndex = index;
+            }
         }
+        this.expandedStore.commit();
         counter.stop();
         topCounter.stop();
     }
@@ -246,9 +256,9 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         List<String> trail = parents.stream().map(p -> p.get(this.identifier).toString()).collect(Collectors.toList());
         classifier.setTrail(trail);
         this.builder.infer(classifier);
-        if (this.parent != null) {
+        if (this.parent.isPresent()) {
             parents.push(classifier);
-            Iterable<Classifier> children = this.loadStore.getAll(this.conceptTerm, new Observation(true, this.parent, id));
+            Iterable<Classifier> children = this.loadStore.getAll(this.conceptTerm, new Observation(true, this.parent.get(), id));
             for (Classifier child : children) {
                 index = this.expandTree(child, parents, index, counter);
             }
@@ -447,9 +457,17 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     @Override
     public void annotate(Classifier classifier) throws StoreException {
         Term type = classifier.getType();
-        String p = classifier.get(this.parent);
+        String id = classifier.get(this.identifier);
+        String p = this.parent.isPresent() ? classifier.get(this.parent.get()) : null;
         String a = this.accepted.isPresent() ? classifier.get(this.accepted.get()) : null;
 
+        if (id == null || this.identifiers.contains(id)) {
+            LOGGER.warn("Non-unique or null identifier " + id + " replacing with " + classifier.getIdentifier());
+            id = classifier.getIdentifier();
+            classifier.replace(this.identifier, id);
+            classifier.annotate(BayesianTerm.identifierCreated);
+        }
+        this.identifiers.add(id);
         if (type != this.conceptTerm)
             return;
         if (( p == null || p.isEmpty()) && (a == null || a.isEmpty()))

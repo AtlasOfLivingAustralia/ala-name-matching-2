@@ -70,6 +70,34 @@
                             <full>false</full>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>ala-vernacular_network</id>
+                        <goals>
+                            <goal>generate-network</goal>
+                        </goals>
+                        <configuration>
+                            <source>${project.basedir}/src/main/resources/ala-vernacular.json</source>
+                            <outputPackage>au.org.ala.names</outputPackage>
+                            <generateBuilder>false</generateBuilder>
+                            <generateCli>false</generateCli>
+                            <generateInferencer>true</generateInferencer>
+                            <generateParameters>true</generateParameters>
+                            <generateClassification>true</generateClassification>
+                            <generateFactory>true</generateFactory>
+                            <analyserClass>au.org.ala.names.AlaVernacularAnalyser</analyserClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ala-vernacular-graph</id>
+                        <goals>
+                            <goal>generate-graph</goal>
+                        </goals>
+                        <configuration>
+                            <source>${project.basedir}/src/main/resources/ala-vernacular.json</source>
+                            <output>${project.basedir}/target/diagrams/ala-vernacular.dot</output>
+                            <full>false</full>
+                        </configuration>
+                    </execution>
                  </executions>
                 <dependencies>
                     <dependency>

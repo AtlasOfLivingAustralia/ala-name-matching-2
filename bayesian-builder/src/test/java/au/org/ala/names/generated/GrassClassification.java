@@ -60,7 +60,7 @@ public class GrassClassification implements Classification<GrassClassification> 
 
   @Override
   public Term getType() {
-    return DwcTerm.Taxon;
+    return GrassFactory.CONCEPT;
   }
 
   @Override

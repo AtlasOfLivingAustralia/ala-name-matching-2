@@ -87,7 +87,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
   @Override
   public Term getType() {
-    return DwcTerm.Taxon;
+    return ${factoryClassName}.CONCEPT;
   }
 
   @Override

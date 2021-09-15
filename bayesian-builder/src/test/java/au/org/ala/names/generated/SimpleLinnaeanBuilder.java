@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import au.org.ala.bayesian.analysis.StringAnalysis;
-import org.apache.commons.codec.language.Soundex;
+import au.org.ala.bayesian.derivation.SoundexGenerator;
 import au.org.ala.bayesian.analysis.DoubleAnalysis;
 
 public class SimpleLinnaeanBuilder implements Builder {
@@ -28,10 +28,10 @@ public class SimpleLinnaeanBuilder implements Builder {
 
   private Map<String, Builder> subBuilders;
 
-  private Soundex soundex;
+  private SoundexGenerator soundex;
 
   public SimpleLinnaeanBuilder() {
-    this.soundex = new Soundex();
+    this.soundex = new SoundexGenerator();
     this.subBuilders = new HashMap<>(BUILDERS.length);
     for (Builder b: BUILDERS)
       this.subBuilders.put(b.getSignature(), b);

@@ -21,13 +21,13 @@ import org.gbif.dwc.terms.Term;
 
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.Analyser;
-import org.apache.commons.codec.language.Soundex;
+import au.org.ala.bayesian.derivation.SoundexGenerator;
 import au.org.ala.bayesian.analysis.DoubleAnalysis;
 
 public class SimpleLinnaeanClassification implements Classification<SimpleLinnaeanClassification> {
   private Analyser<SimpleLinnaeanClassification> analyser;
   private Issues issues;
-  private Soundex soundex;
+  private SoundexGenerator soundex;
   private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_CLASS =
     c -> {
       SimpleLinnaeanClassification nc;
@@ -85,7 +85,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   public SimpleLinnaeanClassification(Analyser<SimpleLinnaeanClassification> analyser) {
     this.analyser = SimpleLinnaeanFactory.instance().createAnalyser();
     this.issues = new Issues();
-    this.soundex = new Soundex();
+    this.soundex = new SoundexGenerator();
   }
 
   public SimpleLinnaeanClassification() {
@@ -113,7 +113,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
 
   @Override
   public Term getType() {
-    return DwcTerm.Taxon;
+    return SimpleLinnaeanFactory.CONCEPT;
   }
 
   @Override
