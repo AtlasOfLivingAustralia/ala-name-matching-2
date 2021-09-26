@@ -4,6 +4,7 @@ import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.util.CleanedScientificName;
 import au.org.ala.vocab.ALATerm;
+import au.org.ala.vocab.BayesianTerm;
 import com.google.common.base.Enums;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -195,7 +196,7 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
                 changed = true;
                 analysis.setScientificName(analysis.scientificName.substring(0, matcher.start()).trim());
                 analysis.addIssue(AlaLinnaeanFactory.INDETERMINATE_NAME);
-                analysis.addIssue(ALATerm.canonicalMatch);
+                analysis.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
                 analysis.rank = Rank.UNRANKED;
                 if (analysis.classification != null)
                     analysis.classification.taxonRank = null;
@@ -207,7 +208,7 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
                 if (matcher.find()) {
                     changed = true;
                     analysis.setScientificName(matcher.replaceAll(" ").trim());
-                    analysis.addIssue(ALATerm.canonicalMatch);
+                    analysis.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
                 }
             }
         }
@@ -222,7 +223,7 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
         if (name.getState() == ParsedName.State.COMPLETE) {
             if (name.getType() == NameType.SCIENTIFIC) {
                 if (name.hasAuthorship()) {
-                    analysis.addIssue(ALATerm.canonicalMatch);
+                    analysis.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
                     if (classification.scientificNameAuthorship == null) {
                         classification.scientificNameAuthorship = NameFormatter.authorshipComplete(name);
                     }
@@ -323,7 +324,7 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             }
             this.fillOutClassification(analysis, name);
         } catch (UnparsableNameException e) {
-            analysis.addIssue(ALATerm.unparsableName);
+            analysis.addIssue(AlaLinnaeanFactory.UNPARSABLE_NAME);
         }
     }
 
@@ -351,17 +352,17 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             Matcher matcher = SUSPECTED_CULTIVAR_IN_SPECIFIC_EPITHET.matcher(classification.specificEpithet);
             if (matcher.find() && matcher.group(1).equals(classification.cultivarEpithet)) {
                 classification.specificEpithet = classification.specificEpithet.substring(0, matcher.start()).trim();
-                classification.addIssue(ALATerm.canonicalMatch);
+                classification.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
             }
         }
 
         // Remove loops in taxonomy
         if (classification.parentNameUsageId != null && classification.parentNameUsageId.equals(classification.taxonId)) {
-            classification.addIssue(ALATerm.taxonParentLoop);
+            classification.addIssue(BayesianTerm.parentLoop);
             classification.parentNameUsageId = null;
         }
         if (classification.acceptedNameUsageId != null && classification.acceptedNameUsageId.equals(classification.taxonId)) {
-            classification.addIssue(ALATerm.taxonAcceptedLoop);
+            classification.addIssue(BayesianTerm.acceptedLoop);
             classification.acceptedNameUsageId = null;
         }
     }

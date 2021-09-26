@@ -143,7 +143,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     this.analyser.analyseForIndex(this);
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
-  <#if observable?? && observable.derivation??>
+  <#if observable?? && observable.derivation?? && !observable.derivation.generator>
     <#assign derivation = observable.derivation>
     <#if derivation.hasTransform()>
     if (this.${node.observable.javaVariable} == null) {
@@ -166,7 +166,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
         this.analyser.analyseForSearch(this);
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
-  <#if observable?? && observable.derivation??>
+  <#if observable?? && observable.derivation?? && !observable.derivation.generator>
     <#assign derivation = observable.derivation>
     <#if derivation.hasTransform()>
     if (this.${node.observable.javaVariable} == null) {

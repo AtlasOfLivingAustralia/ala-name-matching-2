@@ -21,6 +21,21 @@ public interface Builder {
      */
     public String getSignature();
 
+
+    /**
+     * Generate for a classifier during building.
+     * <p>
+     * This method generates any derivations that imply a once-off generation
+     * of something.
+     * </p>
+     *
+     * @param classifier The document
+     *
+     * @throws InferenceException if unable to calculate the inference
+     * @throws StoreException if unable to retrieve inference data
+     */
+    public void generate(Classifier classifier) throws InferenceException, StoreException;
+
     /**
      * Infer from a classifier during building.
      * <p>

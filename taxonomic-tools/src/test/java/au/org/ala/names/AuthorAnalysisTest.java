@@ -37,4 +37,13 @@ public class AuthorAnalysisTest {
         assertTrue(this.analysis.equivalent("(Jones)", "Jones, 1975"));
    }
 
+
+    @Test
+    public void testEquivalence5() throws Exception {
+        assertTrue(this.analysis.equivalent("(Jones, 1975)", "Jones, 1975"));
+        assertTrue(this.analysis.equivalent("Jones, 1976", "Jones, 1975"));
+        assertTrue(this.analysis.equivalent("Alias, Smith & Jones, 1933", "A.Alias, S.Smith, J.Jones, 1933"));
+        assertTrue(this.analysis.equivalent("Alias, Smith & Jones, 1933", "(A.Alias, S.Smith, J.Jones)"));
+    }
+
 }

@@ -387,7 +387,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals("urn:lsid:indexfungorum.org:names:90351", match.getMatch().taxonId);
         assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
-        assertEquals(Issues.of(ALATerm.canonicalMatch), match.getIssues());
+        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), match.getIssues());
     }
 
     // Embedded author
@@ -400,7 +400,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals("urn:lsid:indexfungorum.org:names:90351", match.getMatch().taxonId);
         assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
-        assertEquals(Issues.of(ALATerm.canonicalMatch), match.getIssues());
+        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), match.getIssues());
     }
 
     // Separated author

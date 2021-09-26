@@ -46,12 +46,34 @@ public class ${className} implements Builder {
     return null;
   }
 
+
+  @Override
+  public void generate(Classifier classifier) throws InferenceException, StoreException {
+        Object d;
+<#list orderedNodes as node>
+    <#assign observable = node.observable >
+    <#if observable?? && observable.derivation?? && observable.derivation.generator>
+        <#assign derivation = observable.derivation>
+        <#if derivation.hasExtra()>
+            ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", factoryClassName)};
+        </#if>
+    if (!classifier.has(${factoryClassName}.${observable.javaVariable})){
+      d = ${derivation.generateValue("classifier", factoryClassName)};
+            <#if derivation.hasTransform()>
+      d = ${derivation.generateBuilderTransform("d", "e_${node?index}", "classifier")};
+            </#if>
+      classifier.add(${factoryClassName}.${observable.javaVariable}, d);
+    }
+    </#if>
+</#list>
+  }
+
   @Override
   public void infer(Classifier classifier) throws InferenceException, StoreException {
     Object d;
 <#list orderedNodes as node>
   <#assign observable = node.observable >
-  <#if observable?? && observable.derivation??>
+  <#if observable?? && observable.derivation?? && !observable.derivation.generator>
     <#assign derivation = observable.derivation>
     <#if derivation.hasExtra()>
     ${derivation.extra.type.name} e_${node?index} = ${derivation.generateExtra("classifier", factoryClassName)};

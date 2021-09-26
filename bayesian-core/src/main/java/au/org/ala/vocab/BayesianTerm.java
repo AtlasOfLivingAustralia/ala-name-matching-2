@@ -17,6 +17,8 @@ public enum BayesianTerm implements Term {
     weight,
     /** A unique identifier */
     identifier,
+    /** A link to a definitive source */
+    link,
     /** The concept name */
     name,
     /** The full name of a category */
@@ -39,6 +41,10 @@ public enum BayesianTerm implements Term {
     isSynonym,
     /** Is this something with an identifier that alredy exists? */
     identifierCreated,
+    /** There is a loop in the concept's parent link */
+    parentLoop,
+    /** There is a loop in the concept's accepted link */
+    acceptedLoop,
     /** The class used to build an index */
     builderClass,
     /** The class used for parameters */

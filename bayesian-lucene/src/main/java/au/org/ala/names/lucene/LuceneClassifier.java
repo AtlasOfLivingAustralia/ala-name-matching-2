@@ -306,15 +306,28 @@ public class LuceneClassifier implements Classifier {
 
     /**
      * Get the all values for observables.
+     * <p>
+     * Ensures values are ordered first by reference value and then by variant.
+     * </p>
      *
      * @param observables The observable
      * @return The a set of all present values
      */
     @Override
-    public <T> Set<T> getAll(Observable... observables) {
-        Set<T> values = new HashSet<>(observables.length);
+    public <T> LinkedHashSet<T> getAll(Observable... observables) {
+        LinkedHashSet<T> values = new LinkedHashSet<>(observables.length);
         for (Observable observable: observables) {
-            IndexableField[] fs = this.document.getFields(observable.getExternal(observable.getMultiplicity().isMany() ? LUCENE_VARIANT : LUCENE));
+            IndexableField[] fs = this.document.getFields(observable.getExternal(LUCENE));
+            for (IndexableField f : fs) {
+                T v = this.convert(observable, f);
+                if (v != null)
+                    values.add(v);
+            }
+        }
+        for (Observable observable : observables) {
+            if (!observable.getMultiplicity().isMany())
+                continue;
+            IndexableField[] fs = this.document.getFields(observable.getExternal(LUCENE_VARIANT));
             for (IndexableField f : fs) {
                 T v = this.convert(observable, f);
                 if (v != null)

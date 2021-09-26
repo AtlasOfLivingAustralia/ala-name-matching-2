@@ -610,6 +610,16 @@
       "description": "The supplied scientific name contains an error that can be corrected by either fuzzy matching or removing the name."
     },
     {
+      "id": "canonical_name",
+      "uri": "http://id.ala.org.au/issues/1.0/canonicalName",
+      "description": "The supplied scientific name includes and author or other annotation that has been removed and placed in the correct field."
+    },
+    {
+      "id": "unparsable_name",
+      "uri": "http://id.ala.org.au/issues/1.0/unparsableName",
+      "description": "The supplied scientific name cannot be parsed."
+    },
+    {
       "id": "removed_authorship",
       "uri": "http://id.ala.org.au/issues/1.0/removedAuthorship",
       "description": "Ignored supplied scientific name authorship to find a match."
@@ -693,6 +703,11 @@
       "id": "affinity_species_name",
       "uri": "http://id.ala.org.au/issues/1.0/affinitySpeciesName",
       "description": "The supplied name has am affinity species (af) marker"
+    },
+    {
+      "id": "multiple_matches",
+      "uri": "http://id.ala.org.au/issues/1.0/multipleMatches",
+      "description": "There are multiple taxa with this name with the same rank."
     }
   ],
   "modifications": [

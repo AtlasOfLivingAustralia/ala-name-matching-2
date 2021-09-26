@@ -91,15 +91,17 @@ public class AlaVernacularBuilderTest extends TestUtils {
         evidence.e$vernacularName = null;
         evidence.e$soundexVernacularName = true;
         prob = inference.probability(evidence, params);
-        assertEquals(0.03704, prob.getEvidence(), 0.00001);
+        assertEquals(0.02703, prob.getEvidence(), 0.00001);
         assertEquals(1.0, prob.getPosterior(), 0.00001);
     }
 
     @Test
     public void testLoadBuild2() throws Exception {
         LoadStore store = this.builder.getParameterisedStore();
-        Classifier doc = store.get(GbifTerm.VernacularName, AlaVernacularFactory.nameId, "urn:lsid:biodiversity.org.au:afd.name:247359");
-        assertNotNull(doc);
+        List<Classifier> docs = store.getAllClassifiers(GbifTerm.VernacularName, new Observation(true, AlaVernacularFactory.nameId, "urn:lsid:biodiversity.org.au:afd.name:247359"));
+        assertNotNull(docs);
+        assertEquals(2, docs.size());
+        Classifier doc = docs.get(0);
         assertEquals("Spiders", doc.get(AlaVernacularFactory.vernacularName));
         AlaVernacularParameters_ params = new AlaVernacularParameters_();
         doc.loadParameters(params);
@@ -118,7 +120,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
         List<LuceneClassifier> classifiers = this.searcher.search(classification);
         assertNotNull(classifiers);
         assertEquals(20, classifiers.size());
-        assertEquals("https://id.biodiversity.org.au/instance/apni/950071", classifiers.get(0).get(AlaVernacularFactory.taxonId));
+        assertEquals("https://id.biodiversity.org.au/node/apni/2902835", classifiers.get(0).get(AlaVernacularFactory.taxonId));
     }
 
     @Test
@@ -127,14 +129,14 @@ public class AlaVernacularBuilderTest extends TestUtils {
         classification.vernacularName = "Flood Mallow";
         Match<AlaVernacularClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
-        assertEquals("https://id.biodiversity.org.au/instance/apni/950071", match.getMatch().taxonId);
-        assertEquals(0.03704, match.getProbability().getEvidence(), 0.00001);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2902835", match.getMatch().taxonId);
+        assertEquals(0.02703, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         classification.vernacularName = "flood mallow";
         match = matcher.findMatch(classification);
         assertTrue(match.isValid());
-        assertEquals("https://id.biodiversity.org.au/instance/apni/950071", match.getMatch().taxonId);
-        assertEquals(0.03704, match.getProbability().getEvidence(), 0.00001);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2902835", match.getMatch().taxonId);
+        assertEquals(0.02703, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 }

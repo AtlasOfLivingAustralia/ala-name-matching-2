@@ -3,6 +3,7 @@ package au.org.ala.names;
 import au.org.ala.bayesian.*;
 import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.api.vocabulary.NomenclaturalCode;
+import org.gbif.nameparser.api.Rank;
 
 import java.util.Comparator;
 import java.util.HashSet;
@@ -192,12 +193,46 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         if (bts.isAcceptedFlag() && acceptable.stream().allMatch(m -> m == best || (m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike())))
             return best.boost(acceptable).with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
         // See if the rest have the same name
-        final String soundexScientificName = bc.soundexScientificName;
-        if (soundexScientificName != null) {
-            if (acceptable.stream().allMatch(m -> m == best || soundexScientificName.equals(m.getMatch().soundexScientificName)))
-                return best;
+        // First try actual name
+        final String bestScientificName = best.getAccepted().scientificName;
+        final Integer bestRankID = best.getAccepted().rankId;
+        if (bestScientificName != null) {
+            if (acceptable.stream().allMatch(m ->
+                    m == best ||
+                            this.hasMatchingValue(bestScientificName, m, AlaLinnaeanFactory.scientificName) &&
+                            this.hasMatchingValue(bestRankID, m, AlaLinnaeanFactory.rankId))
+            )
+                return best.with(AlaLinnaeanFactory.MULTIPLE_MATCHES);
+        }
+        // Then try weak name matching
+        final String bestSoundexScientificName = best.getAccepted().soundexScientificName;
+        if (bestSoundexScientificName != null) {
+            if (acceptable.stream().allMatch(m ->
+                    m == best ||
+                            this.hasMatchingValue(bestSoundexScientificName, m, AlaLinnaeanFactory.soundexScientificName) &&
+                            this.hasMatchingValue(bestRankID, m, AlaLinnaeanFactory.rankId))
+            )
+                return best.with(Issues.of(AlaLinnaeanFactory.MULTIPLE_MATCHES, AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME));
         }
         return null;
+    }
+
+    /**
+     * Test for a matching value
+     *
+     * @param value The match value
+     * @param match The potential match
+     * @param observables The observables to match against
+     *
+     * @return True if positively a match
+     */
+    protected <T> boolean hasMatchingValue(T value, Match<AlaLinnaeanClassification> match, Observable... observables) {
+        try {
+            Boolean same = match.getAcceptedCandidate().match(value, observables);
+            return same != null && same;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     /**

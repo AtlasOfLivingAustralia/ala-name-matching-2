@@ -66,6 +66,16 @@ abstract public class Derivation {
     abstract public Set<Observable> getInputs();
 
     /**
+     * Is this a generator?
+     *
+     * @return True if the data is generated from some sort of external source once.
+     */
+    @JsonIgnore
+    public boolean isGenerator() {
+        return false;
+    }
+
+    /**
      * Does this have a transform?
      *
      * @return True if the data is transformed, rather than copied

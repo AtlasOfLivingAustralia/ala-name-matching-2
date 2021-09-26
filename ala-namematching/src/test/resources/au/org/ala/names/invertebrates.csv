@@ -1,0 +1,29 @@
+Common name,Status of emblems,Kingdom,Phylum,Class,Order,Family,Genus,Species,Subspecies,match vernacular
+Redback Spider,,Animalia,Arthropoda,Arachnida,ARANEAE,THERIDIIDAE,Latrodectus,hasseltii,,true
+Sydney Funnel-Web Spider,,Animalia,Arthropoda,Arachnida,Araneae,Atracidae,Atrax,robustus,,true
+Red-headed Mouse Spider,,Animalia,Arthropoda,Arachnida,ARANEAE,ACTINOPODIDAE,Missulena,occatoria,,true
+Priam's Birdwing,,Animalia,Arthropoda,Insecta,LEPIDOPTERA,PAPILIONIDAE,Ornithoptera,priamus,,true
+Cairns Birdwing,,Animalia,Arthropoda,Insecta,LEPIDOPTERA,PAPILIONIDAE,Ornithoptera,euphorion,,true
+Cabbage White Butterfly,,Animalia,Arthropoda,Insecta,LEPIDOPTERA,PIERIDAE,Pieris,rapae,,true
+Common Brown Butterfly,,Animalia,Arthropoda,Insecta,LEPIDOPTERA,NYMPHALIDAE,Heteronympha,merope,,true
+Fiddler Beetle,,Animalia,Arthropoda,Insecta,COLEOPTERA,SCARABAEIDAE,Eupoecila,australasiae,,true
+Botany Bay Weevil,,Animalia,Arthropoda,Insecta,COLEOPTERA,,Chrysolopus,spectabilis,,true
+Transverse Ladybird,,Animalia,Arthropoda,Insecta,COLEOPTERA,COCCINELLIDAE,Coccinella,transversalis,,true
+Lord Howe Island Stick-insect,,Animalia,Arthropoda,Insecta,PHASMIDA,PHASMATIDAE,Dryococelus,australis,,true
+Goliath Stick Insect,,Animalia,Arthropoda,Insecta,PHASMIDA,PHASMATIDAE,Eurycnema,goliath,,true
+Giant Burrowing Cockroach,,Animalia,Arthropoda,Insecta,BLATTODEA,BLABERIDAE,Macropanesthia,rhinoceros,,true
+Green Tree Ant,,Animalia,Arthropoda,Insecta,HYMENOPTERA,FORMICIDAE,Oecophylla,smaragdina,,true
+Great Carpenter Bee,,Animalia,Arthropoda,Insecta,HYMENOPTERA,APIDAE,Xylocopa,aruana,,true
+Carpenter Bee,,Animalia,Arthropoda,Insecta,HYMENOPTERA,APIDAE,Xylocopa,,,true
+Common Paper Wasp,,Animalia,Arthropoda,Insecta,HYMENOPTERA,VESPIDAE,Polistes,humilis,,true
+Red eye Cicada,,Animalia,Arthropoda,Insecta,HEMIPTERA,CICADIDAE,Psaltoda,moerens,,true
+Greengrocer (Green Form),,Animalia,Arthropoda,Insecta,HEMIPTERA,CICADIDAE,Cyclochila,australasiae,,true
+Southern Blue-Ringed Octopus,,Animalia,MOLLUSCA,CEPHALOPODA,OCTOPODA,OCTOPODIDAE,Hapalochlaena,maculosa,,true
+Humped Golden Orb-Weaving Spider,,Animalia,Arthropoda,Arachnida,ARANEAE,Araneidae,Nephila,plumipes,,true
+White-tailed Spiders,,Animalia,Arthropoda,Arachnida,ARANEAE,LAMPONIDAE,Lampona,cylindrata,,true
+Bogong Moth,,Animalia,Arthropoda,Insecta,LEPIDOPTERA,NOCTUIDAE,Agrotis,infusa,,true
+# Box jellyfish cover an entire class
+Box jellyfish,,Animalia,,,,,Chironex,fleckeri,,false
+Irukandji,,Animalia,,,,,Carukia,barnesi,,true
+Portuguese Man-of-War,,Animalia,,,,,Physalia,physalis,,true
+Huntsman Spiders,,Animalia,Arthropoda,Arachnida,ARANEAE,SPARASSIDAE,Delena,cancerides,,true

@@ -217,9 +217,9 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
 
     public int expandTree(Classifier classifier, Deque<Classifier> parents, int index, Counter counter) throws InferenceException, StoreException {
         int left = index;
+        String id = classifier.get(this.identifier);
         // Perform all derivations
         this.builder.expand(classifier, parents);
-        String id = classifier.get(this.identifier);
         final Set<String> names = new LinkedHashSet<>(); // Require order
         Set<String> altNames = new LinkedHashSet<>();
 
@@ -452,10 +452,12 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      *
      * @param classifier The classifier
      *
-      * @throws StoreException If unable to create an annotation for some reason.
+     * @throws InferenceException if unable to generate required values
+     * @throws StoreException If unable to create an annotation for some reason.
      */
     @Override
-    public void annotate(Classifier classifier) throws StoreException {
+    public void annotate(Classifier classifier) throws InferenceException, StoreException {
+        this.builder.generate(classifier);
         Term type = classifier.getType();
         String id = classifier.get(this.identifier);
         String p = this.parent.isPresent() ? classifier.get(this.parent.get()) : null;

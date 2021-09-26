@@ -23,6 +23,15 @@ public class EmptyBuilder implements Builder {
     }
 
     /**
+     * Null generator
+     *
+     * @param classifier The classifier
+     */
+    @Override
+    public void generate(Classifier classifier) {
+    }
+
+    /**
      * Null inference
      *
      * @param classifier The classifier

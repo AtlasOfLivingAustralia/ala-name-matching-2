@@ -5,10 +5,7 @@ import org.gbif.dwc.terms.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An object that holds information that would allow classification of a particular case.
@@ -33,12 +30,16 @@ public interface Classifier {
 
     /**
      * Get all the possible values, including variants, for some observables.
+     * <p>
+     * The preferred name <em>must</em> be the first element that appears in iteration.
+     * This is essential to allow copy derivations to use the correct reference value.
+     * </p>
      *
      * @param observables The observable
      *
      * @return The a set of all present values
      */
-    public <T> Set<T> getAll(Observable... observables);
+    public <T> LinkedHashSet<T> getAll(Observable... observables);
 
     /**
      * Does this classifier contain any information about this observable?

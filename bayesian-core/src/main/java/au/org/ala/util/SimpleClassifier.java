@@ -48,8 +48,8 @@ public class SimpleClassifier implements Classifier {
      * @return The a set of all present values
      */
     @Override
-    public <T> Set<T> getAll(Observable... observables) {
-        Set<T> values = new HashSet<>(observables.length);
+    public <T> LinkedHashSet<T> getAll(Observable... observables) {
+        LinkedHashSet<T> values = new LinkedHashSet<>(observables.length);
         for (Observable observable: observables) {
             values.add(this.get(observable));
         }

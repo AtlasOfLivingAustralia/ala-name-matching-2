@@ -25,6 +25,11 @@ public class GrassBuilder_ implements Builder {
   }
 
   @Override
+  public void generate(Classifier classifier) throws InferenceException, StoreException {
+    throw new UnsupportedOperationException("Sub-builders do not support this operation");
+  }
+
+  @Override
   public void infer(Classifier classifier) throws InferenceException, StoreException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }

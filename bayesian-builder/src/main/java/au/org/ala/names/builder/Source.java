@@ -53,6 +53,15 @@ abstract public class Source {
     }
 
     /**
+     * Get the possible observables
+     *
+     * @return The list of observables
+     */
+    public Set<Observable> getObservables() {
+        return this.observables.values().stream().collect(Collectors.toSet());
+    }
+
+    /**
      * Check to see whether a record type should be loaded.
      *
      * @param type The record type

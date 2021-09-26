@@ -101,16 +101,6 @@ public enum ALATerm implements Term {
     principalTaxonID,
     /** The principal scientific name, for taxa that may have been re-assigned */
     principalScientificName,
-    /** The scientific name has been canononicalised before searching */
-    canonicalMatch,
-    /** The match is fuzzy, rather than exact */
-    fuzzyMatch,
-    /** There is a loop in the taxon's parent link */
-    taxonParentLoop,
-    /** There is a loop in the taxon's accepted link */
-    taxonAcceptedLoop,
-    /** The name is unparsable */
-    unparsableName,
     /** Record type describing an unplaced vernacular name */
     UnplacedVernacularName,
     /** Record type describing a variant (different source, spelling etc.) of a taxon */

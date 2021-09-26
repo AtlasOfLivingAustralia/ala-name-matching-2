@@ -42,6 +42,12 @@ public class SimpleLinnaeanBuilder implements Builder {
     return null;
   }
 
+
+  @Override
+  public void generate(Classifier classifier) throws InferenceException, StoreException {
+        Object d;
+  }
+
   @Override
   public void infer(Classifier classifier) throws InferenceException, StoreException {
     Object d;

@@ -4,7 +4,9 @@ import au.org.ala.bayesian.ClassificationMatcher;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.StoreException;
+import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
+import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.Closeable;
 import java.io.File;
@@ -49,6 +51,25 @@ public class ALANameSearcher {
      */
     public Match<AlaLinnaeanClassification> search(AlaLinnaeanClassification template) throws InferenceException, StoreException {
         return this.matcher.findMatch(template);
+    }
+
+    /**
+     * Get classification by taxon identifier.
+     *
+     * @param taxonId The taxon identifier
+     *
+     * @return The matching classification or null for not found
+     *
+     * @throws StoreException if there is an error retrieving the informstion
+     * @throws InferenceException if there is an error matching the information to the taxonId
+     */
+    public AlaLinnaeanClassification get(String taxonId) throws StoreException, InferenceException {
+        LuceneClassifier classifier = this.searcher.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, taxonId);
+        if (classifier == null)
+            return null;
+        AlaLinnaeanClassification classification = AlaLinnaeanFactory.instance().createClassification();
+        classification.read(classifier, true);
+        return classification;
     }
 
 

@@ -121,7 +121,7 @@ public class AlaNameAnalyserTest {
         assertEquals("taxifolium", classification.specificEpithet);
         assertEquals("Tasmanian form", classification.cultivarEpithet);
         assertEquals(Rank.CULTIVAR, classification.taxonRank);
-        assertEquals(Issues.of(ALATerm.canonicalMatch), classification.getIssues());
+        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
     }
 
     // Ranks
@@ -239,7 +239,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
-        assertTrue(classification.getIssues().contains(ALATerm.canonicalMatch));
+        assertTrue(classification.getIssues().contains(AlaLinnaeanFactory.CANONICAL_NAME));
     }
 
     @Test

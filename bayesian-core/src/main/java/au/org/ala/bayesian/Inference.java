@@ -46,37 +46,49 @@ public class Inference {
      * Calculate the disjunction of both probabilties.
      * <p>
      * Essentially p = 1 - (1 - p1) * (1 - p2) but we need to get the other bits in line, too.
+     * The prior should be the or of the two priors.
+     * The evidence should be roughtly equal, since it's expected to be a probability based
+     * on the same evidence, so take the maximum.
+     * The conditional follows from the other three.
      * </p>
-     * @param other
-     * @return
+     *
+     * @param other The other probability
+     *
+     * @return A probability where the posterior is the or of the two posteriors.
      */
     public Inference or(Inference other) {
         double p = this.posterior + other.posterior - this.posterior * other.posterior;
-        double e = this.evidence + other.evidence - this.evidence * other.evidence;
-        double c = this.conditional + other.conditional - this.conditional * other.conditional;
-        double h = c < MINIMUM_PROBABILITY ? 0.0 : p * e / c;
+        double h = this.prior + other.prior - this.prior * other.prior;
+        double e = Math.max(this.evidence, other.evidence);
+        double c = h < MINIMUM_PROBABILITY ? 0.0 : p * e / h;
         return new Inference(h, e, c, p);
     }
 
     /**
      * Calculate the conjunction of both probabilties.
      * <p>
-     * Essentially p = p1 * p2 but we need to get the other bits in line, too.
+     * Start with p = p1 * p2.
+     * The prior should be the and of the two priors.
+     * The evidence should be roughtly equal, since it's expected to be a probability based
+     * on the same evidence, so take the maximum.
+     * The conditional follows from the other three.
      * </p>
      * @param other
      * @return
      */
     public Inference and(Inference other) {
         double p = this.posterior * other.posterior;
-        double e = this.evidence * other.evidence;
-        double c = this.conditional * other.conditional;
-        double cl = Math.min(Math.min(this.conditional, other.conditional), 0.1);
-
-        while (c > 0.0 && c < cl) {
-            c *= 10.0;
-            e *= 10.0;
+        double h = this.prior > MINIMUM_PROBABILITY && other.prior > MINIMUM_PROBABILITY ? Math.max(this.prior * other.prior, MINIMUM_PROBABILITY) : 0.0;
+        double e = Math.max(this.evidence, other.evidence);
+        double c = h < MINIMUM_PROBABILITY ? 0.0 : p * e / h;
+        while (c > 1.0 && h < 0.1) {
+            c /= 10.0;
+            h *= 10.0;
         }
-        double h = c < MINIMUM_PROBABILITY ? 0.0 : p * e / c;
+        while (c > 1.0 && e > MINIMUM_PROBABILITY * 10.0) {
+            c /= 10.0;
+            e /= 10.0;
+        }
         return new Inference(h, e, c, p);
     }
 

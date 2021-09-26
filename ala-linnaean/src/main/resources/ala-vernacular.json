@@ -29,12 +29,22 @@
   ],
   "observables": [
     {
-      "id": "nameID",
-      "label": "nID",
-      "uri": "http://ala.org.au/terms/1.0/nameID",
+      "id": "vernacularUsageID",
+      "label": "vID",
+      "uri": "http://ala.org.au/terms/1.0/vernacularUsageID",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.IdentifierGeneratorDerivation"
+      },
       "properties": {
         "http://id.ala.org.au/bayesian/1.0/identifier": true
       },
+      "style": "IDENTIFIER",
+      "multiplicity": "1"
+    },
+    {
+      "id": "nameID",
+      "label": "nID",
+      "uri": "http://ala.org.au/terms/1.0/nameID",
       "style": "IDENTIFIER",
       "multiplicity": "1"
     },
@@ -63,11 +73,11 @@
       "id": "taxonID",
       "label": "tID",
       "uri": "http://rs.tdwg.org/dwc/terms/taxonID",
-      "properties": {
-        "http://id.ala.org.au/bayesian/1.0/identifier": true
-      },
       "style": "IDENTIFIER",
-      "multiplicity": "1"
+      "multiplicity": "1",
+      "properties": {
+        "http://id.ala.org.au/bayesian/1.0/link": true
+      }
     },
     {
       "id": "language",
@@ -94,6 +104,51 @@
       "multiplicity": "*"
     },
     {
+      "id": "vernacularStatus",
+      "label": "S",
+      "type": "au.org.ala.vocab.VernacularStatus",
+      "uri": "http://ala.org.au/terms/1.0/status",
+      "analysis": {
+        "@class": "au.org.ala.names.VernacularStatusAnalysis"
+      },
+      "properties": {
+        "http://id.ala.org.au/bayesian/1.0/additional": true
+      }
+    },
+    {
+      "id": "taxonRank",
+      "label": "R",
+      "type": "org.gbif.nameparser.api.Rank",
+      "uri": "http://rs.tdwg.org/dwc/terms/taxonRank",
+      "analysis": {
+        "@class": "au.org.ala.names.RankAnalysis"
+      },
+      "properties": {
+        "http://id.ala.org.au/bayesian/1.0/additional": true
+      }
+    },
+    {
+      "id": "taxonomicStatus",
+      "label": "TS",
+      "type": "au.org.ala.vocab.TaxonomicStatus",
+      "uri": "http://rs.tdwg.org/dwc/terms/taxonomicStatus",
+      "analysis": {
+        "@class": "au.org.ala.names.TaxonomicStatusAnalysis"
+      },
+      "properties": {
+        "http://id.ala.org.au/bayesian/1.0/additional": true
+      }
+    },
+    {
+      "id": "acceptedNameUsageID",
+      "label": "aID",
+      "uri": "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
+      "properties": {
+         "http://id.ala.org.au/bayesian/1.0/additional": true
+      },
+      "style": "IDENTIFIER"
+    },
+    {
       "id": "weight",
       "label": "w",
       "type": "java.lang.Double",
@@ -105,6 +160,7 @@
     }
   ],
   "vertices": [
+    "vernacularUsageID",
     "nameID",
     "vernacularName",
     "soundexVernacularName",
@@ -114,12 +170,13 @@
     "taxonID"
   ],
   "edges": [
+    { "source": "vernacularUsageID", "target": "nameID",  "edge": { } },
     { "source": "nameID", "target": "vernacularName",  "edge": { } },
     { "source": "vernacularName", "target": "soundexVernacularName",  "edge": { } },
     { "source": "vernacularName", "target": "taxonID",  "edge": { } },
     { "source": "soundexVernacularName", "target": "taxonID",  "edge": { } },
-    { "source": "nameID", "target": "language",  "edge": { } },
-    { "source": "nameID", "target": "locality",  "edge": { } },
+    { "source": "vernacularUsageID", "target": "language",  "edge": { } },
+    { "source": "vernacularUsageID", "target": "locality",  "edge": { } },
     { "source": "locality", "target": "countryCode",  "edge": { } }
   ],
   "issues": [

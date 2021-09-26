@@ -1,0 +1,26 @@
+Common name,Status of emblems,Kingdom,Phylum,Class,Order,Family,Genus,Species,Subspecies,match vernacular
+Golden Wattle,,Plantae,Charophyta,Equisetopsida,FABALES,FABACEAE,Acacia,pycnantha,,true
+Murray Red Gum,,Plantae,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Eucalyptus,camaldulensis,,true
+Antarctic Beech,,Plantae,Charophyta,Equisetopsida,FAGALES,NOTHOFAGACEAE,Nothofagus,moorei,,true
+Scribbly Gum,,Plantae,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Eucalyptus,rossii,,true
+Heath Leaved Banksia,,Plantae,Charophyta,Equisetopsida,Proteales,Proteaceae,Banksia,ericifolia,,true
+Waratah,,Plantae,,,,,Telopea,speciosissima,,true
+Crimson Bottlebrush,,Plantae,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Callistemon,citrinus,,true
+Mangles' Kangaroo Paw,,Plantae,Charophyta,Equisetopsida,COMMELINALES,HAEMODORACEAE,Anigozanthos,manglesii,,true
+,,Plantae,Charophyta,Equisetopsida,PROTEALES,PROTEACEAE,Grevillea,candelabroides,,true
+Banks Grevillea,,Plantae,Charophyta,Equisetopsida,PROTEALES,PROTEACEAE,Grevillea,banksii,,true
+Purple Coral-Pea,,Plantae,Charophyta,Equisetopsida,FABALES,FABACEAE,Hardenbergia,violacea,,true
+Geraldton Wax,,Plantae,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Chamelaucium,uncinatum,,true
+Spiny-Headed Mat-Rush,,Plantae,Charophyta,Equisetopsida,ASPARAGALES,ASPARAGACEAE,Lomandra,longifolia,,true
+Silver Princess,,Plantae,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Eucalyptus,caesia,,true
+Nodding Green-hood,,Plantae,Charophyta,Equisetopsida,ASPARAGALES,ORCHIDACEAE,Pterostylis,nutans,,true
+Lilly Pilly,,Plantae,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Syzygium,oleosum,,true
+Nepean Conebush,,Plantae,,,,,Isopogon,dawsonii,,true
+Flannel-Flower,,Plantae,,,,,Actinotus,helianthi,,true
+Mountain Ash,,Plantae,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Eucalyptus,regnans,,true
+Grey Bulloak,,Plantae,Charophyta,Equisetopsida,Fagales,CASUARINACEAE,Casuarina,glauca,,true
+# Black oak has too many species associated with it
+Black Oak,,Plantae,Charophyta,Equisetopsida,Fagales,CASUARINACEAE,Allocasuarina,littoralis,,false
+Snow Gum,,Plantae,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Eucalyptus,pauciflora,,true
+,,,,,,,Hakea,,,true
+Hop bush,,,,,,,Dodonaea,,,true
