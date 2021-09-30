@@ -12,6 +12,19 @@ Since handling every possible combination of pieces of evidence would result in 
 combinatorial explosion, the network is "compiled" into a graph of cause and effect,
 narrowing conditional probabilities to the smallest possible set of antecendents.
 
+## Test indexes
+
+To use the test cases in ala-namematching module, you will need the corresponding
+Linnaean and vernacular name indexes. You can get:
+
+* [index-20210811.zip](https://archives.ala.org.au/archives/nameindexes/20210811/index-20210811.zip)
+* [vernacular-20210811.zip](https://archives.ala.org.au/archives/nameindexes/20210811/vernacular-20210811.zip)
+
+These need to be unzipped into `/data/lucene`
+
+Every time the network definition changes, the indexes change, since the underlying
+inference model will have also changed.
+If you get exceptions or errors, you may need a new copy of the index.
 ## Name Matching Libraries
 
 ### Generic Libraries
