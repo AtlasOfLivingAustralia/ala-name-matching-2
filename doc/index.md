@@ -36,7 +36,7 @@ being correct in the absence of any evidence and the evidence to
 compute the probability that the hypothesis is correct, given the 
 supplied evidence.
 
-![Equation 1](https://latex.codecogs.com/png.download?p%28H%20%7C%20E%29%20%3D%20%5Cfrac%7Bp%28H%29%20%5Ccdot%20p%28E%20%7C%20H%29%7D%7Bp%28E%29%7D)
+![Equation 1](equation5.png)
 
 where _p(H | E)_ is the probability of the hypothesis _H_ being
 true given the evidence _E_, also called the posterior probability,

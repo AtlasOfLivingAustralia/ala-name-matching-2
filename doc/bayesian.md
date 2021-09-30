@@ -27,7 +27,7 @@ cause and effect and this is shown in the diagram.
 
 This network has three elements:
 
-* Is it raining? (R, conversely, !R means that it is not raining)
+* Is it raining? (R, conversely, ¬R means that it is not raining)
 * Is the grass wet? (W)
 * Is the sprinkler on? (S)
 
@@ -46,22 +46,22 @@ We have the following probabilities:
   so that's what you would expect without further information
 * _p(S | R) = 0.01_ - there is very little chance of the 
   sprinkler being on if it is raining
-* _p(!S | R) = 1 - p(S | R) = 0.99_
-* _p(S | !R) = 0.4_ - if it is not raining, the sprinker may be on
-* _p(!S | !R) = 1 - p(S | !R) = 0.6_
+* _p(¬S | R) = 1 - p(S | R) = 0.99_
+* _p(S | ¬R) = 0.4_ - if it is not raining, the sprinker may be on
+* _p(¬S | ¬R) = 1 - p(S | ¬R) = 0.6_
 * _p(W | R, S) = 0.99_ - if it is raining and the sprinkler is on, 
   it is almost certain to be wet
-* _p(W | R, !S) = 0.8_
-* _p(W | !R, S) = 0.9_
-* _p(W | !R, !S) = 0.01_
+* _p(W | R, ¬S) = 0.8_
+* _p(W | ¬R, S) = 0.9_
+* _p(W | ¬R, ¬S) = 0.01_
 
 If the grass is wet and the sprinkler is not on, then we can
 compute:
 
-* _p(W, !S | R) = p(W | R, !S)  p(!S | R) = 0.8 * 0.99 = 0.792_
-* _p(W, !S | !R) = p(W | !R, !S) p(!S | !R) = 0.01 * 0.6 = 0.006_
-* _p(W, !S) = p(W, !S | R) p(R) + p(W, !S | !R) p(!R) = 0.792 * 0.2 + 0.006 * 0.8 = 0.1632_
-* _p(R | W, !S) = p(R) * p(W, !S | R) / p(W, !S) = 0.2 * 0.792 / 0.1632 = 0.9706_
+* _p(W, ¬S | R) = p(W | R, ¬S)  p(¬S | R) = 0.8 * 0.99 = 0.792_
+* _p(W, ¬S | ¬R) = p(W | ¬R, ¬S) p(¬S | ¬R) = 0.01 * 0.6 = 0.006_
+* _p(W, ¬S) = p(W, ¬S | R) p(R) + p(W, ¬S | ¬R) p(¬R) = 0.792 * 0.2 + 0.006 * 0.8 = 0.1632_
+* _p(R | W, ¬S) = p(R) * p(W, ¬S | R) / p(W, ¬S) = 0.2 * 0.792 / 0.1632 = 0.9706_
 
 In other words, there is a 97% chance that it is raining.
 
@@ -214,7 +214,7 @@ To do this, we use a number of mathematical tricks.
 
 The first trick is to use
 
-![Equation 1](https://latex.codecogs.com/png.download?p%28E%29%20%3D%20p%28E%20%7C%20H%29%20%5Ccdot%20p%28H%29%20+%20p%28E%20%7C%20%5Cneg%20H%29%20%5Ccdot%20p%28%5Cneg%20H%29)
+![Equation 1](equation1.png)
 
 To calculate the evidence probability.
 This allows us to break the computation into two parts, conditional on
@@ -228,11 +228,11 @@ In the Linnaean example, the computation for taxonId (T), specific epithet (S) a
 scientific name (N) can be given, with _N_ meansing that the classification scientific
 name matches one of the names in the classifier and _¬N_ meaning that it doesn't.
 
-![Equation 2](https://latex.codecogs.com/png.download?%5Cbegin%7Bmatrix%7D%20p%28N%29%20%3D%20p%28N%20%7C%20S%2C%20T%29%20%5Ccdot%20p%28S%20%7C%20T%29%20%5Ccdot%20p%28T%29%20+%20p%28N%20%7C%20%5Cneg%20S%2C%20T%29%20%5Ccdot%20p%28%5Cneg%20S%20%7C%20T%29%20%5Ccdot%20p%28T%29%20%5C%5C%20p%28%5Cneg%20N%29%20%3D%20p%28%5Cneg%20N%20%7C%20S%2C%20T%29%20%5Ccdot%20p%28S%20%7C%20T%29%20%5Ccdot%20p%28T%29%20+%20p%28%5Cneg%20N%20%7C%20%5Cneg%20S%2C%20T%29%20%5Ccdot%20p%28%5Cneg%20S%20%7C%20T%29%20%5Ccdot%20p%28T%29%20%5Cend%7Bmatrix%7D)
+![Equation 2](equation2.png)
 
 We can then feed _p(N)_ into the next computation for soundex name (X) and genus (G):
 
-![Equation 3](https://latex.codecogs.com/png.download?p%28G%29%20%3D%20p%28G%20%7C%20X%2C%20N%29%20%5Ccdot%20p%28X%20%7C%20N%29%20%5Ccdot%20p%28N%29%20+%20p%28G%20%7C%20%5Cneg%20X%2C%20N%29%20%5Ccdot%20p%28%5Cneg%20S%20%7C%20N%29%20%5Ccdot%20p%28N%29%20+%20p%28G%20%7C%20X%2C%20%5Cneg%20N%29%20%5Ccdot%20p%28X%20%7C%20%5Cneg%20N%29%20%5Ccdot%20p%28%5Cneg%20N%29%20+%20p%28G%20%7C%20%5Cneg%20X%2C%20%5Cneg%20N%29%20%5Ccdot%20p%28%5Cneg%20S%20%7C%20%5Cneg%20N%29%20%5Ccdot%20p%28%5Cneg%20N%29)
+![Equation 3](equation3.png)
 
 (and similarly for _p(¬G)_)
 Note that _p(¬N)_ is also required, since it can still contribute to the probability
@@ -243,7 +243,7 @@ between the classifier and the classification.
 If the scientific name does not match but the soundex name does, then _p(N) = 0_ and
 _p(¬X) = 0_ and the calculation for _p(G)_ becomes:
 
-![Equation 4](https://latex.codecogs.com/png.download?p%28G%29%20%3D%200%20+%200%20+%20p%28G%20%7C%20X%2C%20%5Cneg%20N%29%20%5Ccdot%20p%28X%20%7C%20%5Cneg%20N%29%20%5Ccdot%20p%28%5Cneg%20N%29%20+%200)
+![Equation 4](equation4.png)
 
 The inference model for the network builds a calculation that eliminates dead
 branches, based on matching evidence, and interweaves the calculations to quickly
