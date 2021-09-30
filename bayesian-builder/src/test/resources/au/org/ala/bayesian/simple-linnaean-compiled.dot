@@ -1,0 +1,29 @@
+strict digraph "simple-linnaean" {
+  subgraph clusterNetwork {
+    "taxonID" [ label = "taxonID"  shape = doublecircle  ]
+    "taxonRank" [ label = "taxonRank"  ]
+    "specificEpithet" [ label = "specificEpithet"  ]
+    "scientificNameAuthorship" [ label = "scientificNameAuthorship"  ]
+    "scientificName" [ label = "scientificName"  ]
+    "soundexScientificName" [ label = "soundexScientificName"  ]
+    "genus" [ label = "genus"  ]
+    "family" [ label = "family"  ]
+    "order" [ label = "order"  ]
+    "class" [ label = "class"  ]
+    "phylum" [ label = "phylum"  ]
+    "kingdom" [ label = "kingdom"  ]
+    "taxonID" -> "scientificName"
+    "taxonID" -> "taxonRank"
+    "taxonID" -> "specificEpithet"
+    "taxonID" -> "scientificNameAuthorship"
+    "scientificName" -> "genus"
+    "scientificName" -> "soundexScientificName"
+    "specificEpithet" -> "scientificName"
+    "genus" -> "family"
+    "soundexScientificName" -> "genus"
+    "family" -> "order"
+    "order" -> "class"
+    "class" -> "phylum"
+    "phylum" -> "kingdom"
+  }
+}

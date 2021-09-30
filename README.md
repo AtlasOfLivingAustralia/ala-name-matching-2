@@ -1,5 +1,7 @@
 # Redesign of the ala-name-matching library
 
+See [here](doc/index.md) for documentation.
+
 **This is very much a work in progress. You have been warned**
 
 The approach taken is to treat taxonomic information as a vector of evidence and try to
@@ -10,37 +12,62 @@ Since handling every possible combination of pieces of evidence would result in 
 combinatorial explosion, the network is "compiled" into a graph of cause and effect,
 narrowing conditional probabilities to the smallest possible set of antecendents.
 
-Code generation is used to do the compilation.
-Once the conditional probabilities are worked out, inferencer, parameters and
-builder classes (TODO and a classification model class) are generated to provide
-a concrete implementation of the actual network.
-You could do this on the fly, using an engine that follows the network.
-However, following the engine while debugging would be a bit like:
+## Name Matching Libraries
 
-> Oh yes. I've been through there on my trip around the image. 
-> The giant vaulted Klein bottles covered with mosaics of other, different, Klein bottles ... 
-> the rows of gargoyles on the roof, each holding a sign reading "See Previous Gargoyle" ... 
-> the little food stands around the base, where they sell you food stand vouchers, 
-> redeemable for food stand vouchers at all food stands except this one ... 
-> the hall of the penitents ... 
-> the giant Romanesque stained glass windows, built out of thousands of tiny LooksLike blocks, 
-> lit from behind by the radiance of the great Aka ...
->
-> Truly one of the architectural wonders of our age. I've been there alright. And I bought postcards.
->
-> -- Steve Taylor, talking about some completely different software
+### Generic Libraries
 
-The code has been split into multiple modules, with more to come.
-As much as possible, the aim is to make it so that importing the name matching library
-into an application is a small thing, without a huge number of dangling dependencies.
-Building the index and other processing is split out into separate modules so that
-you don't have to drink the entire bottle in one go.
+These libraries are subject-matter agnostic and can be used to build
+matching systems for any domain that can be structured into a
+graph of cause and effect.
 
-## GBIF Name Parser Library
+* [Bayesian Core](bayesian-core/README.md)
+  Core classes for describing observable properties and how they can
+  be derived, stored and matched.
+* [Bayesian Lucene](bayesian-lucene/README.md)
+  A storage implementation using the [lucene](https://lucene.apache.org/)
+  index and search system.
+* [Bayseian Builder](bayesian-builder/README.md)
+  Builder software that will take a Bayesian network and "compile" it into a
+  set of java classes that implement the deductive framework specified by
+  the network.
+  Also, a generic index builder that takes source data and builds a
+  store that can be used to search for matches.
+* [Bayesian Maven Plugin](bayesian-maven-plugin/README.md)
+  A maven plugin that allows you to embed network building and
+  compilation into your maven build cycle.
 
-This code uses a modified of the GBIF name parser library that 
-parses phrase names.
-You will need to install this library before compilation.
+### Taxonomy-Specific Libraries
 
-Clone https://github.com/charvolant/name-parser and checkout the `phrase-names` branch.
-Install this branch with `mvn clean install`
+These libraries are oriented towards handling  generic biological nomenclature,
+wihout insisting on a specific model.
+These libraries draw extensively on [Darwin Core](https://dwc.tdwg.org/terms/)
+and the [Global Biodiversity Information Framework](https://www.gbif.org/)
+suite of tools and software.
+
+* [Taxonomic Tools](taxonomic-tools/README.md)
+  Utility vocabularies and processing designed to handle biological taxonomy.
+
+### ALA-Specific Libraries
+
+Libraries that contain the ALA-specific implementation of taxonomy matching.
+There are two netorks:
+
+* The [Linnaean](ala-linnaean/src/main/resources/ala-linnaean.json)
+  network models scientific names based on the Linnaean hierarchy.
+* The [Vernacular](ala-linnaean/src/main/resources/ala-vernacular.json)
+  network models vernacular (common) names.
+
+
+* [ALA Linnaean](ala-linnaean/README.md)
+  The classes needed to implement and analyse the Linnaean and vernacular networks
+  and match a search against candidates.
+* [ALA Linnaean Builder](ala-linnaean-builder/README.md)
+  The classes needed to build name indexes for both networks.
+* [ALA Namematching](../ala-namematching/README.md)
+  A library that allows a client to build a template of known information
+  about a name, search an index built by the ALA builder library and
+  return a "most likely" match to a specific taxon.
+  In particular, it includes more sophisticated post-processing of results
+  to take care of oddities such as parent-child synonyms, misapplied names, etc.
+  This is the library that an application would use to implement
+  name searching.

@@ -54,4 +54,16 @@ public class DotGeneratorTest {
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "grass-compiled.dot"), writer.toString());
     }
 
+    @Test
+    public void testGenerateDotSimpleLinnaean() throws Exception {
+        StringWriter writer = new StringWriter();
+        Network network = Network.read(this.getClass().getResource("../names/lucene/simple-network.json"));
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
+        compiler.analyse();
+        DotGenerator generator = new DotGenerator(writer, false);
+        generator.generate(compiler, null);
+        // System.out.println(writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "simple-linnaean-compiled.dot"), writer.toString());
+    }
+
 }
