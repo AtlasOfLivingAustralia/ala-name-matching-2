@@ -10,7 +10,7 @@ public class TaxonNameSoundExTest {
     public void testNormalize1() throws Exception {
         assertEquals("ACACIA DEALBATA", TaxonNameSoundEx.normalize("Acacia dealbata"));
         assertEquals("ACACIA DEALBATA", TaxonNameSoundEx.normalize("Acacia sp. dealbata"));
-        assertEquals("ACACIA DEALBATA", TaxonNameSoundEx.normalize("Acacia sp nov. dealbata"));
+        assertEquals("ACACIA SP NOV DEALBATA", TaxonNameSoundEx.normalize("Acacia sp nov. dealbata"));
     }
 
     @Test
@@ -22,9 +22,9 @@ public class TaxonNameSoundExTest {
 
     @Test
     public void testNormalize3() throws Exception {
-        assertEquals("ACACIA BIVENOSA A.R.CHAPMAN", TaxonNameSoundEx.normalize("Acacia aff. bivenosa (A.R.Chapman 601)"));
-        assertEquals("CYPERUS HOLOSCHOENUS", TaxonNameSoundEx.normalize("Cyperus sp. aff holoschoenus"));
-        assertEquals("NITZSCHIA BICAPITATA", TaxonNameSoundEx.normalize("Nitzschia cf. bicapitata"));
+        assertEquals("ACACIA AFF BIVENOSA A.R.CHAPMAN", TaxonNameSoundEx.normalize("Acacia aff. bivenosa (A.R.Chapman 601)"));
+        assertEquals("CYPERUS AFF HOLOSCHOENUS", TaxonNameSoundEx.normalize("Cyperus sp. aff holoschoenus"));
+        assertEquals("NITZSCHIA CF BICAPITATA", TaxonNameSoundEx.normalize("Nitzschia conf. bicapitata"));
     }
 
     @Test
@@ -38,7 +38,7 @@ public class TaxonNameSoundExTest {
     public void testTreatWord1() throws Exception {
         assertEquals("ACACA DIALBATA", TaxonNameSoundEx.treatWord("Acacia dealbata", "species"));
         assertEquals("ACACA DIALBATA", TaxonNameSoundEx.treatWord("Acacia sp. dealbata", "species"));
-        assertEquals("ACACA DIALBATA", TaxonNameSoundEx.treatWord("Acacia sp nov. dealbata", "species"));
+        assertEquals("ACACA SP NAV DIALBATA", TaxonNameSoundEx.treatWord("Acacia sp nov. dealbata", "species"));
     }
 
     @Test
@@ -50,9 +50,9 @@ public class TaxonNameSoundExTest {
 
     @Test
     public void testTreatWord3() throws Exception {
-        assertEquals("ACACA BIVINASA A.R.CAPMAN", TaxonNameSoundEx.treatWord("Acacia aff. bivenosa (A.R.Chapman 601)", "species"));
-        assertEquals("CIPIRIS ALASINA", TaxonNameSoundEx.treatWord("Cyperus sp. aff holoschoenus", "species"));
-        assertEquals("NITCSA BICAPITATA", TaxonNameSoundEx.treatWord("Nitzschia cf. bicapitata", "species"));
+        assertEquals("ACACA AF BIVINASA A.R.CAPMAN", TaxonNameSoundEx.treatWord("Acacia aff. bivenosa (A.R.Chapman 601)", "species"));
+        assertEquals("CIPIRIS AF ALASINA", TaxonNameSoundEx.treatWord("Cyperus sp. aff holoschoenus", "species"));
+        assertEquals("NITCSA CF BICAPITATA", TaxonNameSoundEx.treatWord("Nitzschia cfr. bicapitata", "species"));
     }
 
     @Test
@@ -68,6 +68,5 @@ public class TaxonNameSoundExTest {
         assertEquals("FICIS SICIDA", TaxonNameSoundEx.treatWord("Ficus subsect. Sycidium", Rank.SPECIES));
         assertEquals("ASPLINIM BILBIFIRIM GRACILIMA", TaxonNameSoundEx.treatWord("Asplenium bulbiferum ssp. gracillimum", Rank.SPECIES));
     }
-
 
 }

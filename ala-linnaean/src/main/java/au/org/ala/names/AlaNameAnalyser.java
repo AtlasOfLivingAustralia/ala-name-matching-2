@@ -3,7 +3,6 @@ package au.org.ala.names;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.util.CleanedScientificName;
-import au.org.ala.vocab.ALATerm;
 import au.org.ala.vocab.BayesianTerm;
 import com.google.common.base.Enums;
 import lombok.Getter;
@@ -151,11 +150,11 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
     }
 
     /**
-     * Get rid of and flag indeterminate names (eg. ?, cf, aff etc.)
+     * Get rid of and flag indeterminate names (eg. ? in the name)
      * 
      * @param analysis The analysis to strip
      */
-    protected void stripIndeterminate(Analysis analysis) {
+    protected void processIndeterminate(Analysis analysis) {
         Matcher matcher;
 
         matcher = INDETERMINATE_MARKER.matcher(analysis.scientificName);
@@ -164,55 +163,67 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             analysis.addIssue(AlaLinnaeanFactory.INDETERMINATE_NAME);
             analysis.indeterminate = true;
         }
+     }
+
+    /**
+     * Flag unsure names (eg. cf. aff. sp. nov. etc.)
+     *
+     * @param analysis The analysis to flag
+     */
+    protected void processUnsure(Analysis analysis) {
+        Matcher matcher;
+
         matcher = AFFINITY_SPECIES_MARKER.matcher(analysis.scientificName);
         if (matcher.find()) {
-            analysis.setScientificName(matcher.replaceAll(" ").trim());
             analysis.addIssue(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME);
-            analysis.indeterminate = true;
+            analysis.unsure = true;
         }
         matcher = CONFER_SPECIES_MARKER.matcher(analysis.scientificName);
         if (matcher.find()) {
-            analysis.setScientificName(matcher.replaceAll(" ").trim());
             analysis.addIssue(AlaLinnaeanFactory.CONFER_SPECIES_NAME);
-            analysis.indeterminate = true;
+            analysis.unsure = true;
         }
         matcher = SP_NOV_MARKER.matcher(analysis.scientificName);
         if (matcher.find()) {
-            analysis.setScientificName(matcher.replaceAll(" ").trim());
-            analysis.indeterminate = true;
+            analysis.unsure = true;
         }
     }
-    
+
+
     protected boolean stripRankMarkers(Analysis analysis) {
         Matcher matcher;
         boolean changed = false;
         
         // Phrase names should not have rank markers removed
         matcher = AuthorshipParsingJob.PHRASE_NAME.matcher(analysis.scientificName);
+        if (matcher.matches())
+            return changed;
+        // sp. nov. should be left alone
+        matcher = SP_NOV_MARKER.matcher(analysis.scientificName);
+        if (matcher.find())
+            return changed;
+        // Remove rank marker, if present and flag
+        matcher = MARKER_ENDING.matcher(analysis.scientificName);
+        if (matcher.find()) {
+            changed = true;
+            analysis.setScientificName(analysis.scientificName.substring(0, matcher.start()).trim());
+            analysis.addIssue(AlaLinnaeanFactory.INDETERMINATE_NAME);
+            analysis.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
+            analysis.rank = Rank.UNRANKED;
+            if (analysis.classification != null)
+                analysis.classification.taxonRank = null;
+        }
+        // Leave names that can only be recognised as Uninomial rank. Uninomial alone
+        matcher = INFRA_RANK_PATTERN.matcher(analysis.scientificName);
         if (!matcher.matches()) {
-            // Remove rank marker, if present and flag
-            matcher = MARKER_ENDING.matcher(analysis.scientificName);
+            matcher = MARKER_INTERNAL.matcher(analysis.scientificName);
             if (matcher.find()) {
                 changed = true;
-                analysis.setScientificName(analysis.scientificName.substring(0, matcher.start()).trim());
-                analysis.addIssue(AlaLinnaeanFactory.INDETERMINATE_NAME);
+                analysis.setScientificName(matcher.replaceAll(" ").trim());
                 analysis.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
-                analysis.rank = Rank.UNRANKED;
-                if (analysis.classification != null)
-                    analysis.classification.taxonRank = null;
-            }
-            // Leave names that can only be recognised as Uninomial rank. Uninomial alone
-            matcher = INFRA_RANK_PATTERN.matcher(analysis.scientificName);
-            if (!matcher.matches()) {
-                matcher = MARKER_INTERNAL.matcher(analysis.scientificName);
-                if (matcher.find()) {
-                    changed = true;
-                    analysis.setScientificName(matcher.replaceAll(" ").trim());
-                    analysis.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
-                }
             }
         }
-        return changed;
+         return changed;
     }
 
     protected void fillOutClassification(Analysis analysis, ParsedName name) throws InferenceException {
@@ -242,7 +253,7 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             }
             if (name.getType() == NameType.SCIENTIFIC || name.getType() == NameType.INFORMAL || name.getType() == NameType.PLACEHOLDER) {
                 // Only do this for non-synonyms to avoid dangling speciesID
-                if (classification.acceptedNameUsageId == null && classification.specificEpithet == null && name.getSpecificEpithet() != null && !analysis.indeterminate)
+                if (classification.acceptedNameUsageId == null && classification.specificEpithet == null && name.getSpecificEpithet() != null && !analysis.indeterminate && !analysis.unsure)
                     classification.specificEpithet = name.getSpecificEpithet();
 
             }
@@ -383,8 +394,9 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             return;
         if (MARKER_ONLY.matcher(analysis.scientificName).matches())
             throw new InferenceException("Supplied scientific name is a rank marker.");
-        this.stripIndeterminate(analysis);
+        this.processIndeterminate(analysis);
         this.stripRankMarkers(analysis);
+        this.processUnsure(analysis);
         this.parseName(analysis);
         classification.scientificName = analysis.scientificName;
         classification.scientificNameAuthorship = analysis.scientificNameAuthorship;
@@ -424,8 +436,9 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             // From now on, only use the normalised version
             Analysis sub = analysis.with(n.getNormalised());
 
-            this.stripIndeterminate(sub);
-            if (!UNPARSABLE_NAME.matcher(sub.scientificName).find()) {
+            this.processIndeterminate(sub);
+            this.processUnsure(sub);
+            if (!analysis.unsure && !UNPARSABLE_NAME.matcher(sub.scientificName).find()) {
                 this.parseName(sub);
                 if (this.stripRankMarkers(sub))
                     this.parseName(sub);
@@ -469,6 +482,8 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
         public Set<String> names;
         // Is this an indeterminate name
         public boolean indeterminate = false;
+        // Is this an unsure name
+        public boolean unsure = false;
         
         public Analysis(AlaLinnaeanClassification classification) {
             this.scientificName = classification.scientificName;

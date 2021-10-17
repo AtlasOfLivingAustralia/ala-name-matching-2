@@ -210,7 +210,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
         classification.scientificName = "Acacia aff. dealbata";
         this.analyser.analyseForSearch(classification);
-        assertEquals("Acacia dealbata", classification.scientificName);
+        assertEquals("Acacia aff. dealbata", classification.scientificName);
         assertEquals("Acacia", classification.genus);
         assertNull(classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
@@ -222,7 +222,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
         classification.scientificName = "Acacia cf. dealbata";
         this.analyser.analyseForSearch(classification);
-        assertEquals("Acacia dealbata", classification.scientificName);
+        assertEquals("Acacia cf. dealbata", classification.scientificName);
         assertEquals("Acacia", classification.genus);
         assertNull(classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
@@ -547,10 +547,10 @@ public class AlaNameAnalyserTest {
         classifier.add(AlaLinnaeanFactory.scientificName, "Grevillea sp. aff. patulifolia 'Kanangra'");
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
-        assertEquals(3, names.size());
+        System.out.println(names);
+        assertEquals(2, names.size());
         assertTrue(names.contains("Grevillea sp. aff. patulifolia 'Kanangra'"));
-        assertTrue(names.contains("Grevillea sp. patulifolia 'Kanangra'"));
-        assertTrue(names.contains("Grevillea patulifolia 'Kanangra'"));
+        assertTrue(names.contains("Grevillea aff. patulifolia 'Kanangra'"));
     }
 
     @Test
@@ -559,10 +559,9 @@ public class AlaNameAnalyserTest {
         classifier.add(AlaLinnaeanFactory.scientificName, "Grevillea sp. nov. 'Belowra'");
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
-        assertEquals(3, names.size());
+        System.out.println(names);
+        assertEquals(1, names.size());
         assertTrue(names.contains("Grevillea sp. nov. 'Belowra'"));
-        assertTrue(names.contains("Grevillea sp. 'Belowra'"));
-        assertTrue(names.contains("Grevillea 'Belowra'"));
     }
 
     @Test
@@ -571,9 +570,8 @@ public class AlaNameAnalyserTest {
         classifier.add(AlaLinnaeanFactory.scientificName, "Arthrinium aff. amnium 'Coastal'");
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
-        assertEquals(2, names.size());
+        assertEquals(1, names.size());
         assertTrue(names.contains("Arthrinium aff. amnium 'Coastal'"));
-        assertTrue(names.contains("Arthrinium amnium 'Coastal'"));
     }
 
 

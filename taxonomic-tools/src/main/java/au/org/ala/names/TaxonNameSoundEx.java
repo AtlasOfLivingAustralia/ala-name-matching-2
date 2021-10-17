@@ -1,9 +1,12 @@
 package au.org.ala.names;
 
+import au.org.ala.util.Substitute;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.nameparser.api.Rank;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -16,12 +19,24 @@ public class TaxonNameSoundEx {
             .map(r -> r.getMarker())
             .filter(Objects::nonNull)
             .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
-            .collect(Collectors.joining("|" ))
+            .collect(Collectors.joining("|"))
             + "|ssp|spp";
-    private static final Pattern MARKERS = Pattern.compile(
-            "\\s+(?:cf|near|aff|s\\.n|nov|s\\. str|" +
-            RANK_MARKERS +
-            ")\\.?(?=\\s+|$)"
+    private static final List<Substitute> MARKER_NORMALISE = Arrays.asList(
+            // Correct HTMLised ampersand
+            Substitute.allCI("&amp;", "&"),
+            // Remove HTML
+            Substitute.all("\\<[^>]+\\>", ""),
+            // Cultivar gets rid of the sp. nov. in a cultivar since it's sort of implicit
+            Substitute.allCI("\\s+(?:" + RANK_MARKERS + ")\\.?\\s+nov\\.?\\s+('[A-Za-z\\s]+'|\"[A-Za-z\\s]+\"|\\([A-Za-z\\s]+\\))(?=\\s+|$)", " $1"),
+            // Preserve aff, cf. sp nov markers
+            Substitute.allCI("\\s+(" + RANK_MARKERS + ")\\.?\\s+nov\\.?(?=\\s+|$)", " $1 nov"),
+            Substitute.allCI("\\s+aff\\.?(?=\\s+|$)", " aff"),
+            Substitute.allCI("\\s+(?:cf|cfr|conf)\\.?(?=\\s+|$)", " cf"),
+            Substitute.allCI("\\s+(?:s\\.\\s*s\\.|s\\.\\s*str\\.?|sens\\.\\s*str\\.?|sensu\\s*stricto)(?=\\s+|$)", " "),
+            Substitute.allCI("\\s+(?:s\\.\\s*l\\.|s\\.\\s*lat\\.?|sens\\.\\s*lat\\.?|sensu\\s*lato)(?=\\s+|$)", " "),
+            Substitute.allCI("\\s+(?:" + RANK_MARKERS + ")\\.?(?!\\s+nov)(?=\\s+|$)", " "),
+            Substitute.all("\\s+", " "),
+            Substitute.all("[^A-Za-z .]", "")
     );
 
     private static String translate(String source, String transSource, String transTarget) {
@@ -43,26 +58,17 @@ public class TaxonNameSoundEx {
 
         String output = str;
 
-        // trim any leading, trailing spaces or line feeds
-        //output = ltrim(rtrim(str));
-
-        output = MARKERS.matcher(output).replaceAll(" ").trim();
-
+        // Common letter substitutes
         output = output.toUpperCase();
-
-        // replace any HTML ampersands
-        output = output.replace(" &AMP; ", " & ");
-
-        // remove any content in angle brackets (e.g. html tags - <i>, </i>, etc.)
-        output = output.replaceAll("\\<.+?\\>", "");
-
         output = translate(output, "\u00c1\u00c9\u00cd\u00d3\u00da\u00c0\u00c8\u00cc\u00d2\u00d9" +
                 "\u00c2\u00ca\u00ce\u00d4\u00db\u00c4\u00cb\u00cf\u00d6\u00dc\u00c3\u00d1\u00d5" +
                 "\u00c5\u00c7\u00d8", "AEIOUAEIOUAEIOUAEIOUANOACO");
-
         output = output.replace("\u00c6", "AE");
-        output = output.replaceAll("\\s+", " ");
-        output = output.replaceAll("[^a-zA-Z .]", "");
+
+        // Normalise markers and upper-case
+        output = MARKER_NORMALISE.stream().reduce(output, (s, m) -> m.apply(s), (a, b) -> b).trim();
+        output = output.toUpperCase();
+
         output = StringUtils.trimToNull(output);
 
         return output;
