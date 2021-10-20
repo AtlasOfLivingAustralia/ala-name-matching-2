@@ -19,42 +19,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
-    private static final ThreadLocal<NameParser> PARSER = ThreadLocal.withInitial(NameParserGBIF::new);
-    private static final String RANK_MARKERS = Arrays.stream(Rank.values())
-            .filter(r -> !r.isInfrasubspecific()) // Allow var. and the like through
-            .map(r -> r.getMarker())
-            .filter(Objects::nonNull)
-            .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
-            .collect(Collectors.joining("|" ))
-            + "|ssp|spp";
-    private static final String INFRA_RANK_MARKERS = Arrays.stream(Rank.values())
-            .filter(r -> !r.isLinnean() && !r.isInfraspecific())
-            .map(r -> r.getMarker())
-            .filter(Objects::nonNull)
-            .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
-            .collect(Collectors.joining("|" ));
-    private static final String CAPITALISED_RANK_MARKERS = Arrays.stream(Rank.values())
-            .map(r -> r.getMarker())
-            .filter(Objects::nonNull)
-            .map(m -> m.substring(0, 1).toUpperCase() + m.substring(1))
-            .collect(Collectors.joining("|" ));
-    private static final Pattern MARKER_ENDING = Pattern.compile("(^|\\s+)(" + RANK_MARKERS + ")\\.?$" );
-    private static final Pattern MARKER_INTERNAL = Pattern.compile("\\s+(" + RANK_MARKERS + ")\\.?\\s+" );
-    private static final Pattern MARKER_ONLY = Pattern.compile("^\\s*(" + RANK_MARKERS + ")\\.?\\s*$" );
-    private static final Pattern INDETERMINATE_MARKER = Pattern.compile("\\?" );
-    private static final Pattern CONFER_SPECIES_MARKER = Pattern.compile("\\s+(?:cf|cfr|conf)\\.?\\s+" );
-    private static final Pattern AFFINITY_SPECIES_MARKER = Pattern.compile("\\s+aff\\.?\\s+" );
-    private static final Pattern SP_NOV_MARKER = Pattern.compile("(?<=(" + RANK_MARKERS + ")\\.?)\\s+nov\\.?\\s+");
-    private static final Pattern INFRA_RANK_PATTERN = Pattern.compile("^[A-Z][a-z]+\\s+(?:" + INFRA_RANK_MARKERS + ")\\.?\\s+[A-Z][a-z]+");
-    // Looks for specific epithets of the form "epithet 'Cultivar Name'"
-    private static final Pattern SUSPECTED_CULTIVAR_IN_SPECIFIC_EPITHET = Pattern.compile("['\"]([A-Za-z ]+)['\"]\\s*$");
-    // Names with stuff that will probably cause the name parser to have a conniption
-    private static final Pattern UNPARSABLE_NAME = Pattern.compile("(?:" +
-            "\\s+(" + CAPITALISED_RANK_MARKERS + ")\\s+" + "|" + // An internal capitalised rank marker
-            "\\s+(" + INFRA_RANK_MARKERS + ")\\.?\\s+[A-Za-z]+-[A-Za-z]+(?:\\s+|$)" + // A hyphenated infra-rank name
-            ")"
-    );
+public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassification> {
+    private static final Issues INDETERMINATE_ISSUES = Issues.of(AlaLinnaeanFactory.INDETERMINATE_NAME);
+    private static final Issues AFFINTIY_ISSUES = Issues.of(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME);
+    private static final Issues CONFER_ISSUES = Issues.of(AlaLinnaeanFactory.CONFER_SPECIES_NAME);
+    private static final Issues UNPARSABLE_ISSUES = Issues.of(AlaLinnaeanFactory.UNPARSABLE_NAME);
+    private static final Issues CANONICAL_ISSUES = Issues.of(AlaLinnaeanFactory.CANONICAL_NAME);
 
     /**
      * If a classification does not have a direct scientific name/rank combination then infer it.
@@ -62,10 +32,9 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
      * much disagreement about what is actually valid.
      *
      * @param analysis The analysis state
+     * @param classification The classification
      */
-    protected void inferRank(Analysis analysis) {
-        AlaLinnaeanClassification classification = analysis.classification;
-        
+    protected void inferRank(Analysis analysis, AlaLinnaeanClassification classification) {
         if (classification == null)
             return;
         if (classification.scientificName == null) {
@@ -92,13 +61,8 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
                 analysis.estimateRank(Rank.KINGDOM);
             }
         }
-
-        // Generalise sub-species ranks
-        if (analysis.rank.notOtherOrUnranked()) {
-            if (Rank.SPECIES.higherThan(analysis.rank)) {
-                classification.taxonRank = analysis.rank = Rank.INFRASPECIFIC_NAME;
-            } else if (classification.taxonRank == null && analysis.rank.notOtherOrUnranked())
-                classification.taxonRank = analysis.rank;
+        if (!analysis.isUnranked() && (classification.taxonRank == null || classification.taxonRank.otherOrUnranked())) {
+            classification.taxonRank = analysis.getRank();
         }
     }
 
@@ -110,13 +74,13 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
      * </p>
      * 
      * @param analysis The analysis state
+     * @param classifier The classifier
      * @param name The name observable
      *             
      * @return A set of base names
      */
-    protected Set<String> generateBaseNames(Analysis analysis, Observable name) {
-        Classifier classifier = analysis.classifier;
-        Set<String> names = new LinkedHashSet<>(classifier.getAll(name));
+    protected Set<String> generateBaseNames(Analysis analysis, Classifier classifier, Observable name) {
+         Set<String> names = new LinkedHashSet<>(classifier.getAll(name));
 
         if (names.isEmpty() && classifier.has(AlaLinnaeanFactory.genus) && classifier.has(AlaLinnaeanFactory.specificEpithet)) {
             names = classifier.getAll(AlaLinnaeanFactory.genus).stream().flatMap(g -> classifier.getAll(AlaLinnaeanFactory.specificEpithet).stream().map(s -> g + " " + s)).collect(Collectors.toSet());
@@ -149,97 +113,11 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
         return names;
     }
 
-    /**
-     * Get rid of and flag indeterminate names (eg. ? in the name)
-     * 
-     * @param analysis The analysis to strip
-     */
-    protected void processIndeterminate(Analysis analysis) {
-        Matcher matcher;
+    protected void fillOutClassification(Analysis analysis, AlaLinnaeanClassification classification) throws InferenceException {
 
-        matcher = INDETERMINATE_MARKER.matcher(analysis.scientificName);
-        if (matcher.find()) {
-            analysis.setScientificName(matcher.replaceAll(" ").trim());
-            analysis.addIssue(AlaLinnaeanFactory.INDETERMINATE_NAME);
-            analysis.indeterminate = true;
-        }
-     }
-
-    /**
-     * Flag unsure names (eg. cf. aff. sp. nov. etc.)
-     *
-     * @param analysis The analysis to flag
-     */
-    protected void processUnsure(Analysis analysis) {
-        Matcher matcher;
-
-        matcher = AFFINITY_SPECIES_MARKER.matcher(analysis.scientificName);
-        if (matcher.find()) {
-            analysis.addIssue(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME);
-            analysis.unsure = true;
-        }
-        matcher = CONFER_SPECIES_MARKER.matcher(analysis.scientificName);
-        if (matcher.find()) {
-            analysis.addIssue(AlaLinnaeanFactory.CONFER_SPECIES_NAME);
-            analysis.unsure = true;
-        }
-        matcher = SP_NOV_MARKER.matcher(analysis.scientificName);
-        if (matcher.find()) {
-            analysis.unsure = true;
-        }
-    }
-
-
-    protected boolean stripRankMarkers(Analysis analysis) {
-        Matcher matcher;
-        boolean changed = false;
-        
-        // Phrase names should not have rank markers removed
-        matcher = AuthorshipParsingJob.PHRASE_NAME.matcher(analysis.scientificName);
-        if (matcher.matches())
-            return changed;
-        // sp. nov. should be left alone
-        matcher = SP_NOV_MARKER.matcher(analysis.scientificName);
-        if (matcher.find())
-            return changed;
-        // Remove rank marker, if present and flag
-        matcher = MARKER_ENDING.matcher(analysis.scientificName);
-        if (matcher.find()) {
-            changed = true;
-            analysis.setScientificName(analysis.scientificName.substring(0, matcher.start()).trim());
-            analysis.addIssue(AlaLinnaeanFactory.INDETERMINATE_NAME);
-            analysis.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
-            analysis.rank = Rank.UNRANKED;
-            if (analysis.classification != null)
-                analysis.classification.taxonRank = null;
-        }
-        // Leave names that can only be recognised as Uninomial rank. Uninomial alone
-        matcher = INFRA_RANK_PATTERN.matcher(analysis.scientificName);
-        if (!matcher.matches()) {
-            matcher = MARKER_INTERNAL.matcher(analysis.scientificName);
-            if (matcher.find()) {
-                changed = true;
-                analysis.setScientificName(matcher.replaceAll(" ").trim());
-                analysis.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
-            }
-        }
-         return changed;
-    }
-
-    protected void fillOutClassification(Analysis analysis, ParsedName name) throws InferenceException {
-        AlaLinnaeanClassification classification = analysis.classification;
-
-        if (classification == null)
+        if (classification == null || !analysis.hasFullyParsedName())
             return;
-        if (name.getState() == ParsedName.State.COMPLETE) {
-            if (name.getType() == NameType.SCIENTIFIC) {
-                if (name.hasAuthorship()) {
-                    analysis.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
-                    if (classification.scientificNameAuthorship == null) {
-                        classification.scientificNameAuthorship = NameFormatter.authorshipComplete(name);
-                    }
-                }
-            }
+        ParsedName name = analysis.getParsedName();
             if (name.isPhraseName()) {
                 if (classification.nominatingParty == null && name.getNominatingParty() != null) {
                     classification.nominatingParty = name.getNominatingParty();
@@ -253,90 +131,14 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             }
             if (name.getType() == NameType.SCIENTIFIC || name.getType() == NameType.INFORMAL || name.getType() == NameType.PLACEHOLDER) {
                 // Only do this for non-synonyms to avoid dangling speciesID
-                if (classification.acceptedNameUsageId == null && classification.specificEpithet == null && name.getSpecificEpithet() != null && !analysis.indeterminate && !analysis.unsure)
+                if (classification.acceptedNameUsageId == null && classification.specificEpithet == null && name.getSpecificEpithet() != null && !analysis.isUncertain())
                     classification.specificEpithet = name.getSpecificEpithet();
 
             }
-            if (classification.acceptedNameUsageId == null && classification.genus == null && analysis.rank != null && !analysis.rank.higherThan(Rank.GENUS) && name.getGenus() != null)
+            if (classification.acceptedNameUsageId == null && classification.genus == null && !analysis.isUnranked() && !analysis.getRank().higherThan(Rank.GENUS) && name.getGenus() != null)
                 classification.genus = name.getGenus();
             if (classification.cultivarEpithet == null && name.getCultivarEpithet() != null)
                 classification.cultivarEpithet = name.getCultivarEpithet();
-        }
-
-    }
-
-    /**
-     * Generate a reduced version of the name.
-     *
-     * @param name The name
-     *
-     * @return A name without weird additions
-     */
-    protected String reducedName(ParsedName name) {
-        return NameFormatter.buildName(
-                name,
-                true, // hybrid marker
-                false, // rank marker
-                false, // authorship
-                true, // genus for infrageneric
-                false, // infrageneric
-                true, // decomposition
-                false, // ascii only
-                true, // qualifier
-                true, // indeterminate
-                false, // nom note
-                false, // sensu
-                true, // cultivar
-                true, // phrase
-                true, // vocuher
-                false, // nominating party
-                true, // strain
-                false //html
-        );
-    }
-
-    protected void parseName(Analysis analysis) throws InferenceException {
-        // Skip cases which look like trouble
-        Matcher matcher = UNPARSABLE_NAME.matcher(analysis.scientificName);
-        if (matcher.find())
-            return;
-        try {
-            NameParser parser = PARSER.get();
-            ParsedName name = parser.parse(analysis.scientificName, analysis.rank, analysis.nomCode);
-            if (name.getRank() != null)
-                analysis.estimateRank(name.getRank());
-            if (name.getState() == ParsedName.State.COMPLETE && !name.getWarnings().contains(Warnings.QUESTION_MARKS_REMOVED)) {
-                if (name.getType() == NameType.SCIENTIFIC || name.isPhraseName()) {
-                    analysis.addName(this.reducedName(name));
-                    analysis.addName(NameFormatter.canonicalWithoutAuthorship(name));
-                }
-                if (name.isPhraseName() && name.getNominatingParty() != null) {
-                    analysis.setScientificName(this.reducedName(name));
-                }
-                if (name.getType() == NameType.SCIENTIFIC) {
-                    // More minimal version if a recognised linnaean rank
-                    if ((name.getRank() != null && name.getRank().isLinnean()) || name.isTrinomial()) {
-                        analysis.addName(name.canonicalNameMinimal());
-                    }
-                    // Add infrageneric name without enclosing genus
-                    if (name.getInfragenericEpithet() != null && name.getRank().isInfragenericStrictly() && name.getGenus() != null && !name.getInfragenericEpithet().equals(name.getGenus())) {
-                        analysis.addName(name.getInfragenericEpithet());
-                    }
-                    // Set authorship and canonicalise if authorship incluided
-                    if (name.hasAuthorship() && analysis.scientificNameAuthorship == null) {
-                        analysis.setScientificName(NameFormatter.canonicalWithoutAuthorship(name));
-                        analysis.scientificNameAuthorship = name.authorshipComplete();
-                    }
-                }
-                if (name.isPhraseName()) {
-                    // Add bare phrase name without voucher
-                    analysis.addName(name.canonicalNameMinimal() + " " + name.getRank().getMarker() + " " + name.getStrain());
-                }
-            }
-            this.fillOutClassification(analysis, name);
-        } catch (UnparsableNameException e) {
-            analysis.addIssue(AlaLinnaeanFactory.UNPARSABLE_NAME);
-        }
     }
 
     /**
@@ -347,23 +149,26 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
      */
     @Override
     public void analyseForIndex(AlaLinnaeanClassification classification) throws InferenceException {
-        Analysis analysis = new Analysis(classification);
+        Analysis analysis = new Analysis(classification.scientificName, classification.scientificNameAuthorship, classification.taxonRank, classification.nomenclaturalCode);
 
-        this.inferRank(analysis);
-        if (analysis.scientificName != null) {
-            this.parseName(analysis);
-            classification.taxonRank = analysis.rank.notOtherOrUnranked() ? analysis.rank : classification.taxonRank;
-            if (classification.scientificNameAuthorship == null && analysis.scientificNameAuthorship != null) {
-                classification.scientificName = analysis.scientificName;
-                classification.scientificNameAuthorship = analysis.scientificNameAuthorship;
-            }
-        }
+        this.inferRank(analysis, classification);
+        this.processIndeterminate(analysis, null, INDETERMINATE_ISSUES);
+        this.processAffinitySpecies(analysis, " aff. ", AFFINTIY_ISSUES);
+        this.processConferSpecies(analysis, " cf. ", CONFER_ISSUES);
+        this.processSpeciesNovum(analysis, true, null);
+        this.processPhraseName(analysis, null);
+        this.parseName(analysis, UNPARSABLE_ISSUES);
+        this.processParsedScientificName(analysis, CANONICAL_ISSUES);
+        this.fillOutClassification(analysis, classification);
+        classification.scientificName = analysis.getScientificName();
+        classification.scientificNameAuthorship = analysis.getScientificNameAuthorship();
+        classification.taxonRank = analysis.isUnranked() ? null: analysis.getRank();
         if (classification.cultivarEpithet != null && classification.specificEpithet != null) {
             // Check case where cultivar epithet is on specific epithet
             Matcher matcher = SUSPECTED_CULTIVAR_IN_SPECIFIC_EPITHET.matcher(classification.specificEpithet);
             if (matcher.find() && matcher.group(1).equals(classification.cultivarEpithet)) {
                 classification.specificEpithet = classification.specificEpithet.substring(0, matcher.start()).trim();
-                classification.addIssue(AlaLinnaeanFactory.CANONICAL_NAME);
+                analysis.addIssues(CANONICAL_ISSUES);
             }
         }
 
@@ -376,6 +181,7 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             classification.addIssue(BayesianTerm.acceptedLoop);
             classification.acceptedNameUsageId = null;
         }
+        classification.addIssues(analysis.getIssues());
     }
 
     /**
@@ -387,20 +193,27 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
      */
     @Override
     public void analyseForSearch(AlaLinnaeanClassification classification) throws InferenceException {
-        Analysis analysis = new Analysis(classification);
+        Analysis analysis = new Analysis(classification.scientificName, classification.scientificNameAuthorship, classification.taxonRank, classification.nomenclaturalCode);
 
-        this.inferRank(analysis);
-        if (analysis.scientificName == null)
+        this.inferRank(analysis, classification);
+        if (analysis.getScientificName() == null)
             return;
-        if (MARKER_ONLY.matcher(analysis.scientificName).matches())
+        if (MARKER_ONLY.matcher(analysis.getScientificName()).matches())
             throw new InferenceException("Supplied scientific name is a rank marker.");
-        this.processIndeterminate(analysis);
-        this.stripRankMarkers(analysis);
-        this.processUnsure(analysis);
-        this.parseName(analysis);
-        classification.scientificName = analysis.scientificName;
-        classification.scientificNameAuthorship = analysis.scientificNameAuthorship;
-        classification.taxonRank = analysis.rank.notOtherOrUnranked() ? analysis.rank : null;
+        this.processIndeterminate(analysis, " ", INDETERMINATE_ISSUES);
+        this.processAffinitySpecies(analysis, " aff. ", AFFINTIY_ISSUES);
+        this.processConferSpecies(analysis, " cf. ", CONFER_ISSUES);
+        this.processSpeciesNovum(analysis, true, null);
+        this.processPhraseName(analysis, null);
+        this.processRankEnding(analysis, true, INDETERMINATE_ISSUES);
+        this.processRankMarker(analysis, true, CANONICAL_ISSUES);
+        this.parseName(analysis, UNPARSABLE_ISSUES);
+        this.processParsedScientificName(analysis, CANONICAL_ISSUES);
+        this.fillOutClassification(analysis, classification);
+        classification.scientificName = analysis.getScientificName();
+        classification.scientificNameAuthorship = analysis.getScientificNameAuthorship();
+        classification.taxonRank = analysis.isUnranked() ? null: analysis.getRank();
+        classification.addIssues(analysis.getIssues());
     }
 
     /**
@@ -419,29 +232,43 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
      */
     @Override
     public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) throws InferenceException {
-        Analysis analysis = new Analysis(classifier);
+        Rank rank = classifier.get(AlaLinnaeanFactory.taxonRank);
+        NomenclaturalCode code = classifier.get(AlaLinnaeanFactory.nomenclaturalCode);
+        String scientificName = classifier.get(name);
+        String scientificNameAuthorship = classifier.get(AlaLinnaeanFactory.scientificNameAuthorship);
+
+        Analysis analysis = new Analysis(scientificName, scientificNameAuthorship, rank, code);
 
         Set<String> allScientificNameAuthorship = !canonical && additional.isPresent() ? classifier.getAll(additional.get()) : Collections.emptySet();
         Set<String> allCompleteNames = !canonical && complete.isPresent() ? classifier.getAll(complete.get()) : Collections.emptySet();
-        Set<String> allScientificNames = this.generateBaseNames(analysis, name);
+        Set<String> allScientificNames = this.generateBaseNames(analysis, classifier, name);
  
         if (allScientificNames.isEmpty())
             throw new InferenceException("No scientific name for " + classifier.get(AlaLinnaeanFactory.taxonId));
         for (String nm : allScientificNames) {
-            CleanedScientificName n = new CleanedScientificName(nm);
-            analysis.names.add(n.getName());
-            analysis.names.add(n.getBasic());
-            analysis.names.add(n.getNormalised());
+            analysis.addName(nm);
+            analysis.addName(BASIC_NORMALISER.normalise(nm));
+            analysis.addName(PUNCTUATION_NORMALISER.normalise(nm));
+            nm = FULL_NORMALISER.normalise(nm);
+            analysis.addName(nm);
 
             // From now on, only use the normalised version
-            Analysis sub = analysis.with(n.getNormalised());
-
-            this.processIndeterminate(sub);
-            this.processUnsure(sub);
-            if (!analysis.unsure && !UNPARSABLE_NAME.matcher(sub.scientificName).find()) {
-                this.parseName(sub);
-                if (this.stripRankMarkers(sub))
-                    this.parseName(sub);
+            Analysis sub = analysis.with(nm);
+            
+            this.processIndeterminate(sub, " ", null);
+            this.processAffinitySpecies(sub, " aff. ", null);
+            this.processConferSpecies(sub, " cf. ", null);
+            this.processSpeciesNovum(sub, true, null);
+            this.processPhraseName(sub, null);
+            this.parseName(sub, null);
+            if (sub.getParsedName() != null) {
+                this.processParsedScientificName(sub, null);
+                this.processAdditionalScientificNames(sub);
+                if (this.processRankMarker(sub, true, null)) {
+                    this.parseName(sub, null);
+                    this.processParsedScientificName(sub, null);
+                    this.processAdditionalScientificNames(sub);
+                }
             }
         }
 
@@ -450,91 +277,10 @@ public class AlaNameAnalyser implements Analyser<AlaLinnaeanClassification> {
             allCompleteNames = allScientificNames.stream().flatMap(n -> allScientificNameAuthorship.stream().map(a -> n + " " + a)).collect(Collectors.toSet());
         }
         for (String nm : allCompleteNames) {
-            CleanedScientificName n = new CleanedScientificName(nm);
-            analysis.names.add(n.getName());
-            analysis.names.add(n.getBasic());
-            analysis.names.add(n.getNormalised());
+            analysis.addName(BASIC_NORMALISER.normalise(nm));
+            analysis.addName(PUNCTUATION_NORMALISER.normalise(nm));
+            analysis.addName(FULL_NORMALISER.normalise(nm));
         }
-        return analysis.names;
-    }
-
-    /**
-     * Basic information about the current state of the analysis.
-     * <p>
-     * Used so that we can factor out the 
-     * </p>
-     */
-    private class Analysis implements Cloneable {
-        // The current view of the scientific name
-        @Getter
-        private String scientificName;
-        // The scientific name authorship
-        public String scientificNameAuthorship;
-        // The estimated rank
-        public Rank rank;
-        // The estimated nomenclatural code
-        public NomCode nomCode;
-        // The classification to manipulate (null if not relevant)
-        public AlaLinnaeanClassification classification;
-        // The classifier to interrogate (null if not relevant)
-        public Classifier classifier;
-        // The set of names derived from that name
-        public Set<String> names;
-        // Is this an indeterminate name
-        public boolean indeterminate = false;
-        // Is this an unsure name
-        public boolean unsure = false;
-        
-        public Analysis(AlaLinnaeanClassification classification) {
-            this.scientificName = classification.scientificName;
-            this.scientificNameAuthorship = classification.scientificNameAuthorship;
-            this.classification = classification;
-            this.rank = classification.taxonRank != null ? classification.taxonRank : Rank.UNRANKED;
-            final NomenclaturalCode nomenclaturalCode = classification.nomenclaturalCode;
-            this.nomCode = nomenclaturalCode == null ? null : Enums.getIfPresent(NomCode.class, nomenclaturalCode.name()).orNull();
-        }
-        
-        public Analysis(Classifier classifier) {
-            this.scientificName = classifier.get(AlaLinnaeanFactory.scientificName);
-            this.scientificNameAuthorship = classifier.get(AlaLinnaeanFactory.scientificNameAuthorship);
-            this.names = new LinkedHashSet<>();
-            this.classifier = classifier;
-            this.rank = classifier.has(AlaLinnaeanFactory.taxonRank) ? classifier.get(AlaLinnaeanFactory.taxonRank) : Rank.UNRANKED;
-            final NomenclaturalCode nomenclaturalCode = classifier.get(AlaLinnaeanFactory.nomenclaturalCode);
-            this.nomCode = nomenclaturalCode == null ? null : Enums.getIfPresent(NomCode.class, nomenclaturalCode.name()).orNull();
-        }
-        
-        @Override
-        @SneakyThrows
-        public Analysis clone() {
-            return (Analysis) super.clone();
-        }
-        
-        public Analysis with(String scientificName) {
-            Analysis clone = this.clone();
-            clone.scientificName = scientificName;
-            return clone;
-        }
-        
-        public void estimateRank(Rank rank) {
-            if (this.rank.otherOrUnranked())
-                this.rank = rank;
-        }
-        
-        public void addIssue(Term issue) {
-            if (this.classification != null)
-                this.classification.addIssue(issue);
-        }
-
-        public void addName(String name) {
-            if (this.names == null || name == null || name.isEmpty())
-                return;
-            this.names.add(name);
-        }
-        
-        public void setScientificName(String name) {
-            this.scientificName = name;
-            this.addName(name);
-        }
+        return analysis.getNames();
     }
 }

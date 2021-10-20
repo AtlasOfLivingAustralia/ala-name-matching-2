@@ -420,7 +420,7 @@ public class ALANameSearcherTest {
         Match<AlaLinnaeanClassification> result = this.searcher.search(template);
         assertTrue(result.isValid());
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51382879", result.getAccepted().taxonId);
-        assertTrue(result.getIssues().contains(AlaLinnaeanFactory.INDETERMINATE_NAME));
+        assertEquals(Issues.of(AlaLinnaeanFactory.INDETERMINATE_NAME), result.getIssues());
     }
 
     @Test
@@ -430,7 +430,7 @@ public class ALANameSearcherTest {
         Match<AlaLinnaeanClassification> result = this.searcher.search(template);
         assertTrue(result.isValid());
         assertEquals("https://biodiversity.org.au/afd/taxa/17c9fd64-3c07-4df5-a33d-eda1e065e99f", result.getAccepted().taxonId);
-        assertTrue(result.getIssues().contains(AlaLinnaeanFactory.INDETERMINATE_NAME));
+        assertEquals(Issues.of(AlaLinnaeanFactory.INDETERMINATE_NAME), result.getIssues());
     }
 
     @Test
@@ -758,7 +758,7 @@ public class ALANameSearcherTest {
         // Higher order match as Rocky Creek interpreted as author
         assertEquals("https://id.biodiversity.org.au/node/apni/7176196", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/node/apni/7176196", result.getAccepted().taxonId);
-        assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_AUTHORSHIP, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
+        assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
     @Test
@@ -934,7 +934,7 @@ public class ALANameSearcherTest {
         assertTrue(result.isValid());
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51269889", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51269889", result.getAccepted().taxonId);
-        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME, AlaLinnaeanFactory.INDETERMINATE_NAME), result.getIssues());
+        assertEquals(Issues.of(AlaLinnaeanFactory.INDETERMINATE_NAME), result.getIssues());
     }
 
     @Test
@@ -965,7 +965,7 @@ public class ALANameSearcherTest {
         Match<AlaLinnaeanClassification> result = this.searcher.search(template);
         assertTrue(result.isValid());
         assertEquals("https://id.biodiversity.org.au/name/apni/50738493", result.getAccepted().taxonId);
-        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME, AlaLinnaeanFactory.REMOVED_RANK), result.getIssues());
+        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
     @Test
@@ -981,12 +981,12 @@ public class ALANameSearcherTest {
     @Test
     public void testCultivar5() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
-        template.scientificName = "Grevillea sp. aff. patulifolia 'Kanangra'";
+        template.scientificName = "Grevillea sp aff patulifolia 'Kanangra'";
         Match<AlaLinnaeanClassification> result = this.searcher.search(template);
         assertTrue(result.isValid());
         assertEquals("https://id.biodiversity.org.au/instance/apni/837807", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/node/apni/2916815", result.getAccepted().taxonId);
-        assertEquals(Issues.of(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME, AlaLinnaeanFactory.REMOVED_RANK, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
+        assertEquals(Issues.of(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
     @Test

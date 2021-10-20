@@ -79,6 +79,13 @@ public class EmptyClassification implements Classification<EmptyClassification> 
      */
     @Override
     public void addIssue(Term issue) {
+        this.issues = this.issues.with(issue);
+    }
+
+
+    @Override
+    public void addIssues(Issues issues) {
+        this.issues = this.issues.merge(issues);
     }
 
 

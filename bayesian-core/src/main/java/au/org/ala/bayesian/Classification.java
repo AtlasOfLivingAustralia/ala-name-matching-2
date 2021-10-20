@@ -86,6 +86,18 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      */
     void addIssue(Term issue);
 
+
+    /**
+     * Add a set of issues to the issues list.
+     * <p>
+     * Adding an issue should apply to the classification itself.
+     * Shared issues lists need to be disambigauted before being modified.
+     * </p>
+     *
+     * @param issues The issues to add
+     */
+    void addIssues(Issues issues);
+
     /**
      * Get a list of observations that match this classification.
      * <p>

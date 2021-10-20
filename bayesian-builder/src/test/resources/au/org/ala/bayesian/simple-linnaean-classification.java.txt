@@ -112,6 +112,11 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
+  public void addIssues(Issues issues) {
+        this.issues = this.issues.merge(issues);
+  }
+
+  @Override
   public Term getType() {
     return SimpleLinnaeanFactory.CONCEPT;
   }

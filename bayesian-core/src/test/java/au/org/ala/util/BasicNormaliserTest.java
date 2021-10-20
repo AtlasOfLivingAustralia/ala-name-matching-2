@@ -8,12 +8,15 @@ import org.junit.Test;
 
 import java.io.StringWriter;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Test cases for cleaned scientific names
  */
 public class BasicNormaliserTest {
+    private BasicNormaliser basic = new BasicNormaliser("basic", true, false, false, false, false);
+    private BasicNormaliser punctuation = new BasicNormaliser("punctuation", true, true, false, false, false);
+    private BasicNormaliser scientific = new BasicNormaliser("scientific", true, true, true, true, false);
 
     @Test
     public void testNormaliseSpaces1() {
@@ -117,6 +120,100 @@ public class BasicNormaliserTest {
         Normaliser normaliser = mapper.readValue(TestUtils.getResource(this.getClass(), "normaliser-2.json"), Normaliser.class);
         assertEquals("normaliser_2", normaliser.getId());
         assertEquals("SSomething  GOOD   alpha", normaliser.normalise("ẞomething  GOOD  α"));
+    }
+
+
+    @Test
+    public void testBasicnormaliser1() {
+        assertEquals("Ozothamnus diosmifolius", this.basic.normalise("Ozothamnus diosmifolius"));
+        assertEquals("Ozothamnus diosmifolius", this.punctuation.normalise("Ozothamnus diosmifolius"));
+        assertEquals("Ozothamnus diosmifolius", this.scientific.normalise("Ozothamnus diosmifolius"));
+    }
+
+    @Test
+    public void testBasicnormaliser2() {
+        assertEquals("Ozothamnus diosmifolius", this.basic.normalise(" Ozothamnus     diosmifolius   "));
+        assertEquals("Ozothamnus diosmifolius", this.punctuation.normalise(" Ozothamnus     diosmifolius   "));
+        assertEquals("Ozothamnus diosmifolius", this.scientific.normalise(" Ozothamnus     diosmifolius   "));
+    }
+
+    @Test
+    public void testBasicnormaliser3() {
+        assertEquals("Ozothamnus diosmifolius 'Adelaide White'", this.basic.normalise(" Ozothamnus     diosmifolius  'Adelaide White' "));
+        assertEquals("Ozothamnus diosmifolius 'Adelaide White'", this.punctuation.normalise(" Ozothamnus     diosmifolius  'Adelaide White' "));
+        assertEquals("Ozothamnus diosmifolius 'Adelaide White'", this.scientific.normalise(" Ozothamnus     diosmifolius  'Adelaide White' "));
+    }
+
+    @Test
+    public void testBasicnormaliser4() {
+        String name = "Ozothamnus\u00a0diosmifolius";
+        assertEquals("Ozothamnus diosmifolius", this.basic.normalise(name));
+        assertEquals("Ozothamnus diosmifolius", this.punctuation.normalise(name));
+        assertEquals("Ozothamnus diosmifolius", this.scientific.normalise(name));
+    }
+
+    @Test
+    public void testPunctnormaliser1() {
+        String name = "Ozothamnus diosmifolius \u2018Adelaide White\u2019";
+        assertEquals("Ozothamnus diosmifolius \u2018Adelaide White\u2019", this.basic.normalise(name));
+        assertEquals("Ozothamnus diosmifolius 'Adelaide White'", this.punctuation.normalise(name));
+        assertEquals("Ozothamnus diosmifolius 'Adelaide White'", this.scientific.normalise(name));
+    }
+
+    @Test
+    public void testPunctnormaliser2() {
+        String name = "Ozothamnus diosmifolius \u201cAdelaide White\u201d";
+        assertEquals("Ozothamnus diosmifolius \u201cAdelaide White\u201d", this.basic.normalise(name));
+        assertEquals("Ozothamnus diosmifolius \"Adelaide White\"", this.punctuation.normalise(name));
+        assertEquals("Ozothamnus diosmifolius \"Adelaide White\"", this.scientific.normalise(name));
+    }
+
+    @Test
+    public void testPunctnormaliser3() {
+        String name = "Bernhardia novae\u2010hollandiae";
+        assertEquals("Bernhardia novae\u2010hollandiae", this.basic.normalise(name));
+        assertEquals("Bernhardia novae\u002dhollandiae", this.punctuation.normalise(name));
+        assertEquals("Bernhardia novae\u002dhollandiae", this.scientific.normalise(name));
+    }
+
+    @Test
+    public void testPunctnormaliser4() {
+        String name = "Oribatida \u2013 astigmata";
+        assertEquals("Oribatida \u2013 astigmata", this.basic.normalise(name));
+        assertEquals("Oribatida - astigmata", this.punctuation.normalise(name));
+        assertEquals("Oribatida - astigmata", this.scientific.normalise(name));
+    }
+
+    @Test
+    public void testPunctnormaliser5() {
+        String name = "Olearia\u00a0\u00d7matthewsii";
+        assertEquals("Olearia \u00d7matthewsii", this.basic.normalise(name));
+        assertEquals("Olearia \u00d7matthewsii", this.punctuation.normalise(name));
+        assertEquals("Olearia x matthewsii", this.scientific.normalise(name));
+    }
+
+    @Test
+    public void testAccentednormaliser1() {
+        String name = "Aleochara haemorrho\u00efdalis";
+        assertEquals("Aleochara haemorrho\u00efdalis", this.basic.normalise(name));
+        assertEquals("Aleochara haemorrho\u00efdalis", this.punctuation.normalise(name));
+        assertEquals("Aleochara haemorrhoidalis", this.scientific.normalise(name));
+     }
+
+    @Test
+    public void testAccentednormaliser2() {
+        String name = "Staurastrum subbr\u00e9bissonii";
+        assertEquals("Staurastrum subbr\u00e9bissonii", this.basic.normalise(name));
+        assertEquals("Staurastrum subbr\u00e9bissonii", this.punctuation.normalise(name));
+        assertEquals("Staurastrum subbrebissonii", this.scientific.normalise(name));
+    }
+
+    @Test
+    public void testGreeknormaliser1() {
+        String name = "Senecio banksii var. \u03b2 velleia";
+        assertEquals("Senecio banksii var. \u03b2 velleia", this.basic.normalise(name));
+        assertEquals("Senecio banksii var. \u03b2 velleia", this.punctuation.normalise(name));
+        assertEquals("Senecio banksii var. beta velleia", this.scientific.normalise(name));
     }
 
 }

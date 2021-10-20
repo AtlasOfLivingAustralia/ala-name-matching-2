@@ -124,6 +124,11 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
+    public void addIssues(Issues issues) {
+        this.issues = this.issues.merge(issues);
+    }
+
+    @Override
     public void inferForSearch() {
     }
 

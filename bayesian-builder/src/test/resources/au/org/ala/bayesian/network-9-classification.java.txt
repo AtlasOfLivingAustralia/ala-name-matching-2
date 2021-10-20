@@ -62,6 +62,11 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
   @Override
+  public void addIssues(Issues issues) {
+        this.issues = this.issues.merge(issues);
+  }
+
+  @Override
   public Term getType() {
     return Network9Factory.CONCEPT;
   }
