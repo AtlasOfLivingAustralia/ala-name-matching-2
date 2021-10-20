@@ -1,22 +1,17 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
-import au.org.ala.util.CleanedScientificName;
 import au.org.ala.vocab.BayesianTerm;
-import com.google.common.base.Enums;
-import lombok.Getter;
-import lombok.SneakyThrows;
 import org.gbif.api.vocabulary.NomenclaturalCode;
-import org.gbif.dwc.terms.Term;
-import org.gbif.nameparser.AuthorshipParsingJob;
-import org.gbif.nameparser.NameParserGBIF;
-import org.gbif.nameparser.api.*;
-import org.gbif.nameparser.util.NameFormatter;
+import org.gbif.nameparser.api.NameType;
+import org.gbif.nameparser.api.ParsedName;
+import org.gbif.nameparser.api.Rank;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassification> {

@@ -5,8 +5,6 @@ import au.org.ala.util.JsonUtils;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.TestTerms;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.gbif.common.shaded.com.google.common.graph.Graphs;
-import org.gbif.dwc.terms.Term;
 import org.junit.Test;
 
 import java.io.StringWriter;
@@ -14,7 +12,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;

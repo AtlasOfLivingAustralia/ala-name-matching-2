@@ -1,9 +1,7 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.StoreException;
 import au.org.ala.bayesian.analysis.StringAnalysis;
-import org.gbif.checklistbank.authorship.AuthorComparator;
 
 import java.util.regex.Pattern;
 

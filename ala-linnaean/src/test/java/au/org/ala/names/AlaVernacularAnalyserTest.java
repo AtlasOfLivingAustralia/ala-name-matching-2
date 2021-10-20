@@ -1,13 +1,9 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.Issues;
 import au.org.ala.names.lucene.LuceneClassifier;
-import au.org.ala.vocab.ALATerm;
 import au.org.ala.vocab.TaxonomicStatus;
 import au.org.ala.vocab.VernacularStatus;
-import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.api.Rank;
 import org.junit.Before;
 import org.junit.Test;

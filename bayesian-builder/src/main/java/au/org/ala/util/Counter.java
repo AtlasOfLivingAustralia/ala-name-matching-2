@@ -1,7 +1,5 @@
 package au.org.ala.util;
 
-import au.org.ala.bayesian.Identifiable;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 
 import java.text.MessageFormat;

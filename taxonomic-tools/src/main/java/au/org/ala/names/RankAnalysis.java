@@ -5,12 +5,6 @@ import org.apache.commons.lang3.Range;
 import org.gbif.nameparser.api.Rank;
 import org.gbif.nameparser.util.RankUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.gbif.nameparser.api.Rank.*;
-import static org.gbif.nameparser.api.Rank.UNRANKED;
-
 /**
  * Analysis based on taxonomic rank.
  */

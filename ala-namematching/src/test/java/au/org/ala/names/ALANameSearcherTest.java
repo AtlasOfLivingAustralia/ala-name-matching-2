@@ -2,7 +2,6 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Match;
-import au.org.ala.vocab.ALATerm;
 import au.org.ala.vocab.BayesianTerm;
 import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.api.vocabulary.NomenclaturalCode;
@@ -13,7 +12,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.List;
 
 import static org.junit.Assert.*;
 

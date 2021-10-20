@@ -9,7 +9,6 @@ import org.apache.lucene.search.SimpleCollector;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.DoubleAdder;

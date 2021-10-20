@@ -4,8 +4,6 @@ import au.org.ala.bayesian.analysis.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.util.HashMap;
-
 /**
  * An analysis object for an observable.
  * <p>

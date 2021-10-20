@@ -1,16 +1,9 @@
 package au.org.ala.bayesian;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Getter;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.gbif.dwc.terms.Term;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * A list of issues associated with some operation.

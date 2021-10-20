@@ -8,11 +8,7 @@ import au.org.ala.names.builder.Source;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.util.TestUtils;
-import au.org.ala.vocab.ALATerm;
-import au.org.ala.vocab.TaxonomicStatus;
-import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
-import org.gbif.nameparser.api.Rank;
 import org.junit.*;
 
 import java.io.File;

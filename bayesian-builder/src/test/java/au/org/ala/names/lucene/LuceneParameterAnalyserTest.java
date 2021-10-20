@@ -5,7 +5,6 @@ import au.org.ala.bayesian.Network;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.names.builder.Annotator;
-import au.org.ala.names.builder.IndexBuilder;
 import au.org.ala.names.builder.TestAnnotator;
 import au.org.ala.vocab.BayesianTerm;
 import org.gbif.dwc.terms.DwcTerm;

@@ -1,7 +1,7 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.*;
 import au.org.ala.util.Counter;
 import au.org.ala.vocab.BayesianTerm;
 import lombok.extern.slf4j.Slf4j;

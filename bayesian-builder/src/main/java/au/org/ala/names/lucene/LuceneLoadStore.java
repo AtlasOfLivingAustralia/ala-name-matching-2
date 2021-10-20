@@ -3,7 +3,6 @@ package au.org.ala.names.lucene;
 import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.Annotator;
 import au.org.ala.names.builder.LoadStore;
-import au.org.ala.bayesian.ExternalContext;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -19,7 +18,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.MMapDirectory;
-import org.apache.lucene.store.NIOFSDirectory;
 import org.gbif.dwc.terms.Term;
 
 import java.io.File;

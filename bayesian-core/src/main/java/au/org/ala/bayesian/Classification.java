@@ -1,13 +1,10 @@
 package au.org.ala.bayesian;
 
-import lombok.Builder;
 import lombok.NonNull;
-import lombok.Value;
 import org.gbif.dwc.terms.Term;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**

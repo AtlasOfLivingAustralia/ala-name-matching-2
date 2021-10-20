@@ -5,9 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.gbif.nameparser.api.Rank;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**

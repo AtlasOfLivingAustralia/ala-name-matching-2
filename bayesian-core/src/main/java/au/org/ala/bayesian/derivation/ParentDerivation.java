@@ -3,11 +3,7 @@ package au.org.ala.bayesian.derivation;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.StoreException;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jdk.nashorn.internal.objects.annotations.Getter;
-
-import java.util.ArrayList;
 
 /**
  * Copy values from a parent source of information.

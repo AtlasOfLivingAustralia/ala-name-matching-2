@@ -1,13 +1,8 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.*;
-import au.org.ala.vocab.TaxonomicStatus;
-import org.gbif.api.vocabulary.NomenclaturalCode;
-import org.gbif.nameparser.api.Rank;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ALAVernacularClassificationMatcher extends ClassificationMatcher<AlaVernacularClassification, AlaVernacularInferencer, AlaVernacularFactory> {

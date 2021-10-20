@@ -1,17 +1,13 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.*;
-import au.org.ala.bayesian.Observable;
 import au.org.ala.util.BasicNormaliser;
-import au.org.ala.util.CleanedScientificName;
 import com.google.common.base.Enums;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.gbif.api.vocabulary.NomenclaturalCode;
-import org.gbif.common.parsers.RankParser;
-import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.dwc.terms.Term;
 import org.gbif.nameparser.AuthorshipParsingJob;
 import org.gbif.nameparser.NameParserGBIF;
@@ -20,8 +16,10 @@ import org.gbif.nameparser.util.NameFormatter;
 import org.gbif.nameparser.util.RankUtils;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.Null;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;

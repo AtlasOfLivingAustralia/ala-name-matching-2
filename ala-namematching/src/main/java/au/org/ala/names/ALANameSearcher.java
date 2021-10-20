@@ -1,6 +1,5 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.ClassificationMatcher;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.StoreException;
@@ -8,9 +7,7 @@ import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import org.gbif.dwc.terms.DwcTerm;
 
-import java.io.Closeable;
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Name searching interface.

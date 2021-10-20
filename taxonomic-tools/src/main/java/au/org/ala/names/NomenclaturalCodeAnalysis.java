@@ -1,6 +1,5 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.StoreException;
 import au.org.ala.bayesian.analysis.EnumAnalysis;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.common.parsers.NomCodeParser;

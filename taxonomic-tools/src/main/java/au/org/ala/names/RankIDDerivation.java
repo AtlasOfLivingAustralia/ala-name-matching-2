@@ -2,12 +2,7 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.derivation.CopyDerivation;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import org.gbif.nameparser.api.Rank;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**

@@ -1,14 +1,15 @@
 package au.org.ala.names.lucene;
 
-import au.org.ala.bayesian.Analysis;
-import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.ExternalContext;
+import au.org.ala.bayesian.Observable;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.BayesianTerm;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import lombok.Getter;
-import org.apache.lucene.document.*;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;

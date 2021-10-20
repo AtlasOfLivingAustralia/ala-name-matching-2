@@ -3,16 +3,15 @@ package au.org.ala.names;
 import au.org.ala.bayesian.*;
 import au.org.ala.vocab.ALATerm;
 import org.gbif.api.vocabulary.NomenclaturalCode;
-import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.api.ParsedName;
 import org.gbif.nameparser.api.Rank;
 import org.junit.Before;
 import org.junit.Test;
-import static au.org.ala.names.ScientificNameAnalyser.Analysis;
 
 import java.util.Optional;
 import java.util.Set;
 
+import static au.org.ala.names.ScientificNameAnalyser.Analysis;
 import static org.junit.Assert.*;
 
 public class ScientificNameAnalyserTest {

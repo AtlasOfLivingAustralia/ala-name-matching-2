@@ -2,7 +2,6 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Match;
-import au.org.ala.vocab.ALATerm;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
 import org.gbif.utils.file.csv.CSVReader;
@@ -13,16 +12,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.plaf.nimbus.State;
 import java.io.File;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Ensure that well-known and common species are correctly found

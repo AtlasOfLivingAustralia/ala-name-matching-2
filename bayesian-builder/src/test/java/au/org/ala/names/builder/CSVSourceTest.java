@@ -1,7 +1,6 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Network;
-import au.org.ala.bayesian.Observable;
 import au.org.ala.names.generated.SimpleLinnaeanFactory;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.util.TestUtils;

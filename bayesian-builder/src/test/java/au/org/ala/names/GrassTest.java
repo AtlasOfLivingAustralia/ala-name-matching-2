@@ -1,7 +1,9 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.Inference;
-import au.org.ala.names.generated.*;
+import au.org.ala.names.generated.GrassInferencer;
+import au.org.ala.names.generated.GrassInferencer_;
+import au.org.ala.names.generated.GrassParameters_;
 import org.junit.Before;
 import org.junit.Test;
 

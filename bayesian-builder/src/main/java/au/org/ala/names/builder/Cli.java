@@ -3,7 +3,6 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.NetworkFactory;
-import au.org.ala.bayesian.Parameters;
 
 /**
  * The command line implementation of a builder.

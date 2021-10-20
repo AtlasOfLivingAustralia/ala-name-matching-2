@@ -1,24 +1,15 @@
 package au.org.ala.names;
 
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Observable;
-import au.org.ala.bayesian.*;
-import au.org.ala.util.CleanedScientificName;
-import au.org.ala.vocab.ALATerm;
 import au.org.ala.vocab.VernacularStatus;
-import com.google.common.base.Enums;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import org.gbif.api.vocabulary.NomenclaturalCode;
-import org.gbif.dwc.terms.Term;
-import org.gbif.nameparser.AuthorshipParsingJob;
-import org.gbif.nameparser.NameParserGBIF;
-import org.gbif.nameparser.api.*;
-import org.gbif.nameparser.util.NameFormatter;
+import org.gbif.nameparser.api.Rank;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassification> {
     /** The default set of weights to apply */
@@ -93,11 +84,10 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
         if (allNames.isEmpty())
             throw new InferenceException("No name for " + classifier.get(AlaVernacularFactory.nameId));
         for (String nm : allNames) {
-            CleanedScientificName n = new CleanedScientificName(nm);
-            names.add(n.getName());
-            names.add(n.getBasic());
-            names.add(n.getNormalised());
-            String nnm = n.getNormalised();
+            names.add(ScientificNameAnalyser.BASIC_NORMALISER.normalise(nm));
+            names.add(ScientificNameAnalyser.PUNCTUATION_NORMALISER.normalise(nm));
+            String nnm = ScientificNameAnalyser.FULL_NORMALISER.normalise(nm);
+            names.add(nnm);
             Set<String> moreNames = new HashSet<>();
             moreNames.add(nnm);
             Matcher matcher = POSSESSIVE.matcher(nnm);

@@ -2,7 +2,6 @@ package au.org.ala.bayesian;
 
 import au.org.ala.vocab.BayesianTerm;
 import lombok.Value;
-import lombok.With;
 import org.gbif.dwc.terms.Term;
 
 import java.util.Collection;

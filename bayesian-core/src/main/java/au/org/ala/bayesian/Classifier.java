@@ -1,11 +1,10 @@
 package au.org.ala.bayesian;
 
-import lombok.extern.slf4j.Slf4j;
 import org.gbif.dwc.terms.Term;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * An object that holds information that would allow classification of a particular case.

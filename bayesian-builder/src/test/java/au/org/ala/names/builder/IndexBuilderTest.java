@@ -5,7 +5,6 @@ import au.org.ala.bayesian.Observable;
 import au.org.ala.names.generated.SimpleLinnaeanBuilder;
 import au.org.ala.names.generated.SimpleLinnaeanFactory;
 import au.org.ala.names.generated.SimpleLinnaeanParameters_FT;
-import au.org.ala.names.generated.SimpleLinnaeanParameters_TT;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import org.gbif.dwc.terms.DwcTerm;
 import org.junit.After;

@@ -3,7 +3,6 @@ package au.org.ala.bayesian;
 import org.gbif.dwc.terms.Term;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A searcher for classifiers that fit a classification.

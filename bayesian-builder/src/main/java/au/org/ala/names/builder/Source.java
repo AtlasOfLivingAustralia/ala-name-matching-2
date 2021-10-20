@@ -1,7 +1,7 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.*;
 import lombok.NonNull;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;

@@ -2,7 +2,6 @@ package au.org.ala.bayesian.derivation;
 
 import au.org.ala.bayesian.Derivation;
 import au.org.ala.bayesian.Observable;
-import org.apache.commons.codec.language.Soundex;
 
 import java.util.Arrays;
 import java.util.Collection;

@@ -3,11 +3,12 @@ package au.org.ala.bayesian.derivation;
 import au.org.ala.bayesian.Derivation;
 import au.org.ala.bayesian.Observable;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

@@ -2,7 +2,6 @@ package au.org.ala.bayesian.analysis;
 
 import au.org.ala.bayesian.Analysis;
 import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.StoreException;
 
 import java.util.Objects;
 
