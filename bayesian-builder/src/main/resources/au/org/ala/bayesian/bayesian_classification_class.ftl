@@ -142,7 +142,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.analysis??>
-    this.${observable.javaVariable} = (${observable.type.simpleName}) ${factoryClassName}.${observable.javaVariable}.getAnalysis().analyse(this.${observable.javaVariable});
+    this.${observable.javaVariable} = ${factoryClassName}.${observable.javaVariable}.analyse(this.${observable.javaVariable});
   </#if>
 </#list>
     this.analyser.analyseForIndex(this);
@@ -165,7 +165,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.analysis??>
-    this.${observable.javaVariable} = (${observable.type.simpleName}) ${factoryClassName}.${observable.javaVariable}.getAnalysis().analyse(this.${observable.javaVariable});
+    this.${observable.javaVariable} = ${factoryClassName}.${observable.javaVariable}.analyse(this.${observable.javaVariable});
   </#if>
 </#list>
         this.analyser.analyseForSearch(this);

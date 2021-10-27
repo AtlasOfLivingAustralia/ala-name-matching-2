@@ -230,24 +230,39 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
 
   static {
     acceptedNameUsageId.setExternal(LUCENE, "dwc_acceptedNameUsageID");
+    acceptedNameUsageId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/accepted"), true);
+    acceptedNameUsageId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/additional"), true);
     altScientificName.setExternal(LUCENE, "altScientificName");
+    altScientificName.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/altName"), true);
     class_.setExternal(LUCENE, "dwc_class");
+    class_.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
     family.setExternal(LUCENE, "dwc_family");
+    family.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
     genus.setExternal(LUCENE, "dwc_genus");
+    genus.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
     kingdom.setExternal(LUCENE, "dwc_kingdom");
+    kingdom.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
     order.setExternal(LUCENE, "dwc_order");
+    order.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
     parentNameUsageId.setExternal(LUCENE, "dwc_parentNameUsageID");
+    parentNameUsageId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/additional"), true);
+    parentNameUsageId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/parent"), true);
     phylum.setExternal(LUCENE, "dwc_phylum");
+    phylum.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
     scientificName.setExternal(LUCENE, "dwc_scientificName");
     scientificName.setExternal(LUCENE_VARIANT, "dwc_scientificName_variant");
+    scientificName.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/name"), true);
     scientificNameAuthorship.setExternal(LUCENE, "dwc_scientificNameAuthorship");
     soundexScientificName.setExternal(LUCENE, "soundexScientificName");
     soundexScientificName.setExternal(LUCENE_VARIANT, "soundexScientificName_variant");
     specificEpithet.setExternal(LUCENE, "dwc_specificEpithet");
     taxonId.setExternal(LUCENE, "dwc_taxonID");
+    taxonId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/identifier"), true);
     taxonRank.setExternal(LUCENE, "dwc_taxonRank");
     taxonomicStatus.setExternal(LUCENE, "dwc_taxonomicStatus");
+    taxonomicStatus.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/additional"), true);
     weight.setExternal(LUCENE, "bayesian_weight");
+    weight.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/weight"), true);
   }
 
   @Override

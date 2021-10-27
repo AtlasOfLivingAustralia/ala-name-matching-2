@@ -12,9 +12,13 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassification> {
+    /** Invalid authorship */
+    public static final Pattern INVALID_AUTHORSHIP = Pattern.compile("\\d+");
+
     private static final Issues INDETERMINATE_ISSUES = Issues.of(AlaLinnaeanFactory.INDETERMINATE_NAME);
     private static final Issues AFFINTIY_ISSUES = Issues.of(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME);
     private static final Issues CONFER_ISSUES = Issues.of(AlaLinnaeanFactory.CONFER_SPECIES_NAME);
@@ -209,6 +213,10 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         classification.scientificNameAuthorship = analysis.getScientificNameAuthorship();
         classification.taxonRank = analysis.isUnranked() ? null: analysis.getRank();
         classification.addIssues(analysis.getIssues());
+        if (classification.scientificNameAuthorship != null && INVALID_AUTHORSHIP.matcher(classification.scientificNameAuthorship).matches()) {
+            classification.scientificNameAuthorship = null;
+            classification.addIssues(CANONICAL_ISSUES);
+        }
     }
 
     /**

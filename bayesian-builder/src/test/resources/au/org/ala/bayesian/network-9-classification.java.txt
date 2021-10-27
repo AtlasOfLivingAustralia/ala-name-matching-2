@@ -117,9 +117,9 @@ public class Network9Classification implements Classification<Network9Classifica
 
   @Override
   public void inferForIndex() throws InferenceException, StoreException {
-    this.v1 = (String) Network9Factory.v1.getAnalysis().analyse(this.v1);
-    this.v2 = (String) Network9Factory.v2.getAnalysis().analyse(this.v2);
-    this.v3 = (String) Network9Factory.v3.getAnalysis().analyse(this.v3);
+    this.v1 = Network9Factory.v1.analyse(this.v1);
+    this.v2 = Network9Factory.v2.analyse(this.v2);
+    this.v3 = Network9Factory.v3.analyse(this.v3);
     this.analyser.analyseForIndex(this);
     if (this.v2 == null) {
       this.v2 = this.soundex.soundex(this.v1);
@@ -129,9 +129,9 @@ public class Network9Classification implements Classification<Network9Classifica
 
   @Override
   public void inferForSearch() throws InferenceException, StoreException {
-    this.v1 = (String) Network9Factory.v1.getAnalysis().analyse(this.v1);
-    this.v2 = (String) Network9Factory.v2.getAnalysis().analyse(this.v2);
-    this.v3 = (String) Network9Factory.v3.getAnalysis().analyse(this.v3);
+    this.v1 = Network9Factory.v1.analyse(this.v1);
+    this.v2 = Network9Factory.v2.analyse(this.v2);
+    this.v3 = Network9Factory.v3.analyse(this.v3);
         this.analyser.analyseForSearch(this);
     if (this.v2 == null) {
       this.v2 = this.soundex.soundex(this.v1);

@@ -4,6 +4,7 @@
   "concept": "http://rs.tdwg.org/dwc/terms/Taxon",
   "vocabularies": [
     "au.org.ala.vocab.ALATerm",
+    "au.org.ala.vocab.OptimisationTerm",
     "org.gbif.dwc.terms.DwcTerm"
   ],
   "normalisers": [
@@ -42,6 +43,9 @@
       "label": "rID",
       "type": "java.lang.Integer",
       "uri": "http://id.ala.org.au/terms/1.0/rankID",
+      "properties": {
+        "http://id.ala.org.au/optimisation/1.0/luceneNoSearch": true
+      },
       "analysis": {
         "@class": "au.org.ala.names.RankIDAnalysis"
       },
@@ -708,6 +712,11 @@
       "id": "multiple_matches",
       "uri": "http://id.ala.org.au/issues/1.0/multipleMatches",
       "description": "There are multiple taxa with this name with the same rank."
+    },
+    {
+      "id": "synthetic_match",
+      "uri": "http://id.ala.org.au/issues/1.0/syntheticMatch",
+      "description": "There are multiple possible matches. The returned result is the common parent of the matches."
     }
   ],
   "modifications": [

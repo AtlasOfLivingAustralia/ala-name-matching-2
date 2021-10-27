@@ -254,6 +254,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
             }
         }
         List<String> trail = parents.stream().map(p -> p.get(this.identifier).toString()).collect(Collectors.toList());
+        Collections.reverse(trail);
         classifier.setTrail(trail);
         this.builder.infer(classifier);
         if (this.parent.isPresent()) {

@@ -30,7 +30,7 @@ public class ALAVernacularClassificationMatcher extends ClassificationMatcher<Al
      * @return A single acceptable result, or null
      */
     @Override
-    protected Match<AlaVernacularClassification> findSingle(final List<Match<AlaVernacularClassification>> results) {
+    protected Match<AlaVernacularClassification> findSingle(final AlaVernacularClassification classification, final List<Match<AlaVernacularClassification>> results) {
         if (results.isEmpty())
             return null;
         if (results.size() == 1 && !this.isBadEvidence(results.get(0)))

@@ -2,6 +2,8 @@ package au.org.ala.util;
 
 
 import lombok.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -12,6 +14,8 @@ import java.util.regex.Pattern;
  */
 @Value
 public class Substitute implements Function<String, String> {
+    private static final Logger logger = LoggerFactory.getLogger(Substitute.class);
+
     Pattern orginal;
     String replace;
     boolean first;
@@ -81,11 +85,16 @@ public class Substitute implements Function<String, String> {
      */
     @Override
     public String apply(String source) {
-        if (source == null)
-            return null;
-        Matcher matcher = this.orginal.matcher(source);
-        if (!matcher.find())
-            return source;
-        return this.first ? matcher.replaceFirst(this.replace) : matcher.replaceAll(replace);
+        try {
+            if (source == null)
+                return null;
+            Matcher matcher = this.orginal.matcher(source);
+            if (!matcher.find())
+                return source;
+            return this.first ? matcher.replaceFirst(this.replace) : matcher.replaceAll(this.replace);
+        } catch (Exception ex) {
+            logger.error("Unable to handle replacement of \"" + source + "\" with \"" + this.replace + "\" on " + this.orginal);
+            throw ex;
+        }
     }
 }

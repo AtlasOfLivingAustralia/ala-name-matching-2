@@ -114,18 +114,18 @@ public class GrassClassification implements Classification<GrassClassification> 
 
   @Override
   public void inferForIndex() throws InferenceException, StoreException {
-    this.rain = (String) GrassFactory.rain.getAnalysis().analyse(this.rain);
-    this.sprinkler = (String) GrassFactory.sprinkler.getAnalysis().analyse(this.sprinkler);
-    this.wet = (String) GrassFactory.wet.getAnalysis().analyse(this.wet);
+    this.rain = GrassFactory.rain.analyse(this.rain);
+    this.sprinkler = GrassFactory.sprinkler.analyse(this.sprinkler);
+    this.wet = GrassFactory.wet.analyse(this.wet);
     this.analyser.analyseForIndex(this);
   }
 
 
   @Override
   public void inferForSearch() throws InferenceException, StoreException {
-    this.rain = (String) GrassFactory.rain.getAnalysis().analyse(this.rain);
-    this.sprinkler = (String) GrassFactory.sprinkler.getAnalysis().analyse(this.sprinkler);
-    this.wet = (String) GrassFactory.wet.getAnalysis().analyse(this.wet);
+    this.rain = GrassFactory.rain.analyse(this.rain);
+    this.sprinkler = GrassFactory.sprinkler.analyse(this.sprinkler);
+    this.wet = GrassFactory.wet.analyse(this.wet);
         this.analyser.analyseForSearch(this);
   }
 

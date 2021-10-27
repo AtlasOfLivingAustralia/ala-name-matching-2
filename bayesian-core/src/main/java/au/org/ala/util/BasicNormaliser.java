@@ -63,7 +63,7 @@ public class BasicNormaliser extends Normaliser {
             Substitute.all("\u00a4", "#"), // Currency sign
             Substitute.all("\u00a5", "Y"), // Yen
             Substitute.all("\u00a6", "|"), // Borken bar
-            Substitute.all("\u00a7", "$"), // Section sign
+            Substitute.all("\u00a7", "\\$"), // Section sign
             Substitute.all("\u00a8", ""), // Diaresis
             Substitute.all("\u00a9", "c"), // Copyright
             Substitute.all("\u00aa", ""), // Feminine ordinal

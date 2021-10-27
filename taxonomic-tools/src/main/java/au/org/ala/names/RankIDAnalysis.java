@@ -305,4 +305,19 @@ public class RankIDAnalysis extends RangeAnalysis {
         int du = upper.getKey() - id;
         return dl > du ? upper.getValue() : lower.getValue();
     }
+
+
+    /**
+     * Find a matching identifier from a rank.
+     *
+     * @param rank The rank
+     *
+     * @return The closest rank to that identifier
+     */
+    public static Integer idFromRank(Rank rank) {
+        if (rank == null)
+            return null;
+        return RANK_MAP.get(rank);
+    }
+
 }

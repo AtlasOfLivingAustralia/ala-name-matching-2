@@ -78,6 +78,8 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
             "\\s+(" + INFRA_RANK_MARKERS + ")\\.?\\s+[A-Za-z]+-[A-Za-z]+(?:\\s+|$)" + // A hyphenated infra-rank name
             ")"
     );
+    /** A numeric or single letter placeholder name */
+    public static final Pattern CODE_PLACEHOLDER = Pattern.compile("^[A-Z][a-z]+\\s((?:" + RANK_MARKERS + ")\\.?)\\s(?:[A-Z]|\\d+)(?:$|\\s)");
     /** Multiple spaces */
     public static final Pattern MUTLI_SPACES = Pattern.compile("\\s{2,}");
     /** Basic clean-up */
@@ -276,6 +278,15 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
             return false;
         if (analysis.isSpeciesNovum())
             return false;
+        matcher = CODE_PLACEHOLDER.matcher(analysis.getScientificName());
+        if (matcher.matches()) {
+            if (analysis.isUnranked()) {
+                Rank rank = RankUtils.inferRank(matcher.group(1));
+                if (rank != null)
+                    analysis.estimateRank(rank);
+            }
+            return false;
+        }
         matcher = INFRA_RANK_PATTERN.matcher(analysis.getScientificName());
         if (matcher.matches()) {
             if (analysis.isUnranked()) {
@@ -283,7 +294,8 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
                 if (rank != null)
                     analysis.estimateRank(rank);
             }
-        } else {
+            return false;
+        }
             matcher = MARKER_INTERNAL.matcher(analysis.getScientificName());
             if (matcher.find()) {
                 analysis.addIssues(issues);
@@ -296,8 +308,7 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
                     analysis.setScientificName(matcher.replaceAll(" ").trim());
                 return true;
             }
-        }
-        return false;
+         return false;
     }
 
 

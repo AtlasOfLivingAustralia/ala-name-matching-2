@@ -301,6 +301,16 @@ abstract public class Identifiable {
      }
 
     /**
+     * Get the list of properties available
+     *
+     * @return The property set.
+     */
+    @JsonIgnore
+    public Set<Term> getPropertyKeys() {
+         return this.properties.keySet();
+     }
+
+    /**
      * Get the value of a property.
      *
      * @param property The property

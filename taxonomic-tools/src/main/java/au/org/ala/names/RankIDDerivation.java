@@ -36,12 +36,12 @@ public class RankIDDerivation extends CopyDerivation {
 
     @Override
     public String generateBuilderTransform(String var, String extra, String documentVar) {
-        return "au.org.ala.names.RankIDAnalysis.RANK_MAP.get(" + var + ")";
+        return "au.org.ala.names.RankIDAnalysis.idFromRank((org.gbif.nameparser.api.Rank) " + var + ")";
     }
 
     @Override
     public String generateClassificationTransform() {
-        return this.getSources().stream().map(s -> "au.org.ala.names.RankIDAnalysis.RANK_MAP.get(this." + s.getJavaVariable() + ")").collect(Collectors.joining(" + "));
+        return this.getSources().stream().map(s -> "au.org.ala.names.RankIDAnalysis.idFromRank(this." + s.getJavaVariable() + ")").collect(Collectors.joining(" + "));
     }
 
 }

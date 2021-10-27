@@ -83,6 +83,9 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     ${observable.javaVariable}.setExternal(${context.name()}, "${observable.getExternal(context)}");
     </#list>
   </#if>
+  <#list observable.propertyKeys as key>
+    ${observable.javaVariable}.setProperty(TERM_FACTORY.findTerm("${key.qualifiedName()}"), ${observable.getProperty(key)?c});
+  </#list>
 </#list>
   }
 

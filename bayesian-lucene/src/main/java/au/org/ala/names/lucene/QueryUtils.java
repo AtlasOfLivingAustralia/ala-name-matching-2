@@ -189,7 +189,7 @@ public class QueryUtils {
             return DoublePoint.newExactQuery(field, ((Number) query).doubleValue());
         }
         if (query instanceof Range) {
-            Range<Integer> range = (Range<Integer>) query;
+              Range<Integer> range = (Range<Integer>) query;
             return IntPoint.newRangeQuery(field, range.getMinimum(), range.getMaximum());
         }
         switch (style) {

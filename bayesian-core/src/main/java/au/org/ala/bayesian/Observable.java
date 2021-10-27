@@ -158,6 +158,23 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     }
 
     /**
+     * Analyse an object into the correct form.
+     *
+     * @param o The object
+     * @param <T> The expected result class
+     *
+     * @return The normalised, analysed object
+     *
+     * @throws InferenceException If unable to analyse correctly
+     */
+    public <T> T analyse(Object o) throws InferenceException {
+        Normaliser normaliser = this.getNormaliser();
+        if (normaliser != null && o instanceof String)
+            o = normaliser.normalise((String) o);
+        return (T) this.getAnalysis().analyse(o);
+    }
+
+    /**
      * Compare with another vertex, based on id.
      *
      * @param o The vertex to compare to.

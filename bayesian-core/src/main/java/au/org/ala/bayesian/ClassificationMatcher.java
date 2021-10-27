@@ -1,6 +1,7 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.util.BacktrackingIterator;
+import lombok.Getter;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +33,17 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     /** The default match sort */
     protected Comparator<Match<C>> DEFAULT_SORT = (m1, m2) -> - Double.compare(m1.getProbability().getPosterior(), m2.getProbability().getPosterior());
 
+    @Getter
     private F factory;
+    @Getter
     private ClassifierSearcher<?> searcher;
+    @Getter
     private I inferencer;
+    @Getter
     private Analyser<C> analyser;
+    @Getter
     private Optional<Observable> identifier;
+    @Getter
     private Optional<Observable> accepted;
 
     /**
@@ -80,6 +87,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             C modified = sourceClassifications.next();
             if (modified == previous)
                 continue;
+            modified.inferForSearch();
             match = this.findSource(modified);
             if (match != null)
                 return match;
@@ -89,14 +97,13 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     }
 
     protected Match<C> findSource(@NonNull C classification) throws InferenceException, StoreException {
-        classification.inferForSearch();
-        List<? extends Classifier> candidates = this.searcher.search(classification);
+        List<? extends Classifier> candidates = this.getSearcher().search(classification);
         if (candidates.isEmpty())
             return null;
 
         // First do a basic match and see if we have something easily matchable
         List<Match<C>> results = this.doMatch(classification, candidates);
-        Match<C> match = this.findSingle(results);
+        Match<C> match = this.findSingle(classification, results);
         if (match != null)
             return match;
 
@@ -109,7 +116,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
                 if (modified == classification || modified == previous) // Skip null case
                     continue;
                 results = this.doMatch(modified, candidates);
-                match = this.findSingle(results);
+                match = this.findSingle(modified, results);
                 if (match != null)
                     return match;
                 previous = modified;
@@ -122,13 +129,15 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     protected List<Match<C>> doMatch(C classification, List<? extends Classifier> candidates) throws StoreException, InferenceException {
         List<Match<C>> results = new ArrayList<>(candidates.size());
         for (Classifier candidate: candidates) {
-             Inference inference = this.inferencer.probability(classification, candidate);
-            if (this.isPossible(classification, candidate, inference)) {
-                C candidateClassification = this.factory.createClassification();
-                candidateClassification.read(candidate, true);
-                Match<C> match = new Match<>(classification, candidate, candidateClassification, inference);
-                results.add(match);
-            }
+            if (!this.isValidCandidate(classification, candidate))
+                continue;
+            Inference inference = this.inferencer.probability(classification, candidate);
+            if (!this.isPossible(classification, candidate, inference))
+                continue;
+            C candidateClassification = this.factory.createClassification();
+            candidateClassification.read(candidate, true);
+            Match<C> match = new Match<>(classification, candidate, candidateClassification, inference);
+            results.add(match);
         }
         results.sort(this.getMatchSorter());
         results = this.resolve(results);
@@ -159,7 +168,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             String acceptedId = match.getMatch().getAccepted();
             if (acceptedId == null || !this.accepted.isPresent() || !this.identifier.isPresent())
                 return match;
-            Classifier acceptedCandidate = this.searcher.get(match.getMatch().getType(), this.identifier.get(), acceptedId);
+            Classifier acceptedCandidate = this.getSearcher().get(match.getMatch().getType(), this.identifier.get(), acceptedId);
             if (acceptedCandidate == null)
                 return match;
             C acceptedClassification = this.factory.createClassification();
@@ -187,11 +196,12 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     /**
      * Find a single match that is acceptable.
      *
+     * @param classification The template classification
      * @param results The list of results
      *
      * @return A single acceptable result, or null
      */
-    protected Match<C> findSingle(List<Match<C>> results) {
+    protected Match<C> findSingle(C classification, List<Match<C>> results) {
         if (!results.isEmpty()) {
             Match<C> first = results.get(0);
             // Look for an immediate match
@@ -205,6 +215,50 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         return null;
     }
 
+
+    /**
+     * Find the least upper bound for parents of a list of sources.
+     * <p>
+     * This uses the trail contained in each accepted classifier to find
+     * the lowest common identifier and then generate
+     * </p>
+     *
+     * @param sources The sources list
+     *
+     * @return The lowest parent that each
+     *
+     * @throws InferenceException if unable to compute the lub
+     * @throws StoreException if unable to retrieve to the common classifier
+     */
+    protected Match<C> lub(List<Match<C>> sources) throws InferenceException, StoreException {
+        if (sources.isEmpty())
+            return null;
+
+        Match<C> exemplar = sources.get(0);
+        String id = null;
+        List<List<String>> trails = sources.stream().map(m -> m.getAcceptedCandidate().getTrail()).collect(Collectors.toList());
+        int level = 0;
+        int limit = trails.stream().mapToInt(t -> t.size()).min().orElse(0);
+        boolean same = true;
+
+        while (level < limit && same) {
+            final int l = level;
+            final String test = trails.get(0).get(l);
+            same = trails.stream().allMatch(s -> s.get(l).equals(test));
+            if (same)
+                id = test;
+            level++;
+        }
+        if (id != null) {
+            Classifier lub = this.getSearcher().get(exemplar.getAccepted().getType(), this.getIdentifier().get(), id);
+            C lubClassification = this.getFactory().createClassification();
+            lubClassification.read(lub, true);
+            return exemplar.withAccepted(lub, lubClassification).boost(sources);
+        }
+        return null;
+    }
+
+
     /**
      * Get the sorting method for a list of matches
      *
@@ -212,6 +266,24 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      */
     protected Comparator<Match<C>> getMatchSorter() {
         return DEFAULT_SORT;
+    }
+
+    /**
+     * Initial check to see if a candidate is anywhere near acceptable.
+     * <p>
+     * This can be used to winnow the results quickly before doing further inference.
+     * </p>
+     *
+     * @param classification The template classification
+     * @param candidate The candidate classifier
+     *
+     * @return True if this can be used as a possible match
+     *
+     * @throws InferenceException if unable to determine whether this is a valid candidate
+     * @throws StoreException if unable to retrieve values
+     */
+    protected boolean isValidCandidate(C classification, Classifier candidate) throws InferenceException, StoreException {
+        return true;
     }
 
     /**

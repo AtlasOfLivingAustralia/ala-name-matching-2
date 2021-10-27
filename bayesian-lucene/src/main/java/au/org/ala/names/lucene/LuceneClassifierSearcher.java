@@ -1,6 +1,7 @@
 package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
+import au.org.ala.vocab.OptimisationTerm;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -115,8 +116,11 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
         String name = classification.getName();
         if (name != null)
             builder.add(this.queryUtils.nameClause(name));
-        for (Observation observation: criteria)
-            builder.add(this.queryUtils.asClause(observation, false));
+        for (Observation observation: criteria) {
+            if (!observation.getObservable().hasProperty(OptimisationTerm.luceneNoSearch, true)) {
+                builder.add(this.queryUtils.asClause(observation, false));
+            }
+        }
         Query query = builder.build();
         List<LuceneClassifier> classifiers = null;
         try {

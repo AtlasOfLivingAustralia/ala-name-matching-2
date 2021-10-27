@@ -34,7 +34,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -45,7 +45,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.INFRASPECIFIC_NAME, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -57,7 +57,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.VARIETY, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -68,7 +68,7 @@ public class AlaNameAnalyserTest {
         assertNull(classification.genus);
         assertNull(classification.specificEpithet);
         assertNull(classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Acacia", classification.genus);
         assertNull(classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -106,7 +106,7 @@ public class AlaNameAnalyserTest {
         assertEquals("taxifolium", classification.specificEpithet);
         assertEquals("Tasmanian form", classification.cultivarEpithet);
         assertEquals(Rank.CULTIVAR, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     // Separate specific and cultivar epithet
@@ -134,7 +134,7 @@ public class AlaNameAnalyserTest {
         this.analyser.analyseForIndex(classification);
         assertEquals("Melanogaster", classification.scientificName);
         assertEquals(Rank.SERIES, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -150,7 +150,17 @@ public class AlaNameAnalyserTest {
         assertNull(classification.specificEpithet);
         assertNull(classification.scientificNameAuthorship);
         assertEquals(Rank.SPECIES, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
+    }
+
+    @Test
+    public void testAnalyseForIndex11() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Astrotricha sp. 1";
+        this.analyser.analyseForIndex(classification);
+        assertEquals("Astrotricha sp. 1", classification.scientificName);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -161,7 +171,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -172,7 +182,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.INFRASPECIFIC_NAME, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -184,7 +194,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.VARIETY, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -195,7 +205,7 @@ public class AlaNameAnalyserTest {
         assertNull(classification.genus);
         assertNull(classification.specificEpithet);
         assertNull(classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
 
@@ -268,7 +278,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Sida", classification.genus);
         assertNull(classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -284,7 +294,7 @@ public class AlaNameAnalyserTest {
         assertNull(classification.specificEpithet);
         assertNull(classification.scientificNameAuthorship);
         assertEquals(Rank.SPECIES, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -296,7 +306,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Canarium", classification.genus);
         assertEquals("acutifolium", classification.specificEpithet);
         assertEquals(Rank.VARIETY, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -308,7 +318,7 @@ public class AlaNameAnalyserTest {
         assertEquals("Canarium", classification.genus);
         assertEquals("acutifolium", classification.specificEpithet);
         assertEquals(Rank.INFRASPECIFIC_NAME, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     // Ranks
@@ -320,7 +330,7 @@ public class AlaNameAnalyserTest {
         this.analyser.analyseForSearch(classification);
         assertEquals("Melanogaster", classification.scientificName);
         assertEquals(Rank.SERIES, classification.taxonRank);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     // Author
@@ -332,7 +342,17 @@ public class AlaNameAnalyserTest {
         this.analyser.analyseForSearch(classification);
         assertEquals("Canarium longiflorum", classification.scientificName);
         assertEquals("Zipp.", classification.scientificNameAuthorship);
-        assertTrue(classification.getIssues().isEmpty());
+        assertEquals(Issues.of(), classification.getIssues());
+    }
+
+    // Placeholder species
+    @Test
+    public void testAnalyseForSearch17() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Astrotricha sp. 1";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Astrotricha sp. 1", classification.scientificName);
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -656,6 +676,17 @@ public class AlaNameAnalyserTest {
         logger.info("Names " + names);
         assertEquals(1, names.size());
         assertTrue(names.contains("Acacia subsect. Capitatae-Racemosae"));
+    }
+
+    @Test
+    public void testAnalyseNames25() throws Exception {
+        Classifier classifier = new LuceneClassifier();
+        classifier.add(AlaLinnaeanFactory.scientificName, "Astrotricha sp. 1");
+        Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
+        assertNotNull(names);
+        logger.info("Names " + names);
+        assertEquals(1, names.size());
+        assertTrue(names.contains("Astrotricha sp. 1"));
     }
 
 }
