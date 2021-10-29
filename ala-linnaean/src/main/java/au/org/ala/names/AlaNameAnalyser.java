@@ -156,6 +156,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         this.processConferSpecies(analysis, " cf. ", CONFER_ISSUES);
         this.processSpeciesNovum(analysis, true, null);
         this.processPhraseName(analysis, null);
+        this.processEmbeddedAuthor(analysis, CANONICAL_ISSUES);
         this.parseName(analysis, UNPARSABLE_ISSUES);
         this.processParsedScientificName(analysis, CANONICAL_ISSUES);
         this.fillOutClassification(analysis, classification);
@@ -206,6 +207,8 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         this.processPhraseName(analysis, null);
         this.processRankEnding(analysis, true, INDETERMINATE_ISSUES);
         this.processRankMarker(analysis, true, CANONICAL_ISSUES);
+        this.processEmbeddedAuthor(analysis, CANONICAL_ISSUES);
+        this.processCommentary(analysis, CANONICAL_ISSUES);
         this.parseName(analysis, UNPARSABLE_ISSUES);
         this.processParsedScientificName(analysis, CANONICAL_ISSUES);
         this.fillOutClassification(analysis, classification);
@@ -263,6 +266,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             this.processConferSpecies(sub, " cf. ", null);
             this.processSpeciesNovum(sub, true, null);
             this.processPhraseName(sub, null);
+            this.processEmbeddedAuthor(analysis, null);
             this.parseName(sub, null);
             if (sub.getParsedName() != null) {
                 this.processParsedScientificName(sub, null);

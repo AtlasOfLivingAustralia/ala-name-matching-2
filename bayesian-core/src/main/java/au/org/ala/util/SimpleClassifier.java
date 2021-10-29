@@ -77,17 +77,21 @@ public class SimpleClassifier implements Classifier {
      * @param observables The observables to match
      * @param value      The value to match against (may be null)
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
-     * @throws InferenceException if there was a problem matching the result
+     * @throws StoreException if there was a problem matching the result
      */
     @Override
-    public <T> Boolean match(T value, Observable... observables) throws InferenceException {
-        for (Observable observable: observables) {
-            Object val = this.values.get(observable);
-            Boolean match = observable.getAnalysis().equivalent(val, value);
-            if (match != null)
-                return match;
+    public <T> Boolean match(T value, Observable... observables) throws StoreException {
+        try {
+            for (Observable observable: observables) {
+                Object val = this.values.get(observable);
+                Boolean match = observable.getAnalysis().equivalent(val, value);
+                if (match != null)
+                    return match;
+            }
+            return null;
+        } catch (InferenceException ex) {
+            throw new StoreException(ex);
         }
-        return null;
     }
 
     /**

@@ -1,11 +1,10 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
-import au.org.ala.bayesian.StoreException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +33,7 @@ public class SimpleLinnaeanInferencer implements Inferencer<SimpleLinnaeanClassi
   }
 
   @Override
-  public Inference probability(SimpleLinnaeanClassification classification, Classifier classifier) throws StoreException, InferenceException {
+  public Inference probability(SimpleLinnaeanClassification classification, Classifier classifier) throws BayesianException {
     Inferencer<SimpleLinnaeanClassification> sub = this.subInferencers.get(classifier.getSignature());
     if (sub == null)
       throw new IllegalArgumentException("Signature '" + classifier.getSignature() + "' is not recognised");

@@ -1,11 +1,10 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
-import au.org.ala.bayesian.StoreException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class Network1Inferencer implements Inferencer<Network1Classification> {
   }
 
   @Override
-  public Inference probability(Network1Classification classification, Classifier classifier) throws StoreException, InferenceException {
+  public Inference probability(Network1Classification classification, Classifier classifier) throws BayesianException {
     Inferencer<Network1Classification> sub = this.subInferencers.get(classifier.getSignature());
     if (sub == null)
       throw new IllegalArgumentException("Signature '" + classifier.getSignature() + "' is not recognised");

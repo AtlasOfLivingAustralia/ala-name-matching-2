@@ -2,12 +2,12 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.vocab.TaxonomicStatus;
-import lombok.SneakyThrows;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.api.Rank;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,12 +56,13 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * Annotate the result list with additional information and issues.
      *
      * @param results The list of results
+     *
      * @return the annotated and otherwise modified list
-     * @throws StoreException     if there is a problem retrieving information
-     * @throws InferenceException if there is a problem making inferences about the data
+     *
+     * @throws BayesianException     if there is a problem retrieving information or makign inferences
      */
     @Override
-    protected List<Match<AlaLinnaeanClassification>> annotate(List<Match<AlaLinnaeanClassification>> results) throws StoreException, InferenceException {
+    protected List<Match<AlaLinnaeanClassification>> annotate(List<Match<AlaLinnaeanClassification>> results) throws BayesianException {
         List<Match<AlaLinnaeanClassification>> results1 = super.annotate(results);
         return results1.stream()
                 .map(m -> this.detectMisapplied(m, results1))
@@ -163,15 +164,14 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * @return A single acceptable result, or null
      */
     @Override
-    @SneakyThrows({ InferenceException.class, StoreException.class })
-    protected Match<AlaLinnaeanClassification> findSingle(AlaLinnaeanClassification classification, List<Match<AlaLinnaeanClassification>> results) {
+    protected Match<AlaLinnaeanClassification> findSingle(AlaLinnaeanClassification classification, List<Match<AlaLinnaeanClassification>> results) throws BayesianException {
         results = results.stream().filter(m -> !this.isBadEvidence(m)).collect(Collectors.toList());
         if (results.isEmpty())
             return null;
         if (results.size() == 1)
             return results.get(0);
         // See if we have an unresolvable homonym
-        Match<AlaLinnaeanClassification> unresolvedHomonym = this.detectUnresolvableHomonym(results);
+        Match<AlaLinnaeanClassification> unresolvedHomonym = this.detectUnresolvableHomonym(classification, results);
         if (unresolvedHomonym != null)
             return unresolvedHomonym;
         final Match<AlaLinnaeanClassification> trial = results.get(0);
@@ -257,16 +257,24 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
 
     /**
      * Test for results with the same name but different nomenclatural codes.
+     * <p>
+     * We test against the accepted name.
+     * If it's a synonym, then an accepted name should take precedence in terms of a match.
+     * </p>
      *
      * @param results The usable results
      * @return An unresolved homonym match if there is one.
      */
-    protected Match<AlaLinnaeanClassification> detectUnresolvableHomonym(List<Match<AlaLinnaeanClassification>> results) {
+    protected Match<AlaLinnaeanClassification> detectUnresolvableHomonym(AlaLinnaeanClassification classification, List<Match<AlaLinnaeanClassification>> results) {
         if (results.size() < 1)
             return null;
+        final String scientificName = classification.scientificName;
+        if (scientificName == null)
+            return null;
         Set<NomenclaturalCode> codes = results.stream()
-                .filter(m -> m.getActual().scientificName != null && m.getActual().scientificName.equalsIgnoreCase(m.getMatch().scientificName))
-                .map(m -> m.getMatch().nomenclaturalCode)
+                .filter(m -> scientificName.equalsIgnoreCase(m.getAccepted().scientificName))
+                .map(m -> m.getAccepted().nomenclaturalCode)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         if (codes.size() > 1)
             return (Match<AlaLinnaeanClassification>) Match.invalidMatch().with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);

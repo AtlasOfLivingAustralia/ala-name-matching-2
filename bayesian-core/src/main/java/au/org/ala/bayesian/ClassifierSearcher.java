@@ -22,10 +22,9 @@ abstract public class ClassifierSearcher<C extends Classifier> {
      *
      * @return An matching classifier or null for not found
      *
-     * @throws InferenceException if unable to infer information about the classifier
-     * @throws StoreException if unable to retrieve the classifier
+     * @throws BayesianException if unable to retrieve information about the classifier
      */
-    abstract public C get(Term type, Observable identifier, Object id) throws InferenceException, StoreException;
+    abstract public C get(Term type, Observable identifier, Object id) throws BayesianException;
 
     /**
      * Search for a set of possible candidate classifiers that match the supplied classification.
@@ -34,10 +33,9 @@ abstract public class ClassifierSearcher<C extends Classifier> {
      *
      * @return A list of potential classifiers
      *
-     * @throws InferenceException if unable to correctly match the classifiers
-     * @throws StoreException if unable to retrieve the results
+     * @throws BayesianException if unable to correctly match the classifiers
      */
-    abstract public List<C> search(Classification classification) throws InferenceException, StoreException;
+    abstract public List<C> search(Classification classification) throws BayesianException;
 
     /**
      * Close the searcher.

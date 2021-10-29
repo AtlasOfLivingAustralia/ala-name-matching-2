@@ -21,8 +21,7 @@ abstract public interface Inferencer<C extends Classification> {
      *
      * @return The probability of a match
      *
-     * @throws InferenceException if unable to calculate the probability
-     * @throws StoreException if unable to get a value from the classifier
-     */
-    public Inference probability(C classification, Classifier classifier) throws StoreException, InferenceException;
+     * @throws BayesianException if unable to calculate the probability
+      */
+    public Inference probability(C classification, Classifier classifier) throws BayesianException;
 }

@@ -1,9 +1,7 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Match;
 import org.apache.commons.lang3.StringUtils;
-import org.gbif.dwc.terms.Term;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
 import org.junit.After;
@@ -15,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -65,12 +61,12 @@ public class PerformanceTest {
                 String row[] = reader.next();
                 line++;
                 AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
-                String species;
-                String subspecies;
-                String scientificName;
+                boolean expectValid = false;
                 try {
                     if (row[0].startsWith("#")) // Skip comment
                         continue;
+                    String valid = StringUtils.trimToNull(row[0]);
+                    expectValid = valid == null ? false : Boolean.parseBoolean(valid);
                     classification.scientificName = StringUtils.trimToNull(row[1]);
                     classification.scientificNameAuthorship = StringUtils.trim(row[2]);
                     classification.kingdom = StringUtils.trimToNull(row[3]);
@@ -85,8 +81,12 @@ public class PerformanceTest {
                 matched++;
                 try {
                     Match<AlaLinnaeanClassification> match = this.searcher.search(classification);
-                    if (match.isValid())
+                    if (match.isValid()) {
                         succcess++;
+                    }
+                    if (expectValid != match.isValid()){
+                        logger.info("Unexpected validity line {}, values {}" , line, row);
+                    }
                 } catch (Exception ex) {
                     logger.warn("Error on line " + line, ex);
                     errors++;

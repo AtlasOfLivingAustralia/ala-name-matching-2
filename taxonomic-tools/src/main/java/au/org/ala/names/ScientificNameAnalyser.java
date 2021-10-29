@@ -16,10 +16,7 @@ import org.gbif.nameparser.util.NameFormatter;
 import org.gbif.nameparser.util.RankUtils;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -82,6 +79,14 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
     public static final Pattern CODE_PLACEHOLDER = Pattern.compile("^[A-Z][a-z]+\\s((?:" + RANK_MARKERS + ")\\.?)\\s(?:[A-Z]|\\d+)(?:$|\\s)");
     /** Multiple spaces */
     public static final Pattern MUTLI_SPACES = Pattern.compile("\\s{2,}");
+    /** The name comments resource bundle name */
+    private static final String COMMENTS_BUNDLE_NAME = ScientificNameAnalyser.class.getPackage().getName() + ".ScientificNameComments";
+    /** The comments bundle */
+    private static final ResourceBundle COMMENTS_BUNDLE = ResourceBundle.getBundle(COMMENTS_BUNDLE_NAME);
+    /** The comments list */
+    private static final String COMMENTS = COMMENTS_BUNDLE.keySet().stream().map(k -> COMMENTS_BUNDLE.getString(k).trim()).collect(Collectors.joining("|"));
+    /** The commentary pattern */
+    private static final Pattern COMMENTARY = Pattern.compile("[\\(\\[]?\\s*(?:" + COMMENTS + ")\\s*[\\)\\]]?", Pattern.CASE_INSENSITIVE);
     /** Basic clean-up */
     public static final Normaliser BASIC_NORMALISER = new BasicNormaliser("basic", true, false, false, false, false);
     /** Remove non-ascii punctuation */
@@ -228,6 +233,53 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
             analysis.flagPhraseName();
         }
         return analysis.isPhraseName();
+    }
+
+
+    /**
+     * Look for an embedded authorship in the name and remove it.
+     *
+     * @param analysis The analysis object to use
+     * @param issues If non-null, flag these issues
+     *
+     * @return True if the authorship is repeated in the name
+     */
+    protected boolean processEmbeddedAuthor(@NonNull Analysis analysis, @Nullable Issues issues) {
+        String scientificName = analysis.getScientificName();
+        String scientificNameAuthorship = analysis.getScientificNameAuthorship();
+
+        if (scientificNameAuthorship != null && !scientificNameAuthorship.isEmpty()) {
+            int p = scientificName.indexOf(scientificNameAuthorship);
+            if (p >= 0) {
+                scientificName = scientificName.substring(0, p) + " " + scientificName.substring(p + scientificNameAuthorship.length());
+                scientificName = this.normaliseSpaces(scientificName);
+                analysis.setScientificName(scientificName);
+                analysis.addIssues(issues);
+                return true;
+            }
+        }
+        return false;
+     }
+
+
+    /**
+     * Look for daft comments in the supplied name and remove them.
+     *
+     * @param analysis The analysis object to use
+     * @param issues If non-null, flag these issues
+     *
+     * @return True if comments were found
+     */
+    protected boolean processCommentary(@NonNull Analysis analysis, @Nullable Issues issues) {
+        String scientificName = analysis.getScientificName();
+        Matcher matcher = COMMENTARY.matcher(scientificName);
+
+        if (matcher.find()) {
+            scientificName = this.normaliseSpaces(matcher.replaceAll(" "));
+            analysis.setScientificName(scientificName);
+            analysis.addIssues(issues);
+        }
+        return false;
     }
 
     /**

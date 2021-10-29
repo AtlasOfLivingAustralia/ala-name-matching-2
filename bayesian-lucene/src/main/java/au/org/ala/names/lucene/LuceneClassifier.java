@@ -171,12 +171,13 @@ public class LuceneClassifier implements Classifier {
      *
      * @param observables The observables to match
      * @param value      The value to match against (may be null)
+     *
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
-     * @throws StoreException if there was a problem matching the result
-     * @throws InferenceException if unable to test for equivalence.
+     *
+     * @throws StoreException if there was a problem matching the result or testing for equivalence.
      */
     @Override
-    public <T> Boolean match(T value, Observable... observables) throws StoreException, InferenceException {
+    public <T> Boolean match(T value, Observable... observables) throws StoreException {
         return this.match(value, true, observables);
     }
 
@@ -191,41 +192,46 @@ public class LuceneClassifier implements Classifier {
      * @param observables The observables to match
      * @param value      The value to match against (may be null)
      * @param variants  Look for variants
+     *
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
-     * @throws StoreException if there was a problem matching the result
-     * @throws InferenceException if unable to test for equivalence.
+     *
+     * @throws StoreException if there was a problem matching the result or testing for equivalence.
      */
-    public <T, C, Q> Boolean match(T value, boolean variants, Observable... observables) throws StoreException, InferenceException {
-        if (value == null)
-            return null;
-        boolean allNull = true;
-        for (Observable observable: observables) {
-            IndexableField[] fields = this.document.getFields(observable.getExternal(variants && observable.getMultiplicity().isMany() ? LUCENE_VARIANT : LUCENE));
-            if (fields.length == 0)
-                continue;
-            Analysis<T, C, Q> analysis = observable.getAnalysis();
-            if (Number.class.isAssignableFrom(observable.getType())) {
-                if (!(value instanceof Number))
-                    return false;
-                for (IndexableField field : fields) {
-                    Number fv = field.numericValue();
-                    Boolean match = analysis.equivalent(value, (T) fv);
-                    if (match != null && match)
-                        return true;
-                    allNull = allNull && match == null;
-                }
-            } else {
-                for (IndexableField field : fields) {
-                    String sv = field.stringValue();
-                    Object cv = analysis.fromString(sv);
-                    Boolean match = analysis.equivalent(value, (T) cv);
-                    if (match != null && match)
-                        return true;
-                    allNull = allNull && match == null;
+    public <T, C, Q> Boolean match(T value, boolean variants, Observable... observables) throws StoreException {
+        try {
+            if (value == null)
+                return null;
+            boolean allNull = true;
+            for (Observable observable: observables) {
+                IndexableField[] fields = this.document.getFields(observable.getExternal(variants && observable.getMultiplicity().isMany() ? LUCENE_VARIANT : LUCENE));
+                if (fields.length == 0)
+                    continue;
+                Analysis<T, C, Q> analysis = observable.getAnalysis();
+                if (Number.class.isAssignableFrom(observable.getType())) {
+                    if (!(value instanceof Number))
+                        return false;
+                    for (IndexableField field : fields) {
+                        Number fv = field.numericValue();
+                        Boolean match = analysis.equivalent(value, (T) fv);
+                        if (match != null && match)
+                            return true;
+                        allNull = allNull && match == null;
+                    }
+                } else {
+                    for (IndexableField field : fields) {
+                        String sv = field.stringValue();
+                        Object cv = analysis.fromString(sv);
+                        Boolean match = analysis.equivalent(value, (T) cv);
+                        if (match != null && match)
+                            return true;
+                        allNull = allNull && match == null;
+                    }
                 }
             }
+            return allNull ? null : false;
+        } catch (InferenceException ex) {
+            throw new StoreException("Unable to match " + value + " against " + observables, ex);
         }
-        return allNull ? null : false;
     }
 
     /**
@@ -242,21 +248,17 @@ public class LuceneClassifier implements Classifier {
     public <T> void add(Observable observable, T value) throws StoreException {
         if (value == null)
             return;
-        try {
-            Boolean match = this.match(value, false, observable);
-            if (match != null && match && !observable.getMultiplicity().isMany())
-                throw new StoreException("Duplicate value " + value + " for " + observable);
-            if (match == null) {
-                this.store(observable, value, LUCENE, !observable.getMultiplicity().isMany() );
-             }
-            if (observable.getMultiplicity().isMany()) {
-                match = this.match(value, true, observable);
-                if (match == null || !match) {
-                    this.store(observable, value, LUCENE_VARIANT, true);
-                }
+        Boolean match = this.match(value, false, observable);
+        if (match != null && match && !observable.getMultiplicity().isMany())
+            throw new StoreException("Duplicate value " + value + " for " + observable);
+        if (match == null) {
+            this.store(observable, value, LUCENE, !observable.getMultiplicity().isMany());
+        }
+        if (observable.getMultiplicity().isMany()) {
+            match = this.match(value, true, observable);
+            if (match == null || !match) {
+                this.store(observable, value, LUCENE_VARIANT, true);
             }
-        } catch (InferenceException ex) {
-            throw new StoreException("Unable to test for presence of " +  value + " on " + observable, ex);
         }
     }
 
@@ -585,7 +587,7 @@ public class LuceneClassifier implements Classifier {
     public void setTrail(List<String> trail) {
         this.document.removeFields(TRAIL_FIELD);
         if (trail != null) {
-            String trails = trail.stream().collect(Collectors.joining(TRAIL_SEPARATOR));
+            String trails = String.join(TRAIL_SEPARATOR, trail);
             this.document.add(new StoredField(TRAIL_FIELD, trails));
         }
     }
@@ -597,8 +599,6 @@ public class LuceneClassifier implements Classifier {
      * @param value The object value
      * @param context The context to use
      * @param index Index this term
-     *
-     * @return A corresponding field
      *
      * @throws StoreException if unable to store the data
      *

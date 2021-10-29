@@ -114,10 +114,9 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * The method can be used to perform common derivations without requiring further coding.
      * </p>
      *
-     * @throws InferenceException if unable to calculate an inferred value
-     * @throws StoreException if unable to retrieve a source value
-     */
-    void inferForIndex() throws InferenceException, StoreException;
+     * @throws BayesianException if unable to derive an inferred value or retrieve data
+      */
+    void inferForIndex() throws BayesianException;
 
 
     /**
@@ -129,10 +128,9 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * The method can be used to perform common derivations without requiring further coding.
      * </p>
      *
-     * @throws InferenceException if unable to calculate an inferred value
-     * @throws StoreException if unable to retrieve a source value
+     * @throws BayesianException if unable to calculate an inferred value or retrieve a source value
      */
-    void inferForSearch() throws InferenceException, StoreException;
+    void inferForSearch() throws BayesianException;
 
     /**
      *
@@ -143,10 +141,9 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * @param classifier The classifier that contains the original data
      * @param overwrite Overwrite what is already in the classification
      *
-     * @throws InferenceException if unable to compute the population value
-     * @throws StoreException if unable to populate the classifier
+     * @throws BayesianException if unable to compute the population value or unable to populate the classifier
      */
-    void read(Classifier classifier, boolean overwrite) throws InferenceException, StoreException;
+    void read(Classifier classifier, boolean overwrite) throws BayesianException;
 
     /**
      * Write this classification into a classifier.
@@ -154,10 +151,9 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * @param classifier The empty classifier to populate
      * @param overwrite Overwrite what is already in the classifier
      *
-     * @throws InferenceException if unable to translate
-     * @throws StoreException if unable to store the translation
+     * @throws InferenceException if unable to translate or unable to store the translation
      */
-    void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException;
+    void write(Classifier classifier, boolean overwrite) throws BayesianException;
 
 
     /**

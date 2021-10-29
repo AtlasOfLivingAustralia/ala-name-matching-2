@@ -31,10 +31,9 @@ public interface Builder {
      *
      * @param classifier The document
      *
-     * @throws InferenceException if unable to calculate the inference
-     * @throws StoreException if unable to retrieve inference data
-     */
-    public void generate(Classifier classifier) throws InferenceException, StoreException;
+     * @throws BayesianException if unable to calculate the inference
+      */
+    public void generate(Classifier classifier) throws BayesianException;
 
     /**
      * Infer from a classifier during building.
@@ -45,10 +44,9 @@ public interface Builder {
      *
      * @param classifier The document
      *
-     * @throws InferenceException if unable to calculate the inference
-     * @throws StoreException if unable to retrieve inference data
-     */
-    public void infer(Classifier classifier) throws InferenceException, StoreException;
+     * @throws BayesianException if unable to calculate the inference
+      */
+    public void infer(Classifier classifier) throws BayesianException;
 
     /**
      * Expand a classifier during building.
@@ -59,10 +57,9 @@ public interface Builder {
      * @param document The classifier
      * @param parents The classifier's parents
      *
-     * @throws InferenceException if unable to calculate the expansion
-     * @throws StoreException if unable to retrieve expansion data
+     * @throws BayesianException if unable to calculate the expansion
     */
-    public void expand(Classifier document, Deque<Classifier> parents) throws InferenceException, StoreException;
+    public void expand(Classifier document, Deque<Classifier> parents) throws BayesianException;
 
     /**
      * Build a signture for a classifier.
@@ -84,8 +81,7 @@ public interface Builder {
      *
      * @return The parameters for this document
      *
-     * @throws InferenceException if unable to calculate the parameters
-     * @throws StoreException if unable to retrieve parameter data
+     * @throws BayesianException if unable to calculate the parameters
      */
-    public Parameters calculate(ParameterAnalyser analyser, Classifier document) throws InferenceException, StoreException;
+    public Parameters calculate(ParameterAnalyser analyser, Classifier document) throws BayesianException;
 }

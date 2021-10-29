@@ -1,14 +1,13 @@
 <#assign analyserType><#if analyserImplementationClassName??>${analyserImplementationClassName}<#else>Analyser<${className}></#if></#assign>
 package ${packageName};
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Analyser;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
-import au.org.ala.bayesian.StoreException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +65,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     this(${factoryClassName}.instance().createAnalyser());
   }
 
-  public ${className}(Classifier classifier, ${analyserType} analyser) throws InferenceException, StoreException {
+  public ${className}(Classifier classifier, ${analyserType} analyser) throws BayesianException {
     this(analyser);
     this.read(classifier, true);
     this.inferForIndex();
@@ -138,7 +137,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public void inferForIndex() throws InferenceException, StoreException {
+  public void inferForIndex() throws BayesianException {
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.analysis??>
@@ -161,7 +160,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
 
   @Override
-  public void inferForSearch() throws InferenceException, StoreException {
+  public void inferForSearch() throws BayesianException {
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.analysis??>
@@ -222,7 +221,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public void read(Classifier classifier, boolean overwrite) throws InferenceException {
+  public void read(Classifier classifier, boolean overwrite) throws BayesianException {
 <#list orderedNodes + additionalNodes as node>
     if (overwrite || this.${node.observable.javaVariable} == null) {
       this.${node.observable.javaVariable} = classifier.get(${factoryClassName}.${node.observable.javaVariable});
@@ -231,7 +230,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException{
+  public void write(Classifier classifier, boolean overwrite) throws BayesianException {
     if(overwrite){
 <#list orderedNodes + additionalNodes as node>
       classifier.replace(${factoryClassName}.${node.observable.javaVariable},this.${node.observable.javaVariable});
@@ -244,7 +243,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
 
-  public ${inferencerClassName}.Evidence match(Classifier classifier) throws StoreException, InferenceException {
+  public ${inferencerClassName}.Evidence match(Classifier classifier) throws BayesianException {
     ${inferencerClassName}.Evidence evidence = new ${inferencerClassName}.Evidence();
 <#list orderedNodes as node>
   <#assign observable = node.observable >

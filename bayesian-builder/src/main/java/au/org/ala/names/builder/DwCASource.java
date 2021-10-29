@@ -81,10 +81,10 @@ public class DwCASource extends Source {
      * @param store The store
      * @param accepted The accepted observables (null for all)
      *
-     * @throws BuilderException if unable to
+     * @throws BayesianException if unable to load into the store
      */
     @Override
-    public void load(LoadStore store, Collection<Observable> accepted) throws BuilderException, InferenceException, StoreException {
+    public void load(LoadStore store, Collection<Observable> accepted) throws BayesianException {
         this.counter.start();
         Map<Term, Map<Observable, BiFunction<Record, StarRecord, Object>>> accessors = this.buildAccessors(accepted);
         for (StarRecord star: this.archive) {
@@ -226,9 +226,9 @@ public class DwCASource extends Source {
      * @param store The store to load to
      * @param accessors The lobservables to load and how to access them.
      *
-     * @throws StoreException if unable to store the resulting document
+     * @throws BayesianException if unable to store the resulting document
      */
-    protected void loadRecord(Record record, StarRecord star, LoadStore store, Map<Term, Map<Observable, BiFunction<Record, StarRecord, Object>>> accessors) throws InferenceException, StoreException {
+    protected void loadRecord(Record record, StarRecord star, LoadStore store, Map<Term, Map<Observable, BiFunction<Record, StarRecord, Object>>> accessors) throws BayesianException {
         Term type = record.rowType();
         Classifier classifier = store.newClassifier();
         for (Map.Entry<Observable, BiFunction<Record, StarRecord, Object>> accessor: accessors.get(type).entrySet()) {

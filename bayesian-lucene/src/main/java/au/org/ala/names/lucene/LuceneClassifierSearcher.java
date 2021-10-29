@@ -66,12 +66,13 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
      * Search for a classifier by identifier.
      *
      * @param identifier The identifier
+     *
      * @return An optional result
-     * @throws InferenceException if unable to infer information about the classifier
-     * @throws StoreException     if unable to retrieve the classifier
+     *
+     * @throws BayesianException if unable to retrieve or infer information about the classifier
      */
     @Override
-    public LuceneClassifier get(Term type, Observable identifier, Object id) throws InferenceException, StoreException {
+    public LuceneClassifier get(Term type, Observable identifier, Object id) throws BayesianException {
         BooleanQuery.Builder builder = this.queryUtils.createBuilder();
         builder.add(LuceneClassifier.getTypeClause(type));
         builder.add(
@@ -105,11 +106,10 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
      *
      * @return A list of potential classifiers
      *
-     * @throws InferenceException if unable to correctly match the classifiers
      * @throws StoreException     if unable to retrieve the results
      */
     @Override
-    public List<LuceneClassifier> search(Classification classification) throws InferenceException, StoreException {
+    public List<LuceneClassifier> search(Classification classification) throws StoreException {
         Collection<Observation> criteria = classification.toObservations();
         BooleanQuery.Builder builder = this.queryUtils.createBuilder();
         builder.add(LuceneClassifier.getTypeClause(classification.getType()));

@@ -47,10 +47,9 @@ abstract public class LoadStore<C extends Classifier> {
      *
      * @param classifier The classifier
      *
-     * @throws InferenceException if unable to add annotations
-     * @throws StoreException if unable to store the entry or the classifier is untyped.
-     */
-    abstract public void store(C classifier) throws InferenceException, StoreException;
+     * @throws BayesianException if unable to add annotations
+      */
+    abstract public void store(C classifier) throws BayesianException;
 
     /**
      * Store an entry in the store.
@@ -61,12 +60,11 @@ abstract public class LoadStore<C extends Classifier> {
      * @param classifier The classifier
      * @param type The classifier type. If null the classifier has already had a type set.
      *
-     * @throws InferenceException if unable to add annotations
-     * @throws StoreException if unable to store the entry or the classifier is untyped.
+     * @throws BayesianException if unable to add annotations
      *
      * @see #store(Classifier)
      */
-    abstract public void store(C classifier, Term type) throws InferenceException, StoreException;
+    abstract public void store(C classifier, Term type) throws BayesianException;
 
     /**
      * Update an existing entry in the store
@@ -85,8 +83,10 @@ abstract public class LoadStore<C extends Classifier> {
      * @param defaultWeight The default weight
      *
      * @return The parameter analyser
+     *
+     * @throws BayesianException if unable to build a parameter analyser
      */
-    abstract public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws InferenceException, StoreException;
+    abstract public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws BayesianException;
 
     /**
      * Get a store entry by unique name/value.

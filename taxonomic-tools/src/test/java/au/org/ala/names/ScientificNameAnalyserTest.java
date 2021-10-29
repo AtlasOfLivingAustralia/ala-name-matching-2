@@ -338,6 +338,42 @@ public class ScientificNameAnalyserTest {
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
+
+    @Test
+    public void processEmbeddedAuthor1() {
+        Analysis analysis = new Analysis("Dryopteris rotundata (Willd.) C.Chr.", "(Willd.) C.Chr.", null, null);
+        this.analyser.processEmbeddedAuthor(analysis, DEFAULT_ISSUES);
+        assertEquals("Dryopteris rotundata", analysis.getScientificName());
+        assertEquals("(Willd.) C.Chr.", analysis.getScientificNameAuthorship());
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
+    @Test
+    public void processEmbeddedAuthor2() {
+        Analysis analysis = new Analysis("Dryopteris rotundata", "(Willd.) C.Chr.", null, null);
+        this.analyser.processEmbeddedAuthor(analysis, DEFAULT_ISSUES);
+        assertEquals("Dryopteris rotundata", analysis.getScientificName());
+        assertEquals("(Willd.) C.Chr.", analysis.getScientificNameAuthorship());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+    @Test
+    public void processCommentary1() {
+        Analysis analysis = new Analysis("Aleucosia fulvipes (Unmatched taxon)", null, null, null);
+        this.analyser.processCommentary(analysis, DEFAULT_ISSUES);
+        assertEquals("Aleucosia fulvipes", analysis.getScientificName());
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
+    @Test
+    public void processCommentary2() {
+        Analysis analysis = new Analysis("Aleucosia fulvipes unmatched taxon", null, null, null);
+        this.analyser.processCommentary(analysis, DEFAULT_ISSUES);
+        assertEquals("Aleucosia fulvipes", analysis.getScientificName());
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
+
     @Test
     public void processRankMarker4() {
         Analysis analysis = new Analysis("Poa sect. Atropis", null, null, null);

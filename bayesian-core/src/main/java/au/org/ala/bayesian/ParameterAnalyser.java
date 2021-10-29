@@ -24,9 +24,9 @@ public interface ParameterAnalyser {
      *
      * @return The probaility of the observation, by weight.
      *
-     * @throws InferenceException if unable to compute the result
+     * @throws BayesianException if unable to compute the result
      */
-    double computePrior(Observation observation) throws InferenceException, StoreException;
+    double computePrior(Observation observation) throws BayesianException;
 
     /**
      * Computer a conditional probability for a observation
@@ -39,9 +39,9 @@ public interface ParameterAnalyser {
      *
      * @return The conditional probability
      *
-     * @throws InferenceException if unable to compute the result
+     * @throws BayesianException if unable to compute the result
      */
-    double computeConditional(Observation observation, Observation... inputs) throws InferenceException, StoreException;
+    double computeConditional(Observation observation, Observation... inputs) throws BayesianException;
 
     /**
      * Get a fact from a classifier

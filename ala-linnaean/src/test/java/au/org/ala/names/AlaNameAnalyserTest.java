@@ -163,6 +163,18 @@ public class AlaNameAnalyserTest {
         assertEquals(Issues.of(), classification.getIssues());
     }
 
+    // Repeated author
+    @Test
+    public void testAnalyseForIndex12() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Dryopteris rotundata (Willd.) C.Chr.";
+        classification.scientificNameAuthorship = "(Willd.) C.Chr.";
+        this.analyser.analyseForIndex(classification);
+        assertEquals("Dryopteris rotundata", classification.scientificName);
+        assertEquals("(Willd.) C.Chr.", classification.scientificNameAuthorship);
+        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
+    }
+
     @Test
     public void testAnalyseForSearch1() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
@@ -347,12 +359,34 @@ public class AlaNameAnalyserTest {
 
     // Placeholder species
     @Test
-    public void testAnalyseForSearch17() throws Exception {
+    public void testAnalyseForSearch16() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
         classification.scientificName = "Astrotricha sp. 1";
         this.analyser.analyseForSearch(classification);
         assertEquals("Astrotricha sp. 1", classification.scientificName);
         assertEquals(Issues.of(), classification.getIssues());
+    }
+
+    // Repeated author
+    @Test
+    public void testAnalyseForSearch17() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Dryopteris rotundata (Willd.) C.Chr.";
+        classification.scientificNameAuthorship = "(Willd.) C.Chr.";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Dryopteris rotundata", classification.scientificName);
+        assertEquals("(Willd.) C.Chr.", classification.scientificNameAuthorship);
+        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
+    }
+
+    // Commentary
+    @Test
+    public void testAnalyseForSearch18() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Aleucosia fulvipes (Unmatched taxon)";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Aleucosia fulvipes", classification.scientificName);
+        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
     }
 
     @Test
@@ -687,6 +721,19 @@ public class AlaNameAnalyserTest {
         logger.info("Names " + names);
         assertEquals(1, names.size());
         assertTrue(names.contains("Astrotricha sp. 1"));
+    }
+
+    @Test
+    public void testAnalyseNames26() throws Exception {
+        Classifier classifier = new LuceneClassifier();
+        classifier.add(AlaLinnaeanFactory.scientificName, "Dryopteris rotundata (Willd.) C.Chr.");
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "(Willd.) C.Chr.");
+        Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
+        assertNotNull(names);
+        logger.info("Names " + names);
+        assertEquals(2, names.size());
+        assertTrue(names.contains("Dryopteris rotundata (Willd.) C.Chr."));
+        assertTrue(names.contains("Dryopteris rotundata"));
     }
 
 }

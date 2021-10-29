@@ -53,10 +53,9 @@ abstract public class Derivation {
      *
      * @return The code for a finder test, or null for no test
      *
-     * @throws StoreException if unable to access the condition
-     * @throws InferenceException if unable to process the condition
+     * @throws BayesianException if unable to access or process the condition
      */
-    public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) throws InferenceException, StoreException {
+    public String generateCondition(String foundVar, String classifierVar, String observablesClass, String parentsVar) throws BayesianException {
         return null;
     }
 

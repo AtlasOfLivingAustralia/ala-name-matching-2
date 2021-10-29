@@ -49,13 +49,13 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
 
 
     @Override
-    public void store(LuceneClassifier classifier) throws InferenceException, StoreException {
+    public void store(LuceneClassifier classifier) {
         String id = classifier.identify();
         this.store.put(id, classifier);
     }
 
     @Override
-    public void store(LuceneClassifier classifier, Term type) throws InferenceException, StoreException {
+    public void store(LuceneClassifier classifier, Term type) throws BayesianException {
         String id = classifier.identify();
         classifier.setType(type);
         this.annotator.annotate(classifier);
@@ -79,7 +79,7 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
      * @return The parameter analyser
      */
     @Override
-    public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws InferenceException, StoreException {
+    public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) {
         return new ParameterAnalyser() {
             @Override
             public double getTotalWeight() {
@@ -87,12 +87,12 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
             }
 
             @Override
-            public double computePrior(Observation observation) throws InferenceException {
+            public double computePrior(Observation observation) {
                 return 1.0;
             }
 
             @Override
-            public double computeConditional(Observation observation, Observation... inputs) throws InferenceException {
+            public double computeConditional(Observation observation, Observation... inputs) {
                 return 1.0;
             }
         };

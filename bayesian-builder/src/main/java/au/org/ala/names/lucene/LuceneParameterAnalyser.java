@@ -55,8 +55,10 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      * @param searcher The index searcher for queries
      * @param weight The weight observable
      * @param defaultWeight The weight to use when a value is unavailable
+     *
+     * @throws BayesianException if unable to build the analyser
      */
-    public LuceneParameterAnalyser(Network network, Annotator annotator, IndexSearcher searcher, Observable weight, double defaultWeight) throws InferenceException, StoreException {
+    public LuceneParameterAnalyser(Network network, Annotator annotator, IndexSearcher searcher, Observable weight, double defaultWeight) throws BayesianException {
         this.network = network;
         this.type = TermFactory.instance().findTerm(network.getConcept().toASCIIString());
         this.annotator = annotator;
@@ -129,7 +131,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      *
      * @return The probaility of the observation, by weight.
      *
-     * @throws InferenceException
+     * @throws InferenceException if unable to sum
      * @throws StoreException if unable to convert to a query
      */
     public double computePrior(Observation observation) throws InferenceException, StoreException {
@@ -155,7 +157,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      *
      * @return The probability of the observation, given the inputs, by weight
      *
-     * @throws InferenceException
+     * @throws InferenceException if ybable to compute the weight
      * @throws StoreException if unable to convert to a query
      */
     public double computeConditional(Observation observation, Observation... inputs) throws InferenceException, StoreException {

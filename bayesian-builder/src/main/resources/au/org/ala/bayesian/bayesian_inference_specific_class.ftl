@@ -1,11 +1,10 @@
 package ${packageName};
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
-import au.org.ala.bayesian.StoreException;
 
 public class ${className} implements Inferencer<${classificationClassName}> {
   public final static String SIGNATURE = "${network.signature}";
@@ -98,7 +97,7 @@ public class ${className} implements Inferencer<${classificationClassName}> {
   }
 
   @Override
-  public Inference probability(${classificationClassName} classification, Classifier classifier) throws StoreException, InferenceException {
+  public Inference probability(${classificationClassName} classification, Classifier classifier) throws BayesianException {
     ${parentClassName}.Evidence evidence = classification.match(classifier);
     ${parametersClassName} params = this.parameters.get();
     classifier.loadParameters(params);

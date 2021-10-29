@@ -1,13 +1,12 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Analyser;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
-import au.org.ala.bayesian.StoreException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,7 +91,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     this(SimpleLinnaeanFactory.instance().createAnalyser());
   }
 
-  public SimpleLinnaeanClassification(Classifier classifier, Analyser<SimpleLinnaeanClassification> analyser) throws InferenceException, StoreException {
+  public SimpleLinnaeanClassification(Classifier classifier, Analyser<SimpleLinnaeanClassification> analyser) throws BayesianException {
     this(analyser);
     this.read(classifier, true);
     this.inferForIndex();
@@ -184,7 +183,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
-  public void inferForIndex() throws InferenceException, StoreException {
+  public void inferForIndex() throws BayesianException {
     this.taxonId = SimpleLinnaeanFactory.taxonId.analyse(this.taxonId);
     this.taxonRank = SimpleLinnaeanFactory.taxonRank.analyse(this.taxonRank);
     this.specificEpithet = SimpleLinnaeanFactory.specificEpithet.analyse(this.specificEpithet);
@@ -208,7 +207,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
 
 
   @Override
-  public void inferForSearch() throws InferenceException, StoreException {
+  public void inferForSearch() throws BayesianException {
     this.taxonId = SimpleLinnaeanFactory.taxonId.analyse(this.taxonId);
     this.taxonRank = SimpleLinnaeanFactory.taxonRank.analyse(this.taxonRank);
     this.specificEpithet = SimpleLinnaeanFactory.specificEpithet.analyse(this.specificEpithet);
@@ -261,7 +260,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
-  public void read(Classifier classifier, boolean overwrite) throws InferenceException {
+  public void read(Classifier classifier, boolean overwrite) throws BayesianException {
     if (overwrite || this.taxonId == null) {
       this.taxonId = classifier.get(SimpleLinnaeanFactory.taxonId);
     }
@@ -310,7 +309,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
-  public void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException{
+  public void write(Classifier classifier, boolean overwrite) throws BayesianException {
     if(overwrite){
       classifier.replace(SimpleLinnaeanFactory.taxonId,this.taxonId);
       classifier.replace(SimpleLinnaeanFactory.taxonRank,this.taxonRank);
@@ -347,7 +346,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
 
-  public SimpleLinnaeanInferencer.Evidence match(Classifier classifier) throws StoreException, InferenceException {
+  public SimpleLinnaeanInferencer.Evidence match(Classifier classifier) throws BayesianException {
     SimpleLinnaeanInferencer.Evidence evidence = new SimpleLinnaeanInferencer.Evidence();
     evidence.e$taxonId = classifier.match(this.taxonId, SimpleLinnaeanFactory.taxonId);
     evidence.e$taxonRank = classifier.match(this.taxonRank, SimpleLinnaeanFactory.taxonRank);

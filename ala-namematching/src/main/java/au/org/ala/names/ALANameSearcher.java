@@ -1,6 +1,6 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.lucene.LuceneClassifier;
@@ -43,10 +43,9 @@ public class ALANameSearcher {
      *
      * @return The closest possible match.
      *
-     * @throws InferenceException if unable to compuete match charactersics
-     * @throws StoreException if unable to read the index
-     */
-    public Match<AlaLinnaeanClassification> search(AlaLinnaeanClassification template) throws InferenceException, StoreException {
+     * @throws BayesianException if unable to compuete match charactersics
+      */
+    public Match<AlaLinnaeanClassification> search(AlaLinnaeanClassification template) throws BayesianException {
         return this.matcher.findMatch(template);
     }
 
@@ -57,10 +56,9 @@ public class ALANameSearcher {
      *
      * @return The matching classification or null for not found
      *
-     * @throws StoreException if there is an error retrieving the informstion
-     * @throws InferenceException if there is an error matching the information to the taxonId
+     * @throws BayesianException if there is an error retrieving the informstion
      */
-    public AlaLinnaeanClassification get(String taxonId) throws StoreException, InferenceException {
+    public AlaLinnaeanClassification get(String taxonId) throws BayesianException {
         LuceneClassifier classifier = this.searcher.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, taxonId);
         if (classifier == null)
             return null;
@@ -77,10 +75,9 @@ public class ALANameSearcher {
      *
      * @return The closest possible match.
      *
-     * @throws InferenceException if unable to compuete match charactersics
-     * @throws StoreException if unable to read the index
-     */
-    public Match<AlaVernacularClassification> search(AlaVernacularClassification template) throws InferenceException, StoreException {
+     * @throws BayesianException if unable to compuete match charactersics
+      */
+    public Match<AlaVernacularClassification> search(AlaVernacularClassification template) throws BayesianException {
         return this.vernacularMatcher.findMatch(template);
     }
 

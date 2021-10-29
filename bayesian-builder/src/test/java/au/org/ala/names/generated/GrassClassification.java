@@ -1,13 +1,12 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Analyser;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
-import au.org.ala.bayesian.StoreException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +38,7 @@ public class GrassClassification implements Classification<GrassClassification> 
     this(GrassFactory.instance().createAnalyser());
   }
 
-  public GrassClassification(Classifier classifier, Analyser<GrassClassification> analyser) throws InferenceException, StoreException {
+  public GrassClassification(Classifier classifier, Analyser<GrassClassification> analyser) throws BayesianException {
     this(analyser);
     this.read(classifier, true);
     this.inferForIndex();
@@ -113,7 +112,7 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
-  public void inferForIndex() throws InferenceException, StoreException {
+  public void inferForIndex() throws BayesianException {
     this.rain = GrassFactory.rain.analyse(this.rain);
     this.sprinkler = GrassFactory.sprinkler.analyse(this.sprinkler);
     this.wet = GrassFactory.wet.analyse(this.wet);
@@ -122,7 +121,7 @@ public class GrassClassification implements Classification<GrassClassification> 
 
 
   @Override
-  public void inferForSearch() throws InferenceException, StoreException {
+  public void inferForSearch() throws BayesianException {
     this.rain = GrassFactory.rain.analyse(this.rain);
     this.sprinkler = GrassFactory.sprinkler.analyse(this.sprinkler);
     this.wet = GrassFactory.wet.analyse(this.wet);
@@ -143,7 +142,7 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
-  public void read(Classifier classifier, boolean overwrite) throws InferenceException {
+  public void read(Classifier classifier, boolean overwrite) throws BayesianException {
     if (overwrite || this.rain == null) {
       this.rain = classifier.get(GrassFactory.rain);
     }
@@ -156,7 +155,7 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
-  public void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException{
+  public void write(Classifier classifier, boolean overwrite) throws BayesianException {
     if(overwrite){
       classifier.replace(GrassFactory.rain,this.rain);
       classifier.replace(GrassFactory.sprinkler,this.sprinkler);
@@ -169,7 +168,7 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
 
-  public GrassInferencer.Evidence match(Classifier classifier) throws StoreException, InferenceException {
+  public GrassInferencer.Evidence match(Classifier classifier) throws BayesianException {
     GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
     evidence.e$rain = classifier.match(this.rain, GrassFactory.rain);
     evidence.e$sprinkler = classifier.match(this.sprinkler, GrassFactory.sprinkler);

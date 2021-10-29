@@ -264,6 +264,61 @@ public class ALANameSearcherTest {
         assertEquals(Issues.of(), result.getIssues());
     }
 
+
+    @Test
+    public void testSimpleSearch18() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Erythroclonium sonderi";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("55056020", result.getMatch().taxonId);
+        assertEquals("55056020", result.getAccepted().taxonId);
+        assertEquals("Erythroclonium sonderi", result.getAccepted().scientificName);
+        assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(Issues.of(AlaLinnaeanFactory.MULTIPLE_MATCHES), result.getIssues());
+    }
+
+    @Test
+    public void testSimpleSearch19() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.genus = "Pateobatis";
+        template.family = "Dasyatididae";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://biodiversity.org.au/afd/taxa/7780957e-8aa8-41a3-930c-bd842fad94e9", result.getMatch().taxonId);
+        assertEquals("https://biodiversity.org.au/afd/taxa/7780957e-8aa8-41a3-930c-bd842fad94e9", result.getAccepted().taxonId);
+        assertEquals("Pateobatis", result.getAccepted().scientificName);
+        assertEquals(0.99992, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_FAMILY), result.getIssues());
+    }
+
+    // Homonym caused by two entries with incompatible nomenclatural codes
+    @Test
+    public void testSimpleSearch20() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Aphanocapsa spp.";
+        template.kingdom = "Bacteria";
+        template.class_ = "Synechococcales";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertFalse(result.isValid());
+        assertEquals(Issues.of(BayesianTerm.invalidMatch, AlaLinnaeanFactory.UNRESOLVED_HOMONYM), result.getIssues());
+    }
+
+
+    @Ignore("Banksia has too many synonyms and infra-generic names")
+    @Test
+    public void testSimpleSearch21() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Banksia";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/taxon/apni/51299884", result.getMatch().taxonId);
+        assertEquals("https://id.biodiversity.org.au/taxon/apni/51299884", result.getAccepted().taxonId);
+        assertEquals("Banksia", result.getAccepted().scientificName);
+        assertEquals(0.99992, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(Issues.of(), result.getIssues());
+    }
+
     @Test
     public void testMultipleMatches1() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
@@ -820,6 +875,20 @@ public class ALANameSearcherTest {
         assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
+
+    @Test
+    public void testAcceptedSynonym2() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.genus = "Acanthus";
+        Match<AlaLinnaeanClassification> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/node/apni/2892448", result.getMatch().taxonId);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2892448", result.getAccepted().taxonId);
+        assertEquals("Acanthus", result.getAccepted().scientificName);
+        assertEquals(0.91592, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM), result.getIssues());
+    }
+
     @Test
     public void testKingdom1() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
@@ -864,7 +933,7 @@ public class ALANameSearcherTest {
     @Test
     public void testHomonyms3() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
-        template.scientificName = "Simsia";
+        template.scientificName = "Pseudoholophrya";
         Match<AlaLinnaeanClassification> result = this.searcher.search(template);
         assertFalse(result.isValid());
         assertEquals(Issues.of(AlaLinnaeanFactory.UNRESOLVED_HOMONYM, BayesianTerm.invalidMatch), result.getIssues());
@@ -873,12 +942,12 @@ public class ALANameSearcherTest {
     @Test
     public void testHomonyms4() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
-        template.scientificName = "Simsia";
-        template.kingdom = "Plantae";
+        template.scientificName = "Pseudoholophrya";
+        template.kingdom = "Chromista";
         Match<AlaLinnaeanClassification> result = this.searcher.search(template);
         assertTrue(result.isValid());
-        assertEquals("https://id.biodiversity.org.au/instance/apni/837040", result.getMatch().taxonId);
-        assertEquals("https://id.biodiversity.org.au/node/apni/2914974", result.getAccepted().taxonId);
+        assertEquals("NZOR-6-60135", result.getMatch().taxonId);
+        assertEquals("NZOR-6-60135", result.getAccepted().taxonId);
         assertEquals(Issues.of(), result.getIssues());
     }
 

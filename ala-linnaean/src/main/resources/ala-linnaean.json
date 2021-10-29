@@ -654,6 +654,11 @@
       "description": "Ignored supplied order to find a match."
     },
     {
+      "id": "removed_family",
+      "uri": "http://id.ala.org.au/issues/1.0/removedFamily",
+      "description": "Ignored supplied family to find a match."
+    },
+    {
       "id": "misapplied_name",
       "uri": "http://id.ala.org.au/issues/1.0/misappliedName",
       "description": "The name has been misapplied."
@@ -758,6 +763,12 @@
     },
     {
       "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_family",
+      "issue" : "removed_family",
+      "observables" : [ "family", "soundexFamily" ]
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
       "id" : "remove_order",
       "issue" : "removed_order",
       "observables" : [ "order", "soundexOrder" ]
@@ -845,10 +856,10 @@
   ],
   "matchModifiers": [
     [
-      "remove_order", "remove_class", "remove_phylum"
+      "remove_family", "remove_order", "remove_class", "remove_phylum"
     ],
     [
-      "remove_order", "remove_class", "remove_phylum"
+      "remove_family", "remove_order", "remove_class", "remove_phylum"
     ],
     [
       "remove_authorship"

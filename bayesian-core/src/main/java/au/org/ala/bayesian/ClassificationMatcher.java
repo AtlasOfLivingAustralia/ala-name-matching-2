@@ -68,11 +68,10 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      *
      * @return A match, {@link Match#invalidMatch()} is returned if no match is found
      *
-     * @throws InferenceException if there is a failure during inference
-     * @throws StoreException if unable to retrieve matches
-     */
+     * @throws BayesianException if there is a failure during inference
+      */
     @NonNull
-    public Match<C> findMatch(@NonNull C classification) throws InferenceException, StoreException {
+    public Match<C> findMatch(@NonNull C classification) throws BayesianException{
         classification.inferForSearch();
 
         // Immediate search
@@ -96,7 +95,16 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         return Match.invalidMatch();
     }
 
-    protected Match<C> findSource(@NonNull C classification) throws InferenceException, StoreException {
+    /**
+     * Find a match based on a source document.
+     *
+     * @param classification The (pre-inferred) classification
+     *
+     * @return A match or null for no match
+     *
+     * @throws BayesianException if there is an error in search or inference
+     */
+    protected Match<C> findSource(@NonNull C classification) throws BayesianException {
         List<? extends Classifier> candidates = this.getSearcher().search(classification);
         if (candidates.isEmpty())
             return null;
@@ -126,7 +134,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         return null;
     }
 
-    protected List<Match<C>> doMatch(C classification, List<? extends Classifier> candidates) throws StoreException, InferenceException {
+    protected List<Match<C>> doMatch(C classification, List<? extends Classifier> candidates) throws BayesianException {
         List<Match<C>> results = new ArrayList<>(candidates.size());
         for (Classifier candidate: candidates) {
             if (!this.isValidCandidate(classification, candidate))
@@ -184,12 +192,11 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      *
      * @param results The list of results
      *
-     * @throws StoreException if there is a problem retrieving information
-     * @throws InferenceException if there is a problem making inferences about the data
+     * @throws BayesianException if there is a problem retrieving or inferring information
      *
      * @return The modified set of matches
      */
-    protected List<Match<C>> annotate(List<Match<C>> results) throws StoreException, InferenceException {
+    protected List<Match<C>> annotate(List<Match<C>> results) throws BayesianException {
         return results;
     }
 
@@ -200,15 +207,17 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * @param results The list of results
      *
      * @return A single acceptable result, or null
+     *
+     * @throws BayesianException if there is an inference or retrieval error
      */
-    protected Match<C> findSingle(C classification, List<Match<C>> results) {
+    protected Match<C> findSingle(C classification, List<Match<C>> results) throws BayesianException {
         if (!results.isEmpty()) {
             Match<C> first = results.get(0);
             // Look for an immediate match
             if (this.isImmediateMatch(first))
                 return first;
             // See if we have a single acceptable answer
-            List<Match<C>> acceptable = results.stream().filter(m -> this.isAcceptableMatch(m)).collect(Collectors.toList());
+            List<Match<C>> acceptable = results.stream().filter(this::isAcceptableMatch).collect(Collectors.toList());
             if (acceptable.size() == 1)
                 return acceptable.get(0);
         }
@@ -227,10 +236,9 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      *
      * @return The lowest parent that each
      *
-     * @throws InferenceException if unable to compute the lub
-     * @throws StoreException if unable to retrieve to the common classifier
+     * @throws BayesianException if unable to compute the lub
      */
-    protected Match<C> lub(List<Match<C>> sources) throws InferenceException, StoreException {
+    protected Match<C> lub(List<Match<C>> sources) throws BayesianException {
         if (sources.isEmpty())
             return null;
 
@@ -279,10 +287,9 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      *
      * @return True if this can be used as a possible match
      *
-     * @throws InferenceException if unable to determine whether this is a valid candidate
-     * @throws StoreException if unable to retrieve values
+     * @throws BayesianException if unable to determine whether this is a valid candidate
      */
-    protected boolean isValidCandidate(C classification, Classifier candidate) throws InferenceException, StoreException {
+    protected boolean isValidCandidate(C classification, Classifier candidate) throws BayesianException {
         return true;
     }
 

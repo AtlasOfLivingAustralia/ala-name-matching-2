@@ -1,12 +1,11 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.StoreException;
 
 /**
- * An annotator annotaters a document with additional information
- * derived from
+ * An annotator annotates a document with additional information
+ * derived from the chanracteristics of the document.
  */
 public interface Annotator {
     /**
@@ -14,7 +13,7 @@ public interface Annotator {
      */
     public static Annotator NULL = new Annotator() {
         @Override
-        public void annotate(Classifier classifier) throws InferenceException, StoreException {
+        public void annotate(Classifier classifier) throws BayesianException {
         }
     };
 
@@ -27,8 +26,8 @@ public interface Annotator {
      *
      * @param classifier The classifier
      *
-     * @throws InferenceException If unable to analyse this classifier properly
-     * @throws StoreException If unable to create an annotation for some reason.
-     */
-    public void annotate(Classifier classifier) throws InferenceException, StoreException;
+     * @throws BayesianException If unable to analyse this classifier properly
+      */
+    public void annotate(Classifier classifier) throws BayesianException;
+    ;
 }

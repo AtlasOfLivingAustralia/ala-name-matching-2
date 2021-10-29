@@ -179,7 +179,7 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public void read(Classifier classifier, boolean overwrite) throws StoreException, InferenceException {
+    public void read(Classifier classifier, boolean overwrite) {
         if (overwrite || this.taxonID == null)
             this.taxonID = classifier.get(TAXON_ID);
         if (overwrite || this.class_ == null)
@@ -197,7 +197,7 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public void write(Classifier classifier, boolean overwrite) throws StoreException {
+    public void write(Classifier classifier, boolean overwrite) throws BayesianException {
         if (overwrite) {
             classifier.replace(TAXON_ID, this.taxonID);
             classifier.replace(CLASS_, this.class_);

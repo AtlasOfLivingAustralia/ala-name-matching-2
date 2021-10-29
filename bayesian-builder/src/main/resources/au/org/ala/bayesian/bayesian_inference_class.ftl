@@ -1,11 +1,10 @@
 package ${packageName};
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
-import au.org.ala.bayesian.StoreException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +32,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public Inference probability(${classificationClassName} classification, Classifier classifier) throws StoreException, InferenceException {
+  public Inference probability(${classificationClassName} classification, Classifier classifier) throws BayesianException {
     Inferencer<${classificationClassName}> sub = this.subInferencers.get(classifier.getSignature());
     if (sub == null)
       throw new IllegalArgumentException("Signature '" + classifier.getSignature() + "' is not recognised");

@@ -1,11 +1,10 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
-import au.org.ala.bayesian.StoreException;
 
 public class GrassInferencer_ implements Inferencer<GrassClassification> {
   public final static String SIGNATURE = "";
@@ -78,7 +77,7 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
   }
 
   @Override
-  public Inference probability(GrassClassification classification, Classifier classifier) throws StoreException, InferenceException {
+  public Inference probability(GrassClassification classification, Classifier classifier) throws BayesianException {
     GrassInferencer.Evidence evidence = classification.match(classifier);
     GrassParameters_ params = this.parameters.get();
     classifier.loadParameters(params);

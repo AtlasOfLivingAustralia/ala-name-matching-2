@@ -100,10 +100,11 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      *
      * @param config The configuration
      *
-     * @throws StoreException if unable to create the load-store
+     * @throws BayesianException if unable to create the load-store
+     * @throws IOException if unable to read the information
      *
      */
-    public IndexBuilder(IndexBuilderConfiguration config) throws BuilderException, InferenceException, StoreException, IOException {
+    public IndexBuilder(IndexBuilderConfiguration config) throws BayesianException, IOException {
         this.config = config;
         this.network = Network.read(this.config.getNetwork());
         this.factory = config.createFactory(this);
@@ -140,11 +141,9 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      *
      * @param source The source to load
      *
-     * @throws BuilderException if something foes wrong
-     * @throws InferenceException if there is something wrong with annotating the load
-     * @throws StoreException if the store fails during loading
+     * @throws BayesianException if something goes wrong during loading
      */
-    public void load(Source source) throws BuilderException, InferenceException, StoreException {
+    public void load(Source source) throws BayesianException {
         source.load(this.loadStore, this.stored);
         this.loadStore.commit();
     }
@@ -157,11 +156,9 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * It does not output the final index; see {@link #buildIndex(File)} for that.
      * </p>
      *
-     * @throws BuilderException if unable to store information in the index
-     * @throws InferenceException if unable to build the inference parameters
-     * @throws StoreException if unable to store intermediate documents
+     * @throws BayesianException if unable to store information in the index or build inference parameters
      */
-    public void build() throws BuilderException, InferenceException, StoreException {
+    public void build() throws BayesianException {
         this.expandTree();
         this.expandSynonyms();
         this.buildParameters();
@@ -188,10 +185,9 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * Traverse the tree, building a model of the taxonomic tree in terms of parent/child relationships
      * and fill out information about the
      *
-     * @throws BuilderException if unable to traverse the tree
-     * @throws StoreException if unable to store data property
+     * @throws BayesianException if unable to traverse the tree, compute derivations or store data property
      */
-    public void expandTree() throws BuilderException, InferenceException, StoreException {
+    public void expandTree() throws BayesianException {
         LOGGER.info("Expanding accepted concept tree");
         this.expandedStore = this.config.createLoadStore(Annotator.NULL);
         int index = 1;
@@ -215,7 +211,19 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         topCounter.stop();
     }
 
-    public int expandTree(Classifier classifier, Deque<Classifier> parents, int index, Counter counter) throws InferenceException, StoreException {
+    /**
+     * Expand a single classifier in the tree.
+     *
+     * @param classifier The classifier
+     * @param parents A queue of parents, closest parent first
+     * @param index The index value
+     * @param counter The statistics counter
+     *
+     * @return The next index value to use
+     *
+     * @throws BayesianException if unable to computer derived values or store the result
+     */
+    public int expandTree(Classifier classifier, Deque<Classifier> parents, int index, Counter counter) throws BayesianException {
         int left = index;
         String id = classifier.get(this.identifier);
         // Perform all derivations
@@ -274,9 +282,9 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     /**
      * Expand all synonyms, including the portions of the parent taxonomy that are accurate.
      *
-     * @throws StoreException if unable to manage the updates
+     * @throws BayesianException if unable to manage the updates
      */
-    public void expandSynonyms() throws InferenceException, StoreException {
+    public void expandSynonyms() throws BayesianException {
         LOGGER.info("Expanding synonyms");
         Counter counter = new Counter("Processed {0} synonyms, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
         Observation isSynonym = this.loadStore.getAnnotationObservation(BayesianTerm.isSynonym);
@@ -312,9 +320,9 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * @param classifier The synonym classifier
      * @param accepted The accepted taxon document
      *
-     * @throws StoreException if unable to write the updated document
+     * @throws BayesianException if unable to write the updated document
      */
-    public void expandSynonym(Classifier classifier, Optional<Classifier> accepted) throws InferenceException, StoreException {
+    public void expandSynonym(Classifier classifier, Optional<Classifier> accepted) throws BayesianException {
         Set<String> allNames = new LinkedHashSet<>();
         allNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
         classifier.setNames(allNames);
@@ -336,10 +344,9 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * This is a slow, expensive piece of processing and is done in parallel.
      * </p>
      *
-     * @throws StoreException
-     * @throws InferenceException
+     * @throws BayesianException if unable to compute the parameters
      */
-    public void buildParameters() throws StoreException, InferenceException {
+    public void buildParameters() throws BayesianException {
         LOGGER.info("Building parameter sets");
         this.parameterisedStore = config.createLoadStore(Annotator.NULL);
         final Counter counter = new Counter("Processed {0} parameter sets, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
@@ -371,7 +378,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.loadStore.commit();
     }
 
-    protected void buildParameters(Classifier classifier, ParameterAnalyser analyser) throws StoreException, InferenceException {
+    protected void buildParameters(Classifier classifier, ParameterAnalyser analyser) throws BayesianException {
         String id = classifier.get(this.identifier);
         String signature = this.builder.buildSignature(classifier);
         classifier.setSignature(signature);
@@ -381,7 +388,14 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
 
     }
 
-    public void buildIndex(File output) throws StoreException, InferenceException {
+    /**
+     * Build the final matching index for use by classification matchers.
+     *
+     * @param output The directory to write to
+     *
+     * @throws BayesianException if unable to build
+     */
+    public void buildIndex(File output) throws BayesianException {
         LOGGER.info("Building matchng index at " + output);
         if (output.exists()) {
             String backup = output.getName() + "-" + ((SimpleDateFormat) BACKUP_TAG.clone()).format(new Date());
@@ -410,9 +424,9 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      *
      * @return The document metadata
      *
-     * @throws StoreException if unable to construct the document
+     * @throws BayesianException if unable to construct the document
      */
-    public Classifier createMetadata() throws StoreException {
+    public Classifier createMetadata() throws BayesianException {
         Classifier metadata = this.loadStore.newClassifier();
         Observable creator = new Observable(DcTerm.creator);
         Observable created = new Observable(DcTerm.created);
@@ -453,11 +467,10 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      *
      * @param classifier The classifier
      *
-     * @throws InferenceException if unable to generate required values
-     * @throws StoreException If unable to create an annotation for some reason.
+     * @throws BayesianException if unable to generate required values or create an annotation
      */
     @Override
-    public void annotate(Classifier classifier) throws InferenceException, StoreException {
+    public void annotate(Classifier classifier) throws BayesianException {
         this.builder.generate(classifier);
         Term type = classifier.getType();
         String id = classifier.get(this.identifier);

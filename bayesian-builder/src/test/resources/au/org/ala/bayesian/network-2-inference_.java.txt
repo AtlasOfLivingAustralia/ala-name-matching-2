@@ -1,11 +1,10 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
-import au.org.ala.bayesian.StoreException;
 
 public class Network2Inferencer_ implements Inferencer<Network2Classification> {
   public final static String SIGNATURE = "";
@@ -68,7 +67,7 @@ public class Network2Inferencer_ implements Inferencer<Network2Classification> {
   }
 
   @Override
-  public Inference probability(Network2Classification classification, Classifier classifier) throws StoreException, InferenceException {
+  public Inference probability(Network2Classification classification, Classifier classifier) throws BayesianException {
     Network2Inferencer.Evidence evidence = classification.match(classifier);
     Network2Parameters_ params = this.parameters.get();
     classifier.loadParameters(params);

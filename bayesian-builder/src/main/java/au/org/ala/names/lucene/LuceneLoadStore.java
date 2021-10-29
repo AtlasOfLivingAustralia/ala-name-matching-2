@@ -131,9 +131,11 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * Store an entry in the load store
      *
      * @param classifier The collection of information that makes up the entry
+     *
+     * @throws StoreException if unable to write the document
      */
     @Override
-    public void store(LuceneClassifier classifier) throws InferenceException, StoreException {
+    public void store(LuceneClassifier classifier) throws StoreException {
         try {
             this.writer.addDocument(classifier.isRetrieved() ? classifier.makeDocumentCopy() : classifier.getDocument());
         } catch (IOException ex) {
@@ -146,9 +148,11 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      *
      * @param classifier The collection of information that makes up the entry
      * @param type The document type
+     *
+     * @throws BayesianException if unable to annotate or store the classifier
      */
     @Override
-    public void store(LuceneClassifier classifier, @NonNull Term type) throws InferenceException, StoreException {
+    public void store(LuceneClassifier classifier, @NonNull Term type) throws BayesianException {
          try {
             classifier.identify();
             classifier.setType(type);
@@ -235,9 +239,11 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * Get a parameter analyser for this store.
      *
      * @return The parameter analyser
+     *
+     * @throws BayesianException if unable to build an analyser
      */
     @Override
-    public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws InferenceException, StoreException {
+    public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws BayesianException {
         this.ensureReader();
         return new LuceneParameterAnalyser(network, this.annotator, this.searcher, weight, defaultWeight);
     }

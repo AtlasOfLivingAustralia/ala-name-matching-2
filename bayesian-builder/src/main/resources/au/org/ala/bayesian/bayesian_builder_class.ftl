@@ -1,11 +1,10 @@
 <#import "derivations.ftl" as derivations>
 package ${packageName};
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
-import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.builder.Builder;
 
 import java.util.Arrays;
@@ -48,7 +47,7 @@ public class ${className} implements Builder {
 
 
   @Override
-  public void generate(Classifier classifier) throws InferenceException, StoreException {
+  public void generate(Classifier classifier) throws BayesianException {
         Object d;
 <#list orderedNodes as node>
     <#assign observable = node.observable >
@@ -69,7 +68,7 @@ public class ${className} implements Builder {
   }
 
   @Override
-  public void infer(Classifier classifier) throws InferenceException, StoreException {
+  public void infer(Classifier classifier) throws BayesianException {
     Object d;
 <#list orderedNodes as node>
   <#assign observable = node.observable >
@@ -99,7 +98,7 @@ public class ${className} implements Builder {
   }
 
   @Override
-    public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
+    public void expand(Classifier classifier, Deque<Classifier> parents) throws BayesianException {
       Object d;
 <#list orderedNodes as node>
   <#assign observable = node.observable >
@@ -151,7 +150,7 @@ public class ${className} implements Builder {
   }
 
   @Override
-  public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
+  public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws BayesianException {
     Builder sub = this.subBuilders.get(classifier.getSignature());
     if (sub == null)
         throw new IllegalArgumentException("Signature " + classifier.getSignature() + " not found");

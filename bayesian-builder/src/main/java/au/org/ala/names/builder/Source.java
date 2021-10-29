@@ -90,8 +90,10 @@ abstract public class Source {
      * </p>
      *
      * @param classifier The classifier to expand.
+     *
+     * @throws BayesianException is an error in storage or inference
      */
-    public void infer(Classifier classifier) throws StoreException, InferenceException {
+    public void infer(Classifier classifier) throws BayesianException {
         Classification classification = this.createClassification();
         classification.read(classifier, true);
         classification.inferForIndex();
@@ -104,11 +106,9 @@ abstract public class Source {
      * @param store The store to load into
      * @param accepted The accepted observations, all if null
      *
-     * @throws BuilderException If there is an error in loading
-     * @throws InferenceException if there is an error in annotating a record
-     * @throws StoreException If there is an error in storing the retrieved data
+     * @throws BayesianException If there is an error in loading
      */
-    abstract public void load(LoadStore store, Collection<Observable> accepted) throws BuilderException, InferenceException, StoreException;
+    abstract public void load(LoadStore store, Collection<Observable> accepted) throws BayesianException;
 
     /**
      * Close this source after loading

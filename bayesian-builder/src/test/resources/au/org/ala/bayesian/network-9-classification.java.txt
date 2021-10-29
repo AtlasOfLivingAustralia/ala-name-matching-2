@@ -1,13 +1,12 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Analyser;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
-import au.org.ala.bayesian.StoreException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +41,7 @@ public class Network9Classification implements Classification<Network9Classifica
     this(Network9Factory.instance().createAnalyser());
   }
 
-  public Network9Classification(Classifier classifier, Analyser<Network9Classification> analyser) throws InferenceException, StoreException {
+  public Network9Classification(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
     this(analyser);
     this.read(classifier, true);
     this.inferForIndex();
@@ -116,7 +115,7 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
   @Override
-  public void inferForIndex() throws InferenceException, StoreException {
+  public void inferForIndex() throws BayesianException {
     this.v1 = Network9Factory.v1.analyse(this.v1);
     this.v2 = Network9Factory.v2.analyse(this.v2);
     this.v3 = Network9Factory.v3.analyse(this.v3);
@@ -128,7 +127,7 @@ public class Network9Classification implements Classification<Network9Classifica
 
 
   @Override
-  public void inferForSearch() throws InferenceException, StoreException {
+  public void inferForSearch() throws BayesianException {
     this.v1 = Network9Factory.v1.analyse(this.v1);
     this.v2 = Network9Factory.v2.analyse(this.v2);
     this.v3 = Network9Factory.v3.analyse(this.v3);
@@ -152,7 +151,7 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
   @Override
-  public void read(Classifier classifier, boolean overwrite) throws InferenceException {
+  public void read(Classifier classifier, boolean overwrite) throws BayesianException {
     if (overwrite || this.v1 == null) {
       this.v1 = classifier.get(Network9Factory.v1);
     }
@@ -165,7 +164,7 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
   @Override
-  public void write(Classifier classifier, boolean overwrite) throws InferenceException, StoreException{
+  public void write(Classifier classifier, boolean overwrite) throws BayesianException {
     if(overwrite){
       classifier.replace(Network9Factory.v1,this.v1);
       classifier.replace(Network9Factory.v2,this.v2);
@@ -178,7 +177,7 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
 
-  public Network9Inferencer.Evidence match(Classifier classifier) throws StoreException, InferenceException {
+  public Network9Inferencer.Evidence match(Classifier classifier) throws BayesianException {
     Network9Inferencer.Evidence evidence = new Network9Inferencer.Evidence();
     evidence.e$v1 = classifier.match(this.v1, Network9Factory.v1);
     evidence.e$v2 = classifier.match(this.v2, Network9Factory.v2);
