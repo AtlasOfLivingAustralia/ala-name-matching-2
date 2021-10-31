@@ -4,6 +4,7 @@ import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.util.Counter;
 import au.org.ala.vocab.BayesianTerm;
+import au.org.ala.vocab.OptimisationTerm;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.gbif.dwc.Archive;
@@ -126,8 +127,10 @@ public class DwCASource extends Source {
      * @param accepted The accepted terms (null for all)
      *
      * @return The accessor map.
+     *
+     * @throws BayesianException if unable to buld the accessors
      */
-    protected Map<Term, Map<Observable, BiFunction<Record, StarRecord, Object>>> buildAccessors(Collection<Observable> accepted) {
+    protected Map<Term, Map<Observable, BiFunction<Record, StarRecord, Object>>> buildAccessors(Collection<Observable> accepted) throws BayesianException {
         Map<Term, Map<Observable, BiFunction<Record, StarRecord, Object>>> accessors = new HashMap<>();
         this.buildAccessors(this.archive.getCore(), accepted, accessors);
         for (ArchiveFile ext: this.archive.getExtensions())
@@ -141,8 +144,10 @@ public class DwCASource extends Source {
      * @param file The archive file
      * @param accepted The list of accepted observables (null for all)
      * @param accessors The accessor map
+     *
+     * @throws BayesianException if unable to build the accessor
      */
-    protected void buildAccessors(ArchiveFile file, Collection<Observable> accepted, Map<Term, Map<Observable, BiFunction<Record, StarRecord, Object>>> accessors) {
+    protected void buildAccessors(ArchiveFile file, Collection<Observable> accepted, Map<Term, Map<Observable, BiFunction<Record, StarRecord, Object>>> accessors) throws BayesianException {
         if (!isLoadable(file.getRowType()))
             return;
         Map<Observable, BiFunction<Record, StarRecord, Object>> map = new HashMap<>();
@@ -154,7 +159,7 @@ public class DwCASource extends Source {
         }
         for (Observable observable: this.getObservables()) {
             if (map.containsKey(observable))
-                continue;;
+                continue;
             if (accepted != null && !accepted.contains(observable))
                 continue;
             map.put(observable, this.buildAccessor(file, observable));
@@ -169,7 +174,7 @@ public class DwCASource extends Source {
      *
      * @return A function that will retrieve the record
      */
-    protected BiFunction<Record, StarRecord, Object> buildAccessor(final ArchiveFile file, final Observable observable) {
+    protected BiFunction<Record, StarRecord, Object> buildAccessor(final ArchiveFile file, final Observable observable) throws BayesianException {
         // Direct access from loaded record (unless this is a link term, in which case prefer the core record)
         if (file.getTerms().contains(observable.getTerm()) && !observable.hasProperty(BayesianTerm.link, true)) {
             return (r, sr) -> {
@@ -200,20 +205,58 @@ public class DwCASource extends Source {
                 continue;
             if (ext.getTerms().contains(observable.getTerm())) {
                 final Term extType = ext.getRowType();
-                return (r, sr) -> {
-                    String value = null;
-                    try {
-                        for (Record er: sr.extension(extType)) {
-                            value = sr.core().value(observable.getTerm());
-                            if (value != null)
-                                return observable.getAnalysis().fromString(value);
-                        }
-                        return null;
-                    } catch (StoreException ex) {
-                        throw new IllegalStateException("Unable to read " + value + " for " + observable, ex);
-                    }
-                };
-            }
+                final String aggregate = observable.getProperty(OptimisationTerm.aggregate, "first").toLowerCase();
+                switch (aggregate) {
+                    case "first":
+                        return (r, sr) ->
+                            sr.extension(extType).stream()
+                                    .map(er -> er.value(observable.getTerm()))
+                                    .filter(Objects::nonNull)
+                                    .map(v -> {
+                                        try {
+                                            return observable.getAnalysis().fromString(v);
+                                        } catch (StoreException ex) {
+                                            throw new IllegalStateException("Unable to read " + v + " for " + observable, ex);
+                                        }
+                                    })
+                                    .findFirst()
+                                    .orElse(null);
+                    case "max":
+                        if (!Comparable.class.isAssignableFrom(observable.getType()))
+                            throw new StoreException("Observable " + observable + " type is not comparable");
+                        return (r, sr) ->
+                                sr.extension(extType).stream()
+                                        .map(er -> er.value(observable.getTerm()))
+                                        .filter(Objects::nonNull)
+                                        .map(v -> {
+                                            try {
+                                                return (Comparable) observable.getAnalysis().fromString(v);
+                                            } catch (StoreException ex) {
+                                                throw new IllegalStateException("Unable to read " + v + " for " + observable, ex);
+                                            }
+                                        })
+                                        .max(Comparator.naturalOrder())
+                                        .orElse(null);
+                    case "min":
+                        if (!Comparable.class.isAssignableFrom(observable.getType()))
+                            throw new StoreException("Observable " + observable + " type is not comparable");
+                        return (r, sr) ->
+                                sr.extension(extType).stream()
+                                        .map(er -> er.value(observable.getTerm()))
+                                        .filter(Objects::nonNull)
+                                        .map(v -> {
+                                            try {
+                                                return (Comparable) observable.getAnalysis().fromString(v);
+                                            } catch (StoreException ex) {
+                                                throw new IllegalStateException("Unable to read " + v + " for " + observable, ex);
+                                            }
+                                        })
+                                        .min(Comparator.naturalOrder())
+                                        .orElse(null);
+                   default:
+                        throw new BuilderException("Unrecognised aggregate " + aggregate + " for " + observable);
+                }
+             }
         }
         return (r, sr) -> null;
     }

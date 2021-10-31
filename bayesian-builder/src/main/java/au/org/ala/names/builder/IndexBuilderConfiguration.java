@@ -28,6 +28,16 @@ public class IndexBuilderConfiguration {
     @Getter
     @Setter
     private File work;
+    /** The configuration directory to use, for classes that load an external configuration */
+    @JsonProperty
+    @Getter
+    @Setter
+    private File config;
+    /** The data directory to use, for classes that load external data */
+    @JsonProperty
+    @Getter
+    @Setter
+    private File data;
     /** The network description file */
     @JsonProperty("network")
     @Getter
@@ -48,6 +58,11 @@ public class IndexBuilderConfiguration {
     @Getter
     @Setter
     private Class<? extends LoadStore<?>> loadStoreClass;
+    /** The class of the weight analyser */
+    @JsonProperty
+    @Getter
+    @Setter
+    private Class<? extends WeightAnalyser> weightAnalyserClass;
     /** The default weight to use for an unweighted taxon */
     @JsonProperty
     @Getter
@@ -72,6 +87,7 @@ public class IndexBuilderConfiguration {
     public IndexBuilderConfiguration() {
         this.builderClass = EmptyBuilder.class;
         this.loadStoreClass = LuceneLoadStore.class;
+        this.weightAnalyserClass = DefaultWeightAnalyser.class;
         this.defaultWeight = 1.0;
         this.logInterval = 10000;
         this.types = Arrays.asList(DwcTerm.Taxon);
@@ -218,6 +234,56 @@ public class IndexBuilderConfiguration {
         } catch (Exception ex) {
         }
         throw new StoreException("Unable to construct builder for " + this.builderClass);
+    }
+
+    /**
+     * Constuct a weight analysers.
+     * <p>
+     * The weight analyser must have either: A constuctor for an network and index builder condfiguration,
+     * a constructor for an index builder configuration, a constructor for a network or a default constuctor.
+     * These are tried in turn.
+     * </p>
+     *
+     * @param network The network to analyse
+     *
+     * @return A newly created weight analyser.
+     *
+     * @throws StoreException if unable to build the store
+     */
+    public WeightAnalyser createWeightAnalyser(Network network) throws StoreException {
+        Constructor<? extends WeightAnalyser> c;
+
+        if (this.weightAnalyserClass == null)
+            throw new StoreException("Weight analyser class not defined");
+        try {
+            c = (Constructor<WeightAnalyser>) this.weightAnalyserClass.getConstructor(Network.class, IndexBuilderConfiguration.class);
+            return c.newInstance(network, this);
+        } catch (InvocationTargetException ex) {
+            throw new StoreException("Unable to construct weight analyser for " + this.weightAnalyserClass, ex.getCause());
+        } catch (Exception ex) {
+        }
+        try {
+            c = (Constructor<? extends WeightAnalyser>) this.weightAnalyserClass.getConstructor(IndexBuilderConfiguration.class);
+            return c.newInstance(this);
+        } catch (InvocationTargetException ex) {
+            throw new StoreException("Unable to construct weight analyser for " + this.weightAnalyserClass, ex.getCause());
+        } catch (Exception ex) {
+        }
+        try {
+            c = (Constructor<? extends WeightAnalyser>) this.weightAnalyserClass.getConstructor(Network.class);
+            return c.newInstance(network);
+        } catch (InvocationTargetException ex) {
+            throw new StoreException("Unable to construct weight analyser for " + this.weightAnalyserClass, ex.getCause());
+        } catch (Exception ex) {
+        }
+        try {
+            c = (Constructor<? extends WeightAnalyser>) this.weightAnalyserClass.getConstructor();
+            return c.newInstance();
+        } catch (InvocationTargetException ex) {
+            throw new StoreException("Unable to construct weight analyser for " + this.weightAnalyserClass, ex.getCause());
+        } catch (Exception ex) {
+        }
+        throw new StoreException("Unable to construct weight analyser for " + this.weightAnalyserClass);
     }
 
     /**

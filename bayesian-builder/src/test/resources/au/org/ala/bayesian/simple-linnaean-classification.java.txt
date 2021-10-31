@@ -21,6 +21,7 @@ import org.gbif.dwc.terms.Term;
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.derivation.SoundexGenerator;
+import au.org.ala.bayesian.analysis.IntegerAnalysis;
 import au.org.ala.bayesian.analysis.DoubleAnalysis;
 
 public class SimpleLinnaeanClassification implements Classification<SimpleLinnaeanClassification> {

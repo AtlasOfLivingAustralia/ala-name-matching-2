@@ -6,7 +6,7 @@ import org.gbif.dwc.terms.TermFactory;
 import java.net.URI;
 
 /**
- * Terms used for optimisating search and the like.
+ * Terms used for optimisating search, loading sources and the like.
  * <p>
  * These contain a number of elements that should really be in sub-modules but which are not properly linked
  * if they are absent.
@@ -18,7 +18,18 @@ import java.net.URI;
  */
 public enum OptimisationTerm implements Term {
     /** Do not use this observable for candidate search in Lucene, usually for performance reasons */
-    luceneNoSearch;
+    luceneNoSearch,
+    /**
+     * Aggregate multiple terms to a single value when loading from a source.
+     * The value gives the aggregation operation.
+     * Possible values are:
+     * <dl>
+     *     <dt>first</dt><dd>The default, return the first non-null value</dd>
+     *     <dt>max</dt><dd>Return the maximum value of a {@link Comparable} class</dd>
+     *     <dt>min</dt><dd>Return the minimum value of a {@link Comparable} class</dd>
+     * </dl>
+     */
+    aggregate;
 
     public static final String NS = "http://id.ala.org.au/optimisation/1.0/";
     public static final URI NAMESPACE = URI.create(NS);

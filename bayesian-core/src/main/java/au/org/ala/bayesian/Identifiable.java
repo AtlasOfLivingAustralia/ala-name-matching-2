@@ -317,9 +317,20 @@ abstract public class Identifiable {
      *
      * @return The property value
      */
-     public Object getProperty(Term property) {
-        return this.properties.get(property);
+     public <T> T getProperty(Term property) {
+        return (T) this.properties.get(property);
      }
+
+    /**
+     * Get the value of a property.
+     *
+     * @param property The property
+     *
+     * @return The property value
+     */
+    public <T> T getProperty(Term property, T dflt) {
+        return (T) this.properties.getOrDefault(property, dflt);
+    }
 
     /**
      * Set the value of a property (remove if null)

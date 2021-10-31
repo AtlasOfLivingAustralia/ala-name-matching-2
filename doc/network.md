@@ -208,7 +208,7 @@ An example observable with properties that specify that it is the identifier is:
 
 A property is a URI and a value.
 The following properties are recognised by the network compiler.
-These are all boolean values at present but the model allows for further properties of
+Most properties are boolean values but the model allows for further properties of
 any type.
 
 * `http://id.ala.org.au/bayesian/1.0/weight` This observable provides the classifier weight.
@@ -232,6 +232,20 @@ any type.
 * `http://id.ala.org.au/bayesian/1.0/link` This is a link property for information derived from parent-child data.
   If there are different opinions about what the value of this property should be, the parent takes precidence.
   Otherwise, weird things can happen.
+
+As well as the Bayesian properties, there are optimisation properties that
+can be used to improve performance.
+
+* `http://id.ala.org.au/optimisation/1.0/luceneNoSearch` Do not include this observable
+  when searching a Lucene index.
+  This can be used for observables that are naturally ranges; Lucene tends to make a
+  slow job of searching for these values.
+* `http://id.ala.org.au/optimisation/1.0/aggregate` Aggregate values when loading values
+  from a Darwin Core Archive extension.
+  This property can have the following values:
+  * `first` Use the first non-null value. The default.
+  * `max` Use the largest value for an observable with a comparable type.
+  * `min` Use the smallest value for an observable with a comparable type.
 
 #### Derivations
 

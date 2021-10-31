@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.derivation.SoundexGenerator;
+import au.org.ala.bayesian.analysis.IntegerAnalysis;
 import au.org.ala.bayesian.analysis.DoubleAnalysis;
 
 public class SimpleLinnaeanBuilder implements Builder {

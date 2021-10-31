@@ -208,7 +208,7 @@ public class ObservableTest {
         Term property1 = TermFactory.instance().findPropertyTerm("property_1");
         Observable observable = new Observable("vertex1");
         observable.setProperty(property1, 45);
-        assertEquals(45, observable.getProperty(property1));
+        assertEquals(45, (int) observable.getProperty(property1));
     }
 
 }

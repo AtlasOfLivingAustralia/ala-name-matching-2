@@ -168,6 +168,15 @@
       "normaliser": "simple_normaliser"
     },
     {
+      "id": "priority",
+      "label": "p",
+      "type": "java.lang.Integer",
+      "uri": "http://ala.org.au/terms/1.0/priority",
+      "properties": {
+        "http://id.ala.org.au/optimisation/1.0/aggregate": "max"
+      }
+    },
+    {
       "id": "weight",
       "uri": "http://id.ala.org.au/bayesian/1.0/weight",
       "type": "java.lang.Double",

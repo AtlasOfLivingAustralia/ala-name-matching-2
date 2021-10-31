@@ -21,13 +21,17 @@ import ${analyserClass};
 public class ${className} implements Cli<${classificationClassName}, ${builderClassName}, ${inferencerClassName}, ${factoryClassName}> {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
-     Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
+     Option configFileOption = Option.builder().longOpt("config-file").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
      Option workOption = Option.builder("w").longOpt("work").desc("Working directory").hasArg().argName("DIR").type(File.class).build();
+     Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration directory").hasArg().argName("DIR").type(File.class).build();
+     Option dataOption = Option.builder("d").longOpt("data").desc("Specify a data directory").hasArg().argName("DIR").type(File.class).build();
      Option outputOption = Option.builder("o").longOpt("output").desc("Output index directory").hasArg().argName("DIR").type(File.class).build();
      Option threadsOption = Option.builder("t").longOpt("threads").desc("Number of parallel threads to use").hasArg().argName("N").type(Integer.class).build();
      Option helpOption = Option.builder("h").longOpt("help").desc("Print help").build();
-     options.addOption(configOption);
+     options.addOption(configFileOption);
      options.addOption(workOption);
+     options.addOption(configOption);
+     options.addOption(dataOption);
      options.addOption(outputOption);
      options.addOption(threadsOption);
      options.addOption(helpOption);
@@ -42,8 +46,8 @@ public class ${className} implements Cli<${classificationClassName}, ${builderCl
        help.printHelp("java -jar ${artifactName}.jar [OPTIONS] [SOURCES]", options);
        System.exit(0);
      }
-     if (cmd.hasOption(configOption.getOpt())) {
-       config = IndexBuilderConfiguration.read(((URL) cmd.getParsedOptionValue(configOption.getOpt())));
+     if (cmd.hasOption(configFileOption.getOpt())) {
+       config = IndexBuilderConfiguration.read(((URL) cmd.getParsedOptionValue(configFileOption.getOpt())));
      } else {
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(${builderClassName}.class);
@@ -53,6 +57,12 @@ public class ${className} implements Cli<${classificationClassName}, ${builderCl
      }
      if (cmd.hasOption(workOption.getOpt())) {
        config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));
+     }
+     if (cmd.hasOption(configOption.getOpt())) {
+       config.setConfig((File) cmd.getParsedOptionValue(configOption.getOpt()));
+     }
+     if (cmd.hasOption(dataOption.getOpt())) {
+       config.setData((File) cmd.getParsedOptionValue(dataOption.getOpt()));
      }
      if (cmd.hasOption(outputOption.getOpt())) {
        output = (File) cmd.getParsedOptionValue(outputOption.getOpt());

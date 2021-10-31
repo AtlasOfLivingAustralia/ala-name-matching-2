@@ -154,6 +154,17 @@
     "properties" : {
       "bayesian:copy" : true
     }
+  }, {
+    "id" : "priority",
+    "label" : "p",
+    "uri" : "http://ala.org.au/terms/1.0/priority",
+    "type" : "java.lang.Integer",
+    "analysis" : {
+      "@class" : "au.org.ala.bayesian.analysis.IntegerAnalysis"
+    },
+    "properties" : {
+      "http://id.ala.org.au/optimisation/1.0/aggregate" : "max"
+    }
   }, "scientificName", {
     "id" : "scientificNameAuthorship",
     "uri" : "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship",

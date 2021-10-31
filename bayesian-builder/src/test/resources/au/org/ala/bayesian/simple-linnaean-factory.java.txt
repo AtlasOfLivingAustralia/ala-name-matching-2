@@ -20,6 +20,7 @@ import org.gbif.dwc.terms.TermFactory;
 
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.analysis.IntegerAnalysis;
 import au.org.ala.bayesian.analysis.DoubleAnalysis;
 import au.org.ala.bayesian.ClassificationMatcher;
 
@@ -110,6 +111,15 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       new StringAnalysis(),
       Multiplicity.OPTIONAL
     );
+  public static final Observable priority = new Observable(
+      "priority",
+      URI.create("http://ala.org.au/terms/1.0/priority"),
+      Integer.class,
+      Observable.Style.CANONICAL,
+      null,
+      new IntegerAnalysis(),
+      Multiplicity.OPTIONAL
+    );
   public static final Observable scientificName = new Observable(
       "scientificName",
       URI.create("http://rs.tdwg.org/dwc/terms/scientificName"),
@@ -193,6 +203,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     order,
     parentNameUsageId,
     phylum,
+    priority,
     scientificName,
     scientificNameAuthorship,
     soundexScientificName,
@@ -249,6 +260,8 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     parentNameUsageId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/parent"), true);
     phylum.setExternal(LUCENE, "dwc_phylum");
     phylum.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
+    priority.setExternal(LUCENE, "priority");
+    priority.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/optimisation/1.0/aggregate"), "max");
     scientificName.setExternal(LUCENE, "dwc_scientificName");
     scientificName.setExternal(LUCENE_VARIANT, "dwc_scientificName_variant");
     scientificName.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/name"), true);

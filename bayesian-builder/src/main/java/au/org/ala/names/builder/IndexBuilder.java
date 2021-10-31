@@ -92,6 +92,9 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     protected LoadStore parameterisedStore;
     /** The analyser. Used to add extra information to loaded classifiers. Accessed via the annotation interface */
     protected Analyser<C> analyser;
+    /** The wight analyser, used to compute the weight of a classifier */
+    @Getter
+    protected WeightAnalyser weightAnalyser;
     /** The identifiers used. Non-unique identifiers are disambiguated */
     protected Set<Object> identifiers;
 
@@ -111,6 +114,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.builder = config.createBuilder(this, this.factory);
         this.loadStore = config.createLoadStore(this);
         this.analyser = this.factory.createAnalyser();
+        this.weightAnalyser = config.createWeightAnalyser(this.network);
         if (this.network.getConcept() == null)
             throw new BuilderException("Network requires concept term");
         this.conceptTerm = TermFactory.instance().findTerm(this.network.getConcept().toASCIIString());
@@ -274,6 +278,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
             parents.pop();
         }
         classifier.setIndex(left, index);
+        this.buildWeight(classifier);
         this.expandedStore.store(classifier);
         counter.increment(classifier.getIdentifier() + ": " + id);
         return index + 1;
@@ -303,6 +308,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
                 }
             }
             this.expandSynonym(classifier, acpt);
+            this.buildWeight(classifier);
             this.expandedStore.store(classifier);
            counter.increment(classifier.getIdentifier());
         }
@@ -386,6 +392,25 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         classifier.storeParameters(parameters);
         this.parameterisedStore.store(classifier);
 
+    }
+
+    /**
+     * Build the weight of the classifier.
+     *
+     * @param classifier The classifier
+     *
+     * @throws BayesianException if unable to computer the weight.
+     *
+     * @see WeightAnalyser
+     */
+    protected void buildWeight(Classifier classifier) throws BayesianException {
+        Double weight = classifier.get(this.weight);
+        if (weight == null)
+            weight = this.weightAnalyser.weight(classifier);
+        weight = this.weightAnalyser.modifiy(classifier, weight);
+        if (weight < 1.0)
+            throw new BuilderException("Weight must be greater than or equoal to 1 for " + classifier.get(this.identifier) + " weight " + weight);
+        classifier.replace(this.weight, weight);
     }
 
     /**

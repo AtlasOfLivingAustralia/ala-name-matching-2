@@ -84,7 +84,8 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     </#list>
   </#if>
   <#list observable.propertyKeys as key>
-    ${observable.javaVariable}.setProperty(TERM_FACTORY.findTerm("${key.qualifiedName()}"), ${observable.getProperty(key)?c});
+    <#assign pval = observable.getProperty(key)>
+    ${observable.javaVariable}.setProperty(TERM_FACTORY.findTerm("${key.qualifiedName()}"), <#if pval?is_boolean>${pval?c}<#elseif pval?is_number>${pval?c}<#else>"${pval?j_string}"</#if>);
   </#list>
 </#list>
   }
