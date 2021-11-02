@@ -47,6 +47,7 @@ public class Network9Cli implements Cli<Network9Classification, Network9Builder,
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(Network9Builder.class);
        config.setFactoryClass(Network9Factory.class);
+       config.setWeightAnalyserClass(au.org.ala.names.builder.DefaultWeightAnalyser.class);
        config.setNetwork(Network9Builder.class.getResource("network-9.json"));
        config.setTypes(Arrays.asList(Network9Factory.CONCEPT));
      }

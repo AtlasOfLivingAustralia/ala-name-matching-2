@@ -407,7 +407,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         Double weight = classifier.get(this.weight);
         if (weight == null)
             weight = this.weightAnalyser.weight(classifier);
-        weight = this.weightAnalyser.modifiy(classifier, weight);
+        weight = this.weightAnalyser.modify(classifier, weight);
         if (weight < 1.0)
             throw new BuilderException("Weight must be greater than or equoal to 1 for " + classifier.get(this.identifier) + " weight " + weight);
         classifier.replace(this.weight, weight);

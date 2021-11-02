@@ -4,6 +4,8 @@ import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 
+import java.io.Closeable;
+
 /**
  * Analyse weights for classifiers.
  * <p>
@@ -37,5 +39,5 @@ public interface WeightAnalyser {
      *
      * @throws BayesianException if unable to compute the weight
      */
-    public double modifiy(Classifier classifier, double weight) throws BayesianException;
+    public double modify(Classifier classifier, double weight) throws BayesianException;
 }

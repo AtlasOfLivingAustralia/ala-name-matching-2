@@ -1,0 +1,176 @@
+package au.org.ala.names;
+
+import au.org.ala.bayesian.BayesianException;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.analysis.DoubleAnalysis;
+import au.org.ala.names.builder.*;
+import au.org.ala.names.lucene.LuceneClassifier;
+import au.org.ala.names.lucene.LuceneLoadStore;
+import au.org.ala.util.Counter;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.nameparser.api.Rank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.ref.PhantomReference;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * ALA-specific weight analyser.
+ * <p>
+ * This contains several parts.
+ * A default weight based on the score allocated by the merging process (or 1 by default).
+ * A lookup weight based on tables of data in a DwCA.
+ * A modifier that prefers Linnaean ranks over assorted mid-rank information.
+ * </p>
+ */
+public class AlaWeightAnalyser implements WeightAnalyser, Annotator {
+    private static final Logger logger = LoggerFactory.getLogger(AlaWeightAnalyser.class);
+
+    /**
+     * The name of the rank weights files.
+     * If there is a file called {@value} in the configuration directory, then
+     * that file is read, otherwise a default file is loaded as a resource.
+     */
+    public static final String RANK_WEIGHTS_FILE = "rank-weights.csv";
+    /**
+     * The name of the weight lookup file with taxonID -> weight pairs.
+     * If there is a file called {@value} in the data directory, then
+     * that file is read into a store.
+     */
+    public static final String TAXON_WEIGHTS_FILE = "taxon-weights.csv";
+
+    private Map<Rank, Double> rankWeights;
+    private LoadStore<LuceneClassifier> weightStore;
+
+    /**
+     * Construct a weight analyser for a configuration
+     *
+     * @param configuration The configuration
+     * @throws Exception If unable to build the analyser
+     */
+    public AlaWeightAnalyser(IndexBuilderConfiguration configuration) throws Exception {
+        this.buildRankWeights(configuration);
+        this.buildNameWeights(configuration);
+    }
+
+    /**
+     * Compute the base weight of the classifier.
+     * <p>
+     * If there is a {@link AlaLinnaeanFactory#priority} then base the weight on the priority.
+     * Otherwise, default to 1.
+     * </p>
+     *
+     * @param classifier The classuifier to weight
+     * @return The base weight (must be at least 1.0)
+     * @throws BayesianException if unable to compute the weight
+     */
+    @Override
+    public double weight(Classifier classifier) throws BayesianException {
+        String id = classifier.get(AlaLinnaeanFactory.taxonId);
+        Classifier wc = id == null ? null : this.weightStore.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, id);
+        Double weight = wc == null ? null : wc.get(AlaLinnaeanFactory.weight);
+        if (weight != null)
+            return weight;
+        Integer priority = classifier.get(AlaLinnaeanFactory.priority);
+        if (priority == null || priority < 1)
+            return 1.0;
+        return Math.log(priority.doubleValue()) + 1.0;
+    }
+
+    /**
+     * Modify the base weight in the classifier.
+     * <p>
+     * If the classifier has an interesting rank, then boost it bu the rank weighting.
+     * </p>
+     *
+     * @param classifier The classuifier
+     * @param weight     The base weight
+     * @return The modified weight (must be at least 1.0)
+     * @throws BayesianException if unable to compute the weight
+     */
+    @Override
+    public double modify(Classifier classifier, double weight) throws BayesianException {
+        Rank rank = classifier.get(AlaLinnaeanFactory.taxonRank);
+        if (rank == null)
+            return weight;
+        return Math.max(1.0, weight * this.rankWeights.getOrDefault(rank, 1.0));
+    }
+
+    protected void buildRankWeights(IndexBuilderConfiguration configuration) throws IOException {
+        RankAnalysis rankAnalysis = new RankAnalysis();
+        CSVReader reader = null;
+        this.rankWeights = new HashMap<>();
+        Counter counter = new Counter("Read {0} rank weights, {2,number,#}/s", logger, 100, 0);
+        try {
+            reader = configuration.openConfigCsv(RANK_WEIGHTS_FILE, this.getClass());
+            counter.start();
+            for(String[] row: reader) {
+                Rank rank = rankAnalysis.fromString(row[0]);
+                double weight = Double.parseDouble(row[1]);
+                this.rankWeights.put(rank, weight);
+                counter.increment(rank);
+            }
+            counter.stop();
+        } finally {
+            if (reader != null)
+                reader.close();
+        }
+    }
+
+    protected void buildNameWeights(IndexBuilderConfiguration configuration) throws Exception {
+        CSVReader reader = null;
+        this.weightStore = configuration.createLoadStore(this);
+        Counter counter = new Counter("Read {0} taxon weights, {2,number,#}/s", logger, 100000, 0);
+        try {
+            reader = configuration.openDataCsv(TAXON_WEIGHTS_FILE);
+            counter.start();
+            if (reader != null) {
+                for (String[] row : reader) {
+                    String taxonId = row[0];
+                    double weight = Double.parseDouble(row[1]);
+                    LuceneClassifier classifier = this.weightStore.newClassifier();
+                    classifier.identify();
+                    classifier.add(AlaLinnaeanFactory.taxonId, taxonId);
+                    classifier.add(AlaLinnaeanFactory.weight, weight);
+                    this.weightStore.store(classifier, DwcTerm.Taxon);
+                    counter.increment(taxonId);
+                }
+            }
+            this.weightStore.commit();
+            counter.stop();
+        } finally {
+            if (reader != null)
+                reader.close();
+        }
+    }
+
+    /**
+     * Annotate a classifier with additional information.
+     *
+     * @param classifier The classifier
+     */
+    @Override
+    public void annotate(Classifier classifier) {
+    }
+
+    /**
+     * Clean up the weight store
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        if (this.weightStore != null) {
+            this.weightStore.close();
+        }
+    }
+}

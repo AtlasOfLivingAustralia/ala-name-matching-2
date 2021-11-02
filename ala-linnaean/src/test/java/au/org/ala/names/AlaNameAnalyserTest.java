@@ -389,6 +389,18 @@ public class AlaNameAnalyserTest {
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
     }
 
+    // Commentary
+    @Test
+    public void testAnalyseForSearch19() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.genus = "Aleucosia";
+        classification.specificEpithet = "fulvipes";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Aleucosia fulvipes", classification.scientificName);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertEquals(Issues.of(), classification.getIssues());
+    }
+
     @Test
     public void testAnalyseNames1() throws Exception {
         Classifier classifier = new LuceneClassifier();

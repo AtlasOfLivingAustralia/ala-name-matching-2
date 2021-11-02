@@ -36,6 +36,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         config.setNetwork(AlaLinnaeanBuilder.class.getResource("/ala-linnaean.json"));
         config.setWork(work);
         config.setFactoryClass(AlaLinnaeanFactory.class);
+        config.setWeightAnalyserClass(AlaWeightAnalyser.class);
         builder = new IndexBuilder(config);
         Source source = Source.create(AlaLinnaeanBuilderTest.class.getResource("/sample-1.zip"), AlaLinnaeanFactory.instance(), AlaLinnaeanFactory.instance().getObservables(), config.getTypes());
         builder.load(source);
@@ -103,7 +104,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         evidence.e$genus = true;
         evidence.e$soundexGenus = true;
         prob = inference.probability(evidence, params);
-        assertEquals(0.00781, prob.getEvidence(), 0.00001);
+        assertEquals(0.00106, prob.getEvidence(), 0.00001);
         assertEquals(1.0, prob.getPosterior(), 0.00001);
     }
 
@@ -143,7 +144,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         evidence.e$kingdom = true;
         evidence.e$soundexKingdom = true;
         prob = inference.probability(evidence, params);
-        assertEquals(0.00781, prob.getEvidence(), 0.00001);
+        assertEquals(0.02083, prob.getEvidence(), 0.00001);
         assertEquals(1.0, prob.getConditional(), 0.00001);
         assertEquals(1.0, prob.getPosterior(), 0.00001);
     }
@@ -170,7 +171,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         evidence.e$kingdom = false;
         evidence.e$soundexKingdom = false;
         prob = inference.probability(evidence, params);
-        assertEquals(0.00452, prob.getEvidence(), 0.00001);
+        assertEquals(0.00077, prob.getEvidence(), 0.00001);
         assertEquals(0.0, prob.getConditional(), 0.00001);
         assertEquals(0.0, prob.getPosterior(), 0.00001);
     }
@@ -202,13 +203,13 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.00106, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         classification.scientificName = "Canarium acutifolium acutifolium";
         match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.00106, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -220,7 +221,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.02123, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -233,7 +234,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.02123, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -245,7 +246,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51337710", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.01621, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -257,7 +258,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2901022", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.02123, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -295,7 +296,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2918714", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.01061, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -307,7 +308,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2898305", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.00219, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -320,7 +321,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("x-cultivar-1", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.00219, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -333,7 +334,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("x-cultivar-1", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.00219, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -345,7 +346,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("x-cultivar-2", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.00219, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -357,7 +358,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("x-cultivar-2", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.00219, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 
@@ -369,7 +370,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("x-cultivar-3", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.00219, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_RANK), match.getIssues()); // Source rank is species, inferred rank is cultivar
     }
@@ -383,7 +384,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("urn:lsid:indexfungorum.org:names:90351", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.00106, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), match.getIssues());
     }
@@ -396,7 +397,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("urn:lsid:indexfungorum.org:names:90351", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.00106, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), match.getIssues());
     }
@@ -410,7 +411,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/instance/apni/832902", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.02083, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(), match.getIssues());
     }
@@ -424,7 +425,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/instance/apni/832902", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.02083, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_AUTHORSHIP), match.getIssues());
     }
@@ -438,7 +439,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/instance/apni/832902", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.02083, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_AUTHORSHIP), match.getIssues());
     }
@@ -453,7 +454,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("urn:lsid:indexfungorum.org:names:19214", match.getMatch().taxonId);
-        assertEquals(0.00781, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.01061, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(), match.getIssues());
     }

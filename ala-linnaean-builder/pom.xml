@@ -69,6 +69,7 @@
                             <generateClassification>false</generateClassification>
                             <generateFactory>false</generateFactory>
                             <analyserClass>au.org.ala.names.AlaNameAnalyser</analyserClass>
+                            <weightAnalyserClass>au.org.ala.names.AlaWeightAnalyser</weightAnalyserClass>
                         </configuration>
                     </execution>
                     <execution>

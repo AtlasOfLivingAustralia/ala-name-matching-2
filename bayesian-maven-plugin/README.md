@@ -10,14 +10,16 @@ See [here](../doc/network.md) for how to define a network.
 You will need to include the GBIF and ALA repositories in your `pom.xml`
 
 ```xml
-<repository>
-  <id>gbif-all</id>
-  <url>https://repository.gbif.org/content/groups/gbif</url>
-</repository>
-<repository>
-  <id>ala-nexus</id>
-  <url>https://nexus.ala.org.au/content/groups/public/</url>
-</repository>
+<repositories>
+  <repository>
+    <id>gbif-all</id>
+    <url>https://repository.gbif.org/content/groups/gbif</url>
+  </repository>
+  <repository>
+    <id>ala-nexus</id>
+    <url>https://nexus.ala.org.au/content/groups/public/</url>
+  </repository>
+</repositories>
 ```
 
 You will need to include and configure the generator in the `build` element
@@ -43,6 +45,7 @@ You will need to include and configure the generator in the `build` element
                 <generateClassification>true</generateClassification>
                 <generateFactory>true</generateFactory>
                 <analyserClass>au.org.ala.names.AlaNameAnalyser</analyserClass>
+                <weightAnalyserClass>au.org.ala.names.AlaWeightAnalyser</weightAnalyserClass>
             </configuration>
         </execution>
         <execution>
@@ -93,6 +96,7 @@ It uses the following properties:
 * **generateFactory** Generate a factory class that contains observables, issues
   and constructor methods things like inferences and classifiers.
 * **analyserClass** The class to use for classification analysis.
+* **weightAnalyserClass** The class to use for probability weighting analysis.
 
 There are a number of other parameters that can be set to link the generated
 class to superclasses, implementation classes and the like.

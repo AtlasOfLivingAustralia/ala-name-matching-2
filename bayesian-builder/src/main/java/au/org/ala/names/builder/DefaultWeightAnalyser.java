@@ -26,7 +26,7 @@ public class DefaultWeightAnalyser implements WeightAnalyser {
      * @return The base weight
      */
     @Override
-    public double modifiy(Classifier classifier, double weight) {
+    public double modify(Classifier classifier, double weight) {
         return weight;
     }
 }

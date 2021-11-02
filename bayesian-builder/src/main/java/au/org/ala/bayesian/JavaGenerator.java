@@ -2,6 +2,8 @@ package au.org.ala.bayesian;
 
 import au.org.ala.names.builder.Builder;
 import au.org.ala.names.builder.Cli;
+import au.org.ala.names.builder.DefaultWeightAnalyser;
+import au.org.ala.names.builder.WeightAnalyser;
 import au.org.ala.util.IdentifierConverter;
 import au.org.ala.util.SimpleIdentifierConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -100,6 +102,9 @@ public class JavaGenerator extends Generator {
     /** Analysis class specification */
     @Getter
     private JavaGeneratorSpecification<Analyser> analyserSpec;
+    /** Weight analysis class specification */
+    @Getter
+    private JavaGeneratorSpecification<WeightAnalyser> weightAnalyserSpec;
     /** Generator class specification */
     @Getter
     private JavaGeneratorSpecification<ClassificationMatcher> matcherSpec;
@@ -131,12 +136,14 @@ public class JavaGenerator extends Generator {
         this.parametersSpecificSpec = new JavaGeneratorSpecification<>("Parameters", PARAMETERS_SPECIFIC_CLASS_TEMPLATE, Parameters.class, true);
         this.classificationSpec = new JavaGeneratorSpecification<>("Classification", CLASSIFICATION_CLASS_TEMPLATE, Classification.class, false);
         this.analyserSpec = new JavaGeneratorSpecification<>("Analyser", null, Analyser.class, false, this.classificationSpec);
+        this.weightAnalyserSpec = new JavaGeneratorSpecification<>("Weight", null, WeightAnalyser.class, false);
+        this.weightAnalyserSpec.setImplementationClassName(DefaultWeightAnalyser.class.getName());
         this.inferencerSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_CLASS_TEMPLATE, Inferencer.class, false, this.classificationSpec, this.parametersSpec, this.analyserSpec);
         this.inferencerSpecificSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_SPECIFIC_CLASS_TEMPLATE, Inferencer.class, true, this.classificationSpec, this.parametersSpecificSpec, this.analyserSpec);
         this.factorySpec = new JavaGeneratorSpecification<>("Factory", FACTORY_CLASS_TEMPLATE, NetworkFactory.class, false, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.analyserSpec);
         this.builderSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_CLASS_TEMPLATE, Builder.class, false, this.parametersSpec, this.factorySpec);
         this.builderSpecificSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_SPECIFIC_CLASS_TEMPLATE, Builder.class, true, this.parametersSpecificSpec, this.factorySpec);
-        this.cliSpec = new JavaGeneratorSpecification<>("Cli", CLI_CLASS_TEMPLATE, Cli.class, false, this.classificationSpec, this.parametersSpec, this.builderSpec, this.inferencerSpec, this.factorySpec);
+        this.cliSpec = new JavaGeneratorSpecification<>("Cli", CLI_CLASS_TEMPLATE, Cli.class, false, this.classificationSpec, this.parametersSpec, this.builderSpec, this.inferencerSpec, this.factorySpec, this.weightAnalyserSpec);
         this.matcherSpec = new JavaGeneratorSpecification<>("matcher", null, ClassificationMatcher.class, false, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.factorySpec);
         this.factorySpec.addParameter(this.matcherSpec);
         this.classificationSpec.addParameter(this.factorySpec);

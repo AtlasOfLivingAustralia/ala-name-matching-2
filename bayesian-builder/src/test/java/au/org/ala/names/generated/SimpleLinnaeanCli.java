@@ -47,6 +47,7 @@ public class SimpleLinnaeanCli implements Cli<SimpleLinnaeanClassification, Simp
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(SimpleLinnaeanBuilder.class);
        config.setFactoryClass(SimpleLinnaeanFactory.class);
+       config.setWeightAnalyserClass(au.org.ala.names.builder.DefaultWeightAnalyser.class);
        config.setNetwork(SimpleLinnaeanBuilder.class.getResource("simple-linnaean.json"));
        config.setTypes(Arrays.asList(SimpleLinnaeanFactory.CONCEPT));
      }

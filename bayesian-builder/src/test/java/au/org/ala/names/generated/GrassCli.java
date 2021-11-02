@@ -46,6 +46,7 @@ public class GrassCli implements Cli<GrassClassification, GrassBuilder, GrassInf
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(GrassBuilder.class);
        config.setFactoryClass(GrassFactory.class);
+       config.setWeightAnalyserClass(au.org.ala.names.builder.DefaultWeightAnalyser.class);
        config.setNetwork(GrassBuilder.class.getResource("grass.json"));
        config.setTypes(Arrays.asList(GrassFactory.CONCEPT));
      }

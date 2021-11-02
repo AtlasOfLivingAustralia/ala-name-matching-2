@@ -58,12 +58,20 @@ From these observables, you will need to identify:
   prior probability is the weight divided by the sum of all weights.
 
 Once you have identified these features, you can start work on an
-_analyser_ for the network.
+_analyser_ and _weight analyser_ for the network.
 Analysers<sup>1</sup> implement the `au.org.ala.bayesian.Analyser` interface
 and allow you to condition incoming information so that it matches properly.
+In most cases, the observable defintion can do enough analysis and derivation
+to not require specialsed treatment.
+Analysers allow you to do more complex and cross-observable treatment.
+For example, removing comments in a scientificName.
+WeightAnalysers implement the `au.org.ala.names.builder.WeightAnalyser` interface
+and allow you build probability weights for the _weight_ observable.
+WeightAnalysers can be used to boost specific parts of a heirarchy or pull
+information from an ancilliary file.
 
 To begin with, you'll usually have to do this in two parts. 
-First write a placeholder analyser that does nothing very useful and then,
+First write placeholder analysers that do nothing very useful and then,
 once the network has been compiled, fill it out using the classes that have
 been generated.
 
@@ -412,23 +420,30 @@ inaccurate ranks and the like.
 An example modifier list is shown below:
 
 ```json
-"matchModifiers": [
-  [
-    "remove_order", "remove_class", "remove_phylum"
-  ],
-  [
-    "remove_order", "remove_class", "remove_phylum"
-  ],
-  [
-    "remove_authorship"
-  ],
-  [
-    "misspelled_scientific_name_base", "misspelled_scientific_name_full"
-  ],
-  [
-    "remove_rank"
+{
+  "matchModifiers": [
+    [
+      "remove_order",
+      "remove_class",
+      "remove_phylum"
+    ],
+    [
+      "remove_order",
+      "remove_class",
+      "remove_phylum"
+    ],
+    [
+      "remove_authorship"
+    ],
+    [
+      "misspelled_scientific_name_base",
+      "misspelled_scientific_name_full"
+    ],
+    [
+      "remove_rank"
+    ]
   ]
-]
+}
 ```
 
 If applied to the following template

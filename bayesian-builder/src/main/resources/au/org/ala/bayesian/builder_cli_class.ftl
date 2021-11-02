@@ -52,6 +52,7 @@ public class ${className} implements Cli<${classificationClassName}, ${builderCl
        config = new IndexBuilderConfiguration();
        config.setBuilderClass(${builderClassName}.class);
        config.setFactoryClass(${factoryClassName}.class);
+       config.setWeightAnalyserClass(${weightImplementationClassName}.class);
        config.setNetwork(${builderClassName}.class.getResource("${networkFileName}"));
        config.setTypes(Arrays.asList(${factoryClassName}.CONCEPT));
      }

@@ -5,14 +5,15 @@ import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -308,5 +309,58 @@ public class IndexBuilderConfiguration {
     public static IndexBuilderConfiguration read(URL source) throws IOException {
         return JsonUtils.createMapper().readValue(source, IndexBuilderConfiguration.class);
     }
+
+    /**
+     * Open a CSV reader for a configuration file.
+     * <p>
+     * If a file of that name exists in the config directory, use that.
+     * Otherwise, get the file as a resource.
+     * The CSV file is expected to have a single row header with column names
+     * and have a default format (commas, double quotes, escape characters).
+     * </p>
+     * @param file The file name
+     * @param clazz The class making the request
+     *
+     * @return A CSV reader for the file
+     */
+    public CSVReader openConfigCsv(String file, Class<?> clazz) throws IOException {
+        Reader r = null;
+        if (this.getConfig() != null) {
+            File f = new File(this.getConfig(), file);
+            if (f.exists())
+                r = new FileReader(f);
+        }
+        if (r == null)
+            r = new InputStreamReader(clazz.getResourceAsStream(file));
+        CSVReader reader = new CSVReaderBuilder(r).withSkipLines(1).build();
+        return reader;
+    }
+
+
+    /**
+     * Open a CSV reader for a data file.
+     * <p>
+     * If a file of that name exists in the config directory, use that.
+     * The CSV file is expected to have a single row header with column names
+     * and have a default format (commas, double quotes, escape characters).
+     * </p>
+     * @param file The file name
+     *
+     * @return A CSV reader for the file or null for not found
+     */
+    public CSVReader openDataCsv(String file) throws IOException {
+        CSVReader reader = null;
+        Reader r = null;
+        if (this.getData() != null) {
+            File f = new File(this.getData(), file);
+            if (f.exists())
+                r = new FileReader(f);
+        }
+        if (r != null) {
+            reader = new CSVReaderBuilder(r).withSkipLines(1).build();
+        }
+        return reader;
+    }
+
 }
 
