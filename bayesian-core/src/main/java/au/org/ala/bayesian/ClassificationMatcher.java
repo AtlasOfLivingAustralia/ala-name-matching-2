@@ -20,7 +20,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     private static final Logger logger = LoggerFactory.getLogger(ClassificationMatcher.class);
 
     /** The default possible theshold for something to be considered. @see #isPossible */
-    public static double POSSIBLE_THRESHOLD = 0.1;
+    public static double POSSIBLE_THRESHOLD = 0.05;
     /** The default immediately acceptable threshold for something to be regarded as accepted. @see @isImmediateMatch */
     public static double IMMEDIATE_THRESHOLD = 0.99;
     /** The default acceptable threshold for something. @see @isAcceptableMatch */

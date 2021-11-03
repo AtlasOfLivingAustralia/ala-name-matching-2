@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class GrassCli implements Cli<GrassClassification, GrassBuilder, GrassInferencer, GrassFactory> {
    public static void main(String[] args) throws Exception {
      Options options = new Options();
-     Option configFileOption = Option.builder().longOpt("config-file").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
+     Option configFileOption = Option.builder("f").longOpt("config-file").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
      Option workOption = Option.builder("w").longOpt("work").desc("Working directory").hasArg().argName("DIR").type(File.class).build();
      Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration directory").hasArg().argName("DIR").type(File.class).build();
      Option dataOption = Option.builder("d").longOpt("data").desc("Specify a data directory").hasArg().argName("DIR").type(File.class).build();

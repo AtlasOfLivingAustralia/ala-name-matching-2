@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A searcher that searches a lucene index for possible candidates
+ * A searcher that searches a lucene index for possible candidates.
  */
 public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifier> {
     /** The maximum number of results to return */
