@@ -41,7 +41,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     );
   public static final Observable altScientificName = new Observable(
       "altScientificName",
-      URI.create("http://id.ala.org.au/terms/1.0/altScientificName"),
+      URI.create("http://ala.org.au/terms/1.0/altScientificName"),
       String.class,
       Observable.Style.CANONICAL,
       null,
@@ -140,7 +140,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     );
   public static final Observable soundexScientificName = new Observable(
       "soundexScientificName",
-      URI.create("http://id.ala.org.au/terms/1.0/soundexScientificName"),
+      URI.create("http://ala.org.au/terms/1.0/soundexScientificName"),
       String.class,
       Observable.Style.CANONICAL,
       null,
@@ -185,7 +185,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     );
   public static final Observable weight = new Observable(
       "weight",
-      URI.create("http://id.ala.org.au/bayesian/1.0/weight"),
+      URI.create("http://ala.org.au/bayesian/1.0/weight"),
       Double.class,
       Observable.Style.CANONICAL,
       null,
@@ -225,57 +225,57 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   /** Issue removed_rank
       <p>Ignored supplied rank to find a match.</p>
   */
-  public static final Term REMOVED_RANK = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedRank");
+  public static final Term REMOVED_RANK = TERM_FACTORY.findTerm("http://ala.org.au/issues/1.0/removedRank");
   /** Issue removed_phylum
       <p>Ignored supplied phylum to find a match.</p>
   */
-  public static final Term REMOVED_PHYLUM = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedPhylum");
+  public static final Term REMOVED_PHYLUM = TERM_FACTORY.findTerm("http://ala.org.au/issues/1.0/removedPhylum");
   /** Issue removed_class
       <p>Ignored supplied class to find a match.</p>
   */
-  public static final Term REMOVED_CLASS = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedClass");
+  public static final Term REMOVED_CLASS = TERM_FACTORY.findTerm("http://ala.org.au/issues/1.0/removedClass");
   /** Issue removed_order
       <p>Ignored supplied order to find a match.</p>
   */
-  public static final Term REMOVED_ORDER = TERM_FACTORY.findTerm("http://id.ala.org.au/issues/1.0/removedOrder");
+  public static final Term REMOVED_ORDER = TERM_FACTORY.findTerm("http://ala.org.au/issues/1.0/removedOrder");
 
   static {
     acceptedNameUsageId.setExternal(LUCENE, "dwc_acceptedNameUsageID");
-    acceptedNameUsageId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/accepted"), true);
-    acceptedNameUsageId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/additional"), true);
+    acceptedNameUsageId.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/accepted"), true);
+    acceptedNameUsageId.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/additional"), true);
     altScientificName.setExternal(LUCENE, "altScientificName");
-    altScientificName.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/altName"), true);
+    altScientificName.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/altName"), true);
     class_.setExternal(LUCENE, "dwc_class");
-    class_.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
+    class_.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
     family.setExternal(LUCENE, "dwc_family");
-    family.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
+    family.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
     genus.setExternal(LUCENE, "dwc_genus");
-    genus.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
+    genus.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
     kingdom.setExternal(LUCENE, "dwc_kingdom");
-    kingdom.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
+    kingdom.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
     order.setExternal(LUCENE, "dwc_order");
-    order.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
+    order.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
     parentNameUsageId.setExternal(LUCENE, "dwc_parentNameUsageID");
-    parentNameUsageId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/additional"), true);
-    parentNameUsageId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/parent"), true);
+    parentNameUsageId.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/additional"), true);
+    parentNameUsageId.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/parent"), true);
     phylum.setExternal(LUCENE, "dwc_phylum");
-    phylum.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/copy"), true);
+    phylum.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
     priority.setExternal(LUCENE, "priority");
-    priority.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/optimisation/1.0/aggregate"), "max");
+    priority.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/aggregate"), "max");
     scientificName.setExternal(LUCENE, "dwc_scientificName");
     scientificName.setExternal(LUCENE_VARIANT, "dwc_scientificName_variant");
-    scientificName.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/name"), true);
+    scientificName.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/name"), true);
     scientificNameAuthorship.setExternal(LUCENE, "dwc_scientificNameAuthorship");
     soundexScientificName.setExternal(LUCENE, "soundexScientificName");
     soundexScientificName.setExternal(LUCENE_VARIANT, "soundexScientificName_variant");
     specificEpithet.setExternal(LUCENE, "dwc_specificEpithet");
     taxonId.setExternal(LUCENE, "dwc_taxonID");
-    taxonId.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/identifier"), true);
+    taxonId.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/identifier"), true);
     taxonRank.setExternal(LUCENE, "dwc_taxonRank");
     taxonomicStatus.setExternal(LUCENE, "dwc_taxonomicStatus");
-    taxonomicStatus.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/additional"), true);
+    taxonomicStatus.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/additional"), true);
     weight.setExternal(LUCENE, "bayesian_weight");
-    weight.setProperty(TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/weight"), true);
+    weight.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/weight"), true);
   }
 
   @Override

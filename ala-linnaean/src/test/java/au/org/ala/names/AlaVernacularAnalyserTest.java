@@ -61,7 +61,7 @@ public class AlaVernacularAnalyserTest {
         classification.taxonomicStatus= TaxonomicStatus.homotypicSynonym;
         this.analyser.analyseForIndex(classification);
         assertEquals("Common Wombat", classification.vernacularName);
-        assertEquals(0.1, classification.weight, 0.00001);
+        assertEquals(1.0, classification.weight, 0.00001);
         assertTrue(classification.getIssues().isEmpty());
     }
 

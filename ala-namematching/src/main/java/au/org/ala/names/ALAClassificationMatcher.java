@@ -1,14 +1,12 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.Observable;
 import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.api.Rank;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory> {
@@ -24,7 +22,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     private static final int MIN_VALID_LENGTH = 4;
 
     private static final Comparator<Match<AlaLinnaeanClassification>> MATCH_SORTER = new Comparator<Match<AlaLinnaeanClassification>>() {
-        private static final double DISTANCE = 0.05;
+        private static final double DISTANCE = 0.10;
 
         @Override
         public int compare(Match<AlaLinnaeanClassification> o1, Match<AlaLinnaeanClassification> o2) {
@@ -179,10 +177,10 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         final String tn = tc.scientificName;
         final TaxonomicStatus tts = tc.taxonomicStatus != null ? tc.taxonomicStatus : TaxonomicStatus.unknown;
         // See if we have a single accepted/variety of synonyms
-        if (tts.isAcceptedFlag() && results.stream().allMatch(m -> m == trial || (tn.equalsIgnoreCase(m.getMatch().scientificName) && m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike())))
+        if (tts.isAcceptedFlag() && results.stream().allMatch(m -> m == trial || m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike() && m.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName)))
             return trial.boost(results).with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
         // See if we have collection of misapplied results
-        if (tts.isMisappliedFlag() && results.stream().allMatch(m -> m == trial || (tn.equalsIgnoreCase(m.getMatch().scientificName) && m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isMisappliedFlag())))
+        if (tts.isMisappliedFlag() && results.stream().allMatch(m -> m == trial || m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isMisappliedFlag() &&  m.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName)))
             return trial.boost(results).with(AlaLinnaeanFactory.MISAPPLIED_NAME);
         List<Match<AlaLinnaeanClassification>> acceptable = results.stream().filter(m -> this.isAcceptableMatch(m)).collect(Collectors.toList());
         if (!acceptable.isEmpty()) {
@@ -230,9 +228,13 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         // Look for a common parent if all synonyms
         if (results.stream().allMatch(r -> r.getMatch().taxonomicStatus.isSynonymLike() && r.getMatch() != r.getAccepted())) {
             int limitRankID = this.limitRankID(classification);
-            Match<AlaLinnaeanClassification> lub = this.lub(results);
+            final Match<AlaLinnaeanClassification> lub = this.lub(results);
             if (lub != null && lub.getAccepted().rankId != null && lub.getAccepted().rankId > limitRankID)
                 return lub.with(AlaLinnaeanFactory.SYNTHETIC_MATCH);
+        }
+        // If all accepted and all the same name and nomenclatural code, then choose the most likely
+        if (results.stream().allMatch(r -> r.getMatch().taxonomicStatus.isAcceptedFlag() && r.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName))) {
+            return results.get(0).with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);
         }
         return null;
     }
@@ -307,6 +309,103 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     }
 
     /**
+     * Prepare a classification for modification when looking for a source classifiers.
+     * <p>
+     * If we do not have a kingdom or nomenclatural code, see if we can find one based on the other
+     * evidence in the classification.
+     * </p>
+     *
+     * @param classification The classification
+     * @return The prepared
+     */
+    @Override
+    protected AlaLinnaeanClassification prepareForSourceModification(AlaLinnaeanClassification classification) throws BayesianException {
+        classification = classification.clone();
+        this.estimateKingdom(classification);
+        this.estimateNomenclaturalCode(classification);
+        return classification;
+    }
+
+    /**
+     * If the classification does not have a kingdom, see if we can find one.
+     *
+     * @param classification The classification
+     */
+    protected void estimateKingdom(AlaLinnaeanClassification classification) throws BayesianException {
+        if (classification.kingdom != null && classification.soundexKingdom != null)
+            return;
+        if (this.findKingdom(classification.phylum, Rank.PHYLUM, classification))
+            return;
+        if (this.findKingdom(classification.class_, Rank.CLASS, classification))
+            return;
+        if (this.findKingdom(classification.order, Rank.ORDER, classification))
+            return;
+        if (this.findKingdom(classification.family, Rank.FAMILY, classification))
+            return;
+    }
+
+    /**
+     * See if we can find a kingdom for a particular higher-order name.
+     *
+     * @param scientificName The name of the taxon
+     * @param taxonRank The taxon rank
+     * @param classification The classification to modify
+     *
+     * @return True if a kingdom has been found
+     */
+    protected boolean findKingdom(String scientificName, Rank taxonRank, AlaLinnaeanClassification classification) throws BayesianException {
+        AlaLinnaeanClassification finder = new AlaLinnaeanClassification();
+        finder.scientificName = scientificName;
+        finder.taxonRank = taxonRank;
+        finder.nomenclaturalCode = classification.nomenclaturalCode;
+        Match<AlaLinnaeanClassification> match = this.findSource(classification, false);
+        if (match == null || !match.isValid())
+            return false;
+        classification.kingdom = match.getAccepted().kingdom;
+        classification.addIssue(AlaLinnaeanFactory.INFERRED_KINGDOM);
+        return true;
+    }
+
+    /**
+     * Deduce the nomenclatural code from the classification.
+     * <p>
+     * If there is a kingdom, use that.
+     * If the scientific name authorship obeys certain characteristics, use that.
+     * </p>
+     * @param classification
+     * @throws BayesianException
+     */
+    protected void estimateNomenclaturalCode(AlaLinnaeanClassification classification) throws BayesianException {
+        if (classification.nomenclaturalCode != null)
+            return;
+        NomenclaturalCodeAnalysis analysis = new NomenclaturalCodeAnalysis();
+        NomenclaturalCode code = analysis.estimateFromKingdom(classification.kingdom);
+        if (code != null) {
+            classification.nomenclaturalCode = analysis.estimateFromKingdom(classification.kingdom);
+            classification.addIssue(AlaLinnaeanFactory.INFERRED_NOMENCLATURAL_CODE);
+        }
+    }
+
+    /**
+     * Is this a possible match.
+     * <p>
+     * Include synonyms with a low threashold, so they can be included in various flags.
+     * </p>
+     *
+     * @param classification The source classification
+     * @param candidate      The candidate classifier
+     * @param inference      The match probability
+     * @return True if this is a possible match
+     */
+    @Override
+    protected boolean isPossible(AlaLinnaeanClassification classification, Classifier candidate, Inference inference) {
+        TaxonomicStatus taxonomicStatus = candidate.get(AlaLinnaeanFactory.taxonomicStatus);
+        double threshold = taxonomicStatus.isSynonymLike() ? POSSIBLE_THRESHOLD / 10.0 : POSSIBLE_THRESHOLD;
+        return inference.getPosterior() >= threshold && inference.getBoost() >= 1.0;
+
+    }
+
+    /**
      * Check to see if this has the faintest chance of being a match before doing more onerous matching.
      *
      * @param classification The template classification
@@ -321,8 +420,9 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         if (classification.soundexScientificName == null)
             return false;
         final String soundexScientificName = classification.soundexScientificName;
+        final int minLength = Math.min(soundexScientificName.length(), MIN_VALID_LENGTH);
         for (Object possible: candidate.getAll(AlaLinnaeanFactory.soundexScientificName)) {
-            if (soundexScientificName.regionMatches(0, possible.toString(), 0, MIN_VALID_LENGTH))
+            if (soundexScientificName.regionMatches(0, possible.toString(), 0, minLength))
                 return true;
         }
         return false;

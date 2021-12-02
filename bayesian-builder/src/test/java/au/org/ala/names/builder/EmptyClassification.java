@@ -88,6 +88,9 @@ public class EmptyClassification implements Classification<EmptyClassification> 
         this.issues = this.issues.merge(issues);
     }
 
+    @Override
+    public <T> void addHint(Observable observable, T value) {
+    }
 
     /**
      * The order in which to modify this classification.
@@ -114,6 +117,20 @@ public class EmptyClassification implements Classification<EmptyClassification> 
      */
     @Override
     public List<List<Function<EmptyClassification, EmptyClassification>>> matchModificationOrder() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * The order in which to modify this classification.
+     * <p>
+     * Returned is a list of functions that will take a classification and return
+     * a modified classification
+     * </p>
+     *
+     * @return
+     */
+    @Override
+    public List<List<Function<EmptyClassification, EmptyClassification>>> hintModificationOrder() {
         return Collections.emptyList();
     }
 

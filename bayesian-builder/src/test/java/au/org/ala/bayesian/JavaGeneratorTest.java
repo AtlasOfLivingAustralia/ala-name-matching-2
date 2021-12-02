@@ -91,7 +91,6 @@ public class JavaGeneratorTest {
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-9-classification.java.txt"), writer.toString());
     }
 
-
     @Test
     public void testGenerateClassification2() throws Exception {
         StringWriter writer = new StringWriter();
@@ -102,6 +101,19 @@ public class JavaGeneratorTest {
         generator.generateClass(compiler, generator.getClassificationSpec(), writer, compiler.getClassificationVariables());
         // System.out.println(writer.toString());
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "simple-linnaean-classification.java.txt"), writer.toString());
+    }
+
+
+    @Test
+    public void testGenerateClassification3() throws Exception {
+        StringWriter writer = new StringWriter();
+        Network network = Network.read(this.getClass().getResource("network-13.json"));
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
+        compiler.analyse();
+        JavaGenerator generator = new JavaGenerator();
+        generator.generateClass(compiler, generator.getClassificationSpec(), writer, compiler.getClassificationVariables());
+        // System.out.println(writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-13-classification.java.txt"), writer.toString());
     }
 
     @Test

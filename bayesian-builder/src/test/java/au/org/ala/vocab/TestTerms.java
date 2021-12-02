@@ -10,7 +10,7 @@ public enum TestTerms implements Term {
     test2,
     test3;
 
-    public static final String NS = "http://id.ala.org.au/test/1.0/";
+    public static final String NS = "http://ala.org.au/test/1.0/";
     public static final URI NAMESPACE = URI.create(NS);
     public static final String PREFIX = "test:";
 

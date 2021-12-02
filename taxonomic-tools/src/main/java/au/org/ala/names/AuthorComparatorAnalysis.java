@@ -12,8 +12,11 @@ import java.util.regex.Pattern;
  * <p>
  * Use the GBIF author comparator to see if two authors are equivalent.
  * </p>
+ * @deprecated This requires authorship parsing every time you do a comparsion.
+ *             Consider {@link AuthorCanonicaliserDerivation} instead.
  */
-public class AuthorAnalysis extends StringAnalysis {
+@Deprecated
+public class AuthorComparatorAnalysis extends StringAnalysis {
     /** The author comparator to use when checking authorship equality */
     private AuthorComparator comparator = AuthorComparator.createWithAuthormap();
 

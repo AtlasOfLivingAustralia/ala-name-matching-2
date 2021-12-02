@@ -26,6 +26,7 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
         STATUS_WEIGHT_MAP.put(VernacularStatus.common, 10.0);
         STATUS_WEIGHT_MAP.put(VernacularStatus.traditionalKnowledge, 20.0);
         STATUS_WEIGHT_MAP.put(VernacularStatus.local, 5.0);
+        STATUS_WEIGHT_MAP.put(VernacularStatus.deprecated, 1.0);
     }
     /**
      * Analyse the information in a classifier and extend the classifier
@@ -45,7 +46,7 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
                 weight /= 10.0;
             if (classification.taxonomicStatus != null && !classification.taxonomicStatus.isAcceptedFlag())
                 weight /= 10.0;
-            classification.weight = weight;
+            classification.weight = Math.max(1.0, weight);
         }
         if (classification.acceptedNameUsageId != null)
             classification.taxonId = classification.acceptedNameUsageId;
@@ -82,7 +83,7 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
         Set<String> names = new HashSet<>(allNames);
  
         if (allNames.isEmpty())
-            throw new InferenceException("No name for " + classifier.get(AlaVernacularFactory.nameId));
+            throw new InferenceException("No name for " + classifier.get(AlaVernacularFactory.nameId) + " at" +  classifier.get(AlaVernacularFactory.taxonId));
         for (String nm : allNames) {
             names.add(ScientificNameAnalyser.BASIC_NORMALISER.normalise(nm));
             names.add(ScientificNameAnalyser.PUNCTUATION_NORMALISER.normalise(nm));

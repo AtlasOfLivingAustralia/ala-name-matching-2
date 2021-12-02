@@ -2,6 +2,7 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
+import au.org.ala.vocab.BayesianTerm;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.document.*;
@@ -248,16 +249,17 @@ public class LuceneClassifier implements Classifier {
     public <T> void add(Observable observable, T value) throws StoreException {
         if (value == null)
             return;
+        boolean index = !observable.hasProperty(BayesianTerm.index, false); // True by default
         Boolean match = this.match(value, false, observable);
         if (match != null && match && !observable.getMultiplicity().isMany())
             throw new StoreException("Duplicate value " + value + " for " + observable);
         if (match == null) {
-            this.store(observable, value, LUCENE, !observable.getMultiplicity().isMany());
+            this.store(observable, value, LUCENE, !observable.getMultiplicity().isMany() && index);
         }
         if (observable.getMultiplicity().isMany()) {
             match = this.match(value, true, observable);
             if (match == null || !match) {
-                this.store(observable, value, LUCENE_VARIANT, true);
+                this.store(observable, value, LUCENE_VARIANT, index);
             }
         }
     }
@@ -610,6 +612,8 @@ public class LuceneClassifier implements Classifier {
         String field = observable.getExternal(context);
         Analysis<T, S, Q> analysis = observable.getAnalysis();
         S val = analysis.toStore(value);
+        if (val == null)
+            return;
         Normaliser normaliser = observable.getNormaliser();
         if (normaliser != null && val instanceof String)
             val = (S) normaliser.normalise((String) val);

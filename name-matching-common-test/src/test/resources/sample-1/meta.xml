@@ -97,9 +97,8 @@
     <field index="15" term="http://ala.org.au/terms/1.0/status"/>
     <field index="16" term="http://purl.org/dc/terms/source"/>
     <field index="17" term="http://purl.org/dc/terms/provenance"/>
-    <field index="18" term="http://http://ala.org.au/terms/1.0/status"/>
-    <field index="19" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
-    <field index="20" term="http://ala.org.au/terms/1.0/labels"/>
+    <field index="18" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
+    <field index="19" term="http://ala.org.au/terms/1.0/labels"/>
   </extension>
   <extension encoding="utf-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://purl.org/dc/terms/rightsHolder">
     <files>

@@ -88,14 +88,17 @@ public class StringAnalysis extends Analysis<String, String, String> {
     /**
      * Parse this value and return a suitably interpreted object.
      * <p>
-     * This just returns the value
+     * This just returns the trimmed value
      * </p>
      * @param value The value
      * @return The parsed value
      */
     @Override
     public String fromString(String value) {
-        return value == null || value.isEmpty()?  null : value;
+        if (value == null)
+            return null;
+        value = value.trim();
+        return value.isEmpty()?  null : value;
     }
 
     /**

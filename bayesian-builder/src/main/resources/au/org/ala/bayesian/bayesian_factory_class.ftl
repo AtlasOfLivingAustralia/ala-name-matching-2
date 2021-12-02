@@ -45,7 +45,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
       ${oType}.class,
       Observable.Style.${observable.style},
       <#if observable.normaliser??>${observable.normaliser.javaVariable}<#else>null</#if>,
-      new ${observable.analysis.class.simpleName}(),
+      new ${observable.analysis.class.simpleName}(<#list observable.analysis.constructorParameters as param><#if param?is_boolean>${param?c}<#elseif param?is_number>${param?c}<#else>"${param?j_string}"</#if><#if param?has_next>, </#if></#list>),
       Multiplicity.${observable.multiplicity}
     );
   </#list>
@@ -64,7 +64,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 </#list>
   ));
 
-  public static final Term CONCEPT = TERM_FACTORY.findTerm("${network.concept!"http://id.ala.org.au/bayesian/1.0/Concept"}");
+  public static final Term CONCEPT = TERM_FACTORY.findTerm("${network.concept!"http://ala.org.au/bayesian/1.0/Concept"}");
 
 <#list issues as issue>
   /** Issue ${issue.id} <#if issue.description??>
@@ -84,8 +84,8 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     </#list>
   </#if>
   <#list observable.propertyKeys as key>
-    <#assign pval = observable.getProperty(key)>
-    ${observable.javaVariable}.setProperty(TERM_FACTORY.findTerm("${key.qualifiedName()}"), <#if pval?is_boolean>${pval?c}<#elseif pval?is_number>${pval?c}<#else>"${pval?j_string}"</#if>);
+    <#assign param = observable.getProperty(key)>
+    ${observable.javaVariable}.setProperty(TERM_FACTORY.findTerm("${key.qualifiedName()}"), <#if param?is_boolean>${param?c}<#elseif param?is_number>${param?c}<#else>"${param?j_string}"</#if>);
   </#list>
 </#list>
   }

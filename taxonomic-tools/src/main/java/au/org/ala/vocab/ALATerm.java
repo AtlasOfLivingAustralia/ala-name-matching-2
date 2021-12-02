@@ -1,5 +1,7 @@
 package au.org.ala.vocab;
 
+import lombok.Getter;
+import org.gbif.dwc.terms.AlternativeNames;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 
@@ -12,7 +14,7 @@ import java.net.URI;
  *
  * Copyright (c) 2016 CSIRO
  */
-public enum ALATerm implements Term {
+public enum ALATerm implements Term, AlternativeNames {
     /** The supplied nomenclatural code */
     verbatimNomenclaturalCode,
     /** The supplied taxonomicStatus */
@@ -108,13 +110,25 @@ public enum ALATerm implements Term {
     /** Record type describing a problem or note about a taxon */
     TaxonomicIssue;
 
-    public static final String NS = "http://id.ala.org.au/terms/1.0/";
+    public static final String NS = "http://ala.org.au/terms/1.0/";
     public static final URI NAMESPACE = URI.create(NS);
     public static final String PREFIX = "ala:";
+
+    @Getter
+    private String[] alternatives;
+
+    private ALATerm(String... alternatives) {
+        this.alternatives = alternatives;
+    }
 
     @Override
     public String qualifiedName() {
         return NS + this.simpleName();
+    }
+
+    @Override
+    public String[] alternativeNames() {
+        return this.alternatives;
     }
 
     @Override
@@ -142,10 +156,7 @@ public enum ALATerm implements Term {
     }
 
     static {
-        TermFactory factory = TermFactory.instance();
-        for (Term term : ALATerm.values()) {
-            factory.registerTerm(term);
-        }
+        TermFactory.instance().registerTermEnum(ALATerm.class, PREFIX);
     }
 
 }

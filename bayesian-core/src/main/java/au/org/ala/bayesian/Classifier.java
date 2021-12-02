@@ -68,6 +68,31 @@ public interface Classifier {
      */
     public <T> Boolean match(T value, Observable... observables) throws StoreException;
 
+
+    /**
+     * Match definitavly.
+     * <p>
+     * Exceptions and null results are treated as false.
+     * </p>
+     *
+     * @param observables The possible observables to match against
+     * @param value The value to match against (may be null)
+     *
+     * @return True for a match/false for a non-match
+     *
+     * @see #match(Object, Observable...)
+     */
+    public default <T> boolean matchClean(T value, Observable... observables) {
+        try {
+            Boolean match = this.match(value, observables);
+            if (match == null)
+                return false;
+            return match.booleanValue();
+        } catch (StoreException ex) {
+            return false;
+        }
+    }
+
     /**
      * Add a value to the classifier.
      * <p>

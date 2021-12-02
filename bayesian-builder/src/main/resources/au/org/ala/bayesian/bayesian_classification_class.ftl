@@ -1,10 +1,11 @@
 <#assign analyserType><#if analyserImplementationClassName??>${analyserImplementationClassName}<#else>Analyser<${className}></#if></#assign>
 package ${packageName};
 
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.Hints;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
@@ -26,11 +27,13 @@ import ${import};
 public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements Classification<${className}> {
   private ${analyserType} analyser;
   private Issues issues;
+  private Hints<${className}> hints;
+
 <#list classificationVariables as variable>
   private ${variable.clazz.simpleName} ${variable.name};
 </#list>
 <#list modifications as modifier>
-  private Function<${className}, ${className}> ${modifier.javaConstant} =
+  private static Function<${className}, ${className}> ${modifier.javaConstant} =
     c -> {
       ${className} nc;
   <#list modifier.generate(compiler, "c", "nc") as statement>
@@ -56,6 +59,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   public ${className}(${analyserType} analyser) {
     this.analyser = ${factoryClassName}.instance().createAnalyser();
     this.issues = new Issues();
+    this.hints = new Hints<>();
 <#list classificationVariables as variable>
     this.${variable.name} = new ${variable.clazz.simpleName}();
 </#list>
@@ -87,6 +91,11 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   @Override
   public void addIssues(Issues issues) {
         this.issues = this.issues.merge(issues);
+  }
+
+  @Override
+  public <T> void addHint(Observable observable, T value) {
+        this.hints.addHint(observable, value);
   }
 
   @Override
@@ -191,8 +200,13 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     ml = new ArrayList();
     ml.add(null);
     <#list ml as modifier>
-    if (<#list modifier.conditions as var><#if var?index gt 0><#if modifier.anyCondition> || <#else> && </#if></#if>this.${var.javaVariable} != null</#list>)
+      <#assign check = modifier.buildCheck(compiler, "this", true)>
+      <#if modifier.buildCheck(compiler, "this", true)??>
+    if (${modifier.buildCheck(compiler, "this", true)})
       ml.add(${modifier.javaConstant});
+      <#else>
+    ml.add(${modifier.javaConstant});
+      </#if>
     </#list>
     if (ml.size() > 1)
       modifications.add(ml);
@@ -210,13 +224,27 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     ml = new ArrayList();
     ml.add(null);
     <#list ml as modifier>
-    if (<#list modifier.conditions as var><#if var?index gt 0><#if modifier.anyCondition> || <#else> && </#if></#if>this.${var.javaVariable} != null</#list>)
+      <#if modifier.buildCheck(compiler, "this", true)??>
+    if (${modifier.buildCheck(compiler, "this", true)})
       ml.add(${modifier.javaConstant});
+      <#else>
+    ml.add(${modifier.javaConstant});
+      </#if>
     </#list>
     if (ml.size() > 1)
       modifications.add(ml);
 </#list>
 </#if>
+    return modifications;
+  }
+
+
+  @Override
+  public List<List<Function<${className}, ${className}>>> hintModificationOrder() {
+    List<List<Function<${className}, ${className}>>> modifications = new ArrayList();
+<#list orderedNodes as node>
+    this.hints.buildModifications(${factoryClassName}.${node.observable.javaVariable}, ${node.observable.type.name}.class, (c, v) -> { c.${node.observable.javaVariable} = v; }, modifications);
+</#list>
     return modifications;
   }
 
@@ -247,7 +275,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     ${inferencerClassName}.Evidence evidence = new ${inferencerClassName}.Evidence();
 <#list orderedNodes as node>
   <#assign observable = node.observable >
-    evidence.${node.evidence.id} = classifier.match(this.${node.observable.javaVariable}, ${factoryClassName}.${node.observable.javaVariable}<#if network.nameObservable?? && network.altNameObservable?? && node.observable.id == network.nameObservable.id>, ${factoryClassName}.${network.altNameObservable.javaVariable}</#if>);
+    evidence.${node.evidence.id} = classifier.match(this.${node.observable.javaVariable}, ${factoryClassName}.${node.observable.javaVariable});
 </#list>
     return evidence;
   }

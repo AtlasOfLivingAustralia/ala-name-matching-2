@@ -19,8 +19,8 @@
     "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
     "id" : "mod_1",
     "issue" : "issue_1",
-    "observables" : [ "v_1" ],
-    "nullDerived" : false
+    "clearDerived" : false,
+    "observables" : [ "v_1" ]
   } ],
   "matchModifiers" : [ [ "mod_1" ] ]
 }

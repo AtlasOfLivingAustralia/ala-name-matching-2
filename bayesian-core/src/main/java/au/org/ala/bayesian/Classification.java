@@ -5,6 +5,7 @@ import org.gbif.dwc.terms.Term;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -83,7 +84,6 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      */
     void addIssue(Term issue);
 
-
     /**
      * Add a set of issues to the issues list.
      * <p>
@@ -94,6 +94,33 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * @param issues The issues to add
      */
     void addIssues(Issues issues);
+
+    /**
+     * Get a set of hints about the properties of a classification.
+     * <p>
+     * These are possible values for an observable that are not strong enough or are subject to
+     * enough uncertainty that they cannot be reliably used for inference but can be used to choose
+     * between multiple candidates.
+     * </p>
+     * <p>
+     * Hints are usually included by an {@link Analyser}.
+     * </p>
+     *
+     * @return Any hints or null for none
+     */
+    List<List<Function<C, C>>> hintModificationOrder();
+
+    /**
+     * Add a hint to the classification.
+     *
+     * @param observable The observable the hint applies to
+     * @param value The hint value
+     *
+     * @param <T> The type of hint
+     *
+     * @see #hintModificationOrder()
+     */
+    <T> void addHint(Observable observable, T value);
 
     /**
      * Get a list of observations that match this classification.

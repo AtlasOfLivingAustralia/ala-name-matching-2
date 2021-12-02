@@ -36,7 +36,7 @@
         "@class": "au.org.ala.bayesian.derivation.IdentifierGeneratorDerivation"
       },
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/identifier": true
+        "http://ala.org.au/bayesian/1.0/identifier": true
       },
       "style": "IDENTIFIER",
       "multiplicity": "1"
@@ -53,7 +53,7 @@
       "label":"VN",
       "uri": "http://rs.tdwg.org/dwc/terms/vernacularName",
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/name": true
+        "http://ala.org.au/bayesian/1.0/name": true
       },
       "normaliser": "basic_normaliser",
       "style": "PHRASE",
@@ -62,7 +62,7 @@
     {
       "id": "soundexVernacularName",
       "label": "xVN",
-      "uri": "http://id.ala.org.au/terms/1.0/soundexVernacularName",
+      "uri": "http://ala.org.au/terms/1.0/soundexVernacularName",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "sources": [ "vernacularName" ]
@@ -76,7 +76,7 @@
       "style": "IDENTIFIER",
       "multiplicity": "1",
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/link": true
+        "http://ala.org.au/bayesian/1.0/link": true
       }
     },
     {
@@ -112,7 +112,7 @@
         "@class": "au.org.ala.names.VernacularStatusAnalysis"
       },
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/additional": true
+        "http://ala.org.au/bayesian/1.0/additional": true
       }
     },
     {
@@ -124,7 +124,7 @@
         "@class": "au.org.ala.names.RankAnalysis"
       },
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/additional": true
+        "http://ala.org.au/bayesian/1.0/additional": true
       }
     },
     {
@@ -136,7 +136,7 @@
         "@class": "au.org.ala.names.TaxonomicStatusAnalysis"
       },
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/additional": true
+        "http://ala.org.au/bayesian/1.0/additional": true
       }
     },
     {
@@ -144,7 +144,7 @@
       "label": "aID",
       "uri": "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
       "properties": {
-         "http://id.ala.org.au/bayesian/1.0/additional": true
+         "http://ala.org.au/bayesian/1.0/additional": true
       },
       "style": "IDENTIFIER"
     },
@@ -152,10 +152,10 @@
       "id": "weight",
       "label": "w",
       "type": "java.lang.Double",
-      "uri": "http://id.ala.org.au/bayesian/1.0/weight",
+      "uri": "http://ala.org.au/bayesian/1.0/weight",
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/weight": true,
-        "http://id.ala.org.au/bayesian/1.0/additional": true
+        "http://ala.org.au/bayesian/1.0/weight": true,
+        "http://ala.org.au/bayesian/1.0/additional": true
       }
     }
   ],
@@ -182,17 +182,17 @@
   "issues": [
     {
       "id": "removed_language",
-      "uri": "http://id.ala.org.au/issues/1.0/removedLanguage",
+      "uri": "http://ala.org.au/issues/1.0/removedLanguage",
       "description": "Ignored supplied language to find a match."
     },
     {
       "id": "removed_locality",
-      "uri": "http://id.ala.org.au/issues/1.0/removedLocality",
+      "uri": "http://ala.org.au/issues/1.0/removedLocality",
       "description": "Ignored supplied locality to find a match."
     },
     {
       "id": "misspelled_vernacular_name",
-      "uri": "http://id.ala.org.au/issues/1.0/misspelledVernacularName",
+      "uri": "http://ala.org.au/issues/1.0/misspelledVernacularName",
       "description": "Possible misspelled vernacular name."
     }
   ],

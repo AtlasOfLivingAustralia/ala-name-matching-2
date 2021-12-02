@@ -5,6 +5,7 @@ import au.org.ala.bayesian.*;
 import au.org.ala.util.Counter;
 import au.org.ala.vocab.BayesianTerm;
 import au.org.ala.vocab.OptimisationTerm;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.gbif.dwc.Archive;
@@ -23,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DwCASource extends Source {
     private List<Path> cleanup;
+    @Getter
     private Archive archive;
     private Counter counter;
 
@@ -175,12 +178,14 @@ public class DwCASource extends Source {
      * @return A function that will retrieve the record
      */
     protected BiFunction<Record, StarRecord, Object> buildAccessor(final ArchiveFile file, final Observable observable) throws BayesianException {
+        // Get the term to use
+        final Term term = observable.getTerm();
         // Direct access from loaded record (unless this is a link term, in which case prefer the core record)
-        if (file.getTerms().contains(observable.getTerm()) && !observable.hasProperty(BayesianTerm.link, true)) {
+        if (file.getTerms().contains(term) && !observable.hasProperty(BayesianTerm.link, true)) {
             return (r, sr) -> {
                 String value = null;
                 try {
-                    value = r.value(observable.getTerm());
+                    value = r.value(term);
                     return observable.getAnalysis().fromString(value);
                 } catch (StoreException ex) {
                     throw new IllegalStateException("Unable to read " + value + " for " + observable, ex);
@@ -188,11 +193,11 @@ public class DwCASource extends Source {
             };
         }
         // Access from core record
-        if (this.archive.getCore().getTerms().contains(observable.getTerm())) {
+        if (this.archive.getCore().getTerms().contains(term)) {
             return (r, sr) -> {
                 String value = null;
                 try {
-                    value = sr.core().value(observable.getTerm());
+                    value = sr.core().value(term);
                     return observable.getAnalysis().fromString(value);
                 } catch (StoreException ex) {
                     throw new IllegalStateException("Unable to read " + value + " for " + observable, ex);
@@ -206,11 +211,14 @@ public class DwCASource extends Source {
             if (ext.getTerms().contains(observable.getTerm())) {
                 final Term extType = ext.getRowType();
                 final String aggregate = observable.getProperty(OptimisationTerm.aggregate, "first").toLowerCase();
+                final Comparator<Record> order = this.buildOrder(observable);
+                final Predicate<Record> filter = this.buildFilter(observable);
                 switch (aggregate) {
                     case "first":
                         return (r, sr) ->
                             sr.extension(extType).stream()
-                                    .map(er -> er.value(observable.getTerm()))
+                                    .filter(filter)
+                                    .map(er -> er.value(term))
                                     .filter(Objects::nonNull)
                                     .map(v -> {
                                         try {
@@ -226,7 +234,9 @@ public class DwCASource extends Source {
                             throw new StoreException("Observable " + observable + " type is not comparable");
                         return (r, sr) ->
                                 sr.extension(extType).stream()
-                                        .map(er -> er.value(observable.getTerm()))
+                                        .filter(filter)
+                                        .sorted(order.reversed())
+                                        .map(er -> er.value(term))
                                         .filter(Objects::nonNull)
                                         .map(v -> {
                                             try {
@@ -235,14 +245,16 @@ public class DwCASource extends Source {
                                                 throw new IllegalStateException("Unable to read " + v + " for " + observable, ex);
                                             }
                                         })
-                                        .max(Comparator.naturalOrder())
+                                        .findFirst()
                                         .orElse(null);
                     case "min":
                         if (!Comparable.class.isAssignableFrom(observable.getType()))
                             throw new StoreException("Observable " + observable + " type is not comparable");
                         return (r, sr) ->
                                 sr.extension(extType).stream()
-                                        .map(er -> er.value(observable.getTerm()))
+                                        .filter(filter)
+                                        .sorted(order)
+                                        .map(er -> er.value(term))
                                         .filter(Objects::nonNull)
                                         .map(v -> {
                                             try {
@@ -259,6 +271,86 @@ public class DwCASource extends Source {
              }
         }
         return (r, sr) -> null;
+    }
+
+    /**
+     * Build an order for the observable.
+     * <p>
+     * If there is a specific {@link OptimisationTerm#dwcaOrder} specified, then used that.
+     * Otherwise, use an order based on the type of the observable.
+     * </p>
+     *
+     * @param observable The observable
+     *
+     * @return A sutiable comparator
+     *
+     * @throws BayesianException if unable to build the order
+     */
+    protected Comparator<Record> buildOrder(final Observable observable) throws BayesianException {
+        final Term term = observable.getTerm();
+        String orderClass = observable.getProperty(OptimisationTerm.dwcaOrder);
+        if (orderClass != null) {
+            try {
+                return (Comparator<Record>) Class.forName(orderClass).newInstance();
+            } catch (Exception ex) {
+                throw new BuilderException("Can't create order " + orderClass + " on " + observable, ex);
+            }
+        }
+        if (Comparable.class.isAssignableFrom(observable.getType())) {
+            return (r1, r2) -> {
+                try {
+                    Comparable v1 = (Comparable) observable.getAnalysis().fromString(r1.value(term));
+                    Comparable v2 = (Comparable) observable.getAnalysis().fromString(r2.value(term));
+                    if (v1 == null && v2 == null)
+                        return 0;
+                    if (v1 == null)
+                        return Integer.MIN_VALUE;
+                    if (v2 == null)
+                        return Integer.MAX_VALUE;
+                    return v1.compareTo(v2);
+                } catch (StoreException ex) {
+                    throw new IllegalStateException("Unable to read value for " + observable, ex);
+                }
+            };
+        }
+        return (r1, r2) -> {
+            String v1 = r1.value(term);
+            String v2 = r2.value(term);
+            if (v1 == null && v2 == null)
+                return 0;
+            if (v1 == null)
+                return Integer.MIN_VALUE;
+            if (v2 == null)
+                return Integer.MAX_VALUE;
+            return v1.compareTo(v2);
+        };
+    }
+
+
+    /**
+     * Build an filterfor the observable.
+     * <p>
+     * If there is a specific {@link OptimisationTerm#dwcaFilter} specified, then used that.
+     * Otherwise, accept all records.
+     * </p>
+     *
+     * @param observable The observable
+     *
+     * @return A sutiable predicate
+     *
+     * @throws BayesianException if unable to build the order
+     */
+    protected Predicate<Record> buildFilter(final Observable observable) throws BayesianException {
+        final Term term = observable.getTerm();
+        String filterClass = observable.getProperty(OptimisationTerm.dwcaFilter);
+        if (filterClass != null) {
+            try {
+                return (Predicate<Record>) Class.forName(filterClass).newInstance();
+            } catch (Exception ex) {
+                throw new BuilderException("Can't create order " + filterClass + " on " + observable, ex);
+            }
+        }
+        return r1 -> true;
     }
 
     /**

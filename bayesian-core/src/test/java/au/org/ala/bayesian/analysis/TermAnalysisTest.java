@@ -40,7 +40,7 @@ public class TermAnalysisTest {
     public void testFromString1() throws Exception {
         assertEquals(DcTerm.identifier, this.analysis.fromString("dcterms:identifier"));
         assertEquals(BayesianTerm.altName, this.analysis.fromString("bayesian:altName"));
-        assertEquals(BayesianTerm.altName, this.analysis.fromString("http://id.ala.org.au/bayesian/1.0/altName"));
+        assertEquals(BayesianTerm.altName, this.analysis.fromString("http://ala.org.au/bayesian/1.0/altName"));
         assertEquals(null, this.analysis.fromString(null));
         assertEquals(null, this.analysis.fromString(""));
     }
@@ -49,22 +49,22 @@ public class TermAnalysisTest {
     public void testFromStore1() throws Exception {
         assertEquals(BayesianTerm.accepted, this.analysis.fromStore("accepted"));
         assertEquals(BayesianTerm.parent, this.analysis.fromStore("bayesian:parent"));
-        assertEquals(BayesianTerm.Concept, this.analysis.fromStore("http://id.ala.org.au/bayesian/1.0/Concept"));
+        assertEquals(BayesianTerm.Concept, this.analysis.fromStore("http://ala.org.au/bayesian/1.0/Concept"));
         assertEquals(null, this.analysis.fromStore(""));
         assertEquals(null, this.analysis.fromStore(null));
     }
 
     @Test
     public void testToStore1() throws Exception {
-        assertEquals("http://id.ala.org.au/bayesian/1.0/isSynonym", this.analysis.toStore(BayesianTerm.isSynonym));
-        assertEquals("http://id.ala.org.au/bayesian/1.0/weight", this.analysis.toStore(BayesianTerm.weight));
+        assertEquals("http://ala.org.au/bayesian/1.0/isSynonym", this.analysis.toStore(BayesianTerm.isSynonym));
+        assertEquals("http://ala.org.au/bayesian/1.0/weight", this.analysis.toStore(BayesianTerm.weight));
         assertEquals(null, this.analysis.toStore(null));
     }
 
     @Test
     public void testToQuery1() throws Exception {
-        assertEquals("http://id.ala.org.au/bayesian/1.0/additional", this.analysis.toQuery(BayesianTerm.additional));
-        assertEquals("http://id.ala.org.au/bayesian/1.0/copy", this.analysis.toQuery(BayesianTerm.copy));
+        assertEquals("http://ala.org.au/bayesian/1.0/additional", this.analysis.toQuery(BayesianTerm.additional));
+        assertEquals("http://ala.org.au/bayesian/1.0/copy", this.analysis.toQuery(BayesianTerm.copy));
         assertEquals(null, this.analysis.toQuery(null));
     }
 

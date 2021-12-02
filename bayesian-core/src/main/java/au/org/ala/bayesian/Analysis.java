@@ -4,6 +4,9 @@ import au.org.ala.bayesian.analysis.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * An analysis object for an observable.
  * <p>
@@ -107,6 +110,21 @@ abstract public class Analysis<C, S, Q> {
         if (value1 == null || value2 == null)
             return null;
         return value1.equals(value2);
+    }
+
+    /**
+     * Get the parameters used to construct this analysis object.
+     * <p>
+     * Used by code generation to construct an analysis object.
+     * By default, this is the empty list.
+     * Override this for analysis that takes actual parameters.
+     * </p>
+     *
+     * @return The list of parameters to feed to the constructor.
+     */
+    @JsonIgnore
+    public List<Object> getConstructorParameters() {
+        return new ArrayList<>();
     }
 
     /**

@@ -129,6 +129,10 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
+    public <T> void addHint(Observable observable, T value) {
+    }
+
+    @Override
     public void inferForSearch() {
     }
 
@@ -175,6 +179,12 @@ public class TestClassification implements Classification<TestClassification> {
                 c -> { TestClassification nc = c.clone(); nc.vernacularName = null; nc.addIssue(DwcTerm.vernacularName); return nc;}
             ));
         }
+        return modifiers;
+    }
+
+    @Override
+    public List<List<Function<TestClassification, TestClassification>>> hintModificationOrder() {
+        List<List<Function<TestClassification, TestClassification>>> modifiers = new ArrayList<>();
         return modifiers;
     }
 

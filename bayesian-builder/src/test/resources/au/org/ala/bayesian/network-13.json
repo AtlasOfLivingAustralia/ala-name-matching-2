@@ -1,0 +1,99 @@
+{
+  "id": "network_13",
+  "observables": [
+    {
+      "id": "v_1",
+      "type": "au.org.ala.vocab.BayesianTerm"
+    },
+    {
+      "id": "v_2"
+    },
+    {
+      "id": "v_3"
+    }
+  ],
+  "vertices": [
+    "v_1",
+    "v_2",
+    "v_3"
+  ],
+  "edges": [
+    {
+      "source": "v_1",
+      "target": "v_2",
+      "edge": {}
+    },
+    {
+      "source": "v_2",
+      "target": "v_3",
+      "edge": {}
+    }
+  ],
+  "issues": [
+    {
+      "id": "issue_1",
+      "uri": "http://localhost/issue_1"
+    }
+  ],
+  "modifications": [
+    {
+      "@class": "au.org.ala.bayesian.modifier.ChooseModifier",
+      "id": "mod_1",
+      "issue": "issue_1",
+      "sources": [
+        "v_3",
+        "v_1"
+      ],
+      "target": "v_2",
+      "clearDerived": false
+    },
+    {
+      "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id": "mod_2",
+      "issue": "issue_1",
+      "observables": [
+        "v_3"
+      ],
+      "clearDerived": true
+    },
+    {
+      "@class": "au.org.ala.bayesian.modifier.SetModifier",
+      "id": "mod_3",
+      "issue": "issue_1",
+      "observable": "v_1",
+      "value": "illformedData",
+      "clearDerived": true
+    },
+    {
+      "@class": "au.org.ala.bayesian.modifier.JoinModifier",
+      "id": "mod_4",
+      "issue": "issue_1",
+      "sources": [
+        "v_1",
+        "v_2"
+      ],
+      "target": "v_3",
+      "clearDerived": true
+    },
+    {
+      "@class": "au.org.ala.bayesian.modifier.CompositeModifier",
+      "id": "mod_5",
+      "issue": "issue_1",
+      "modifiers": [
+        "mod_1",
+        "mod_2",
+        "mod_3",
+        "mod_4"
+      ]
+    }
+  ],
+  "matchModifiers": [
+    [
+      "mod_1",
+      "mod_2",
+      "mod_3",
+      "mod_4",
+      "mod_5"
+    ]
+  ]
+}

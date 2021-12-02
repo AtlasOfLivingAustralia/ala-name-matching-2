@@ -17,7 +17,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class ObservableTest {
-    private static URI URI1 = URI.create("http://id.ala.org.au/terms/test_1");
+    private static URI URI1 = URI.create("http://ala.org.au/terms/test_1");
 
     @Test
     public void testToJson1() throws Exception {
@@ -185,9 +185,9 @@ public class ObservableTest {
     @Test
     public void testGetTerm3() {
         Observable observable = new Observable("variety");
-        observable.setUri(URI.create("http://id.ala.org.au/terms/nameComplete"));
+        observable.setUri(URI.create("http://ala.org.au/terms/nameComplete"));
         Term term = observable.getTerm();
-        assertEquals("http://id.ala.org.au/terms/nameComplete", term.qualifiedName());
+        assertEquals("http://ala.org.au/terms/nameComplete", term.qualifiedName());
     }
 
     @Test

@@ -45,7 +45,7 @@
     },
     {
       "id": "soundexScientificName",
-      "uri": "http://id.ala.org.au/terms/1.0/soundexScientificName",
+      "uri": "http://ala.org.au/terms/1.0/soundexScientificName",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "source": "scientificName"
@@ -58,7 +58,7 @@
     },
     {
       "id": "soundexSpecificEpithet",
-      "uri": "http://id.ala.org.au/terms/1.0/soundexSpecifcEpithet",
+      "uri": "http://ala.org.au/terms/1.0/soundexSpecifcEpithet",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "source": "specificEpithet"
@@ -66,7 +66,7 @@
     },
     {
       "id": "speciesID",
-      "uri": "http://id.ala.org.au/terms/1.0/speciesID"
+      "uri": "http://ala.org.au/terms/1.0/speciesID"
     },
     {
       "id": "genus",
@@ -87,7 +87,7 @@
     },
     {
       "id": "soundexGenus",
-      "uri": "http://id.ala.org.au/terms/1.0/soundexGenus",
+      "uri": "http://ala.org.au/terms/1.0/soundexGenus",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "source": "genus"
@@ -95,7 +95,7 @@
     },
     {
       "id": "genusID",
-      "uri": "http://id.ala.org.au/terms/1.0/genusID",
+      "uri": "http://ala.org.au/terms/1.0/genusID",
       "properties": {
         "copy": true
       },
@@ -128,7 +128,7 @@
     },
     {
       "id": "soundexFamily",
-      "uri": "http://id.ala.org.au/terms/1.0/soundexFamily",
+      "uri": "http://ala.org.au/terms/1.0/soundexFamily",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "source": "family"
@@ -136,7 +136,7 @@
     },
     {
       "id": "familyID",
-      "uri": "http://id.ala.org.au/terms/1.0/familyID",
+      "uri": "http://ala.org.au/terms/1.0/familyID",
       "properties": {
         "copy": true
       },
@@ -169,7 +169,7 @@
     },
     {
       "id": "soundexOrder",
-      "uri": "http://id.ala.org.au/terms/1.0/soundexOrder",
+      "uri": "http://ala.org.au/terms/1.0/soundexOrder",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "source": "order"
@@ -177,7 +177,7 @@
     },
     {
       "id": "orderID",
-      "uri": "http://id.ala.org.au/terms/1.0/orderID",
+      "uri": "http://ala.org.au/terms/1.0/orderID",
       "properties": {
         "copy": true
       },
@@ -210,7 +210,7 @@
     },
     {
       "id": "soundexClass",
-      "uri": "http://id.ala.org.au/terms/1.0/soundexClass",
+      "uri": "http://ala.org.au/terms/1.0/soundexClass",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "source": "class"
@@ -218,7 +218,7 @@
     },
     {
       "id": "classID",
-      "uri": "http://id.ala.org.au/terms/1.0/classID",
+      "uri": "http://ala.org.au/terms/1.0/classID",
       "properties": {
         "copy": true
       },
@@ -251,7 +251,7 @@
     },
     {
       "id": "soundexPhylum",
-      "uri": "http://id.ala.org.au/terms/1.0/soundexPylum",
+      "uri": "http://ala.org.au/terms/1.0/soundexPylum",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "source": "phylum"
@@ -259,7 +259,7 @@
     },
     {
       "id": "phylumID",
-      "uri": "http://id.ala.org.au/terms/1.0/phylumID",
+      "uri": "http://ala.org.au/terms/1.0/phylumID",
       "properties": {
         "copy": true
       },
@@ -292,7 +292,7 @@
     },
     {
       "id": "soundexKingdom",
-      "uri": "http://id.ala.org.au/terms/1.0/soundexkingdom",
+      "uri": "http://ala.org.au/terms/1.0/soundexkingdom",
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "source": "kingdom"
@@ -300,7 +300,7 @@
     },
     {
       "id": "kingdomID",
-      "uri": "http://id.ala.org.au/terms/1.0/kingdomID",
+      "uri": "http://ala.org.au/terms/1.0/kingdomID",
       "properties": {
         "copy": true
       },
@@ -336,7 +336,7 @@
     },
     {
       "id": "weight",
-      "uri": "http://id.ala.org.au/bayesian/1.0/weight",
+      "uri": "http://ala.org.au/bayesian/1.0/weight",
       "type": "java.lang.Double",
       "properties": {
         "weight": true
@@ -358,7 +358,7 @@
     },
     {
       "id": "altScientificName",
-      "uri": "http://id.ala.org.au/terms/1.0/altScientificName",
+      "uri": "http://ala.org.au/terms/1.0/altScientificName",
       "properties": {
         "altScientificName": true
       }

@@ -454,13 +454,20 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     public Classifier createMetadata() throws BayesianException {
         Classifier metadata = this.loadStore.newClassifier();
         Observable creator = new Observable(DcTerm.creator);
+        creator.setProperty(BayesianTerm.index, false);
         Observable created = new Observable(DcTerm.created);
+        created.setProperty(BayesianTerm.index, false);
         Observable description = new Observable(DcTerm.description);
+        description.setProperty(BayesianTerm.index, false);
         Observable identifier = new Observable(DcTerm.identifier);
         Observable title = new Observable(DcTerm.title);
+        title.setProperty(BayesianTerm.index, false);
         Observable source = new Observable(DcTerm.source);
+        source.setProperty(BayesianTerm.index, false);
         Observable builderClass = new Observable(BayesianTerm.builderClass);
+        builderClass.setProperty(BayesianTerm.index, false);
         Observable version = new Observable(DcTerm.hasVersion);
+        version.setProperty(BayesianTerm.index, false);
         Date timestamp = new Date();
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -475,7 +482,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         try {
             metadata.add(source, mapper.writeValueAsString(this.network));
         } catch (JsonProcessingException ex) {
-            throw new StoreException("Unable to write network condiguration", ex);
+            throw new StoreException("Unable to write network configuration", ex);
         }
         return metadata;
     }

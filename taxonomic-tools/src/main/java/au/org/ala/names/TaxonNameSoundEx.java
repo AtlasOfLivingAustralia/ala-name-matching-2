@@ -2,6 +2,7 @@ package au.org.ala.names;
 
 import au.org.ala.util.Substitute;
 import org.apache.commons.lang3.StringUtils;
+import org.gbif.nameparser.api.NameType;
 import org.gbif.nameparser.api.Rank;
 
 import java.util.*;
@@ -18,6 +19,22 @@ public class TaxonNameSoundEx {
             .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
             .collect(Collectors.joining("|"))
             + "|ssp|spp";
+    private static final List<Substitute> BASIC_NORMALISE = Arrays.asList(
+            // Correct HTMLised ampersand
+            Substitute.allCI("&amp;", "&"),
+            // Remove HTML
+            Substitute.all("\\<[^>]+\\>", ""),
+            // Cultivar gets rid of the sp. nov. in a cultivar since it's sort of implicit
+            Substitute.allCI("\\s+(?:" + RANK_MARKERS + ")\\.?\\s+nov\\.?\\s+('[A-Za-z\\s]+'|\"[A-Za-z\\s]+\"|\\([A-Za-z\\s]+\\))(?=\\s+|$)", " $1"),
+            // Preserve aff, cf. sp nov markers
+            Substitute.allCI("\\s+(" + RANK_MARKERS + ")\\.?\\s+nov\\.?(?=\\s+|$)", " $1 nov"),
+            Substitute.allCI("\\s+aff\\.?(?=\\s+|$)", " aff"),
+            Substitute.allCI("\\s+(?:cf|cfr|conf)\\.?(?=\\s+|$)", " cf"),
+            Substitute.allCI("\\s+(?:s\\.\\s*s\\.|s\\.\\s*str\\.?|sens\\.\\s*str\\.?|sensu\\s*stricto)(?=\\s+|$)", " "),
+            Substitute.allCI("\\s+(?:s\\.\\s*l\\.|s\\.\\s*lat\\.?|sens\\.\\s*lat\\.?|sensu\\s*lato)(?=\\s+|$)", " "),
+            Substitute.all("\\s+", " "),
+            Substitute.all("[^A-Za-z0-9 .]", "")
+    );
     private static final List<Substitute> MARKER_NORMALISE = Arrays.asList(
             // Correct HTMLised ampersand
             Substitute.allCI("&amp;", "&"),
@@ -31,6 +48,7 @@ public class TaxonNameSoundEx {
             Substitute.allCI("\\s+(?:cf|cfr|conf)\\.?(?=\\s+|$)", " cf"),
             Substitute.allCI("\\s+(?:s\\.\\s*s\\.|s\\.\\s*str\\.?|sens\\.\\s*str\\.?|sensu\\s*stricto)(?=\\s+|$)", " "),
             Substitute.allCI("\\s+(?:s\\.\\s*l\\.|s\\.\\s*lat\\.?|sens\\.\\s*lat\\.?|sensu\\s*lato)(?=\\s+|$)", " "),
+            // Remove embedded rank marker unless they're an integral part of the name
             Substitute.allCI("\\s+(?:" + RANK_MARKERS + ")\\.?(?!\\s+nov)(?=\\s+|$)", " "),
             Substitute.all("\\s+", " "),
             Substitute.all("[^A-Za-z .]", "")
@@ -49,7 +67,7 @@ public class TaxonNameSoundEx {
     }
 
 
-    public static String normalize(String str) {
+    public static String normalize(String str, NameType nameType) {
 
         if (str == null) return null;
 
@@ -62,8 +80,11 @@ public class TaxonNameSoundEx {
                 "\u00c5\u00c7\u00d8", "AEIOUAEIOUAEIOUAEIOUANOACO");
         output = output.replace("\u00c6", "AE");
 
-        // Normalise markers and upper-case
-        output = MARKER_NORMALISE.stream().reduce(output, (s, m) -> m.apply(s), (a, b) -> b).trim();
+        // Normalise markers if a scientific name
+        if (nameType == NameType.SCIENTIFIC)
+            output = MARKER_NORMALISE.stream().reduce(output, (s, m) -> m.apply(s), (a, b) -> b).trim();
+        else
+            output = BASIC_NORMALISE.stream().reduce(output, (s, m) -> m.apply(s), (a, b) -> b).trim();
         output = output.toUpperCase();
 
         output = StringUtils.trimToNull(output);
@@ -71,13 +92,9 @@ public class TaxonNameSoundEx {
         return output;
     }
 
-    public static String treatWord(String str, Rank rank) {
-        return treatWord(str, rank == null ? "species" : rank.name().toLowerCase());
-    }
-
-    public static String treatWord(String str2, String wordType) {
+    public static String treatWord(String str, Rank rank, NameType nameType) {
         char startLetter;
-        String temp = normalize(str2);
+        String temp = normalize(str, nameType);
         // Do some selective replacement on the leading letter/s only:
         if (StringUtils.isNotEmpty(temp)) {
             if (temp.startsWith("AE")) {
@@ -140,7 +157,7 @@ public class TaxonNameSoundEx {
             // now drop any repeated characters (AA becomes A, BB or BBB becomes B, etc.)
             temp = temp.replaceAll("(\\w)\\1+", "$1");
 
-            if (wordType.equals("species")) {
+            if (rank == null || rank == Rank.SPECIES) {
                 if (temp.endsWith("IS")) {
                     temp = temp.substring(0, temp.length() - 2) + "A";
                 } else if (temp.endsWith("IM")) {

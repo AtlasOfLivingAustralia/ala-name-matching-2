@@ -4,8 +4,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class AuthorAnalysisTest {
-    private AuthorAnalysis analysis = new AuthorAnalysis();
+public class AuthorComparatorAnalysisTest {
+    private AuthorComparatorAnalysis analysis = new AuthorComparatorAnalysis();
 
     @Test
     public void testEquivalence1() throws Exception {

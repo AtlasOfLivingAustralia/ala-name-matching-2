@@ -1,0 +1,92 @@
+rank,rankID,higher,lower,marker,codes,other names
+DOMAIN,100,1,1999, dom.,,
+REALM,700,1,1999, realm,,regio
+SUBREALM,800,1,1999, subrealm,,
+SUPERKINGDOM,900,1,1999, superreg.,,
+KINGDOM,1000,1,1999, reg.,,regnum
+SUBKINGDOM,1100,1,1999, subreg.,,subregnum
+INFRAKINGDOM,1200,1000,2999, infrareg.,,
+SUPERPHYLUM,1900,1001,2999, superphyl.,, superphyla
+PHYLUM,2000,1001,2999, phyl.,, phyla, division|ICBN, divisio
+SUBPHYLUM,2100,1001,2999, subphyl.,, subphyla, subdivision|ICBN, subdivisio
+INFRAPHYLUM,2200,1001,3999, infraphyl.,, infraphyla
+SUPERCLASS,2900,2001,3999, supercl.,, superclasses, superclassis
+CLASS,3000,2001,3999, cl.,, classes, classis
+SUBCLASS,3100,2001,3999, subcl.,, subclasses, subclassis
+INFRACLASS,3200,2001,4999, infracl.,, infraclasses, infraclassis
+SUBTERCLASS,3220,2001,4999, subtercl.,, subterclasses
+PARVCLASS,3240,2001,4999, parvcl.,, parvclasses
+SUPERDIVISION,3280,2001,4999, superdiv.,ICZN,
+DIVISION,3300,2001,4999, div.,ICZN,
+SUBDIVISION,3320,2001,4999, subdiv.,ICZN,
+INFRADIVISION,3340,2001,4999, infradiv.,ICZN,
+SUPERLEGION,3380,2001,4999, superleg.,,
+LEGION,3400,2001,4999, leg.,,
+SUBLEGION,3420,2001,4999, subleg.,,
+INFRALEGION,3440,2001,4999, infraleg.,,
+SUPERCOHORT,3480,2001,4999, supercohort,,
+COHORT,3500,2001,4999, cohort,,
+SUBCOHORT,3520,2001,4999, subcohort,,
+INFRACOHORT,3540,2001,4999, infracohort,,
+GIGAORDER,3800,3001,4999, gigaord.,,
+MAGNORDER,3820,3001,4999, magnord.,,
+GRANDORDER,3840,3001,4999, grandord.,,
+MIRORDER,3860,3001,4999, mirord.,,
+SUPERORDER,3900,3001,4999, superord.,,superordo
+ORDER,4000,3001,4999, ord.,,ordo
+NANORDER,4020,3001,4999, nanord.,,
+HYPOORDER,4040,3001,4999, hypoord.,,
+MINORDER,4060,3001,4999, minord.,,
+SUBORDER,4100,3001,4999, subord.,,subordo
+INFRAORDER,4200,4001,5999, infraord.,,infraordo
+PARVORDER,4300,4001,5999, parvord.,,
+MEGAFAMILY,4800,4001,5999, megafam.,, megafamilies
+GRANDFAMILY,4820,4001,5999, grandfam.,, grandfamilies
+SUPERFAMILY,4900,4001,5999, superfam.,, superfamilies, superfamilia
+EPIFAMILY,4920,4001,5999, epifam.,, epifamilies
+FAMILY,5000,4001,5999, fam.,, families, familia
+SUBFAMILY,5100,4001,5999, subfam.,, subfamilies, subfamilia
+INFRAFAMILY,5200,5001,6999, infrafam.,, infrafamilies, infrafamilia
+SUPERTRIBE,5280,5001,6999, supertrib.,,
+TRIBE,5300,5001,6999, trib.,,
+SUBTRIBE,5320,5001,6999, subtrib.,,
+INFRATRIBE,5340,5001,6999, infratrib.,,
+SUPRAGENERIC_NAME,5900,5001,6999, supragen.,,
+GENUS,6000,5001,6999, gen.,, genera
+SUBGENUS,6100,5001,6999, subgen.,, subgenera
+INFRAGENUS,6200,6001,6999, infrag.,, infragenera
+SUPERSECTION,6280,6001,6999, supersect.,ICZN,
+SECTION,6300,6001,6999, sect.,ICZN,
+SUBSECTION,6320,6001,6999, subsect.,ICZN,
+SUPERSERIES,6380,6001,6999, superser.,ICZN, superseries
+SERIES,6400,6001,6999, ser.,, series
+SUBSERIES,6420,6001,6999, subser.,, subseries
+INFRAGENERIC_NAME,6500,6001,6999, infragen.,,
+SPECIES_AGGREGATE,6600,6001,6999, agg.,,
+SPECIES,7000,6900,10000, sp.,, species
+INFRASPECIFIC_NAME,7100,7001,10000, infrasp.,,
+GREX,7200,7000,10000, gx,,
+SUBSPECIES,8000,7000,10000, subsp.,, subspecies
+CULTIVAR_GROUP,8100,7000,10000,,,
+CONVARIETY,8110,7001,10000, convar.,, convarieties
+INFRASUBSPECIFIC_NAME,8200,7000,10000, infrasubsp.,,
+PROLES,8220,7000,10000, prol.,, proles
+NATIO,8240,7000,10000, natio,,
+ABERRATION,8260,7000,10000, ab.,,
+MORPH,8280,7000,10000, morph,,
+VARIETY,8300,7000,10000, var.,, varieties, varietias
+SUBVARIETY,8320,7000,10000, subvar.,, subvarieties, subvarietas
+FORM,8400,7000,10000, f.,, forma
+SUBFORM,8420,7000,10000, subf.,, subforma
+PATHOVAR,8500,7000,10000, pv.,,
+BIOVAR,8510,7000,10000, biovar,,
+CHEMOVAR,8520,7000,10000, chemovar,,
+MORPHOVAR,8530,7000,10000, morphovar,,
+PHAGOVAR,8540,7000,10000, phagovar,,
+SEROVAR,8550,7000,10000, serovar,,
+CHEMOFORM,8560,7000,10000, chemoform,,
+FORMA_SPECIALIS,8580,7000,10000, f.sp.,,
+CULTIVAR,8600,7000,10000, cv.,,
+STRAIN,8700,7000,10000, strain,,
+OTHER,0,-10000,10000,,,
+UNRANKED,-1,-10000,10000,,,

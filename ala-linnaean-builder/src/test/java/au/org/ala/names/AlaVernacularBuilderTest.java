@@ -87,7 +87,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
         evidence.e$vernacularName = null;
         evidence.e$soundexVernacularName = true;
         prob = inference.probability(evidence, params);
-        assertEquals(0.02703, prob.getEvidence(), 0.00001);
+        assertEquals(0.00730, prob.getEvidence(), 0.00001);
         assertEquals(1.0, prob.getPosterior(), 0.00001);
     }
 
@@ -126,13 +126,13 @@ public class AlaVernacularBuilderTest extends TestUtils {
         Match<AlaVernacularClassification> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2902835", match.getMatch().taxonId);
-        assertEquals(0.02703, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.07299, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         classification.vernacularName = "flood mallow";
         match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2902835", match.getMatch().taxonId);
-        assertEquals(0.02703, match.getProbability().getEvidence(), 0.00001);
+        assertEquals(0.07299, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
     }
 }

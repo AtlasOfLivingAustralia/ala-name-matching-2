@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
@@ -139,6 +141,10 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
         try {
             this.writer.addDocument(classifier.isRetrieved() ? classifier.makeDocumentCopy() : classifier.getDocument());
         } catch (IOException ex) {
+            log.error("Unable to store " + classifier.getIdentifier());
+            for (String[] vals: classifier.getAllValues()) {
+                log.info(vals[0] + ": " + IntStream.range(1, vals.length).mapToObj(i -> vals[i]).collect(Collectors.joining(", ")));
+            }
             throw new StoreException("Unable to store " + classifier, ex);
         }
     }
@@ -158,7 +164,11 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
             classifier.setType(type);
             this.annotator.annotate(classifier);
             this.writer.addDocument(classifier.getDocument());
-        } catch (IOException ex) {
+        } catch (Exception ex) {
+            log.error("Unable to store " + classifier.getIdentifier());
+            for (String[] vals: classifier.getAllValues()) {
+                log.info(vals[0] + ": " + IntStream.range(1, vals.length).mapToObj(i -> vals[i]).collect(Collectors.joining(", ")));
+            }
             throw new StoreException("Unable to store " + classifier, ex);
         }
     }
@@ -177,6 +187,10 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
             org.apache.lucene.index.Term term = new org.apache.lucene.index.Term(LuceneClassifier.ID_FIELD, id);
             this.writer.updateDocument(term, classifier.makeDocumentCopy());
         } catch (IOException ex) {
+            log.error("Unable to store " + classifier.getIdentifier());
+            for (String[] vals: classifier.getAllValues()) {
+                log.info(vals[0] + ": " + IntStream.range(1, vals.length).mapToObj(i -> vals[i]).collect(Collectors.joining(", ")));
+            }
             throw new StoreException("Unable to store " + classifier, ex);
         }
     }

@@ -1,9 +1,10 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.Hints;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
@@ -25,6 +26,8 @@ import au.org.ala.bayesian.derivation.SoundexGenerator;
 public class Network9Classification implements Classification<Network9Classification> {
   private Analyser<Network9Classification> analyser;
   private Issues issues;
+  private Hints<Network9Classification> hints;
+
   private SoundexGenerator soundex;
 
   public java.lang.String v1;
@@ -34,6 +37,7 @@ public class Network9Classification implements Classification<Network9Classifica
   public Network9Classification(Analyser<Network9Classification> analyser) {
     this.analyser = Network9Factory.instance().createAnalyser();
     this.issues = new Issues();
+    this.hints = new Hints<>();
     this.soundex = new SoundexGenerator();
   }
 
@@ -63,6 +67,11 @@ public class Network9Classification implements Classification<Network9Classifica
   @Override
   public void addIssues(Issues issues) {
         this.issues = this.issues.merge(issues);
+  }
+
+  @Override
+  public <T> void addHint(Observable observable, T value) {
+        this.hints.addHint(observable, value);
   }
 
   @Override
@@ -147,6 +156,16 @@ public class Network9Classification implements Classification<Network9Classifica
   @Override
   public List<List<Function<Network9Classification, Network9Classification>>> matchModificationOrder() {
     List<List<Function<Network9Classification, Network9Classification>>> modifications = new ArrayList();
+    return modifications;
+  }
+
+
+  @Override
+  public List<List<Function<Network9Classification, Network9Classification>>> hintModificationOrder() {
+    List<List<Function<Network9Classification, Network9Classification>>> modifications = new ArrayList();
+    this.hints.buildModifications(Network9Factory.v1, java.lang.String.class, (c, v) -> { c.v1 = v; }, modifications);
+    this.hints.buildModifications(Network9Factory.v2, java.lang.String.class, (c, v) -> { c.v2 = v; }, modifications);
+    this.hints.buildModifications(Network9Factory.v3, java.lang.String.class, (c, v) -> { c.v3 = v; }, modifications);
     return modifications;
   }
 

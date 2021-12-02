@@ -1,26 +1,22 @@
 package au.org.ala.names;
 
+import au.org.ala.bayesian.Analysis;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.StoreException;
-import au.org.ala.bayesian.analysis.DoubleAnalysis;
 import au.org.ala.names.builder.*;
 import au.org.ala.names.lucene.LuceneClassifier;
-import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.Counter;
+import au.org.ala.vocab.TaxonomicStatus;
 import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
+import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.api.Rank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.lang.ref.PhantomReference;
-import java.lang.ref.WeakReference;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +39,18 @@ public class AlaWeightAnalyser implements WeightAnalyser, Annotator {
      */
     public static final String RANK_WEIGHTS_FILE = "rank-weights.csv";
     /**
+     * The name of the taxonomic status weights files.
+     * If there is a file called {@value} in the configuration directory, then
+     * that file is read, otherwise a default file is loaded as a resource.
+     */
+    public static final String TAXONOMIC_STATUS_WEIGHTS_FILE = "taxonomic-status-weights.csv";
+    /**
+     * The name of the nomemclatural status weights files.
+     * If there is a file called {@value} in the configuration directory, then
+     * that file is read, otherwise a default file is loaded as a resource.
+     */
+    public static final String NOMENCLATURAL_STATUS_WEIGHTS_FILE = "nomenclatural-status-weights.csv";
+    /**
      * The name of the weight lookup file with taxonID -> weight pairs.
      * If there is a file called {@value} in the data directory, then
      * that file is read into a store.
@@ -50,6 +58,8 @@ public class AlaWeightAnalyser implements WeightAnalyser, Annotator {
     public static final String TAXON_WEIGHTS_FILE = "taxon-weights.csv";
 
     private Map<Rank, Double> rankWeights;
+    private Map<TaxonomicStatus, Double> taxonomicStatusWeights;
+    private Map<NomenclaturalStatus, Double> nomenclauturalStatusWeights;
     private LoadStore<LuceneClassifier> weightStore;
 
     /**
@@ -59,7 +69,9 @@ public class AlaWeightAnalyser implements WeightAnalyser, Annotator {
      * @throws Exception If unable to build the analyser
      */
     public AlaWeightAnalyser(IndexBuilderConfiguration configuration) throws Exception {
-        this.buildRankWeights(configuration);
+        this.rankWeights = this.buildWeights(configuration, RANK_WEIGHTS_FILE, Rank.class);
+        this.taxonomicStatusWeights = this.buildWeights(configuration, TAXONOMIC_STATUS_WEIGHTS_FILE, TaxonomicStatus.class);
+        this.nomenclauturalStatusWeights = this.buildWeights(configuration, NOMENCLATURAL_STATUS_WEIGHTS_FILE, NomenclaturalStatus.class);
         this.buildNameWeights(configuration);
     }
 
@@ -101,35 +113,48 @@ public class AlaWeightAnalyser implements WeightAnalyser, Annotator {
     @Override
     public double modify(Classifier classifier, double weight) throws BayesianException {
         Rank rank = classifier.get(AlaLinnaeanFactory.taxonRank);
-        if (rank == null)
-            return weight;
-        return Math.max(1.0, weight * this.rankWeights.getOrDefault(rank, 1.0));
+        if (rank != null)
+            weight *= this.rankWeights.getOrDefault(rank, 1.0);
+        TaxonomicStatus taxonomicStatus = classifier.get(AlaLinnaeanFactory.taxonomicStatus);
+        if (taxonomicStatus != null)
+            weight *= this.taxonomicStatusWeights.getOrDefault(taxonomicStatus, 1.0);
+        NomStatus nomStatus = classifier.get(AlaLinnaeanFactory.nomenclaturalStatus);
+        if (nomStatus != null) {
+            double factor = nomStatus.getStatus().stream()
+                    .mapToDouble(s -> this.nomenclauturalStatusWeights.getOrDefault(s, 1.0))
+                    .min()
+                    .orElse(1.0);
+            weight *= factor;
+        }
+        return Math.max(1.0, weight);
     }
 
-    protected void buildRankWeights(IndexBuilderConfiguration configuration) throws IOException {
-        RankAnalysis rankAnalysis = new RankAnalysis();
+    protected <T extends Enum<T>> Map<T, Double> buildWeights(IndexBuilderConfiguration configuration, String source, Class<T> clazz) throws IOException, StoreException {
         CSVReader reader = null;
-        this.rankWeights = new HashMap<>();
-        Counter counter = new Counter("Read {0} rank weights, {2,number,#}/s", logger, 100, 0);
+        Map<T, Double> weights = new HashMap<>();
+        logger.info("Loading " + source);
+        Counter counter = new Counter("Read {0} weights, {2,number,#}/s", logger, 100, 0);
         try {
-            reader = configuration.openConfigCsv(RANK_WEIGHTS_FILE, this.getClass());
+            reader = configuration.openConfigCsv(source, this.getClass());
             counter.start();
             for(String[] row: reader) {
-                Rank rank = rankAnalysis.fromString(row[0]);
+                T value = Enum.valueOf(clazz, row[0]);
                 double weight = Double.parseDouble(row[1]);
-                this.rankWeights.put(rank, weight);
-                counter.increment(rank);
+                weights.put(value, weight);
+                counter.increment(value);
             }
             counter.stop();
         } finally {
             if (reader != null)
                 reader.close();
         }
+        return weights;
     }
 
     protected void buildNameWeights(IndexBuilderConfiguration configuration) throws Exception {
         CSVReader reader = null;
         this.weightStore = configuration.createLoadStore(this);
+        logger.info("Loading " + TAXON_WEIGHTS_FILE);
         Counter counter = new Counter("Read {0} taxon weights, {2,number,#}/s", logger, 100000, 0);
         try {
             reader = configuration.openDataCsv(TAXON_WEIGHTS_FILE);

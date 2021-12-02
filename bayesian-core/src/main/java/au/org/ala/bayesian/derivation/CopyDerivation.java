@@ -36,7 +36,16 @@ public class CopyDerivation extends Derivation {
      * @param source The source to copy from
      */
     public CopyDerivation(Observable source) {
-        this.sources = Arrays.asList(source);
+        this(Arrays.asList(source));
+    }
+
+    /**
+     * Construct for a list of sources
+     *
+     * @param sources The sources to copy from
+     */
+    public CopyDerivation(List<Observable> sources) {
+        this.sources = sources;
     }
 
     /**

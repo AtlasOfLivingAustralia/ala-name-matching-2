@@ -2,12 +2,15 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.vocab.ALATerm;
+import au.org.ala.vocab.BayesianTerm;
 import org.gbif.api.vocabulary.NomenclaturalCode;
+import org.gbif.nameparser.api.NameType;
 import org.gbif.nameparser.api.ParsedName;
 import org.gbif.nameparser.api.Rank;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,6 +44,82 @@ public class ScientificNameAnalyserTest {
 
     Analysis makeAnalysis(String scientificName, String scientificNameAuthorship, Rank rank, NomenclaturalCode code) {
         return new Analysis(scientificName, scientificNameAuthorship, rank, code);
+    }
+
+
+    @Test
+    public void removeSurroundingQuotes1() {
+        Analysis analysis = new Analysis("Chromis hypsilepis", "Günther", null, null);
+        assertFalse(this.analyser.removeSurroundingQuotes(analysis, Issues.of(BayesianTerm.illformedData)));
+        assertEquals("Chromis hypsilepis", analysis.getScientificName());
+        assertEquals("Günther", analysis.getScientificNameAuthorship());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+    @Test
+    public void removeSurroundingQuotes2() {
+        Analysis analysis = new Analysis("\"Chromis hypsilepis\"", "Günther", null, null);
+        assertTrue(this.analyser.removeSurroundingQuotes(analysis, Issues.of(BayesianTerm.illformedData)));
+        assertEquals("Chromis hypsilepis", analysis.getScientificName());
+        assertEquals("Günther", analysis.getScientificNameAuthorship());
+        assertEquals(Issues.of(BayesianTerm.illformedData), analysis.getIssues());
+    }
+
+
+    @Test
+    public void removeSurroundingQuotes3() {
+        Analysis analysis = new Analysis("'Chromis hypsilepis' ", "Günther", null, null);
+        assertTrue(this.analyser.removeSurroundingQuotes(analysis, Issues.of(BayesianTerm.illformedData)));
+        assertEquals("Chromis hypsilepis", analysis.getScientificName());
+        assertEquals("Günther", analysis.getScientificNameAuthorship());
+        assertEquals(Issues.of(BayesianTerm.illformedData), analysis.getIssues());
+    }
+
+    @Test
+    public void removeSurroundingQuotes4() {
+        Analysis analysis = new Analysis("\" 'Chromis hypsilepis' \"", "Günther", null, null);
+        assertTrue(this.analyser.removeSurroundingQuotes(analysis, Issues.of(BayesianTerm.illformedData)));
+        assertEquals("Chromis hypsilepis", analysis.getScientificName());
+        assertEquals("Günther", analysis.getScientificNameAuthorship());
+        assertEquals(Issues.of(BayesianTerm.illformedData), analysis.getIssues());
+    }
+
+    @Test
+    public void removeSurroundingQuotes5() {
+        Analysis analysis = new Analysis(" ' 'Chromis hypsilepis' '", "Günther", null, null);
+        assertTrue(this.analyser.removeSurroundingQuotes(analysis, Issues.of(BayesianTerm.illformedData)));
+        assertEquals("Chromis hypsilepis", analysis.getScientificName());
+        assertEquals("Günther", analysis.getScientificNameAuthorship());
+        assertEquals(Issues.of(BayesianTerm.illformedData), analysis.getIssues());
+    }
+
+    @Test
+    public void replaceUnprintable1() {
+        Analysis analysis = new Analysis("Chromis hypsilepis", "Günther", null, null);
+        assertFalse(this.analyser.replaceUnprintable(analysis, 'x', null));
+        assertEquals("Chromis hypsilepis", analysis.getScientificName());
+        assertEquals("Günther", analysis.getScientificNameAuthorship());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+
+    @Test
+    public void replaceUnprintable2() {
+        Analysis analysis = new Analysis("Chromis h\ufffdpsilepis", "Günther", null, null);
+        assertTrue(this.analyser.replaceUnprintable(analysis, 'x', Issues.of(BayesianTerm.illformedData)));
+        assertEquals("Chromis hxpsilepis", analysis.getScientificName());
+        assertEquals("Günther", analysis.getScientificNameAuthorship());
+        assertEquals(Issues.of(BayesianTerm.illformedData), analysis.getIssues());
+    }
+
+
+    @Test
+    public void replaceUnprintable3() {
+        Analysis analysis = new Analysis("Chromis hypsilepis", "G\ufffdnther", null, null);
+        assertTrue(this.analyser.replaceUnprintable(analysis, 'x', Issues.of(BayesianTerm.illformedData)));
+        assertEquals("Chromis hypsilepis", analysis.getScientificName());
+        assertEquals("Gxnther", analysis.getScientificNameAuthorship());
+        assertEquals(Issues.of(BayesianTerm.illformedData), analysis.getIssues());
     }
 
     @Test
@@ -290,7 +369,7 @@ public class ScientificNameAnalyserTest {
     @Test
     public void processRankEnding1() {
         Analysis analysis = new Analysis("Dendrochirus zebra", null, null, null);
-        this.analyser.processRankEnding(analysis, false, null);
+        this.analyser.processRankEnding(analysis, false, DEFAULT_ISSUES);
         assertEquals("Dendrochirus zebra", analysis.getScientificName());
         assertEquals(Issues.of(), analysis.getIssues());
     }
@@ -300,6 +379,33 @@ public class ScientificNameAnalyserTest {
         Analysis analysis = new Analysis("Dendrochirus sp.", null, null, null);
         this.analyser.processRankEnding(analysis, false, DEFAULT_ISSUES);
         assertEquals("Dendrochirus sp.", analysis.getScientificName());
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
+    @Test
+    public void detectAlternatingRankName1() {
+        Analysis analysis = new Analysis("Dendrochirus alcanta", null, null, null);
+        Map<Rank, String> map = this.analyser.detectAlternatingRankName(analysis, DEFAULT_ISSUES);
+        assertNull(map);
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+    @Test
+    public void detectAlternatingRankName2() {
+        Analysis analysis = new Analysis("Dendrochirus sp.", null, null, null);
+        Map<Rank, String> map = this.analyser.detectAlternatingRankName(analysis, DEFAULT_ISSUES);
+        assertNull(map);
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+    @Test
+    public void detectAlternatingRankName3() {
+        Analysis analysis = new Analysis("fam. Corbiculidae gen. Corbiculina", null, null, null);
+        Map<Rank, String> map = this.analyser.detectAlternatingRankName(analysis, DEFAULT_ISSUES);
+        assertNotNull(map);
+        assertEquals(2, map.size());
+        assertEquals("Corbiculidae", map.get(Rank.FAMILY));
+        assertEquals("Corbiculina", map.get(Rank.GENUS));
         assertEquals(DEFAULT_ISSUES, analysis.getIssues());
     }
 
@@ -358,6 +464,33 @@ public class ScientificNameAnalyserTest {
     }
 
     @Test
+    public void processEmbeddedAuthor3() {
+        Analysis analysis = new Analysis("Maccullochella peelii (Mitchell, 1838)", "(Mitchell, 1838)", null, null);
+        this.analyser.processEmbeddedAuthor(analysis, DEFAULT_ISSUES);
+        assertEquals("Maccullochella peelii", analysis.getScientificName());
+        assertEquals("(Mitchell, 1838)", analysis.getScientificNameAuthorship());
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
+    @Test
+    public void processEmbeddedAuthor4() {
+        Analysis analysis = new Analysis("Maccullochella peelii (Mitchell, 1838)", "Mitchell, 1838", null, null);
+        this.analyser.processEmbeddedAuthor(analysis, DEFAULT_ISSUES);
+        assertEquals("Maccullochella peelii", analysis.getScientificName());
+        assertEquals("Mitchell, 1838", analysis.getScientificNameAuthorship());
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
+    @Test
+    public void processEmbeddedAuthor5() {
+        Analysis analysis = new Analysis("Maccullochella peelii (Mitchell, 1838)", "Mitchell", null, null);
+        this.analyser.processEmbeddedAuthor(analysis, DEFAULT_ISSUES);
+        assertEquals("Maccullochella peelii", analysis.getScientificName());
+        assertEquals("Mitchell", analysis.getScientificNameAuthorship());
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
+    @Test
     public void processCommentary1() {
         Analysis analysis = new Analysis("Aleucosia fulvipes (Unmatched taxon)", null, null, null);
         this.analyser.processCommentary(analysis, DEFAULT_ISSUES);
@@ -373,6 +506,22 @@ public class ScientificNameAnalyserTest {
         assertEquals(DEFAULT_ISSUES, analysis.getIssues());
     }
 
+    @Test
+    public void processCommentary3() {
+        Analysis analysis = new Analysis("*", null, null, null);
+        this.analyser.processCommentary(analysis, DEFAULT_ISSUES);
+        assertEquals("", analysis.getScientificName());
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
+
+    @Test
+    public void processCommentary4() {
+        Analysis analysis = new Analysis("**non-current code** Aleucosia fulvipes", null, null, null);
+        this.analyser.processCommentary(analysis, DEFAULT_ISSUES);
+        assertEquals("Aleucosia fulvipes", analysis.getScientificName());
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
 
     @Test
     public void processRankMarker4() {
@@ -391,7 +540,6 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         assertEquals(ParsedName.State.COMPLETE, analysis.getParsedName().getState());
         assertEquals("Toxotes chatareus", analysis.getParsedName().canonicalNameComplete());
-        assertEquals(Rank.SPECIES, analysis.getRank());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -411,7 +559,6 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         assertEquals(ParsedName.State.COMPLETE, analysis.getParsedName().getState());
         assertEquals("Blepharidophyllum subgen. Clandarium", analysis.getParsedName().canonicalNameComplete());
-        assertEquals(Rank.SUBGENUS, analysis.getRank());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -423,7 +570,6 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         assertEquals(ParsedName.State.COMPLETE, analysis.getParsedName().getState());
         assertEquals("Calyptorhynchus (Zanda) latirostris", analysis.getParsedName().canonicalNameComplete());
-        assertEquals(Rank.SPECIES, analysis.getRank());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -435,7 +581,6 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         assertEquals(ParsedName.State.COMPLETE, analysis.getParsedName().getState());
         assertEquals("Hypnodendron spininervium subsp. archeri", analysis.getParsedName().canonicalNameComplete());
-         assertEquals(Rank.SUBSPECIES, analysis.getRank());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -447,7 +592,6 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         assertEquals(ParsedName.State.COMPLETE, analysis.getParsedName().getState());
         assertEquals("Hypnodendron spininervium archeri", analysis.getParsedName().canonicalNameComplete());
-        assertEquals(Rank.INFRASPECIFIC_NAME, analysis.getRank());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -459,7 +603,6 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         assertEquals(ParsedName.State.COMPLETE, analysis.getParsedName().getState());
         assertEquals("Cymbiola pulchra cracenta (McMichael, 1963)", analysis.getParsedName().canonicalNameComplete());
-        assertEquals(Rank.INFRASPECIFIC_NAME, analysis.getRank());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -472,8 +615,6 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         assertEquals(ParsedName.State.COMPLETE, analysis.getParsedName().getState());
         assertEquals("Viola sp. Lamington NP (R.Schodde 1153)", analysis.getParsedName().canonicalNameComplete());
-        assertEquals(Rank.SPECIES, analysis.getRank());
-        assertTrue(analysis.isPhraseName());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -524,6 +665,8 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         this.analyser.processParsedScientificName(analysis, DEFAULT_ISSUES);
         assertEquals("Toxotes chatareus", analysis.getScientificName());
+        assertEquals(NameType.SCIENTIFIC, analysis.getNameType());
+        assertEquals(Rank.SPECIES, analysis.getRank());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -534,6 +677,8 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         this.analyser.processParsedScientificName(analysis, DEFAULT_ISSUES);
         assertEquals("Blepharidophyllum subgen. Clandarium", analysis.getScientificName());
+        assertEquals(NameType.SCIENTIFIC, analysis.getNameType());
+        assertEquals(Rank.SUBGENUS, analysis.getRank());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -544,6 +689,8 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         this.analyser.processParsedScientificName(analysis, DEFAULT_ISSUES);
         assertEquals("Hypnodendron spininervium subsp. archeri", analysis.getScientificName());
+        assertEquals(NameType.SCIENTIFIC, analysis.getNameType());
+        assertEquals(Rank.SUBSPECIES, analysis.getRank());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -555,6 +702,8 @@ public class ScientificNameAnalyserTest {
         this.analyser.processParsedScientificName(analysis, DEFAULT_ISSUES);
         assertEquals("Cymbiola pulchra cracenta", analysis.getScientificName());
         assertEquals("(McMichael, 1963)", analysis.getScientificNameAuthorship());
+        assertEquals(NameType.SCIENTIFIC, analysis.getNameType());
+        assertEquals(Rank.INFRASPECIFIC_NAME, analysis.getRank());
         assertEquals(DEFAULT_ISSUES, analysis.getIssues());
     }
 
@@ -565,9 +714,72 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         this.analyser.processParsedScientificName(analysis, DEFAULT_ISSUES);
         assertEquals("Viola sp. Lamington NP (R.Schodde 1153)", analysis.getScientificName());
+        assertEquals(NameType.INFORMAL, analysis.getNameType());
+        assertEquals(Rank.SPECIES, analysis.getRank());
+        assertTrue(analysis.isPhraseName());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
+    @Test
+    public void processParsedScientificName6() throws Exception {
+        Analysis analysis = new Analysis("Liotes sp. 3", null, null, null);
+        this.analyser.parseName(analysis, null);
+        assertNotNull(analysis.getParsedName());
+        this.analyser.processParsedScientificName(analysis, DEFAULT_ISSUES);
+        assertEquals("Liotes sp. 3", analysis.getScientificName());
+        assertEquals(NameType.INFORMAL, analysis.getNameType());
+        assertEquals(Rank.SPECIES, analysis.getRank());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+    @Test
+    public void processParsedScientificName7() throws Exception {
+        Analysis analysis = new Analysis("Acacia sp nov. dealbata", null, null, null);
+        this.analyser.parseName(analysis, null);
+        assertNotNull(analysis.getParsedName());
+        this.analyser.processParsedScientificName(analysis, DEFAULT_ISSUES);
+        assertEquals("Acacia sp nov. dealbata", analysis.getScientificName());
+        assertEquals(NameType.SCIENTIFIC, analysis.getNameType());
+        assertEquals(Rank.SPECIES, analysis.getRank());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+    @Test
+    public void processParsedScientificName8() throws Exception {
+        Analysis analysis = new Analysis("Cyperus sp. aff holoschoenus", null, null, null);
+        this.analyser.parseName(analysis, null);
+        assertNotNull(analysis.getParsedName());
+        this.analyser.processParsedScientificName(analysis, DEFAULT_ISSUES);
+        assertEquals("Cyperus sp. aff holoschoenus", analysis.getScientificName());
+        assertEquals(NameType.INFORMAL, analysis.getNameType());
+        assertEquals(Rank.SPECIES, analysis.getRank());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+    @Test
+    public void processParsedScientificName9() throws Exception {
+        Analysis analysis = new Analysis("Cyperus holoschoenus 'Cultivar Name'", null, null, null);
+        this.analyser.parseName(analysis, null);
+        assertNotNull(analysis.getParsedName());
+        this.analyser.processParsedScientificName(analysis, DEFAULT_ISSUES);
+        assertEquals("Cyperus holoschoenus 'Cultivar Name'", analysis.getScientificName());
+        assertEquals(NameType.SCIENTIFIC, analysis.getNameType());
+        assertEquals(Rank.CULTIVAR, analysis.getRank());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+
+    @Test
+    public void processParsedScientificName10() throws Exception {
+        Analysis analysis = new Analysis("Canarium acutifolium var. acutifolium", null, null, null);
+        this.analyser.parseName(analysis, null);
+        assertNotNull(analysis.getParsedName());
+        this.analyser.processParsedScientificName(analysis, DEFAULT_ISSUES);
+        assertEquals("Canarium acutifolium var. acutifolium", analysis.getScientificName());
+        assertEquals(NameType.SCIENTIFIC, analysis.getNameType());
+        assertEquals(Rank.VARIETY, analysis.getRank());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
 
     @Test
     public void processAdditionalScientificNames1() throws Exception {

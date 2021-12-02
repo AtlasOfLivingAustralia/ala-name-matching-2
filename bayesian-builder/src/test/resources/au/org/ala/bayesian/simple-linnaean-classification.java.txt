@@ -1,9 +1,10 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.Hints;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
@@ -27,8 +28,10 @@ import au.org.ala.bayesian.analysis.DoubleAnalysis;
 public class SimpleLinnaeanClassification implements Classification<SimpleLinnaeanClassification> {
   private Analyser<SimpleLinnaeanClassification> analyser;
   private Issues issues;
+  private Hints<SimpleLinnaeanClassification> hints;
+
   private SoundexGenerator soundex;
-  private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_CLASS =
+  private static Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_CLASS =
     c -> {
       SimpleLinnaeanClassification nc;
       if (c.class_ == null) return c;
@@ -37,7 +40,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       nc.addIssue(SimpleLinnaeanFactory.REMOVED_CLASS);
       return nc;
     };
-  private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_ORDER =
+  private static Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_ORDER =
     c -> {
       SimpleLinnaeanClassification nc;
       if (c.order == null) return c;
@@ -46,7 +49,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       nc.addIssue(SimpleLinnaeanFactory.REMOVED_ORDER);
       return nc;
     };
-  private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_PHYLUM =
+  private static Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_PHYLUM =
     c -> {
       SimpleLinnaeanClassification nc;
       if (c.phylum == null) return c;
@@ -55,7 +58,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       nc.addIssue(SimpleLinnaeanFactory.REMOVED_PHYLUM);
       return nc;
     };
-  private Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_RANK =
+  private static Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_RANK =
     c -> {
       SimpleLinnaeanClassification nc;
       if (c.taxonRank == null) return c;
@@ -85,6 +88,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   public SimpleLinnaeanClassification(Analyser<SimpleLinnaeanClassification> analyser) {
     this.analyser = SimpleLinnaeanFactory.instance().createAnalyser();
     this.issues = new Issues();
+    this.hints = new Hints<>();
     this.soundex = new SoundexGenerator();
   }
 
@@ -114,6 +118,11 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   @Override
   public void addIssues(Issues issues) {
         this.issues = this.issues.merge(issues);
+  }
+
+  @Override
+  public <T> void addHint(Observable observable, T value) {
+        this.hints.addHint(observable, value);
   }
 
   @Override
@@ -260,6 +269,25 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     return modifications;
   }
 
+
+  @Override
+  public List<List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>>> hintModificationOrder() {
+    List<List<Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification>>> modifications = new ArrayList();
+    this.hints.buildModifications(SimpleLinnaeanFactory.taxonId, java.lang.String.class, (c, v) -> { c.taxonId = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.taxonRank, java.lang.String.class, (c, v) -> { c.taxonRank = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.specificEpithet, java.lang.String.class, (c, v) -> { c.specificEpithet = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.scientificNameAuthorship, java.lang.String.class, (c, v) -> { c.scientificNameAuthorship = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.scientificName, java.lang.String.class, (c, v) -> { c.scientificName = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.soundexScientificName, java.lang.String.class, (c, v) -> { c.soundexScientificName = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.genus, java.lang.String.class, (c, v) -> { c.genus = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.family, java.lang.String.class, (c, v) -> { c.family = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.order, java.lang.String.class, (c, v) -> { c.order = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.class_, java.lang.String.class, (c, v) -> { c.class_ = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.phylum, java.lang.String.class, (c, v) -> { c.phylum = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.kingdom, java.lang.String.class, (c, v) -> { c.kingdom = v; }, modifications);
+    return modifications;
+  }
+
   @Override
   public void read(Classifier classifier, boolean overwrite) throws BayesianException {
     if (overwrite || this.taxonId == null) {
@@ -353,7 +381,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     evidence.e$taxonRank = classifier.match(this.taxonRank, SimpleLinnaeanFactory.taxonRank);
     evidence.e$specificEpithet = classifier.match(this.specificEpithet, SimpleLinnaeanFactory.specificEpithet);
     evidence.e$scientificNameAuthorship = classifier.match(this.scientificNameAuthorship, SimpleLinnaeanFactory.scientificNameAuthorship);
-    evidence.e$scientificName = classifier.match(this.scientificName, SimpleLinnaeanFactory.scientificName, SimpleLinnaeanFactory.altScientificName);
+    evidence.e$scientificName = classifier.match(this.scientificName, SimpleLinnaeanFactory.scientificName);
     evidence.e$soundexScientificName = classifier.match(this.soundexScientificName, SimpleLinnaeanFactory.soundexScientificName);
     evidence.e$genus = classifier.match(this.genus, SimpleLinnaeanFactory.genus);
     evidence.e$family = classifier.match(this.family, SimpleLinnaeanFactory.family);

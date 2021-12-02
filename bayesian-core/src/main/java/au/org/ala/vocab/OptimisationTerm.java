@@ -29,9 +29,23 @@ public enum OptimisationTerm implements Term {
      *     <dt>min</dt><dd>Return the minimum value of a {@link Comparable} class</dd>
      * </dl>
      */
-    aggregate;
+    aggregate,
+    /**
+     * How to order elements in a Darwin Core Archive whe looking for min/max.
+     * <p>
+     * This is the name of a class that implements the {@link java.util.Comparator} interface on record.
+     * </p>
+     */
+    dwcaOrder,
+    /**
+     * How to fiilter elements in a Darwin Core Archive whe looking for min/max.
+     * <p>
+     * This is the name of a class that implements the {@link java.util.function.Predicate} interface on a record.
+     * </p>
+     */
+    dwcaFilter;
 
-    public static final String NS = "http://id.ala.org.au/optimisation/1.0/";
+    public static final String NS = "http://ala.org.au/optimisation/1.0/";
     public static final URI NAMESPACE = URI.create(NS);
     public static final String PREFIX = "opt";
 

@@ -1,9 +1,10 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.Hints;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
@@ -24,6 +25,8 @@ import au.org.ala.bayesian.Analyser;
 public class GrassClassification implements Classification<GrassClassification> {
   private Analyser<GrassClassification> analyser;
   private Issues issues;
+  private Hints<GrassClassification> hints;
+
 
   public java.lang.String rain;
   public java.lang.String sprinkler;
@@ -32,6 +35,7 @@ public class GrassClassification implements Classification<GrassClassification> 
   public GrassClassification(Analyser<GrassClassification> analyser) {
     this.analyser = GrassFactory.instance().createAnalyser();
     this.issues = new Issues();
+    this.hints = new Hints<>();
   }
 
   public GrassClassification() {
@@ -60,6 +64,11 @@ public class GrassClassification implements Classification<GrassClassification> 
   @Override
   public void addIssues(Issues issues) {
         this.issues = this.issues.merge(issues);
+  }
+
+  @Override
+  public <T> void addHint(Observable observable, T value) {
+        this.hints.addHint(observable, value);
   }
 
   @Override
@@ -138,6 +147,16 @@ public class GrassClassification implements Classification<GrassClassification> 
   @Override
   public List<List<Function<GrassClassification, GrassClassification>>> matchModificationOrder() {
     List<List<Function<GrassClassification, GrassClassification>>> modifications = new ArrayList();
+    return modifications;
+  }
+
+
+  @Override
+  public List<List<Function<GrassClassification, GrassClassification>>> hintModificationOrder() {
+    List<List<Function<GrassClassification, GrassClassification>>> modifications = new ArrayList();
+    this.hints.buildModifications(GrassFactory.rain, java.lang.String.class, (c, v) -> { c.rain = v; }, modifications);
+    this.hints.buildModifications(GrassFactory.sprinkler, java.lang.String.class, (c, v) -> { c.sprinkler = v; }, modifications);
+    this.hints.buildModifications(GrassFactory.wet, java.lang.String.class, (c, v) -> { c.wet = v; }, modifications);
     return modifications;
   }
 

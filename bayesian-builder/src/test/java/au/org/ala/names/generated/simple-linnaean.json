@@ -28,7 +28,7 @@
     }
   }, {
     "id" : "altScientificName",
-    "uri" : "http://id.ala.org.au/terms/1.0/altScientificName",
+    "uri" : "http://ala.org.au/terms/1.0/altScientificName",
     "properties" : {
       "bayesian:altName" : true
     }
@@ -163,7 +163,7 @@
       "@class" : "au.org.ala.bayesian.analysis.IntegerAnalysis"
     },
     "properties" : {
-      "http://id.ala.org.au/optimisation/1.0/aggregate" : "max"
+      "http://ala.org.au/optimisation/1.0/aggregate" : "max"
     }
   }, "scientificName", {
     "id" : "scientificNameAuthorship",
@@ -171,7 +171,7 @@
     "normaliser" : "simple_normaliser"
   }, {
     "id" : "soundexScientificName",
-    "uri" : "http://id.ala.org.au/terms/1.0/soundexScientificName",
+    "uri" : "http://ala.org.au/terms/1.0/soundexScientificName",
     "derivation" : {
       "@class" : "au.org.ala.bayesian.derivation.SoundexDerivation",
       "sources" : [ "scientificName" ]
@@ -197,7 +197,7 @@
     }
   }, {
     "id" : "weight",
-    "uri" : "http://id.ala.org.au/bayesian/1.0/weight",
+    "uri" : "http://ala.org.au/bayesian/1.0/weight",
     "type" : "java.lang.Double",
     "analysis" : {
       "@class" : "au.org.ala.bayesian.analysis.DoubleAnalysis"
@@ -263,44 +263,44 @@
   "issues" : [ {
     "id" : "removed_rank",
     "description" : "Ignored supplied rank to find a match.",
-    "uri" : "http://id.ala.org.au/issues/1.0/removedRank"
+    "uri" : "http://ala.org.au/issues/1.0/removedRank"
   }, {
     "id" : "removed_phylum",
     "description" : "Ignored supplied phylum to find a match.",
-    "uri" : "http://id.ala.org.au/issues/1.0/removedPhylum"
+    "uri" : "http://ala.org.au/issues/1.0/removedPhylum"
   }, {
     "id" : "removed_class",
     "description" : "Ignored supplied class to find a match.",
-    "uri" : "http://id.ala.org.au/issues/1.0/removedClass"
+    "uri" : "http://ala.org.au/issues/1.0/removedClass"
   }, {
     "id" : "removed_order",
     "description" : "Ignored supplied order to find a match.",
-    "uri" : "http://id.ala.org.au/issues/1.0/removedOrder"
+    "uri" : "http://ala.org.au/issues/1.0/removedOrder"
   } ],
   "modifications" : [ {
     "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
     "id" : "remove_class",
     "issue" : "removed_class",
-    "observables" : [ "class" ],
-    "nullDerived" : false
+    "clearDerived" : false,
+    "observables" : [ "class" ]
   }, {
     "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
     "id" : "remove_order",
     "issue" : "removed_order",
-    "observables" : [ "order" ],
-    "nullDerived" : false
+    "clearDerived" : false,
+    "observables" : [ "order" ]
   }, {
     "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
     "id" : "remove_phylum",
     "issue" : "removed_phylum",
-    "observables" : [ "phylum" ],
-    "nullDerived" : false
+    "clearDerived" : false,
+    "observables" : [ "phylum" ]
   }, {
     "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
     "id" : "remove_rank",
     "issue" : "removed_rank",
-    "observables" : [ "taxonRank" ],
-    "nullDerived" : false
+    "clearDerived" : false,
+    "observables" : [ "taxonRank" ]
   } ],
   "matchModifiers" : [ [ "remove_order", "remove_class", "remove_phylum" ], [ "remove_rank" ] ],
   "groups" : [ "species", "genus" ]

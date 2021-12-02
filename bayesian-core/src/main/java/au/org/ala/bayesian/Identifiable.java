@@ -219,7 +219,7 @@ abstract public class Identifiable {
      * Make an identifier out of a URI
      * <p>
      * The identifier is constructed from the last bit of the path or the fragment.
-     * For example, <code>http://id.ala.org.au/terms/subgenus</code> becomes <code>subgenus</code>,
+     * For example, <code>http://ala.org.au/terms/subgenus</code> becomes <code>subgenus</code>,
      * <code>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</code> becomes <code>type</code> or
      * <code>urn:isbn:978-0143035008</code> is <code>978-0143035008</code>
      * </p>

@@ -237,7 +237,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
 
     public enum Multiplicity {
         /** Zero or one values */
-        OPTIONAL(false, false, "0..1"),
+        OPTIONAL(false, false, "?"),
         /** One only value */
         REQUIRED(true, false, "1"),
         /** Zero to many values */

@@ -75,63 +75,167 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         classification.inferForSearch();
 
         // Immediate search
-        Match<C> match = this.findSource(classification);
-        if (match != null)
+        Match<C> match = this.findSource(classification, true);
+        Match<C> bad = Match.invalidMatch();
+        if (match != null && match.isValid())
             return match;
+        if (match != null && !match.isValid())
+            bad = match;
 
         // Search for modified version
-        C previous = classification;
-        Iterator<C> sourceClassifications = new BacktrackingIterator<>(classification, classification.searchModificationOrder());
+        C base = this.prepareForSourceModification(classification);
+        C modified = null;
+        C previous = base;
+        Iterator<C> sourceClassifications = new BacktrackingIterator<>(base, base.searchModificationOrder());
          while (sourceClassifications.hasNext()) {
-            C modified = sourceClassifications.next();
+            modified = sourceClassifications.next();
             if (modified == previous)
                 continue;
             modified.inferForSearch();
-            match = this.findSource(modified);
-            if (match != null)
+            match = this.findSource(modified, true);
+            if (match != null && match.isValid())
                 return match;
             previous = modified;
         }
-        return Match.invalidMatch();
+        return bad;
     }
+
 
     /**
      * Find a match based on a source document.
      *
      * @param classification The (pre-inferred) classification
+     * @param modify Allow evidence modifications
      *
      * @return A match or null for no match
      *
      * @throws BayesianException if there is an error in search or inference
      */
-    protected Match<C> findSource(@NonNull C classification) throws BayesianException {
+    protected Match<C> findSource(@NonNull C classification, boolean modify) throws BayesianException {
         List<? extends Classifier> candidates = this.getSearcher().search(classification);
         if (candidates.isEmpty())
             return null;
 
         // First do a basic match and see if we have something easily matchable
+        Match<C> match = this.findHinted(classification, candidates, modify);
+        Match<C> bad = null;
+        if (match != null && match.isValid())
+            return match;
+        if (match != null && !match.isValid())
+            bad = match;
+
+        List<Match<C>> results = this.doMatch(classification, candidates);
+        if (modify && results.stream().allMatch(r -> this.isBadEvidence(r))) {
+            C base = this.prepareForMatchModification(classification);
+            C modified = null;
+            C previous = base;
+            Iterator<C> subClassifications = new BacktrackingIterator<C>(base, base.matchModificationOrder());
+            while (subClassifications.hasNext()) {
+                modified = subClassifications.next();
+                if (modified == classification || modified == previous) // Skip null case
+                    continue;
+                match = this.findHinted(modified, candidates, modify);
+                if (match != null && match.isValid())
+                    return match;
+                previous = modified;
+            }
+        }
+        return bad;
+    }
+
+    /**
+     * Find a match based on a source document.
+     * <p>
+     * If it's not findable and there are hints, try using hints.
+     * </p>
+     *
+     * @param classification The (pre-inferred) classification
+     * @param modify Allow evidence modifications
+     *
+     * @return A match or null for no match
+     *
+     * @throws BayesianException if there is an error in search or inference
+     */
+    protected Match<C> findHinted(@NonNull C classification, List<? extends Classifier> candidates, boolean modify) throws BayesianException {
+        // First do a basic match and see if we have something easily matchable
         List<Match<C>> results = this.doMatch(classification, candidates);
         Match<C> match = this.findSingle(classification, results);
-        if (match != null)
+        Match<C> bad = null;
+        if (match != null && match.isValid())
             return match;
+        if (match != null && !match.isValid())
+            bad = match;
 
-        // Do we have an evidence problem?
-        C previous = classification;
-        if (results.stream().allMatch(m -> this.isBadEvidence(m))) {
-            Iterator<C> subClassifications = new BacktrackingIterator<C>(classification, classification.matchModificationOrder());
+        // Try with hints
+        if (modify) {
+            C base = this.prepareForHintModification(classification);
+            C modified = null;
+            C previous = base;
+            Iterator<C> subClassifications = new BacktrackingIterator<C>(base, base.hintModificationOrder());
             while (subClassifications.hasNext()) {
-                C modified = subClassifications.next();
+                modified = subClassifications.next();
                 if (modified == classification || modified == previous) // Skip null case
                     continue;
                 results = this.doMatch(modified, candidates);
                 match = this.findSingle(modified, results);
-                if (match != null)
+                if (match != null && match.isValid())
                     return match;
                 previous = modified;
              }
         }
+        return bad;
+    }
 
-        return null;
+    /**
+     * Prepare a classification for modification when looking for a source classifiers.
+     * <p>
+     * Subclasses can do clever stuff here, like infer higher-order information.
+     * By default, the unmodified classification is returned.
+     * </p>
+     *
+     * @param classification The classification
+     *
+     * @return The prepared classification
+     *
+     * @throws BayesianException if unable to prepare the classification
+     */
+    protected C prepareForSourceModification(C classification) throws BayesianException {
+        return classification;
+    }
+
+    /**
+     * Prepare a classification for modification when looking for a match.
+     * <p>
+     * Subclasses can do clever stuff here, like infer higher-order information.
+     * By default, the unmodified classification is returned.
+     * </p>
+     *
+     * @param classification The classification
+     *
+     * @return The prepared classification
+     *
+     * @throws BayesianException if unable to prepare the classification
+     */
+    protected C prepareForMatchModification(C classification) throws BayesianException {
+        return classification;
+    }
+
+
+    /**
+     * Prepare a classification for modification when looking for a hinted match.
+     * <p>
+     * Subclasses can do clever stuff here, like infer higher-order information.
+     * By default, the unmodified classification is returned.
+     * </p>
+     *
+     * @param classification The classification
+     *
+     * @return The prepared classification
+     *
+     * @throws BayesianException if unable to prepare the classification
+     */
+    protected C prepareForHintModification(C classification) throws BayesianException {
+        return classification;
     }
 
     protected List<Match<C>> doMatch(C classification, List<? extends Classifier> candidates) throws BayesianException {
