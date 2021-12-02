@@ -104,7 +104,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/426ab801-0d5f-4b43-b1b4-55ce7ce7a44e", result.getMatch().taxonId);
         assertEquals("https://biodiversity.org.au/afd/taxa/6c212123-fadc-4307-8dd8-ac501bb534ba", result.getAccepted().taxonId);
         assertEquals("Stigmodera aurifera", result.getMatch().scientificName);
-        assertEquals(0.52408, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.99993, result.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -533,7 +533,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/320d2e8b-d0f8-44df-a66c-c1ea01df3570", result.getMatch().taxonId);
         assertEquals("https://biodiversity.org.au/afd/taxa/320d2e8b-d0f8-44df-a66c-c1ea01df3570", result.getAccepted().taxonId);
         assertEquals("Greenidea", result.getAccepted().scientificName);
-        assertEquals(0.91736, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.99999, result.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM, AlaLinnaeanFactory.PARENT_CHILD_SYNONYM, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
