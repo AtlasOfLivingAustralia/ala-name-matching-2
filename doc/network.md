@@ -244,6 +244,8 @@ any type.
 As well as the Bayesian properties, there are optimisation properties that
 can be used to improve performance.
 
+* `http://ala.org.au/optimisation/1.0/load` Do not load values from source documents.
+  Instead, rely on derived information from the hierarchy.
 * `http://ala.org.au/optimisation/1.0/luceneNoSearch` Do not include this observable
   when searching a Lucene index.
   This can be used for observables that are naturally ranges; Lucene tends to make a
@@ -254,6 +256,14 @@ can be used to improve performance.
   * `first` Use the first non-null value. The default.
   * `max` Use the largest value for an observable with a comparable type.
   * `min` Use the smallest value for an observable with a comparable type.
+* `http://ala.org.au/optimisation/1.0/dwcaOrder` The name of a class that will be
+  used to order values when using `http://ala.org.au/optimisation/1.0/aggregate`
+  The class needs to implement `java.util.Comparator` for the type of object being aggregated.
+  Otherwise, the natural ordering is used.
+* `http://ala.org.au/optimisation/1.0/dwcaFilter` The name of a class that will be
+  used to filter values when using `http://ala.org.au/optimisation/1.0/aggregate`
+  The class needs to implement `java.util.function.Predicate` 
+  for the type of object being aggregated.
 
 #### Derivations
 
@@ -389,6 +399,17 @@ A typical modification is
   "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
   "id" : "misspelled_scientific_name_base",
   "issues" : [ "misspelled_scientific_name" ],
+  "condition": {
+    "@class" : "au.org.ala.bayesian.modifier.PresentCondition",
+    "all": false,
+    "present": [
+      "kingdom",
+      "phylum",
+      "class",
+      "order",
+      "family"
+    ]
+  },  
   "observables" : [ "scientificName", "genus", "specificEpithet" ]
 }
 ```
@@ -399,6 +420,7 @@ section, an associated issue (since modifying the template implies that somethin
 and implementation-specific configuration.
 In the example, the modifier sets to null the scientificName, genus and specificEpithet
 values, if they exist, allowing inference to occur based on the soundex branches.
+However, it will only trigger if one of the higher order values has been set.
 
 ### Modifiers 
 
