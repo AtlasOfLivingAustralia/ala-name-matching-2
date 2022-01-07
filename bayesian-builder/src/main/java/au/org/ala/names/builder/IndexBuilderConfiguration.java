@@ -84,6 +84,11 @@ public class IndexBuilderConfiguration {
     @Getter
     @Setter
     private int threads;
+    /** Use JMX instrumentation (true by default) */
+    @JsonProperty
+    @Getter
+    @Setter
+    private boolean enableJmx;
 
     public IndexBuilderConfiguration() {
         this.builderClass = EmptyBuilder.class;
@@ -93,6 +98,7 @@ public class IndexBuilderConfiguration {
         this.logInterval = 10000;
         this.types = Arrays.asList(DwcTerm.Taxon);
         this.threads = Runtime.getRuntime().availableProcessors();
+        this.enableJmx = true;
     }
 
     /**

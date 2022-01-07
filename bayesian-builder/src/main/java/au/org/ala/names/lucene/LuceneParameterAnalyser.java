@@ -64,10 +64,12 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
         this.annotator = annotator;
         this.searcher = searcher;
         this.weightCache = new ConcurrentHashMap<>();
+        // this.queryCache = null;
         this.queryCache = Cache2kBuilder.of(Query.class, Double.class)
             .eternal(true)
             .entryCapacity(1000000)
             .loader(this::doSum)
+            .enableJmx(true)
             .build();
         this.weight = weight;
         this.defaultWeight = defaultWeight;
@@ -97,7 +99,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      * @return The resulting sum
      */
     protected double sum(final Query query) throws InferenceException {
-        return this.queryCache.get(query);
+        return this.queryCache != null ? this.queryCache.get(query) : this.doSum(query);
     }
 
 

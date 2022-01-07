@@ -52,7 +52,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   private static Function<SimpleLinnaeanClassification, SimpleLinnaeanClassification> REMOVE_PHYLUM =
     c -> {
       SimpleLinnaeanClassification nc;
-      if (c.phylum == null) return c;
+      if (!(c.class_ != null || c.order != null || c.family != null) || (c.phylum == null)) return c;
       nc = c.clone();
       nc.phylum = null;
       nc.addIssue(SimpleLinnaeanFactory.REMOVED_PHYLUM);
@@ -118,6 +118,11 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   @Override
   public void addIssues(Issues issues) {
         this.issues = this.issues.merge(issues);
+  }
+
+  @Override
+  public Hints<SimpleLinnaeanClassification> getHints() {
+    return this.hints;
   }
 
   @Override
@@ -256,7 +261,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       ml.add(REMOVE_ORDER);
     if (this.class_ != null)
       ml.add(REMOVE_CLASS);
-    if (this.phylum != null)
+    if ((this.class_ != null || this.order != null || this.family != null) && (this.phylum != null))
       ml.add(REMOVE_PHYLUM);
     if (ml.size() > 1)
       modifications.add(ml);

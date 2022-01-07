@@ -94,9 +94,15 @@ public class TaxonNameSoundEx {
 
     public static String treatWord(String str, Rank rank, NameType nameType) {
         char startLetter;
-        String temp = normalize(str, nameType);
+        str = normalize(str, nameType);
+        if (StringUtils.isBlank(str))
+            return null;
         // Do some selective replacement on the leading letter/s only:
-        if (StringUtils.isNotEmpty(temp)) {
+        StringBuilder builder = new StringBuilder(str.length());
+        String[] segments = str.split(" ");
+        for (String temp : segments) {
+            if (StringUtils.isBlank(temp))
+                continue;
             if (temp.startsWith("AE")) {
                 temp = "E" + temp.substring(2);
             } else if (temp.startsWith("CN")) {
@@ -132,7 +138,7 @@ public class TaxonNameSoundEx {
             } else if (temp.startsWith("WR")) {
                 temp = "R" + temp.substring(2);
             } else if (temp.startsWith("X")) {
-                temp = "Z" + temp.substring(2);
+                temp = "Z" + temp.substring(1);
             }
             // Now keep the leading character, then do selected "soundalike" replacements. The
             // following letters are equated: AE, OE, E, U, Y and I; IA and A are equated;
@@ -157,7 +163,7 @@ public class TaxonNameSoundEx {
             // now drop any repeated characters (AA becomes A, BB or BBB becomes B, etc.)
             temp = temp.replaceAll("(\\w)\\1+", "$1");
 
-            if (rank == null || rank == Rank.SPECIES) {
+            if ((rank == null || rank.isSpeciesOrBelow()) && builder.length() > 0) {
                 if (temp.endsWith("IS")) {
                     temp = temp.substring(0, temp.length() - 2) + "A";
                 } else if (temp.endsWith("IM")) {
@@ -167,8 +173,11 @@ public class TaxonNameSoundEx {
                 }
                 //temp = temp.replaceAll("(\\w)\\1+", "$1");
             }
+            if (builder.length() > 0)
+                builder.append(' ');
+            builder.append(temp);
         }
-        return temp;
+        return builder.length() == 0 ? null : builder.toString();
     }
 
 

@@ -39,8 +39,10 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   <#list modifier.generate(compiler, "c", "nc") as statement>
       ${statement}
   </#list>
-  <#if modifier.issue??>
-      nc.addIssue(${factoryClassName}.${modifier.issue.javaConstant});
+  <#if modifier.issues??>
+    <#list modifier.issues as issue>
+      nc.addIssue(${factoryClassName}.${issue.javaConstant});
+    </#list>
   </#if>
       return nc;
     };
@@ -91,6 +93,11 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   @Override
   public void addIssues(Issues issues) {
         this.issues = this.issues.merge(issues);
+  }
+
+  @Override
+  public Hints<${className}> getHints() {
+    return this.hints;
   }
 
   @Override

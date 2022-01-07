@@ -129,6 +129,11 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
+    public Hints<TestClassification> getHints() {
+        return new Hints<>();
+    }
+
+    @Override
     public <T> void addHint(Observable observable, T value) {
     }
 

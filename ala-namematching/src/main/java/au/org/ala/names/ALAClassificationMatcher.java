@@ -3,13 +3,21 @@ package au.org.ala.names;
 import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.vocab.TaxonomicStatus;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+import org.cache2k.Cache;
+import org.cache2k.Cache2kBuilder;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.api.Rank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory> {
+    private static final Logger logger = LoggerFactory.getLogger(ALAClassificationMatcher.class);
+
     private static final int SPECIES_RANK_ID = RankIDAnalysis.idFromRank(Rank.SPECIES);
     private static final int GENUS_RANK_ID = RankIDAnalysis.idFromRank(Rank.GENUS);
     private static final int FAMILY_RANK_ID = RankIDAnalysis.idFromRank(Rank.FAMILY);
@@ -40,6 +48,8 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         }
     };
 
+    private Cache<KingdomKey, AlaLinnaeanClassification> kingdomCache;
+
     /**
      * Create with a searcher and inferencer.
      *
@@ -48,6 +58,12 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      */
     public ALAClassificationMatcher(AlaLinnaeanFactory factory, ClassifierSearcher<?> searcher) {
         super(factory, searcher);
+        this.kingdomCache = Cache2kBuilder.of(KingdomKey.class, AlaLinnaeanClassification.class)
+                .entryCapacity(100000)
+                .permitNullValues(true)
+                .loader(this::doFindKingdom)
+                .enableJmx(true)
+                .build();
     }
 
     /**
@@ -309,38 +325,42 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     }
 
     /**
-     * Prepare a classification for modification when looking for a source classifiers.
+     * Prepare a classification for matching.
      * <p>
      * If we do not have a kingdom or nomenclatural code, see if we can find one based on the other
      * evidence in the classification.
      * </p>
      *
      * @param classification The classification
-     * @return The prepared
+     * @return The prepared classification
+     * @throws BayesianException if unable to prepare the classification
      */
     @Override
-    protected AlaLinnaeanClassification prepareForSourceModification(AlaLinnaeanClassification classification) throws BayesianException {
-        classification = classification.clone();
+    protected AlaLinnaeanClassification prepareForMatching(AlaLinnaeanClassification classification) throws BayesianException {
         this.estimateKingdom(classification);
-        this.estimateNomenclaturalCode(classification);
         return classification;
     }
 
     /**
      * If the classification does not have a kingdom, see if we can find one.
+     * <p>
+     * Work from the most speciific (genus) to the least (phylum)
+     * </p>
      *
      * @param classification The classification
      */
     protected void estimateKingdom(AlaLinnaeanClassification classification) throws BayesianException {
         if (classification.kingdom != null && classification.soundexKingdom != null)
             return;
-        if (this.findKingdom(classification.phylum, Rank.PHYLUM, classification))
+        if (this.findKingdom(classification.genus, Rank.GENUS, classification))
             return;
-        if (this.findKingdom(classification.class_, Rank.CLASS, classification))
+        if (this.findKingdom(classification.family, Rank.FAMILY, classification))
             return;
         if (this.findKingdom(classification.order, Rank.ORDER, classification))
             return;
-        if (this.findKingdom(classification.family, Rank.FAMILY, classification))
+        if (this.findKingdom(classification.class_, Rank.CLASS, classification))
+            return;
+        if (this.findKingdom(classification.phylum, Rank.PHYLUM, classification))
             return;
     }
 
@@ -354,35 +374,35 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * @return True if a kingdom has been found
      */
     protected boolean findKingdom(String scientificName, Rank taxonRank, AlaLinnaeanClassification classification) throws BayesianException {
-        AlaLinnaeanClassification finder = new AlaLinnaeanClassification();
-        finder.scientificName = scientificName;
-        finder.taxonRank = taxonRank;
-        finder.nomenclaturalCode = classification.nomenclaturalCode;
-        Match<AlaLinnaeanClassification> match = this.findSource(classification, false);
-        if (match == null || !match.isValid())
+        if (scientificName == null || taxonRank == null)
             return false;
-        classification.kingdom = match.getAccepted().kingdom;
-        classification.addIssue(AlaLinnaeanFactory.INFERRED_KINGDOM);
+        AlaLinnaeanClassification match = this.kingdomCache.get(new KingdomKey(scientificName, taxonRank));
+        if (match == null || match.kingdom == null)
+            return false;
+        classification.addHint(AlaLinnaeanFactory.kingdom, match.kingdom);
         return true;
     }
 
     /**
-     * Deduce the nomenclatural code from the classification.
-     * <p>
-     * If there is a kingdom, use that.
-     * If the scientific name authorship obeys certain characteristics, use that.
-     * </p>
-     * @param classification
-     * @throws BayesianException
+     * See if we can find a kingdom for a particular higher-order name.
+     *
+     * @param key The name of the taxon
+     *
+     * @return True if a kingdom has been found
      */
-    protected void estimateNomenclaturalCode(AlaLinnaeanClassification classification) throws BayesianException {
-        if (classification.nomenclaturalCode != null)
-            return;
-        NomenclaturalCodeAnalysis analysis = new NomenclaturalCodeAnalysis();
-        NomenclaturalCode code = analysis.estimateFromKingdom(classification.kingdom);
-        if (code != null) {
-            classification.nomenclaturalCode = analysis.estimateFromKingdom(classification.kingdom);
-            classification.addIssue(AlaLinnaeanFactory.INFERRED_NOMENCLATURAL_CODE);
+    protected AlaLinnaeanClassification doFindKingdom(KingdomKey key) {
+        try {
+            AlaLinnaeanClassification finder = new AlaLinnaeanClassification();
+            finder.scientificName = key.getScientificName();
+            finder.taxonRank = key.getTaxonRank();
+            finder.inferForSearch();
+            Match<AlaLinnaeanClassification> match = this.findSource(finder, false);
+            if (match != null && match.isValid())
+                return match.getAccepted();
+            return null;
+        } catch (BayesianException ex) {
+            logger.error("Unable to search for kingdom key " + key, ex);
+            return null;
         }
     }
 
@@ -426,5 +446,15 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
                 return true;
         }
         return false;
+    }
+
+    /**
+     * A holder for name/rank searches for possible kingdoms
+     */
+    @Value
+    @EqualsAndHashCode
+    public static class KingdomKey {
+        private String scientificName;
+        private Rank taxonRank;
     }
 }

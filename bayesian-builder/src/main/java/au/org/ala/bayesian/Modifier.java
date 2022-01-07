@@ -7,10 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -22,11 +19,16 @@ import java.util.stream.Collectors;
  */
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property="@class")
 public abstract class Modifier extends Identifiable {
-    /** Any issue associated with this modifier */
+    /** Any issues associated with this modifier */
     @JsonProperty
     @Getter
     @Setter
-    private Issue issue;
+    private Set<Issue> issues;
+    /** Any non-implicit condition associated with the modifier */
+    @JsonProperty
+    @Getter
+    @Setter
+    private Condition condition;
 
     /**
      * Construct an empty identifiable object with an arbitrary identifier.
@@ -149,7 +151,6 @@ public abstract class Modifier extends Identifiable {
         final String check = this.buildCheck(compiler, from, false);
         if (check == null)
             return;
-        final String connector = this.getAnyCondition() ? " && " : " || ";
         StringBuilder statement = new StringBuilder();
         statement.append("if (");
         statement.append(check);
@@ -250,11 +251,20 @@ public abstract class Modifier extends Identifiable {
      * @see #buildChecks(NetworkCompiler, String, boolean)
      */
     public String buildCheck(NetworkCompiler compiler, String var, boolean positive) {
+        String precondition = null;
+        if (this.condition != null)
+            precondition = (positive ? "" : "!") + "(" + this.condition.buildCheck(compiler, var) + ")";
+        boolean any = (positive && this.getAnyCondition()) || (!positive && !this.getAnyCondition());
         final String connector = (positive && this.getAnyCondition()) || (!positive && !this.getAnyCondition()) ? " || " : " && ";
-        final List<String> checks = this.buildChecks(compiler, var, positive);
+        List<String> checks = this.buildChecks(compiler, var, positive);
         if (checks == null || checks.isEmpty())
+            return precondition;
+         if (checks == null || checks.isEmpty())
             return null;
-        return checks.stream().collect(Collectors.joining(connector));
+        String check = checks.stream().collect(Collectors.joining(any ? " || " : " && "));
+        if (precondition != null)
+            check = precondition + (positive ? " && " : " || ") + "(" + check + ")";
+        return check;
     }
 
     /**

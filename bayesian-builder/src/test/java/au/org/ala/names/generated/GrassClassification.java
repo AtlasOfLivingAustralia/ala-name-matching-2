@@ -67,6 +67,11 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
+  public Hints<GrassClassification> getHints() {
+    return this.hints;
+  }
+
+  @Override
   public <T> void addHint(Observable observable, T value) {
         this.hints.addHint(observable, value);
   }

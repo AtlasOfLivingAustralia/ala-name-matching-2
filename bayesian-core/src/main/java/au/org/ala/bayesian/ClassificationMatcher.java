@@ -73,6 +73,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     @NonNull
     public Match<C> findMatch(@NonNull C classification) throws BayesianException{
         classification.inferForSearch();
+        classification = this.prepareForMatching(classification);
 
         // Immediate search
         Match<C> match = this.findSource(classification, true);
@@ -117,24 +118,24 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             return null;
 
         // First do a basic match and see if we have something easily matchable
-        Match<C> match = this.findHinted(classification, candidates, modify);
+        Match<C> match = this.findMatch(classification, candidates, modify);
         Match<C> bad = null;
         if (match != null && match.isValid())
             return match;
         if (match != null && !match.isValid())
             bad = match;
 
-        List<Match<C>> results = this.doMatch(classification, candidates);
-        if (modify && results.stream().allMatch(r -> this.isBadEvidence(r))) {
-            C base = this.prepareForMatchModification(classification);
+        // Try with hints
+        if (modify) {
+            C base = this.prepareForHintModification(classification);
             C modified = null;
             C previous = base;
-            Iterator<C> subClassifications = new BacktrackingIterator<C>(base, base.matchModificationOrder());
+            Iterator<C> subClassifications = new BacktrackingIterator<C>(base, base.hintModificationOrder());
             while (subClassifications.hasNext()) {
                 modified = subClassifications.next();
                 if (modified == classification || modified == previous) // Skip null case
                     continue;
-                match = this.findHinted(modified, candidates, modify);
+                match = this.findMatch(modified, candidates, modify);
                 if (match != null && match.isValid())
                     return match;
                 previous = modified;
@@ -156,7 +157,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      *
      * @throws BayesianException if there is an error in search or inference
      */
-    protected Match<C> findHinted(@NonNull C classification, List<? extends Classifier> candidates, boolean modify) throws BayesianException {
+    protected Match<C> findMatch(@NonNull C classification, List<? extends Classifier> candidates, boolean modify) throws BayesianException {
         // First do a basic match and see if we have something easily matchable
         List<Match<C>> results = this.doMatch(classification, candidates);
         Match<C> match = this.findSingle(classification, results);
@@ -166,12 +167,12 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         if (match != null && !match.isValid())
             bad = match;
 
-        // Try with hints
-        if (modify) {
-            C base = this.prepareForHintModification(classification);
+        // Now try modifictions in order
+        if (modify && results.stream().allMatch(r -> this.isBadEvidence(r))) {
+            C base = this.prepareForMatchModification(classification);
             C modified = null;
             C previous = base;
-            Iterator<C> subClassifications = new BacktrackingIterator<C>(base, base.hintModificationOrder());
+            Iterator<C> subClassifications = new BacktrackingIterator<C>(base, base.matchModificationOrder());
             while (subClassifications.hasNext()) {
                 modified = subClassifications.next();
                 if (modified == classification || modified == previous) // Skip null case
@@ -181,9 +182,26 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
                 if (match != null && match.isValid())
                     return match;
                 previous = modified;
-             }
+            }
         }
         return bad;
+    }
+
+    /**
+     * Prepare a classification for matching.
+     * <p>
+     * Subclasses can do clever stuff here, like infer higher-order information.
+     * By default, the unmodified classification is returned.
+     * </p>
+     *
+     * @param classification The classification
+     *
+     * @return The prepared classification
+     *
+     * @throws BayesianException if unable to prepare the classification
+     */
+    protected C prepareForMatching(C classification) throws BayesianException {
+        return classification;
     }
 
     /**

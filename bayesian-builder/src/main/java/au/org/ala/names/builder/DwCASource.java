@@ -38,7 +38,6 @@ public class DwCASource extends Source {
     private List<Path> cleanup;
     @Getter
     private Archive archive;
-    private Counter counter;
 
     /**
      * Construct with DwCA directory
@@ -76,20 +75,19 @@ public class DwCASource extends Source {
             this.cleanup.add(tmpDir);
             this.archive = DwcFiles.fromCompressed(download, tmpDir);
         }
-        this.counter = new Counter("Loaded {0} records, {2,number,0.0}/s", log, 10000, -1);
     }
 
     /**
      * Load the data into a store
      *
      * @param store The store
-     * @param accepted The accepted observables (null for all)
+     * @param accepted The accepted observables (null for all not set with {@link OptimisationTerm#load} = false)
      *
      * @throws BayesianException if unable to load into the store
      */
     @Override
     public void load(LoadStore store, Collection<Observable> accepted) throws BayesianException {
-        this.counter.start();
+        this.getCounter().start();
         Map<Term, Map<Observable, BiFunction<Record, StarRecord, Object>>> accessors = this.buildAccessors(accepted);
         for (StarRecord star: this.archive) {
             if (this.isLoadable(star.core().rowType()))
@@ -102,7 +100,7 @@ public class DwCASource extends Source {
                 }
             }
         }
-        this.counter.stop();
+        this.getCounter().stop();
     }
 
     /**
@@ -156,12 +154,16 @@ public class DwCASource extends Source {
         Map<Observable, BiFunction<Record, StarRecord, Object>> map = new HashMap<>();
         for (Term term: file.getTerms()) {
             Observable observable = this.getObservable(term);
+            if (observable.hasProperty(OptimisationTerm.load, false))
+                continue;
             if (accepted != null && !accepted.contains(observable))
                 continue;
             map.put(observable, this.buildAccessor(file, observable));
         }
         for (Observable observable: this.getObservables()) {
             if (map.containsKey(observable))
+                continue;
+            if (observable.hasProperty(OptimisationTerm.load, false))
                 continue;
             if (accepted != null && !accepted.contains(observable))
                 continue;
@@ -328,7 +330,7 @@ public class DwCASource extends Source {
 
 
     /**
-     * Build an filterfor the observable.
+     * Build an filter for the observable.
      * <p>
      * If there is a specific {@link OptimisationTerm#dwcaFilter} specified, then used that.
      * Otherwise, accept all records.
@@ -375,9 +377,9 @@ public class DwCASource extends Source {
             this.infer(classifier);
             store.store(classifier, type);
         } catch (Exception ex) {
-            log.error("Skipping invalid classifier: " + ex.getMessage());
+            log.error("Skipping invalid classifier: " + ex.getMessage(), ex);
             log.info("Classifier " + classifier.getAllValues().stream().map(s -> s[0] + ": " + s[1]).sorted().collect(Collectors.joining(", ")));
         }
-        this.counter.increment(classifier.getIdentifier());
+        this.getCounter().increment(classifier.getIdentifier());
     }
 }

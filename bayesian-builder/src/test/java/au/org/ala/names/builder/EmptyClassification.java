@@ -89,6 +89,11 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     }
 
     @Override
+    public Hints<EmptyClassification> getHints() {
+        return new Hints<>();
+    }
+
+    @Override
     public <T> void addHint(Observable observable, T value) {
     }
 

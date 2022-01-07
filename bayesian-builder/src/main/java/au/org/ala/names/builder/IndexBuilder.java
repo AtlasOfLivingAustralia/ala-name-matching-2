@@ -17,9 +17,13 @@ import org.gbif.dwc.terms.TermFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -73,12 +77,14 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     protected Observable name;
     /** The alternative concept name observable */
     protected Optional<Observable> altName;
+    /** The synonym concept name observable */
+    protected Optional<Observable> synonymName;
     /** The concept name additional terms */
     protected Optional<Observable> additionalName;
     /** The complete, propertly formatted concept name */
     protected Optional<Observable> fullName;
     /** The set of terms to copy from an accepted taxon to a synonym */
-    protected Set<Observable> synonymCopy;
+    protected Set<Observable> copy;
     /** The set of terms that need to be stored */
     protected Set<Observable> stored;
     /** The load-store. Used to store semi-structured information before building the complete index. */
@@ -126,7 +132,8 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.additionalName = this.network.findObservable(BayesianTerm.additionalName, true);
         this.fullName = this.network.findObservable(BayesianTerm.fullName, true);
         this.altName = this.network.findObservable(BayesianTerm.altName, true);
-        this.synonymCopy = new HashSet<>(this.network.findObservables(BayesianTerm.copy, true));
+        this.synonymName = this.network.findObservable(BayesianTerm.synonymName, true);
+        this.copy = new HashSet<>(this.network.findObservables(BayesianTerm.copy, true));
         this.stored = new HashSet<>(this.network.getObservables()); // The defined observables in the network
         this.stored.add(this.weight);
         this.parent.ifPresent(o -> this.stored.add(o));
@@ -136,7 +143,8 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.additionalName.ifPresent(o -> this.stored.add(o));
         this.fullName.ifPresent(o -> this.stored.add(o));
         this.altName.ifPresent(o -> this.stored.add(o));
-        this.stored.addAll(this.synonymCopy);
+        this.synonymName.ifPresent(o -> this.stored.add(o));
+        this.stored.addAll(this.copy);
         this.identifiers = new HashSet<>();
     }
 
@@ -148,6 +156,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * @throws BayesianException if something goes wrong during loading
      */
     public void load(Source source) throws BayesianException {
+        this.registerJmx(source.getCounter(), "source");
         source.load(this.loadStore, this.stored);
         this.loadStore.commit();
     }
@@ -200,6 +209,8 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         List<Classifier> top = this.loadStore.getAllClassifiers(this.conceptTerm, isRoot); // Keep across commits
         Counter topCounter = new Counter("Processed {0} top level documents, {1}s, {3,number,0.0}%", LOGGER, 100, top.size());
         Counter counter = new Counter("Processed {0} accepted taxa, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
+        this.registerJmx(topCounter, "top");
+        this.registerJmx(counter, "accepted");
         topCounter.start();
         counter.start();
         for (Classifier classifier: top) {
@@ -234,6 +245,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.builder.expand(classifier, parents);
         final Set<String> names = new LinkedHashSet<>(); // Require order
         Set<String> altNames = new LinkedHashSet<>();
+        Set<String> synonymNames = new LinkedHashSet<>();
 
         // Add all possible names something could be seen as
         names.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
@@ -251,17 +263,25 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         // Add alternative names
         if (this.altName.isPresent()) {
             altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName,false).stream().filter(n -> !names.contains(n)).collect(Collectors.toSet()));
-            if (this.accepted.isPresent()) {
-                Iterable<Classifier> synonyms = this.loadStore.getAll(this.conceptTerm, new Observation(true, this.accepted.get(), id));
-                for (Classifier synonym : synonyms) {
-                    altNames.addAll(this.analyser.analyseNames(synonym, this.name, this.fullName, this.additionalName, true));
-                 }
-            }
             if (!this.altName.get().getMultiplicity().isMany() && altNames.size() > 1) {
                 LOGGER.warn("Classifier " + id + " with single value alternate name " + this.altName.get().getId() + " has multiple names " + altNames);
             } else {
                 for (String nm : altNames) {
                     classifier.add(this.altName.get(), nm);
+                }
+            }
+        }
+        // Add synonyms
+        if (this.synonymName.isPresent() && this.accepted.isPresent()) {
+            Iterable<Classifier> synonyms = this.loadStore.getAll(this.conceptTerm, new Observation(true, this.accepted.get(), id));
+            for (Classifier synonym : synonyms) {
+                synonymNames.addAll(this.analyser.analyseNames(synonym, this.name, this.fullName, this.additionalName, true));
+            }
+            if (!this.synonymName.get().getMultiplicity().isMany() && altNames.size() > 1) {
+                LOGGER.warn("Classifier " + id + " with single value synonym name " + this.synonymName.get().getId() + " has multiple names " + altNames);
+            } else {
+                for (String nm : synonymNames) {
+                    classifier.add(this.synonymName.get(), nm);
                 }
             }
         }
@@ -294,6 +314,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         Counter counter = new Counter("Processed {0} synonyms, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
         Observation isSynonym = this.loadStore.getAnnotationObservation(BayesianTerm.isSynonym);
         Iterable<Classifier> synonyms = this.loadStore.getAll(this.conceptTerm, isSynonym);
+        this.registerJmx(counter, "synonyms");
         counter.start();
         for (Classifier classifier: synonyms) {
             String id = classifier.get(this.identifier);
@@ -336,7 +357,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
             classifier.add(this.name, nm);
         if (accepted.isPresent()){
             Classifier acc = accepted.get();
-            for (Observable obs: this.synonymCopy) {
+            for (Observable obs: this.copy) {
                 if (!classifier.has(obs))
                     classifier.addAll(obs, acc);
             }
@@ -363,6 +384,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         List<ParameterConsumer> consumers = IntStream.range(0, this.config.getThreads()).mapToObj(i -> new ParameterConsumer(analyser, workQueue, counter, poisonPill)).collect(Collectors.toList());
         List<Thread> consumerThreads = consumers.stream().map(Thread::new).collect(Collectors.toList());
         consumerThreads.forEach(t -> t.start());
+        this.registerJmx(counter, "parameters");
         counter.start();
         try {
             for (Classifier classifier : taxa) {
@@ -652,6 +674,22 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
             } catch (Exception ex) {
                 IndexBuilder.LOGGER.error(ex.getMessage(), ex);
                 this.error = ex.getMessage();
+            }
+        }
+    }
+
+    /**
+     * If called, will register the counters etc. for JMX management
+     */
+    public void registerJmx(Counter counter, String name) {
+        if (this.config.isEnableJmx()) {
+            try {
+                MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+                String network = this.getNetwork().getJavaVariable();
+                ObjectName on = new ObjectName(this.getClass().getPackage().getName() + ":type=Counter,network=" + network + ",name=" + name);
+                mbs.registerMBean(counter, on);
+            } catch (Exception ex) {
+                LOGGER.error("Unable to register counter " + name, ex);
             }
         }
     }

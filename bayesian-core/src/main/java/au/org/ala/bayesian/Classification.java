@@ -96,6 +96,13 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
     void addIssues(Issues issues);
 
     /**
+     * Get any hints associated with this classification.
+     *
+     * @return The hints object
+     */
+    @NonNull Hints<C> getHints();
+
+    /**
      * Get a set of hints about the properties of a classification.
      * <p>
      * These are possible values for an observable that are not strong enough or are subject to

@@ -72,7 +72,7 @@ public class NetworkTest {
         network.setMatchModifiers(Arrays.asList(Arrays.asList(modifier)));
         Issue issue = new Issue(URI.create("http://localhost/issue_1"));
         network.getIssues().add(issue);
-        modifier.setIssue(issue);
+        modifier.setIssues(Collections.singleton(issue));
         network.setMatchModifiers(Arrays.asList(Arrays.asList(modifier)));
         ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
@@ -161,7 +161,7 @@ public class NetworkTest {
         assertEquals(1, modifications.size());
         Modifier modifier = modifications.get(0);
         assertEquals("mod_1", modifier.getId());
-        assertEquals(URI.create("http://localhost/issue_1"), modifier.getIssue().getUri());
+        assertEquals(URI.create("http://localhost/issue_1"), modifier.getIssues().iterator().next().getUri());
         assertEquals(RemoveModifier.class, modifier.getClass());
         assertEquals(Collections.singleton(vertices.get(0)), ((RemoveModifier) modifier).getObservables());
     }

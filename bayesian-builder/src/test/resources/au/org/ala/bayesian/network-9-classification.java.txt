@@ -70,6 +70,11 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
   @Override
+  public Hints<Network9Classification> getHints() {
+    return this.hints;
+  }
+
+  @Override
   public <T> void addHint(Observable observable, T value) {
         this.hints.addHint(observable, value);
   }

@@ -3,6 +3,7 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.vocab.OptimisationTerm;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
@@ -107,6 +108,8 @@ public class CSVSource extends Source {
                 Classifier classifier = store.newClassifier();
                 for (int i = 0; i < this.header.length; i++) {
                     Observable observable = header[i];
+                    if (observable.hasProperty(OptimisationTerm.load, false))
+                        continue;
                     if (accepted != null && !accepted.contains(header[i]))
                         continue;
                     String value = line[i];

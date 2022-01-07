@@ -8,6 +8,8 @@ import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.api.NameType;
 import org.gbif.nameparser.api.ParsedName;
 import org.gbif.nameparser.api.Rank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -15,6 +17,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassification> {
+    private Logger logger = LoggerFactory.getLogger(AlaNameAnalyser.class);
+
     /**
      * Invalid authorship
      */
@@ -26,12 +30,30 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
     private static final Issues UNPARSABLE_ISSUES = Issues.of(AlaLinnaeanFactory.UNPARSABLE_NAME);
     private static final Issues CANONICAL_ISSUES = Issues.of(AlaLinnaeanFactory.CANONICAL_NAME);
     private static final Issues DATA_ISSUES = Issues.of(BayesianTerm.illformedData);
+    private static final Issues KINGDOM_ISSUES = Issues.of(AlaLinnaeanFactory.INVALID_KINGDOM, AlaLinnaeanFactory.REMOVED_KINGDOM);
 
     /**
      * A numeric or single letter placeholder name. We can extract the genus from this if we haven't already
      */
     public static final Pattern NUMERIC_PLACEHOLDER = Pattern.compile("^([A-Z][a-z]+)\\s(?:(?:" + RANK_MARKERS + ")\\.?\\s?)?(?:[A-Z]|\\d+)$");
 
+    /**
+     * Remove any invalid entries from the classification before processing it.
+     *
+     * @param analysis The current analysis
+     * @param classification The classification
+     */
+    protected void removeInvalid(Analysis analysis, AlaLinnaeanClassification classification) {
+        classification.kingdom = this.checkInvalid(classification.kingdom, analysis, DATA_ISSUES);
+        classification.phylum = this.checkInvalid(classification.phylum, analysis, DATA_ISSUES);
+        classification.class_ = this.checkInvalid(classification.class_, analysis, DATA_ISSUES);
+        classification.order = this.checkInvalid(classification.order, analysis, DATA_ISSUES);
+        classification.family = this.checkInvalid(classification.family, analysis, DATA_ISSUES);
+        classification.genus = this.checkInvalid(classification.genus, analysis, DATA_ISSUES);
+        classification.specificEpithet = this.checkInvalid(classification.specificEpithet, analysis, DATA_ISSUES);
+        classification.scientificName = this.checkInvalid(classification.scientificName, analysis, DATA_ISSUES);
+        analysis.setScientificName(this.checkInvalid(analysis.getScientificName(), analysis, DATA_ISSUES));
+    }
     /**
      * This is a really, really annoyting thiung where we split apart names of
      * the form <em>fam. Gracilariaceae gen. Gracilaria</em> I mean,
@@ -165,9 +187,9 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
     }
 
     protected void fillOutClassification(Analysis analysis, AlaLinnaeanClassification classification) throws InferenceException {
-        if (classification == null || !analysis.hasFullyParsedName())
-            return;
         ParsedName name = analysis.getParsedName();
+        if (classification == null || name == null)
+            return;
         if (name.isPhraseName()) {
             if (classification.nominatingParty == null && name.getNominatingParty() != null) {
                 classification.nominatingParty = name.getNominatingParty();
@@ -216,6 +238,9 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
     public void analyseForIndex(AlaLinnaeanClassification classification) throws InferenceException {
         Analysis analysis = new Analysis(classification.scientificName, classification.scientificNameAuthorship, classification.taxonRank, classification.nomenclaturalCode);
 
+        analysis.setKingdom(classification.kingdom);
+        if (!this.checkKingdom(analysis, KINGDOM_ISSUES))
+            logger.warn("Unrecognised kingdom " + classification.kingdom + " on " + classification.taxonId);
         this.inferRank(analysis, classification);
         if (this.replaceUnprintable(analysis, 'x', DATA_ISSUES))
             throw new InferenceException("Replacement character in name while indexing for " + classification.taxonId + ": " + classification.scientificName + " " + classification.scientificNameAuthorship);
@@ -233,6 +258,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         classification.scientificNameAuthorship = analysis.getScientificNameAuthorship();
         classification.taxonRank = analysis.isUnranked() ? null : analysis.getRank();
         classification.nameType = analysis.getNameType();
+        classification.kingdom = analysis.getKingdom();
         if (classification.cultivarEpithet != null && classification.specificEpithet != null) {
             // Check case where cultivar epithet is on specific epithet
             Matcher matcher = SUSPECTED_CULTIVAR_IN_SPECIFIC_EPITHET.matcher(classification.specificEpithet);
@@ -265,6 +291,9 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
     public void analyseForSearch(AlaLinnaeanClassification classification) throws InferenceException {
         Analysis analysis = new Analysis(classification.scientificName, classification.scientificNameAuthorship, classification.taxonRank, classification.nomenclaturalCode);
 
+        this.removeInvalid(analysis, classification);
+        analysis.setKingdom(classification.kingdom);
+        this.checkKingdom(analysis, KINGDOM_ISSUES);
         this.inferClassification(analysis, classification);
         this.inferRank(analysis, classification);
         if (this.processCommentary(analysis, CANONICAL_ISSUES)) {
@@ -295,6 +324,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         classification.scientificNameAuthorship = analysis.getScientificNameAuthorship();
         classification.taxonRank = analysis.isUnranked() ? null : analysis.getRank();
         classification.nameType = analysis.getNameType();
+        classification.kingdom = analysis.getKingdom();
         classification.addIssues(analysis.getIssues());
         if (classification.scientificNameAuthorship != null && INVALID_AUTHORSHIP.matcher(classification.scientificNameAuthorship).matches()) {
             classification.scientificNameAuthorship = null;

@@ -2,7 +2,11 @@ package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
+import au.org.ala.util.Counter;
+import au.org.ala.vocab.OptimisationTerm;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -19,23 +23,30 @@ import java.util.stream.Collectors;
  * Sources can be used to populate the index builder.
  * </p>
  */
+@Slf4j
 abstract public class Source {
     private final NetworkFactory factory;
     private final Map<Term, Observable> observables;
     private final Set<Term> types;
+    @Getter
+    private Counter counter;
+
 
     /**
      * Construct with a list of known observables
      *
-     * @param observables The list of observables (may be null)
+     * @param factory The network factory
+     * @param observables The list of observables (may be null, in which case the factory list is used)
      * @param types The list of record types to load
      */
     public Source(NetworkFactory factory, Collection<Observable> observables, Collection<Term> types) {
         if (observables == null)
-            observables = Collections.emptyList();
+            observables = factory.getObservables();
         this.factory = factory;
         this.observables = observables.stream().collect(Collectors.toMap(o -> o.getTerm(), o -> o));
         this.types = new HashSet<>(types);
+        this.counter = new Counter("Loaded {0} records, {2,number,0.0}/s", log, 10000, -1);
+
     }
 
     /**
@@ -104,7 +115,7 @@ abstract public class Source {
      * Load this source into an index builder.
      *
      * @param store The store to load into
-     * @param accepted The accepted observations, all if null
+     * @param accepted The accepted observables (null for all not set with {@link OptimisationTerm#load} = false)
      *
      * @throws BayesianException If there is an error in loading
      */

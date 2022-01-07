@@ -55,7 +55,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      Multiplicity.OPTIONAL
+      Multiplicity.MANY
     );
   public static final Observable family = new Observable(
       "family",
@@ -64,7 +64,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      Multiplicity.OPTIONAL
+      Multiplicity.MANY
     );
   public static final Observable genus = new Observable(
       "genus",
@@ -82,7 +82,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      Multiplicity.OPTIONAL
+      Multiplicity.MANY
     );
   public static final Observable order = new Observable(
       "order",
@@ -91,7 +91,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      Multiplicity.OPTIONAL
+      Multiplicity.MANY
     );
   public static final Observable parentNameUsageId = new Observable(
       "parentNameUsageID",
@@ -109,7 +109,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
-      Multiplicity.OPTIONAL
+      Multiplicity.MANY
     );
   public static final Observable priority = new Observable(
       "priority",
@@ -153,6 +153,15 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
+      Multiplicity.OPTIONAL
+    );
+  public static final Observable synonymScientificName = new Observable(
+      "synonymScientificName",
+      URI.create("http://ala.org.au/terms/1.0/syninymScientificName"),
+      String.class,
+      Observable.Style.CANONICAL,
+      null,
       new StringAnalysis(),
       Multiplicity.OPTIONAL
     );
@@ -208,6 +217,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     scientificNameAuthorship,
     soundexScientificName,
     specificEpithet,
+    synonymScientificName,
     taxonId,
     taxonRank,
     taxonomicStatus,
@@ -246,20 +256,31 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     altScientificName.setExternal(LUCENE, "altScientificName");
     altScientificName.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/altName"), true);
     class_.setExternal(LUCENE, "dwc_class");
+    class_.setExternal(LUCENE_VARIANT, "dwc_class_variant");
     class_.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
+    class_.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
     family.setExternal(LUCENE, "dwc_family");
+    family.setExternal(LUCENE_VARIANT, "dwc_family_variant");
     family.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
+    family.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
     genus.setExternal(LUCENE, "dwc_genus");
     genus.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
+    genus.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
     kingdom.setExternal(LUCENE, "dwc_kingdom");
+    kingdom.setExternal(LUCENE_VARIANT, "dwc_kingdom_variant");
     kingdom.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
+    kingdom.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
     order.setExternal(LUCENE, "dwc_order");
+    order.setExternal(LUCENE_VARIANT, "dwc_order_variant");
     order.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
+    order.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
     parentNameUsageId.setExternal(LUCENE, "dwc_parentNameUsageID");
     parentNameUsageId.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/additional"), true);
     parentNameUsageId.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/parent"), true);
     phylum.setExternal(LUCENE, "dwc_phylum");
+    phylum.setExternal(LUCENE_VARIANT, "dwc_phylum_variant");
     phylum.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/copy"), true);
+    phylum.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
     priority.setExternal(LUCENE, "priority");
     priority.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/aggregate"), "max");
     scientificName.setExternal(LUCENE, "dwc_scientificName");
@@ -268,7 +289,11 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     scientificNameAuthorship.setExternal(LUCENE, "dwc_scientificNameAuthorship");
     soundexScientificName.setExternal(LUCENE, "soundexScientificName");
     soundexScientificName.setExternal(LUCENE_VARIANT, "soundexScientificName_variant");
+    soundexScientificName.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
     specificEpithet.setExternal(LUCENE, "dwc_specificEpithet");
+    specificEpithet.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
+    synonymScientificName.setExternal(LUCENE, "syninymScientificName");
+    synonymScientificName.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/synonymName"), true);
     taxonId.setExternal(LUCENE, "dwc_taxonID");
     taxonId.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/identifier"), true);
     taxonRank.setExternal(LUCENE, "dwc_taxonRank");

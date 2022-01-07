@@ -99,7 +99,7 @@ public class AlaNameAnalyserTest {
         classification.scientificName = "Acacia dealbata?";
         this.analyser.analyseForIndex(classification);
         assertEquals("Acacia dealbata?", classification.scientificName);
-        assertNull(classification.genus);
+        assertEquals("Acacia", classification.genus);
         assertNull(classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
         assertEquals(Issues.of(AlaLinnaeanFactory.INDETERMINATE_NAME), classification.getIssues());
@@ -210,6 +210,18 @@ public class AlaNameAnalyserTest {
         assertEquals("Arabella sp1", classification.scientificName);
         assertEquals(NameType.PLACEHOLDER, classification.nameType);
         assertEquals(Issues.of(), classification.getIssues());
+    }
+
+    // Invalid kingdom
+    @Test
+    public void testAnalyseForIndex15() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Symbrenthia";
+        classification.kingdom = "InvalidKingdom";
+        this.analyser.analyseForIndex(classification);
+        assertEquals("Symbrenthia", classification.scientificName);
+        assertEquals(NameType.SCIENTIFIC, classification.nameType);
+        assertEquals(Issues.of(AlaLinnaeanFactory.INVALID_KINGDOM, AlaLinnaeanFactory.REMOVED_KINGDOM), classification.getIssues());
     }
 
     @Test
@@ -603,6 +615,54 @@ public class AlaNameAnalyserTest {
         assertEquals(Rank.GENUS, classification.taxonRank);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
+    }
+
+    // CF/AFF sets genus
+    @Test
+    public void testAnalyseForSearch31() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Callogobius clitellus cf";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Callogobius clitellus cf.", classification.scientificName);
+        assertEquals("Callogobius", classification.genus);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertEquals(NameType.INFORMAL, classification.nameType);
+        assertEquals(Issues.of(AlaLinnaeanFactory.CONFER_SPECIES_NAME), classification.getIssues());
+    }
+
+    // Invalid kingdom
+    @Test
+    public void testAnalyseForSearch32() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Symbrenthia";
+        classification.kingdom = "InvalidKingdom";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Symbrenthia", classification.scientificName);
+        assertEquals(NameType.SCIENTIFIC, classification.nameType);
+        assertEquals(Issues.of(AlaLinnaeanFactory.INVALID_KINGDOM, AlaLinnaeanFactory.REMOVED_KINGDOM), classification.getIssues());
+    }
+
+
+    // Invalid data
+    @Test
+    public void testAnalyseForSearch33() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification(this.analyser);
+        classification.scientificName = "Genus sp.";
+        classification.kingdom = "Invalid";
+        classification.phylum = "Incertae sedis";
+        classification.class_ = "Flora";
+        classification.order = "Flora";
+        classification.family = "Physidae";
+        classification.genus = "Genus";
+        this.analyser.analyseForSearch(classification);
+        assertEquals("Physidae", classification.scientificName);
+        assertNull(classification.kingdom);
+        assertNull(classification.phylum);
+        assertNull(classification.class_);
+        assertNull(classification.order);
+        assertEquals("Physidae", classification.family);
+        assertNull(classification.genus);
+        assertEquals(Issues.of(BayesianTerm.illformedData), classification.getIssues());
     }
 
     @Test

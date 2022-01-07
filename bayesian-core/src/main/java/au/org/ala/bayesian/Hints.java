@@ -1,5 +1,7 @@
 package au.org.ala.bayesian;
 
+import lombok.NonNull;
+
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -56,6 +58,20 @@ public class Hints<C extends Classification<C>> implements Cloneable {
      */
     public <T> void addHint(Observable observable, T value) {
         this.hints.computeIfAbsent(observable, k -> new HashSet<>()).add(value);
+    }
+
+    /**
+     * Get the hint values for a specific observable.
+     *
+     * @param observable The observable
+     *
+     * @param <T> The expected hint type
+     *
+     * @return A set of hint values, empty for no hints.
+     */
+    @NonNull
+    public <T> Set<T> getHints(Observable observable) {
+        return this.hints.computeIfAbsent(observable, k -> new HashSet<>());
     }
 
     /**

@@ -2,6 +2,7 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.Match;
 import org.apache.commons.lang3.StringUtils;
+import org.gbif.dwc.terms.Term;
 import org.gbif.nameparser.NameParserGBIF;
 import org.gbif.nameparser.api.NameParser;
 import org.gbif.nameparser.api.Rank;
@@ -15,8 +16,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,8 +30,8 @@ import static org.junit.Assert.assertEquals;
 public class PerformanceTest {
     private static final Logger logger = LoggerFactory.getLogger(PerformanceTest.class);
 
-    public static final String INDEX = "/data/lucene/index-20210811";
-    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811";
+    public static final String INDEX = "/data/lucene/index-20210811-2";
+    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-2";
 
 
     private ALANameSearcher searcher;
@@ -56,6 +60,8 @@ public class PerformanceTest {
         int succcess = 0;
         int expected = 0;
         int accurate = 0;
+        int clean = 0;
+        Map<Term, Integer> issueCount = new HashMap<>();
         long startTime, endTime;
         try {
             s = this.getClass().getResourceAsStream(name);
@@ -92,8 +98,15 @@ public class PerformanceTest {
                     classification.inferForSearch();
                     Rank expectedRank = classification.taxonRank;
                     Match<AlaLinnaeanClassification> match = this.searcher.search(classification.clone());
+                    for (Term issue: match.getIssues()) {
+                        int count = issueCount.getOrDefault(issue, 0);
+                        issueCount.put(issue, count + 1);
+                    }
                     if (match.isValid()) {
                         succcess++;
+                        String cleanName = classification.scientificName;
+                        if (cleanName.equalsIgnoreCase(match.getMatch().scientificName))
+                            clean++;
                         final String searchName;
                         final Collection<String> names = match.getCandidate().getNames();
                         if (expectedScientificName != null) {
@@ -141,11 +154,16 @@ public class PerformanceTest {
             double successRate = (succcess * 100.0) / matched;
             double expectedRate = (expected * 100.0) / matched;
             double accurateRate = (accurate * 100.0) / matched;
-            logger.info("Processed " + matched + " entries, " + succcess + " successful, " + expected + " expected, " + accurate + " accurate, " + errors + " errors");
+            double cleanRate = (clean * 100.0) / matched;
+            logger.info("Processed " + matched + " entries, " + succcess + " successful, " + expected + " expected, " + accurate + " accurate, " + clean + " clean, " + errors + " errors");
             logger.info("Processing rate " + rate + " macthes per second");
             logger.info("Successful match rate " + successRate);
             logger.info("Expected match rate " + expectedRate);
             logger.info("Accurate match rate " + accurateRate);
+            logger.info("Clean match rate " + cleanRate);
+            for (Map.Entry<Term, Integer> entry: issueCount.entrySet()) {
+                logger.info(entry.getKey().toString() + ": " + entry.getValue());
+            }
        } finally {
             if (s != null)
                 s.close();
@@ -157,6 +175,12 @@ public class PerformanceTest {
 
     @Test
     public void testPerfomance1() throws Exception {
-        this.testFile("sampled_names_2021.csv");
+        this.testFile("sampled_names_2021-1.csv");
     }
+
+    @Test
+    public void testPerfomance2() throws Exception {
+        this.testFile("sampled_names_2021-2.csv");
+    }
+
 }

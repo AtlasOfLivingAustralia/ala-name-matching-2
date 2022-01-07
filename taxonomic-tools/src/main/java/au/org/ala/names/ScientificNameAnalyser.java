@@ -87,13 +87,13 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      */
     public static final Pattern INDETERMINATE_MARKER = Pattern.compile("\\?");
     /**
-     * A name with a confer species marker. Eg. Acacia cf. dealbata
+     * A name with a confer species marker. Eg. Acacia cf. dealbata Also accepts Acacia dealbata cf.
      */
-    public static final Pattern CONFER_SPECIES_MARKER = Pattern.compile("\\s+(?:cf|cfr|conf)\\.?\\s+");
+    public static final Pattern CONFER_SPECIES_MARKER = Pattern.compile("\\s+(?:cf|cfr|conf)\\.?(?:\\s+|$)");
     /**
-     * A name with an affinity species marker. Eg. Acacia aff. dealbata
+     * A name with an affinity species marker. Eg. Acacia aff. dealbata Also accepts Acacia delabata aff.
      */
-    public static final Pattern AFFINITY_SPECIES_MARKER = Pattern.compile("\\s+aff\\.?\\s+");
+    public static final Pattern AFFINITY_SPECIES_MARKER = Pattern.compile("\\s+aff\\.?(?:\\s+|$)");
     /**
      * A name with a species novum marker. Eg. Acacia sp. nov. dealbata
      */
@@ -138,6 +138,22 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * The commentary pattern
      */
     private static final Pattern COMMENTARY = Pattern.compile("(?:" + COMMENTS + ")", Pattern.CASE_INSENSITIVE);
+    /**
+     * The name invalid resource bundle name
+     */
+    private static final String INVALID_BUNDLE_NAME = ScientificNameAnalyser.class.getPackage().getName() + ".ScientificNameInvalid";
+    /**
+     * The invalid bundle
+     */
+    private static final ResourceBundle INVALID_BUNDLE = ResourceBundle.getBundle(INVALID_BUNDLE_NAME);
+    /**
+     * The invalid list
+     */
+    private static final String INVALID = INVALID_BUNDLE.keySet().stream().map(k -> INVALID_BUNDLE.getString(k).trim()).collect(Collectors.joining("|"));
+    /**
+     * The invalid pattern
+     */
+    private static final Pattern INVALID_PATTERN = Pattern.compile("(?:" + INVALID + ")", Pattern.CASE_INSENSITIVE);
     /**
      * An author pattern that allows the detection of a zoological nomenclatural code
      */
@@ -436,6 +452,8 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      */
     protected boolean processCommentary(@NonNull Analysis analysis, @Nullable Issues issues) {
         String scientificName = analysis.getScientificName();
+        if (scientificName == null)
+            return false;
         Matcher matcher = COMMENTARY.matcher(scientificName);
 
         if (matcher.find()) {
@@ -642,10 +660,51 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
         return true;
     }
 
+    /**
+     * Test to ensure that we have a valid kingdom.
+     *
+     * @param analysis The analysis
+     * @param issues Any issues to add if the kingdom is invalid
+     *
+     * @return True if the kingdom is null or passes, false if there is a problem
+     */
+    protected boolean checkKingdom(@NonNull Analysis analysis, @Nullable Issues issues) {
+        if (analysis.getKingdom() == null)
+            return true;
+        if (!KingdomAnalysis.testKingdom(analysis.getKingdom())) {
+            analysis.setKingdom(null);
+            analysis.addIssues(issues);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Check for an invalid value in a name.
+     *
+     * @param name The name
+     * @param analysis The current analysis
+     * @param issues Any issues to add if an invalid name is detected
+     *
+     * @return The name or null if the name is invalid
+     */
+    protected String checkInvalid(@Nullable String name, @NonNull Analysis analysis, @Nullable Issues issues) {
+        if (name == null)
+            return null;
+        if (INVALID_PATTERN.matcher(name).matches()) {
+            analysis.addIssues(issues);
+            return null;
+        }
+        return name;
+    }
+
     protected static class Analysis implements Cloneable {
         @Getter
         @Setter
         private NomCode nomCode;
+        @Getter
+        @Setter
+        private String kingdom;
         @Getter
         private String scientificName;
         @Getter

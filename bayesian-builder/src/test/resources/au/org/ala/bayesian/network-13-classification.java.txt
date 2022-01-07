@@ -120,6 +120,11 @@ public class Network13Classification implements Classification<Network13Classifi
   }
 
   @Override
+  public Hints<Network13Classification> getHints() {
+    return this.hints;
+  }
+
+  @Override
   public <T> void addHint(Observable observable, T value) {
         this.hints.addHint(observable, value);
   }

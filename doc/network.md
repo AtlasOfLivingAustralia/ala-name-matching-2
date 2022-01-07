@@ -388,7 +388,7 @@ A typical modification is
 {
   "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
   "id" : "misspelled_scientific_name_base",
-  "issue" : "misspelled_scientific_name",
+  "issues" : [ "misspelled_scientific_name" ],
   "observables" : [ "scientificName", "genus", "specificEpithet" ]
 }
 ```

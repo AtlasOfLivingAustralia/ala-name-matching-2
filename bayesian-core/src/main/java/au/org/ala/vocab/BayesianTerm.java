@@ -23,8 +23,10 @@ public enum BayesianTerm implements Term {
     name,
     /** The full name of a category */
     fullName,
-    /** An alternate name for a category */
+    /** An alternate name for a category (Eg. variant spellings, punctuation, etc.) */
     altName,
+    /** An synonym name for a category. (Ie. a name that comes from another category that explicitly references this category) */
+    synonymName,
     /** Additional (disambiguating) name information */
     additionalName,
     /** This identifier navigates to the parent category */

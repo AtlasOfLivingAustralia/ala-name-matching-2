@@ -83,7 +83,7 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
         Set<String> names = new HashSet<>(allNames);
  
         if (allNames.isEmpty())
-            throw new InferenceException("No name for " + classifier.get(AlaVernacularFactory.nameId) + " at" +  classifier.get(AlaVernacularFactory.taxonId));
+            throw new InferenceException("No name for " + classifier.get(AlaVernacularFactory.nameId) + " at " +  classifier.get(AlaVernacularFactory.taxonId));
         for (String nm : allNames) {
             names.add(ScientificNameAnalyser.BASIC_NORMALISER.normalise(nm));
             names.add(ScientificNameAnalyser.PUNCTUATION_NORMALISER.normalise(nm));

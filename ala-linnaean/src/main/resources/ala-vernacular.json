@@ -200,19 +200,19 @@
     {
       "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
       "id" : "remove_language",
-      "issue" : "removed_language",
+      "issues" : [ "removed_language" ],
       "observables" : [ "language" ]
     },
     {
       "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
       "id" : "remove_locality",
-      "issue" : "removed_locality",
+      "issues" : [ "removed_locality" ],
       "observables" : [ "locality" ]
     },
     {
       "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
       "id" : "misspelled_vernacular_name_base",
-      "issue" : "misspelled_vernacular_name",
+      "issues" : [ "misspelled_vernacular_name" ],
       "observables" : [ "vernacularName" ]
     }
   ],

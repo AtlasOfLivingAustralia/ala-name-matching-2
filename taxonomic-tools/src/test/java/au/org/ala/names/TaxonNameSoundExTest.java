@@ -52,14 +52,14 @@ public class TaxonNameSoundExTest {
     @Test
     public void testTreatWord2() throws Exception {
         assertEquals("MILINBICA CASTATA", TaxonNameSoundEx.treatWord("Muehlenbeckia sp. nov. 'costata'", Rank.SPECIES, NameType.SCIENTIFIC));
-        assertEquals("OLIGACITACILIS BILVIDIRI D I MIRFIT 3603", TaxonNameSoundEx.treatWord("Oligochaetochilus 'Belvidere' (D E Murfet 3603)", Rank.SPECIES, NameType.INFORMAL));
+        assertEquals("OLIGACITACILIS BILVIDIRI D E MIRFIT 3603", TaxonNameSoundEx.treatWord("Oligochaetochilus 'Belvidere' (D E Murfet 3603)", Rank.SPECIES, NameType.INFORMAL));
         assertEquals("ENACRAMINI", TaxonNameSoundEx.treatWord("Oenochrominae s. str.", Rank.SPECIES, NameType.SCIENTIFIC));
     }
 
     @Test
     public void testTreatWord3() throws Exception {
         assertEquals("ACACA AF BIVINASA A.R.CAPMAN 601", TaxonNameSoundEx.treatWord("Acacia aff. bivenosa (A.R.Chapman 601)", Rank.SPECIES, NameType.INFORMAL));
-        assertEquals("CIPIRIS AF ALASINA", TaxonNameSoundEx.treatWord("Cyperus sp. aff holoschoenus", Rank.SPECIES, NameType.SCIENTIFIC));
+        assertEquals("CIPIRIS AF HALASINA", TaxonNameSoundEx.treatWord("Cyperus sp. aff holoschoenus", Rank.SPECIES, NameType.SCIENTIFIC));
         assertEquals("NITCSA CF BICAPITATA", TaxonNameSoundEx.treatWord("Nitzschia cfr. bicapitata", Rank.SPECIES, NameType.SCIENTIFIC));
     }
 
@@ -72,10 +72,10 @@ public class TaxonNameSoundExTest {
 
     @Test
     public void testTreatWord5() throws Exception {
-        assertEquals("CANARIM ACITIFALIM ACITIFALA", TaxonNameSoundEx.treatWord("Canarium acutifolium var. acutifolium", Rank.SPECIES, NameType.SCIENTIFIC));
+        assertEquals("CANARIM ACITIFALA ACITIFALA", TaxonNameSoundEx.treatWord("Canarium acutifolium var. acutifolium", Rank.SPECIES, NameType.SCIENTIFIC));
         assertEquals("FICIS SICIDA", TaxonNameSoundEx.treatWord("Ficus subsect. Sycidium", Rank.SPECIES, NameType.SCIENTIFIC));
-        assertEquals("ASPLINIM BILBIFIRIM GRACILIMA", TaxonNameSoundEx.treatWord("Asplenium bulbiferum ssp. gracillimum", Rank.SPECIES, NameType.SCIENTIFIC));
-        assertEquals("ASPLINIM BILBIFIRIM GRACILIMA", TaxonNameSoundEx.treatWord("Asplenium bulbiferum ssp. gracillimum", Rank.SPECIES, NameType.SCIENTIFIC));
+        assertEquals("ASPLINIM BILBIFIRA GRACILIMA", TaxonNameSoundEx.treatWord("Asplenium bulbiferum ssp. gracillimum", Rank.SPECIES, NameType.SCIENTIFIC));
+        assertEquals("ASPLINIM BILBIFIRA GRACILIMA", TaxonNameSoundEx.treatWord("Asplenium bulbiferum ssp. gracillimum", Rank.SPECIES, NameType.SCIENTIFIC));
     }
 
 
@@ -93,6 +93,19 @@ public class TaxonNameSoundExTest {
         assertEquals("CRAMISTA", TaxonNameSoundEx.treatWord("Chromista", Rank.KINGDOM, NameType.SCIENTIFIC));
         assertEquals("PRATACA", TaxonNameSoundEx.treatWord("Protozoa", Rank.KINGDOM, NameType.SCIENTIFIC));
         assertEquals("PRATISTA", TaxonNameSoundEx.treatWord("Protista", Rank.KINGDOM, NameType.SCIENTIFIC));
+    }
+
+
+    @Test
+    public void testTreatWord7() throws Exception {
+        assertEquals("ACACA SP. H", TaxonNameSoundEx.treatWord("Acacia sp. H", Rank.SPECIES, NameType.INFORMAL));
+    }
+
+
+    @Test
+    public void testTreatWord8() throws Exception {
+        assertEquals("BILARDIRA CIRILIAPINCTATA", TaxonNameSoundEx.treatWord("Billardiera coeruleo-punctata", Rank.SPECIES, NameType.SCIENTIFIC));
+        assertEquals("BILARDIRA CIRILIAPINCTATA", TaxonNameSoundEx.treatWord("Billardiera coeruleopunctata", Rank.SPECIES, NameType.SCIENTIFIC));
     }
 
 }

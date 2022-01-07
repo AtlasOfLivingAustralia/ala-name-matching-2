@@ -40,7 +40,7 @@ public class CSVSourceTest {
     @Test
     public void testLoad1() throws Exception {
         Reader reader = TestUtils.getResourceReader(this.getClass(), "source-1.csv");
-        CSVSource source = new CSVSource(DwcTerm.Taxon, reader, this.factory, this.network.getObservables());
+        CSVSource source = new CSVSource(DwcTerm.Taxon, reader, this.factory, null);
         source.load(this.store, null);
 
         assertEquals(11, this.store.getStore().size());
@@ -55,7 +55,7 @@ public class CSVSourceTest {
     @Test
     public void testLoad2() throws Exception {
         URL url = this.getClass().getResource("source-1.csv");
-        CSVSource source = new CSVSource(DwcTerm.Taxon, url, this.factory, this.network.getObservables());
+        CSVSource source = new CSVSource(DwcTerm.Taxon, url, this.factory, null);
         source.load(this.store, Arrays.asList(SimpleLinnaeanFactory.taxonId, SimpleLinnaeanFactory.scientificName));
 
         assertEquals(11, this.store.getStore().size());
@@ -66,4 +66,22 @@ public class CSVSourceTest {
         assertNull(value.get(SimpleLinnaeanFactory.taxonomicStatus));
         source.close();
     }
+
+
+    @Test
+    public void testLoad3() throws Exception {
+        URL url = this.getClass().getResource("source-2.csv");
+        CSVSource source = new CSVSource(DwcTerm.Taxon, url, this.factory, null);
+        source.load(this.store, null);
+
+        assertEquals(11, this.store.getStore().size());
+        LuceneClassifier value = this.store.get(DwcTerm.Taxon, SimpleLinnaeanFactory.taxonId, "S-1");
+        assertNotNull(value);
+        assertEquals("Artemia franciscana", value.get(SimpleLinnaeanFactory.scientificName));
+        assertEquals("species", value.get(SimpleLinnaeanFactory.taxonRank));
+        assertEquals("accepted", value.get(SimpleLinnaeanFactory.taxonomicStatus));
+        assertNull(value.get(SimpleLinnaeanFactory.genus));
+        source.close();
+    }
+
 }

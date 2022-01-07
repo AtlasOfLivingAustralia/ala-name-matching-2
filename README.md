@@ -17,8 +17,8 @@ narrowing conditional probabilities to the smallest possible set of antecendents
 To use the test cases in ala-namematching module, you will need the corresponding
 Linnaean and vernacular name indexes. You can get:
 
-* [index-20210811.zip](https://archives.ala.org.au/archives/nameindexes/20210811/index-20210811.zip)
-* [vernacular-20210811.zip](https://archives.ala.org.au/archives/nameindexes/20210811/vernacular-20210811.zip)
+* [index-20210811-2.zip](https://archives.ala.org.au/archives/nameindexes/20210811-2/index-20210811-2.zip)
+* [vernacular-20210811-2.zip](https://archives.ala.org.au/archives/nameindexes/20210811-2/vernacular-20210811-2.zip)
 
 These need to be unzipped into `/data/lucene`
 

@@ -17,6 +17,8 @@ import java.net.URI;
  * Copyright (c) 2016 CSIRO
  */
 public enum OptimisationTerm implements Term {
+    /** If true (the default) then load this observable from a source. If explicitly false then the observable will not be loaded */
+    load,
     /** Do not use this observable for candidate search in Lucene, usually for performance reasons */
     luceneNoSearch,
     /**

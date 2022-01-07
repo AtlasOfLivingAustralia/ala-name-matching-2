@@ -39,7 +39,7 @@
     {
       "@class": "au.org.ala.bayesian.modifier.ChooseModifier",
       "id": "mod_1",
-      "issue": "issue_1",
+      "issues": ["issue_1"],
       "sources": [
         "v_3",
         "v_1"
@@ -50,7 +50,7 @@
     {
       "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
       "id": "mod_2",
-      "issue": "issue_1",
+      "issues": ["issue_1"],
       "observables": [
         "v_3"
       ],
@@ -59,7 +59,7 @@
     {
       "@class": "au.org.ala.bayesian.modifier.SetModifier",
       "id": "mod_3",
-      "issue": "issue_1",
+      "issues": ["issue_1"],
       "observable": "v_1",
       "value": "illformedData",
       "clearDerived": true
@@ -67,7 +67,7 @@
     {
       "@class": "au.org.ala.bayesian.modifier.JoinModifier",
       "id": "mod_4",
-      "issue": "issue_1",
+      "issues": ["issue_1"],
       "sources": [
         "v_1",
         "v_2"
@@ -78,7 +78,7 @@
     {
       "@class": "au.org.ala.bayesian.modifier.CompositeModifier",
       "id": "mod_5",
-      "issue": "issue_1",
+      "issues": ["issue_1"],
       "modifiers": [
         "mod_1",
         "mod_2",

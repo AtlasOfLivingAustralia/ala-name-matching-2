@@ -78,7 +78,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertNotNull(doc);
         assertEquals("TTTTTTT", doc.getSignature());
         assertEquals("Canarium acutifolium var. acutifolium", doc.get(AlaLinnaeanFactory.scientificName));
-        assertEquals("CANARIM ACITIFALIM ACITIFALA", doc.get(AlaLinnaeanFactory.soundexScientificName));
+        assertEquals("CANARIM ACITIFALA ACITIFALA", doc.get(AlaLinnaeanFactory.soundexScientificName));
         assertEquals("Canarium", doc.get(AlaLinnaeanFactory.genus));
         assertEquals("https://id.biodiversity.org.au/node/apni/2918714", doc.get(AlaLinnaeanFactory.genusId));
         assertNull(doc.get(AlaLinnaeanFactory.vernacularName));
@@ -115,7 +115,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
     public void testLoadBuild2() throws Exception {
         LoadStore store = this.builder.getParameterisedStore();
         Classifier doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "9c237030-9af9-41d2-bc3c-3a18adcd43ac");
-        assertEquals("FFFFFFT", doc.getSignature());
+        assertEquals("FFTFTTT", doc.getSignature());
         assertEquals("Coniosporium sacchari", doc.get(AlaLinnaeanFactory.scientificName));
         assertEquals("CANIASPARIM SACARI", doc.get(AlaLinnaeanFactory.soundexScientificName));
         assertNull(doc.get(AlaLinnaeanFactory.vernacularName));

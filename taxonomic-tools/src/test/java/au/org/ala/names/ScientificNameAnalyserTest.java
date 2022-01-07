@@ -618,6 +618,18 @@ public class ScientificNameAnalyserTest {
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
+
+    @Test
+    public void parseName9() throws Exception {
+        Analysis analysis = new Analysis("Acacia sp. H", null, null, null);
+        this.analyser.parseName(analysis, DEFAULT_ISSUES);
+        assertEquals("Acacia sp. H", analysis.getScientificName());
+        assertNotNull(analysis.getParsedName());
+        assertEquals(ParsedName.State.COMPLETE, analysis.getParsedName().getState());
+        assertEquals(NameType.INFORMAL, analysis.getNameType());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
     @Test
     public void reducedName1() throws Exception {
         Analysis analysis = new Analysis("Toxotes chatareus", null, null, null);
@@ -847,4 +859,56 @@ public class ScientificNameAnalyserTest {
         assertTrue(analysis.getNames().contains("Viola sp. Lamington NP (R.Schodde 1153)"));
         assertTrue(analysis.getNames().contains("Viola sp. Lamington NP"));
     }
+
+    @Test
+    public void checkKingdom1() throws Exception {
+        Analysis analysis = new Analysis("Chromis hypsilepis", "(Günther, 1867)", Rank.SPECIES, NomenclaturalCode.ZOOLOGICAL);
+        analysis.setKingdom("Animalia");
+        assertTrue(this.analyser.checkKingdom(analysis, DEFAULT_ISSUES));
+        assertEquals(Issues.of(), analysis.getIssues());
+        assertEquals("Animalia", analysis.getKingdom());
+        analysis = new Analysis("Chromis hypsilepis", "(Günther, 1867)", Rank.SPECIES, NomenclaturalCode.ZOOLOGICAL);
+        analysis.setKingdom("AnImALiA");
+        assertTrue(this.analyser.checkKingdom(analysis, DEFAULT_ISSUES));
+        assertEquals(Issues.of(), analysis.getIssues());
+        assertEquals("AnImALiA", analysis.getKingdom());
+    }
+
+    @Test
+    public void checkKingdom2() throws Exception {
+        Analysis analysis = new Analysis("Chromis hypsilepis", "(Günther, 1867)", Rank.SPECIES, NomenclaturalCode.ZOOLOGICAL);
+        analysis.setKingdom("NotAKingdom");
+        assertFalse(this.analyser.checkKingdom(analysis, DEFAULT_ISSUES));
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+        assertNull(analysis.getKingdom());
+    }
+
+    @Test
+    public void checkInvalid1() throws Exception {
+        Analysis analysis = new Analysis("Chromis hypsilepis", "(Günther, 1867)", Rank.SPECIES, NomenclaturalCode.ZOOLOGICAL);
+        assertEquals("Chromis", this.analyser.checkInvalid("Chromis", analysis, DEFAULT_ISSUES));
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+    @Test
+    public void checkInvalid2() throws Exception {
+        Analysis analysis = new Analysis("Chromis hypsilepis", "(Günther, 1867)", Rank.SPECIES, NomenclaturalCode.ZOOLOGICAL);
+        assertNull(this.analyser.checkInvalid("Flora", analysis, DEFAULT_ISSUES));
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
+    @Test
+    public void checkInvalid3() throws Exception {
+        Analysis analysis = new Analysis("Chromis hypsilepis", "(Günther, 1867)", Rank.SPECIES, NomenclaturalCode.ZOOLOGICAL);
+        assertNull(this.analyser.checkInvalid("Incertae sedis", analysis, DEFAULT_ISSUES));
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
+    @Test
+    public void checkInvalid4() throws Exception {
+        Analysis analysis = new Analysis("Chromis hypsilepis", "(Günther, 1867)", Rank.SPECIES, NomenclaturalCode.ZOOLOGICAL);
+        assertNull(this.analyser.checkInvalid("Genus sp.", analysis, DEFAULT_ISSUES));
+        assertEquals(DEFAULT_ISSUES, analysis.getIssues());
+    }
+
 }
