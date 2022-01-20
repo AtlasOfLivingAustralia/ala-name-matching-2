@@ -42,9 +42,9 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     @Getter
     private Analyser<C> analyser;
     @Getter
-    private Optional<Observable> identifier;
+    private Optional<Observable<String>> identifier;
     @Getter
-    private Optional<Observable> accepted;
+    private Optional<Observable<String>> accepted;
 
     /**
      * Create with a searcher and inferencer.
@@ -72,7 +72,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
       */
     @NonNull
     public Match<C> findMatch(@NonNull C classification) throws BayesianException{
-        classification.inferForSearch();
+        classification.inferForSearch(this.analyser);
         classification = this.prepareForMatching(classification);
 
         // Immediate search
@@ -92,7 +92,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             modified = sourceClassifications.next();
             if (modified == previous)
                 continue;
-            modified.inferForSearch();
+            modified.inferForSearch(this.analyser);
             match = this.findSource(modified, true);
             if (match != null && match.isValid())
                 return match;

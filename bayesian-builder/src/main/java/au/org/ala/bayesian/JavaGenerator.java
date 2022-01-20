@@ -1,5 +1,6 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.bayesian.derivation.CompiledDerivation;
 import au.org.ala.names.builder.Builder;
 import au.org.ala.names.builder.Cli;
 import au.org.ala.names.builder.DefaultWeightAnalyser;
@@ -19,6 +20,9 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
+import org.gbif.dwc.terms.TermFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -34,6 +38,8 @@ import java.util.Set;
  */
 @Slf4j
 public class JavaGenerator extends Generator {
+    private static final Logger logger = LoggerFactory.getLogger(JavaGenerator.class);
+
     /** The default package to generate code for */
     private static final String DEFAULT_PACKAGE = "au.org.ala.bayesian.generated";
     /** The encoding to use for code generation */
@@ -141,8 +147,8 @@ public class JavaGenerator extends Generator {
         this.inferencerSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_CLASS_TEMPLATE, Inferencer.class, false, this.classificationSpec, this.parametersSpec, this.analyserSpec);
         this.inferencerSpecificSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_SPECIFIC_CLASS_TEMPLATE, Inferencer.class, true, this.classificationSpec, this.parametersSpecificSpec, this.analyserSpec);
         this.factorySpec = new JavaGeneratorSpecification<>("Factory", FACTORY_CLASS_TEMPLATE, NetworkFactory.class, false, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.analyserSpec);
-        this.builderSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_CLASS_TEMPLATE, Builder.class, false, this.parametersSpec, this.factorySpec);
-        this.builderSpecificSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_SPECIFIC_CLASS_TEMPLATE, Builder.class, true, this.parametersSpecificSpec, this.factorySpec);
+        this.builderSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_CLASS_TEMPLATE, Builder.class, false, this.parametersSpec, this.factorySpec, this.classificationSpec);
+        this.builderSpecificSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_SPECIFIC_CLASS_TEMPLATE, Builder.class, true, this.parametersSpecificSpec, this.factorySpec, this.classificationSpec);
         this.cliSpec = new JavaGeneratorSpecification<>("Cli", CLI_CLASS_TEMPLATE, Cli.class, false, this.classificationSpec, this.parametersSpec, this.builderSpec, this.inferencerSpec, this.factorySpec, this.weightAnalyserSpec);
         this.matcherSpec = new JavaGeneratorSpecification<>("matcher", null, ClassificationMatcher.class, false, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.factorySpec);
         this.factorySpec.addParameter(this.matcherSpec);
@@ -225,11 +231,11 @@ public class JavaGenerator extends Generator {
      * @param environment The environmwent to populate
      * @param spec The base specification
      */
-    protected void populate(Environment environment, NetworkCompiler compiler, JavaGeneratorSpecification spec, Collection<Derivation.Variable> variables) {
+    protected void populate(Environment environment, NetworkCompiler compiler, JavaGeneratorSpecification spec, Collection<CompiledDerivation.Variable> variables) {
         Set<String> imports = new HashSet<>();
         JavaGeneratorSpecification.Context baseContext = spec.withContext(compiler, this.packageName);
         if (variables != null) {
-            for (Derivation.Variable v: variables) {
+            for (CompiledDerivation.Variable v: variables) {
                 baseContext.addImport(v.getClazz().getName(), imports);
             }
         }
@@ -243,6 +249,7 @@ public class JavaGenerator extends Generator {
         environment.setVariable("networkFileName", new StringModel(this.getNetworkFileName(compiler), this.wrapper));
         environment.setVariable("externalContexts", new CollectionModel(Arrays.asList(ExternalContext.LUCENE), this.wrapper));
         environment.setVariable("variantExternalContexts", new CollectionModel(Arrays.asList(ExternalContext.LUCENE_VARIANT), this.wrapper));
+        environment.setVariable("termFactory", new BeanModel(TermFactory.instance(), this.wrapper));
         baseContext.populate(environment, this.wrapper, imports);
         environment.setVariable("imports", new CollectionModel(imports, this.wrapper));
     }
@@ -251,7 +258,7 @@ public class JavaGenerator extends Generator {
         return SimpleIdentifierConverter.FILE_NAME.convert(compiler.getNetwork()) + ".json";
     }
 
-    protected <I> void generateClass(@NonNull NetworkCompiler compiler, @NonNull JavaGeneratorSpecification<I> spec, @NonNull Writer writer, Collection<Derivation.Variable> variables) throws IOException, TemplateException {
+    protected <I> void generateClass(@NonNull NetworkCompiler compiler, @NonNull JavaGeneratorSpecification<I> spec, @NonNull Writer writer, Collection<CompiledDerivation.Variable> variables) throws IOException, TemplateException {
        if (spec.getTemplate() == null || !spec.isGenerate())
             return;
         Template template = this.freemarkerConfig.getTemplate(spec.getTemplate());
@@ -261,7 +268,7 @@ public class JavaGenerator extends Generator {
         environment.process();
     }
 
-    protected <I> void generateClass(@NonNull NetworkCompiler compiler, @NonNull JavaGeneratorSpecification<I> spec, File javaTarget, Collection<Derivation.Variable> variables) throws IOException, TemplateException {
+    protected <I> void generateClass(@NonNull NetworkCompiler compiler, @NonNull JavaGeneratorSpecification<I> spec, File javaTarget, Collection<CompiledDerivation.Variable> variables) throws IOException, TemplateException {
         if (spec.getTemplate() == null || !spec.isGenerate())
             return;
         File target = new File(javaTarget, spec.withContext(compiler, this.packageName).getClassName() + ".java");

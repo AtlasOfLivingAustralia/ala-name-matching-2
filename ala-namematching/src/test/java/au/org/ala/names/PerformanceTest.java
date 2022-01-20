@@ -3,8 +3,6 @@ package au.org.ala.names;
 import au.org.ala.bayesian.Match;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
-import org.gbif.nameparser.NameParserGBIF;
-import org.gbif.nameparser.api.NameParser;
 import org.gbif.nameparser.api.Rank;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
@@ -16,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
@@ -95,7 +92,7 @@ public class PerformanceTest {
                 }
                 matched++;
                 try {
-                    classification.inferForSearch();
+                    classification.inferForSearch(this.searcher.getMatcher().getAnalyser());
                     Rank expectedRank = classification.taxonRank;
                     Match<AlaLinnaeanClassification> match = this.searcher.search(classification.clone());
                     for (Term issue: match.getIssues()) {

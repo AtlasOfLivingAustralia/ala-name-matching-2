@@ -14,9 +14,10 @@
     <module>bayesian-builder</module>
     <module>bayesian-maven-plugin</module>
     <module>bayesian-lucene</module>
+    <module>taxonomic-tools</module>
+    <module>taxonomic-tools-builder</module>
     <module>ala-linnaean</module>
     <module>ala-linnaean-builder</module>
-    <module>taxonomic-tools</module>
     <module>ala-namematching</module>
   </modules>
 

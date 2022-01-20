@@ -16,8 +16,6 @@ import java.util.function.Function;
  */
 public class EmptyClassification implements Classification<EmptyClassification> {
     @Getter
-    private NullAnalyser<EmptyClassification> analyser = new NullAnalyser<>();
-    @Getter
     private Issues issues = new Issues();
 
     @Override
@@ -51,11 +49,7 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     }
 
     @Override
-    public void inferForIndex() {
-    }
-
-    @Override
-    public void inferForSearch() {
+    public void inferForSearch(Analyser analyser) {
     }
 
     /**

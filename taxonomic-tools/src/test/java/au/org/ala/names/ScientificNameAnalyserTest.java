@@ -26,7 +26,7 @@ public class ScientificNameAnalyserTest {
     public void setUp() throws Exception {
         this.analyser = new ScientificNameAnalyser<Classification>() {
             @Override
-            public void analyseForIndex(Classification classification) throws InferenceException {
+            public void analyseForIndex(Classifier classifier) throws InferenceException {
                 throw new UnsupportedOperationException();
             }
 
@@ -36,8 +36,13 @@ public class ScientificNameAnalyserTest {
             }
 
             @Override
-            public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) throws InferenceException {
+            public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) throws InferenceException {
                 throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public boolean acceptSynonym(Classifier base, Classifier candidate) {
+                return true;
             }
         };
     }

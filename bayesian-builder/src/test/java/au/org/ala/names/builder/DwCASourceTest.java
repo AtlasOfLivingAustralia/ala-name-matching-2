@@ -1,18 +1,14 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Network;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.names.generated.SimpleLinnaeanFactory;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
-import org.gbif.dwc.terms.Term;
-import org.gbif.dwc.terms.TermFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -22,17 +18,15 @@ import static org.junit.Assert.*;
  * Test cases for {@link DwCASource}
  */
 public class DwCASourceTest {
-    private static final Observable VERNACULAR_NAME_OBS = new Observable(DwcTerm.vernacularName);
+    private static final Observable<String> VERNACULAR_NAME_OBS = Observable.string(DwcTerm.vernacularName);
 
     private SimpleLinnaeanFactory factory;
-    private Annotator annotator;
     private TestLoadStore store;
 
     @Before
     public void setUp() throws Exception {
         this.factory = SimpleLinnaeanFactory.instance();
-        this.annotator = new TestAnnotator();
-        this.store = new TestLoadStore(this.annotator);
+        this.store = new TestLoadStore("test");
     }
 
     @After

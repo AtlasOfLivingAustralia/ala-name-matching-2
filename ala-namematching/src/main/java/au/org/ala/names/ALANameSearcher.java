@@ -5,6 +5,7 @@ import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
+import lombok.Getter;
 import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.File;
@@ -17,9 +18,13 @@ import java.io.File;
  * </p>
  */
 public class ALANameSearcher {
+    @Getter
     private LuceneClassifierSearcher searcher;
+    @Getter
     private ALAClassificationMatcher matcher;
+    @Getter
     private LuceneClassifierSearcher vernacularSearcher;
+    @Getter
     private ALAVernacularClassificationMatcher vernacularMatcher;
 
     public ALANameSearcher(File index, File vernacular) throws StoreException {

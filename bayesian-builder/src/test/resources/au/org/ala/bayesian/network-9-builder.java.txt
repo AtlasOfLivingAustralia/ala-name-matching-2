@@ -1,5 +1,6 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.ParameterAnalyser;
@@ -15,7 +16,7 @@ import java.util.Optional;
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.derivation.SoundexGenerator;
 
-public class Network9Builder implements Builder {
+public class Network9Builder implements Builder<Network9Classification> {
   // Assumed to be stateless
   private static final Builder[] BUILDERS = new Builder[] {
     new Network9Builder_()
@@ -37,25 +38,25 @@ public class Network9Builder implements Builder {
     return null;
   }
 
-
   @Override
-  public void generate(Classifier classifier) throws BayesianException {
-        Object d;
+  public void generate(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
   }
 
   @Override
-  public void infer(Classifier classifier) throws BayesianException {
-    Object d;
-    if (!classifier.has(Network9Factory.v2)){
-      d = classifier.get(Network9Factory.v1);
-      d = this.soundex.soundex((String) d);
-      classifier.add(Network9Factory.v2, d);
+  public void interpret(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
+  }
+
+  @Override
+  public void infer(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
+     if (!classifier.has(Network9Factory.v2)){
+       java.lang.String i_0 = classifier.get(Network9Factory.v1);
+       java.lang.String v_0 = this.soundex.soundex((String) i_0);
+       classifier.add(Network9Factory.v2, v_0, false);
     }
   }
 
   @Override
-    public void expand(Classifier classifier, Deque<Classifier> parents) throws BayesianException {
-      Object d;
+  public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<Network9Classification> analyser) throws BayesianException {
   }
 
   @Override

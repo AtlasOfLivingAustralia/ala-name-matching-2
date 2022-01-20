@@ -9,27 +9,27 @@ import java.util.Optional;
 
 public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyInferencer, EmptyFactory> {
     @Override
-    public @NonNull List<Observable> getObservables() {
+    public @NonNull List<Observable<?>> getObservables() {
         return Collections.emptyList();
     }
 
     @Override
-    public @NonNull Optional<Observable> getIdentifier() {
+    public @NonNull Optional<Observable<String>> getIdentifier() {
         return Optional.empty();
     }
 
     @Override
-    public @NonNull Optional<Observable> getName() {
+    public @NonNull Optional<Observable<String>> getName() {
         return Optional.empty();
     }
 
     @Override
-    public @NonNull Optional<Observable> getParent() {
+    public @NonNull Optional<Observable<String>> getParent() {
         return Optional.empty();
     }
 
     @Override
-    public @NonNull Optional<Observable> getAccepted() {
+    public @NonNull Optional<Observable<String>> getAccepted() {
         return Optional.empty();
     }
 

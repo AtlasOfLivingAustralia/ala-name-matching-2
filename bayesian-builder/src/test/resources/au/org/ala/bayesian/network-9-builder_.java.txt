@@ -1,5 +1,6 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.ParameterAnalyser;
@@ -13,7 +14,7 @@ import java.util.Optional;
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.derivation.SoundexGenerator;
 
-public class Network9Builder_ implements Builder {
+public class Network9Builder_ implements Builder<Network9Classification> {
   public final static String SIGNATURE = "";
 
   public  Network9Builder_() {
@@ -25,17 +26,22 @@ public class Network9Builder_ implements Builder {
   }
 
   @Override
-  public void generate(Classifier classifier) throws BayesianException {
+  public void generate(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
   @Override
-  public void infer(Classifier classifier) throws BayesianException {
+  public void interpret(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
   @Override
-  public void expand(Classifier classifier, Deque<Classifier> parents) throws BayesianException {
+  public void infer(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
+    throw new UnsupportedOperationException("Sub-builders do not support this operation");
+  }
+
+  @Override
+  public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<Network9Classification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 

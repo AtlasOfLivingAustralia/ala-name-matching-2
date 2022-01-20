@@ -5,7 +5,6 @@ import org.gbif.dwc.terms.Term;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -27,13 +26,6 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * @return The sort of thing this classification is supposed to match.
      */
     @NonNull Term getType();
-
-    /**
-     * Get the analyser used with this classification.
-     *
-     * @return The analyser
-     */
-    @NonNull Analyser<C> getAnalyser();
 
     /**
      * Get the identifier of this classification
@@ -66,7 +58,7 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
     /**
      * Get any issues recorded with this classification.
      * <p>
-     * The analyser in {@link #getAnalyser()} may addf issues as required.
+     * The analyser in {@link #inferForIndex(Analyser)} and {@link #inferForSearch(Analyser)} may add issues as required.
      * </p>
      *
      * @return Any issues associated with the classification/
@@ -141,20 +133,6 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
 
     /**
      * Infer empty elements of the classification from the network definition
-     * in preparation for indexing.
-     * <p>
-     * This method is usually generated to implement any derivations that are
-     * specified by {@link Observable#getDerivation()}.
-     * The method can be used to perform common derivations without requiring further coding.
-     * </p>
-     *
-     * @throws BayesianException if unable to derive an inferred value or retrieve data
-      */
-    void inferForIndex() throws BayesianException;
-
-
-    /**
-     * Infer empty elements of the classification from the network definition
      * in preparation for using this as a search template.
      * <p>
      * This method is usually generated to implement any derivations that are
@@ -162,9 +140,11 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * The method can be used to perform common derivations without requiring further coding.
      * </p>
      *
+     * @param analyser The analser to use
+     *
      * @throws BayesianException if unable to calculate an inferred value or retrieve a source value
      */
-    void inferForSearch() throws BayesianException;
+    void inferForSearch(@NonNull Analyser<C> analyser) throws BayesianException;
 
     /**
      *

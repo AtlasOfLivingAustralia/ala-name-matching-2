@@ -151,7 +151,7 @@ public class LuceneClassifier implements Classifier {
     }
 
     /**
-     * Does this classifier contain any information about this observable?
+     * Does this classifier contain any non-variant information about this observable?
      *
      * @param observable The observable to test
      *
@@ -160,6 +160,18 @@ public class LuceneClassifier implements Classifier {
     @Override
     public boolean has(Observable observable) {
         return this.document.getField(observable.getExternal(LUCENE)) != null;
+    }
+
+    /**
+     * Does this classifier contain any variant or non-variant information about this observable?
+     *
+     * @param observable The observable to test
+     *
+     * @return True if there are values in the classifier
+     */
+    @Override
+    public boolean hasAny(Observable observable) {
+        return this.document.getField(observable.getExternal(LUCENE)) != null || this.document.getField(observable.getExternal(LUCENE_VARIANT)) != null;
     }
 
     /**
@@ -178,7 +190,7 @@ public class LuceneClassifier implements Classifier {
      * @throws StoreException if there was a problem matching the result or testing for equivalence.
      */
     @Override
-    public <T> Boolean match(T value, Observable... observables) throws StoreException {
+    public <T> Boolean match(T value, Observable<T>... observables) throws StoreException {
         return this.match(value, true, observables);
     }
 
@@ -198,7 +210,7 @@ public class LuceneClassifier implements Classifier {
      *
      * @throws StoreException if there was a problem matching the result or testing for equivalence.
      */
-    public <T, C, Q> Boolean match(T value, boolean variants, Observable... observables) throws StoreException {
+    public <T, C, Q> Boolean match(T value, boolean variants, Observable<T>... observables) throws StoreException {
         try {
             if (value == null)
                 return null;
@@ -243,17 +255,18 @@ public class LuceneClassifier implements Classifier {
      *
      * @param observable The observable to store
      * @param value      The value to store
+     * @param variant    Write as a variant only
      * @throws StoreException if unable to add this variable to the classifier
      */
     @Override
-    public <T> void add(Observable observable, T value) throws StoreException {
+    public <T> void add(Observable<T> observable, T value, boolean variant) throws StoreException {
         if (value == null)
             return;
         boolean index = !observable.hasProperty(BayesianTerm.index, false); // True by default
         Boolean match = this.match(value, false, observable);
         if (match != null && match && !observable.getMultiplicity().isMany())
             throw new StoreException("Duplicate value " + value + " for " + observable);
-        if (match == null) {
+        if (match == null && !variant) {
             this.store(observable, value, LUCENE, !observable.getMultiplicity().isMany() && index);
         }
         if (observable.getMultiplicity().isMany()) {
@@ -283,17 +296,15 @@ public class LuceneClassifier implements Classifier {
     }
 
     /**
-     * Add a replace a value in the classifier.
+     * Clear and observable in the classifier.
      *
      * @param observable The observable to store
-     * @param value      The value to store
      * @throws StoreException if unable to add this variable to the classifier
      */
     @Override
-    public <T> void replace(Observable observable, T value) throws StoreException {
+    public void clear(Observable observable) throws StoreException {
         this.document.removeFields(observable.getExternal(LUCENE));
         this.document.removeFields(observable.getExternal(LUCENE_VARIANT));
-        this.add(observable, value);
     }
 
     /**
@@ -303,7 +314,7 @@ public class LuceneClassifier implements Classifier {
      * @return The associated value or null for not present
      */
     @Override
-    public <T> T get(Observable observable) {
+    public <T> T get(Observable<T> observable) {
         IndexableField field = this.document.getField(observable.getExternal(LUCENE));
         return this.convert(observable, field);
     }
@@ -318,9 +329,9 @@ public class LuceneClassifier implements Classifier {
      * @return The a set of all present values
      */
     @Override
-    public <T> LinkedHashSet<T> getAll(Observable... observables) {
+    public <T> LinkedHashSet<T> getAll(Observable<T>... observables) {
         LinkedHashSet<T> values = new LinkedHashSet<>(observables.length);
-        for (Observable observable: observables) {
+        for (Observable<T> observable: observables) {
             IndexableField[] fs = this.document.getFields(observable.getExternal(LUCENE));
             for (IndexableField f : fs) {
                 T v = this.convert(observable, f);
@@ -328,7 +339,7 @@ public class LuceneClassifier implements Classifier {
                     values.add(v);
             }
         }
-        for (Observable observable : observables) {
+        for (Observable<T> observable : observables) {
             if (!observable.getMultiplicity().isMany())
                 continue;
             IndexableField[] fs = this.document.getFields(observable.getExternal(LUCENE_VARIANT));
@@ -606,11 +617,11 @@ public class LuceneClassifier implements Classifier {
      *
      * @see #convert(Observable, IndexableField)
      */
-    protected <T, S, Q> void store(Observable observable, T value, ExternalContext context, boolean index) throws StoreException {
+    protected <T, S, Q> void store(Observable<T> observable, T value, ExternalContext context, boolean index) throws StoreException {
         if (value == null || ((value instanceof String) && ((String) value).isEmpty()))
             return;
         String field = observable.getExternal(context);
-        Analysis<T, S, Q> analysis = observable.getAnalysis();
+        Analysis<T, S, Q> analysis = (Analysis<T, S, Q>) observable.getAnalysis();
         S val = analysis.toStore(value);
         if (val == null)
             return;

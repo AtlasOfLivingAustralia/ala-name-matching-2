@@ -2,10 +2,17 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.analysis.EnumAnalysis;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.nameparser.api.Rank;
-import org.gbif.nameparser.util.RankUtils;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
 import org.slf4j.Logger;
@@ -163,4 +170,45 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
             return true;
         return false;
     }
+
+    /**
+     * Jackson serializer for ranks
+     */
+    public static class Serializer extends StdSerializer<Rank> {
+        private static final RankAnalysis ANALYSIS = new RankAnalysis();
+
+        public Serializer() {
+            super(Rank.class);
+        }
+
+        @Override
+        public void serialize(Rank rank, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeString(ANALYSIS.toStore(rank));
+        }
+    }
+
+
+    /**
+     * Jackson deserializer for ranks
+     */
+    public static class Deserializer extends StdDeserializer<Rank> {
+        private static final RankAnalysis ANALYSIS = new RankAnalysis();
+
+        public Deserializer() {
+            super(Rank.class);
+        }
+
+        @Override
+        public Rank deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+            String value = jsonParser.getText();
+
+            if (value == null || value.isEmpty())
+                return null;
+            Rank rank = ANALYSIS.fromString(value);
+            if (rank == null)
+                throw new JsonParseException(jsonParser, "Invalid rank " + value);
+            return rank;
+        }
+    }
+
 }

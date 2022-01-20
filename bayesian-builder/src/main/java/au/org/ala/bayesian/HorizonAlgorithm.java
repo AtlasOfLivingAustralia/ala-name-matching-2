@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  * @param <V> The vertex type
  * @param <E> The edge type
  */
-public class HorizonAlgorithm<V extends Comparable<V>, E> implements Comparator<V> {
+public class HorizonAlgorithm<V extends Comparable, E> implements Comparator<V> {
     /** The source graph */
     private DirectedAcyclicGraph<V, E> graph;
     /** The level number for each vertex */

@@ -1,10 +1,12 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.Analysis;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.StoreException;
-import au.org.ala.names.builder.*;
+import au.org.ala.names.builder.Annotator;
+import au.org.ala.names.builder.IndexBuilderConfiguration;
+import au.org.ala.names.builder.LoadStore;
+import au.org.ala.names.builder.WeightAnalyser;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.util.Counter;
 import au.org.ala.vocab.TaxonomicStatus;
@@ -16,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -153,7 +154,7 @@ public class AlaWeightAnalyser implements WeightAnalyser, Annotator {
 
     protected void buildNameWeights(IndexBuilderConfiguration configuration) throws Exception {
         CSVReader reader = null;
-        this.weightStore = configuration.createLoadStore(this);
+        this.weightStore = configuration.createLoadStore("weights", true);
         logger.info("Loading " + TAXON_WEIGHTS_FILE);
         Counter counter = new Counter("Read {0} taxon weights, {2,number,#}/s", logger, 100000, 0);
         try {
@@ -165,8 +166,8 @@ public class AlaWeightAnalyser implements WeightAnalyser, Annotator {
                     double weight = Double.parseDouble(row[1]);
                     LuceneClassifier classifier = this.weightStore.newClassifier();
                     classifier.identify();
-                    classifier.add(AlaLinnaeanFactory.taxonId, taxonId);
-                    classifier.add(AlaLinnaeanFactory.weight, weight);
+                    classifier.add(AlaLinnaeanFactory.taxonId, taxonId, false);
+                    classifier.add(AlaLinnaeanFactory.weight, weight, false);
                     this.weightStore.store(classifier, DwcTerm.Taxon);
                     counter.increment(taxonId);
                 }

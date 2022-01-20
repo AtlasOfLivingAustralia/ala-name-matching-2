@@ -1,0 +1,10 @@
+{
+  "id" : "test_1",
+  "properties" : {
+    "http://unknown.org/property_1" : true,
+    "http://unknown.org/property_2" : [
+      1.0,
+      2.0
+    ]
+  }
+}

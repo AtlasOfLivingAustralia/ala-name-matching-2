@@ -5,7 +5,6 @@ import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import lombok.Getter;
@@ -109,48 +108,49 @@ public class IndexBuilderConfiguration {
      * These are tried in turn.
      * </p>
      *
-     * @param annotator The annotator to use
+     * @param name The name of the store
+     * @param working This is a temporary working store
      *
      * @return A newly created load-store.
      *
      * @throws StoreException if unable to build the store
      */
-    public <Cl extends Classifier> LoadStore<Cl> createLoadStore(Annotator annotator) throws StoreException {
+    public <Cl extends Classifier> LoadStore<Cl> createLoadStore(String name, boolean working) throws StoreException {
         Constructor<? extends LoadStore<Cl>> c;
 
         if (this.loadStoreClass == null)
             throw new StoreException("Load store class not defined");
         try {
-            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class, IndexBuilderConfiguration.class, boolean.class, boolean.class);
-            return c.newInstance(annotator, this, true, true);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, IndexBuilderConfiguration.class, boolean.class, boolean.class);
+            return c.newInstance(name, this, working, true);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class, IndexBuilderConfiguration.class, boolean.class);
-            return c.newInstance(annotator, this, true);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, IndexBuilderConfiguration.class, boolean.class);
+            return c.newInstance(name, this, working);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class, File.class, boolean.class, boolean.class);
-            return c.newInstance(annotator, this.getWork(), true, true);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, File.class, boolean.class, boolean.class);
+            return c.newInstance(name, this.getWork(), working, true);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class, File.class, boolean.class);
-            return c.newInstance(annotator, this.getWork(), true);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, File.class, boolean.class);
+            return c.newInstance(name, this.getWork(), working);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(Annotator.class);
-            return c.newInstance(annotator);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class);
+            return c.newInstance(name);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
@@ -208,14 +208,13 @@ public class IndexBuilderConfiguration {
      * These are tried in turn.
      * </p>
      *
-     * @param annotator The annotator to use
      * @param factory The factory to use
      *
      * @return A newly created builder.
      *
      * @throws StoreException if unable to build the store
      */
-    public <F extends NetworkFactory<?, ?, F>> Builder createBuilder(Annotator annotator, F factory) throws StoreException {
+    public <F extends NetworkFactory<?, ?, F>> Builder createBuilder(F factory) throws StoreException {
         Constructor<? extends Builder> c;
 
         if (this.builderClass == null)

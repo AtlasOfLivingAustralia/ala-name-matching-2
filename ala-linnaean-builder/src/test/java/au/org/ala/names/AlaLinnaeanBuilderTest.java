@@ -22,6 +22,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
     private static File work;
     private static File output;
     private static IndexBuilder builder;
+    private static LoadStore parameterised;
 
     private AlaLinnaeanFactory factory;
     private LuceneClassifierSearcher searcher;
@@ -40,8 +41,8 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         builder = new IndexBuilder(config);
         Source source = Source.create(AlaLinnaeanBuilderTest.class.getResource("/sample-1.zip"), AlaLinnaeanFactory.instance(), AlaLinnaeanFactory.instance().getObservables(), config.getTypes());
         builder.load(source);
-        builder.build();
-        builder.buildIndex(output);
+        parameterised = builder.build();
+        builder.buildIndex(output, parameterised);
    }
 
     @AfterClass
@@ -69,12 +70,11 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
 
     @Test
     public void testLoadBuild1() throws Exception {
-        LoadStore store = this.builder.getParameterisedStore();
-        Classifier doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "urn:lsid:indexfungorum.org:names:90156");
+        Classifier doc = parameterised.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "urn:lsid:indexfungorum.org:names:90156");
         assertNotNull(doc);
         assertEquals("FFFFFFT", doc.getSignature());
         assertEquals("Fungi", doc.get(AlaLinnaeanFactory.scientificName));
-        doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2904909");
+        doc = parameterised.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2904909");
         assertNotNull(doc);
         assertEquals("TTTTTTT", doc.getSignature());
         assertEquals("Canarium acutifolium var. acutifolium", doc.get(AlaLinnaeanFactory.scientificName));
@@ -113,8 +113,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
 
     @Test
     public void testLoadBuild2() throws Exception {
-        LoadStore store = this.builder.getParameterisedStore();
-        Classifier doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "9c237030-9af9-41d2-bc3c-3a18adcd43ac");
+        Classifier doc = parameterised.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "9c237030-9af9-41d2-bc3c-3a18adcd43ac");
         assertEquals("FFTFTTT", doc.getSignature());
         assertEquals("Coniosporium sacchari", doc.get(AlaLinnaeanFactory.scientificName));
         assertEquals("CANIASPARIM SACARI", doc.get(AlaLinnaeanFactory.soundexScientificName));
@@ -155,8 +154,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
 
     @Test
     public void testLoadBuild3() throws Exception {
-        LoadStore store = this.builder.getParameterisedStore();
-        Classifier doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "x-homonym-1");
+        Classifier doc = parameterised.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "x-homonym-1");
         assertEquals("FTTTTTT", doc.getSignature());
         assertEquals("Homonymia", doc.get(AlaLinnaeanFactory.scientificName));
         assertEquals("HAMANIMA", doc.get(AlaLinnaeanFactory.soundexScientificName));
@@ -182,8 +180,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
 
     @Test
     public void testLoadBuild4() throws Exception {
-        LoadStore store = this.builder.getParameterisedStore();
-        Classifier doc = store.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/instance/apni/950071");
+        Classifier doc = parameterised.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/instance/apni/950071");
         assertEquals("Lavatera plebeia", doc.get(AlaLinnaeanFactory.scientificName));
         assertEquals("Australian Hollyhock", doc.get(AlaLinnaeanFactory.vernacularName));
     }

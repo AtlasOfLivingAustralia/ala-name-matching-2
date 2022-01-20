@@ -1,7 +1,6 @@
 package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
-import au.org.ala.names.builder.Annotator;
 import au.org.ala.names.builder.LoadStore;
 import lombok.Getter;
 import lombok.NonNull;
@@ -48,6 +47,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     @Setter
     private int batchSize;
     /** Delete this store on closing */
+    @Getter
     private boolean temporary;
     /** The annotation observable */
     private Observable annotationObservable;
@@ -59,13 +59,13 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * This creates a store in a directory.
      * </p>
      *
-     * @param annotator The annotator for this store
+     * @param name The name for this store
      * @param dir The store directory (if temporary is true, this is a work directory under which a temoporray directory is created, null for the standard temporary work area)
      * @param temporary Delete the store on closing (for temporary stores)
      * @param memory Prefer an in-memory store using {@Link MMapDirectory}
      */
-    public LuceneLoadStore(Annotator annotator, File dir, boolean temporary, boolean memory) throws StoreException {
-        super(annotator);
+    public LuceneLoadStore(String name, File dir, boolean temporary, boolean memory) throws StoreException {
+        super(name);
         this.temporary = temporary;
         this.queryUtils = new QueryUtils();
         FSDirectory directory = null;
@@ -91,9 +91,9 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
             throw new StoreException("Unable to make index in " + directory, ex);
         }
         this.batchSize = DEFAULT_BATCH_SIZE;
-        this.annotationObservable = new Observable(LuceneClassifier.ANNOTATION_FIELD);
+        this.annotationObservable = Observable.string(LuceneClassifier.ANNOTATION_FIELD);
         this.annotationObservable.setExternal(ExternalContext.LUCENE, LuceneClassifier.ANNOTATION_FIELD);
-        log.info("Lucene load store created at " + directory);
+        log.info("Lucene load store " + this.getName() + " created at " + directory);
     }
 
     /**
@@ -102,11 +102,21 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * This creates a store in a temporary work directory.
      * </p>
      *
-     * @param annotator The annotator for this store
+     * @param name The name for this store
      * @param work The work directory
      */
-    public LuceneLoadStore(Annotator annotator, File work) throws StoreException {
-        this(annotator, work, true, true);
+    public LuceneLoadStore(String name, File work) throws StoreException {
+        this(name, work, true, true);
+    }
+
+    /**
+     * Get the store location
+     *
+     * @return The path to the store
+     */
+    @Override
+    public String getLocation() {
+        return this.dir.toString();
     }
 
     /**
@@ -125,7 +135,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @return The new classifier
      */
     @Override
-    public LuceneClassifier newClassifier() {
+    protected LuceneClassifier doNewClassifier() {
         return new LuceneClassifier();
     }
 
@@ -137,7 +147,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @throws StoreException if unable to write the document
      */
     @Override
-    public void store(LuceneClassifier classifier) throws StoreException {
+    protected void doStore(LuceneClassifier classifier) throws StoreException {
         try {
             this.writer.addDocument(classifier.isRetrieved() ? classifier.makeDocumentCopy() : classifier.getDocument());
         } catch (IOException ex) {
@@ -158,11 +168,10 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @throws BayesianException if unable to annotate or store the classifier
      */
     @Override
-    public void store(LuceneClassifier classifier, @NonNull Term type) throws BayesianException {
+    protected void doStore(LuceneClassifier classifier, @NonNull Term type) throws BayesianException {
          try {
             classifier.identify();
             classifier.setType(type);
-            this.annotator.annotate(classifier);
             this.writer.addDocument(classifier.getDocument());
         } catch (Exception ex) {
             log.error("Unable to store " + classifier.getIdentifier());
@@ -179,7 +188,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @param classifier The collection of information that makes up the entry
      */
     @Override
-    public void update(LuceneClassifier classifier) throws StoreException {
+    protected void doUpdate(LuceneClassifier classifier) throws StoreException {
         try {
             String id = classifier.getIdentifier();
             if (id == null || id.isEmpty())
@@ -206,7 +215,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @throws StoreException
      */
     @Override
-    public LuceneClassifier get(Term type, Observable observable, String value) throws StoreException {
+    protected LuceneClassifier doGet(Term type, Observable observable, String value) throws StoreException {
         this.ensureReader();
         try {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
@@ -235,7 +244,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @throws StoreException
      */
     @Override
-    public Iterable<LuceneClassifier> getAll(Term type, Observation... values) throws StoreException {
+    protected Iterable<LuceneClassifier> doGetAll(Term type, Observation... values) throws StoreException {
          this.ensureReader();
         try {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
@@ -244,6 +253,28 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
                 builder.add(this.queryUtils.asClause(o));
             }
             return new LuceneIterator(builder.build());
+        } catch (IOException ex) {
+            throw new StoreException("Unable to search for " + values, ex);
+        }
+    }
+
+    /**
+     * Provide a count of classifiers that will be returned by a {@link #getAll(Term, Observation...)} query.
+     *
+     * @param type   The type of document
+     * @param values The conditions for the count
+     * @return The number of matching classifiers
+     */
+    @Override
+    public int count(Term type, Observation... values) throws StoreException {
+        this.ensureReader();
+        try {
+            BooleanQuery.Builder builder = new BooleanQuery.Builder();
+            builder.add(LuceneClassifier.getTypeClause(type));
+            for (Observation o: values) {
+                builder.add(this.queryUtils.asClause(o));
+            }
+            return this.searcher.count(builder.build());
         } catch (IOException ex) {
             throw new StoreException("Unable to search for " + values, ex);
         }
@@ -259,7 +290,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     @Override
     public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws BayesianException {
         this.ensureReader();
-        return new LuceneParameterAnalyser(network, this.annotator, this.searcher, weight, defaultWeight);
+        return new LuceneParameterAnalyser(network, this.searcher, weight, defaultWeight);
     }
 
     /**

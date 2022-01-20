@@ -37,74 +37,96 @@
     "uri" : "http://rs.tdwg.org/dwc/terms/class",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "condition" : null,
       "sources" : [ {
         "id" : "scientificName",
         "uri" : "http://rs.tdwg.org/dwc/terms/scientificName",
         "multiplicity" : "*",
         "normaliser" : "simple_normaliser",
         "properties" : {
-          "bayesian:name" : true
+          "bayesian:name" : true,
+          "http://ala.org.au/optimisation/1.0/analyse" : true,
+          "http://ala.org.au/optimisation/1.0/loadFromClass" : [ "http://ala.org.au/terms/1.0/TaxonVariant", "http://rs.tdwg.org/dwc/terms/Taxon" ]
         }
       }, {
         "id" : "synonymScientificName",
-        "uri" : "http://ala.org.au/terms/1.0/syninymScientificName",
+        "uri" : "http://ala.org.au/terms/1.0/synonymScientificName",
+        "multiplicity" : "*",
         "properties" : {
           "bayesian:synonymName" : true
         }
       } ],
-      "condition" : {
-        "positive" : true,
-        "observable" : {
+      "select" : {
+        "@class" : "au.org.ala.bayesian.condition.ValueCondition",
+        "source" : {
           "id" : "taxonRank",
           "uri" : "http://rs.tdwg.org/dwc/terms/taxonRank",
           "normaliser" : "lower_case_normaliser"
         },
         "value" : "class"
       },
-      "includeSelf" : true
+      "includeSelf" : true,
+      "selectable" : true,
+      "valueClass" : "java.lang.String",
+      "conditional" : false,
+      "preAnalysis" : false,
+      "postAnalysis" : true
     },
     "multiplicity" : "*",
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
-      "http://ala.org.au/optimisation/1.0/load" : false
+      "http://ala.org.au/optimisation/1.0/loadAsVariant" : true
     }
   }, {
     "id" : "family",
     "uri" : "http://rs.tdwg.org/dwc/terms/family",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "condition" : null,
       "sources" : [ "scientificName", "synonymScientificName" ],
-      "condition" : {
-        "positive" : true,
-        "observable" : "taxonRank",
+      "select" : {
+        "@class" : "au.org.ala.bayesian.condition.ValueCondition",
+        "source" : "taxonRank",
         "value" : "family"
       },
-      "includeSelf" : true
+      "includeSelf" : true,
+      "selectable" : true,
+      "valueClass" : "java.lang.String",
+      "conditional" : false,
+      "preAnalysis" : false,
+      "postAnalysis" : true
     },
     "multiplicity" : "*",
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
-      "http://ala.org.au/optimisation/1.0/load" : false
+      "http://ala.org.au/optimisation/1.0/loadAsVariant" : true
     }
   }, {
     "id" : "genus",
     "uri" : "http://rs.tdwg.org/dwc/terms/genus",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "condition" : null,
       "sources" : [ "scientificName" ],
-      "condition" : {
-        "positive" : true,
-        "observable" : "taxonRank",
+      "select" : {
+        "@class" : "au.org.ala.bayesian.condition.ValueCondition",
+        "source" : "taxonRank",
         "value" : "genus"
       },
-      "includeSelf" : true
+      "includeSelf" : true,
+      "selectable" : true,
+      "valueClass" : "java.lang.String",
+      "conditional" : false,
+      "preAnalysis" : false,
+      "postAnalysis" : true
     },
     "group" : "genus",
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
+      "http://ala.org.au/optimisation/1.0/analyse" : true,
       "http://ala.org.au/optimisation/1.0/load" : false
     }
   }, {
@@ -112,13 +134,19 @@
     "uri" : "http://rs.tdwg.org/dwc/terms/kingdom",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "condition" : null,
       "sources" : [ "scientificName", "synonymScientificName" ],
-      "condition" : {
-        "positive" : true,
-        "observable" : "taxonRank",
+      "select" : {
+        "@class" : "au.org.ala.bayesian.condition.ValueCondition",
+        "source" : "taxonRank",
         "value" : "kingdom"
       },
-      "includeSelf" : true
+      "includeSelf" : true,
+      "selectable" : true,
+      "valueClass" : "java.lang.String",
+      "conditional" : false,
+      "preAnalysis" : false,
+      "postAnalysis" : true
     },
     "multiplicity" : "*",
     "normaliser" : "simple_normaliser",
@@ -131,19 +159,25 @@
     "uri" : "http://rs.tdwg.org/dwc/terms/order",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "condition" : null,
       "sources" : [ "scientificName", "synonymScientificName" ],
-      "condition" : {
-        "positive" : true,
-        "observable" : "taxonRank",
+      "select" : {
+        "@class" : "au.org.ala.bayesian.condition.ValueCondition",
+        "source" : "taxonRank",
         "value" : "order"
       },
-      "includeSelf" : true
+      "includeSelf" : true,
+      "selectable" : true,
+      "valueClass" : "java.lang.String",
+      "conditional" : false,
+      "preAnalysis" : false,
+      "postAnalysis" : true
     },
     "multiplicity" : "*",
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
-      "http://ala.org.au/optimisation/1.0/load" : false
+      "http://ala.org.au/optimisation/1.0/loadAsVariant" : true
     }
   }, {
     "id" : "parentNameUsageID",
@@ -157,19 +191,25 @@
     "uri" : "http://rs.tdwg.org/dwc/terms/phylum",
     "base" : {
       "@class" : "au.org.ala.bayesian.derivation.ParentDerivation",
+      "condition" : null,
       "sources" : [ "scientificName", "synonymScientificName" ],
-      "condition" : {
-        "positive" : true,
-        "observable" : "taxonRank",
+      "select" : {
+        "@class" : "au.org.ala.bayesian.condition.ValueCondition",
+        "source" : "taxonRank",
         "value" : "phylum"
       },
-      "includeSelf" : true
+      "includeSelf" : true,
+      "selectable" : true,
+      "valueClass" : "java.lang.String",
+      "conditional" : false,
+      "preAnalysis" : false,
+      "postAnalysis" : true
     },
     "multiplicity" : "*",
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
-      "http://ala.org.au/optimisation/1.0/load" : false
+      "http://ala.org.au/optimisation/1.0/loadAsVariant" : true
     }
   }, {
     "id" : "priority",
@@ -180,18 +220,42 @@
       "@class" : "au.org.ala.bayesian.analysis.IntegerAnalysis"
     },
     "properties" : {
-      "http://ala.org.au/optimisation/1.0/aggregate" : "max"
+      "http://ala.org.au/optimisation/1.0/aggregate" : "max",
+      "http://ala.org.au/optimisation/1.0/loadFromClass" : "http://ala.org.au/terms/1.0/TaxonVariant"
     }
   }, "scientificName", {
     "id" : "scientificNameAuthorship",
     "uri" : "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship",
     "normaliser" : "simple_normaliser"
   }, {
+    "id" : "soundexGenus",
+    "uri" : "http://ala.org.au/terms/1.0/soundexGenus",
+    "derivation" : {
+      "@class" : "au.org.ala.bayesian.derivation.SoundexDerivation",
+      "condition" : null,
+      "sources" : [ "genus" ],
+      "valueClass" : "java.lang.String",
+      "conditional" : false,
+      "selectable" : false,
+      "preAnalysis" : false,
+      "postAnalysis" : true
+    },
+    "multiplicity" : "*",
+    "properties" : {
+      "http://ala.org.au/optimisation/1.0/load" : false
+    }
+  }, {
     "id" : "soundexScientificName",
     "uri" : "http://ala.org.au/terms/1.0/soundexScientificName",
     "derivation" : {
       "@class" : "au.org.ala.bayesian.derivation.SoundexDerivation",
-      "sources" : [ "scientificName" ]
+      "condition" : null,
+      "sources" : [ "scientificName" ],
+      "valueClass" : "java.lang.String",
+      "conditional" : false,
+      "selectable" : false,
+      "preAnalysis" : false,
+      "postAnalysis" : true
     },
     "multiplicity" : "*",
     "properties" : {
@@ -203,6 +267,7 @@
     "group" : "species",
     "normaliser" : "simple_normaliser",
     "properties" : {
+      "http://ala.org.au/optimisation/1.0/analyse" : true,
       "http://ala.org.au/optimisation/1.0/load" : false
     }
   }, "synonymScientificName", {
@@ -317,7 +382,7 @@
     "id" : "remove_phylum",
     "issues" : [ "removed_phylum" ],
     "condition" : {
-      "@class" : "au.org.ala.bayesian.modifier.PresentCondition",
+      "@class" : "au.org.ala.bayesian.condition.PresentCondition",
       "all" : false,
       "present" : [ "class", "order", "family" ]
     },

@@ -15,11 +15,12 @@ import java.net.URI;
 
 /**
  * A node of a bayseian network, representing some sort of observable element that can be reasoned about.
+ *
+ * @param <T> The type of object that the observable handles.
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Observable extends Identifiable implements Comparable<Observable> {
-    /** The domain of the observable if unspecified */
-    public static final Class<?> DEFAULT_TYPE = String.class;
+public class Observable<T> extends Identifiable implements Comparable<Observable> {
+
     /** The derivation of this observable, if this is a derived value */
     @JsonProperty
     @Getter
@@ -30,11 +31,11 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @Getter
     @Setter
     private Derivation base;
-    /** The base class of the values for this observable, if this is not directly supplied, a {@link String} is assumed by default */
+    /** The base class of the values for this observable. Defaults to the string type if not specified. */
     @JsonProperty
     @Getter
     @Setter
-    private Class<?> type = DEFAULT_TYPE;
+    private Class<?> type = String.class;
     /** the style of this observable. How to treat searching and canonicity */
     @JsonProperty
     @Getter
@@ -60,7 +61,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     /** The object that analyses this observable and provides equivalence. */
     @JsonProperty
     @Setter
-    private Analysis analysis;
+    private Analysis<T, ?, ?> analysis;
 
     // Ensure Bayesian Term vocabulary is properly loaded
     static {
@@ -85,44 +86,13 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * @param normaliser Any normaliser
      * @param analysis The analysis object
      */
-    public Observable(String id, URI uri, Class type, Style style, Normaliser normaliser, Analysis analysis, Multiplicity multiplicity) {
+    public Observable(String id, URI uri, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?> analysis, Multiplicity multiplicity) {
         super(id, uri);
         this.type = type;
         this.style = style;
         this.normaliser = normaliser;
         this.analysis = analysis;
         this.multiplicity = multiplicity;
-    }
-
-    /**
-     * Construct for an identifier
-     *
-     * @param id The identifier
-     *
-     * @see Identifiable#Identifiable(String)
-     */
-    public Observable(String id) {
-        super(id);
-    }
-
-    /**
-     * Construct for a URI
-     *
-     * @param uri The URI
-     *
-     * @see Identifiable#Identifiable(String)
-     */
-    public Observable(URI uri) {
-        super(uri);
-    }
-
-    /**
-     * Construct from a term.
-     *
-     * @param term The term
-     */
-    public Observable(Term term) {
-        this(term, String.class, Style.CANONICAL, null, null, Multiplicity.OPTIONAL);
     }
 
     /**
@@ -134,8 +104,32 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * @param normaliser Any normaliser
      * @param analysis The analysis object
      */
-    public Observable(Term term, Class<?> type, Style style, Normaliser normaliser, Analysis analysis, Multiplicity multiplicity) {
+    public Observable(Term term, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?> analysis, Multiplicity multiplicity) {
         this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, analysis, multiplicity);
+    }
+
+    /**
+     * Construct for an identifier
+     *
+     * @param id The identifier
+     *
+     * @see Identifiable#Identifiable(String)
+     */
+    protected Observable(String id, Class<T> type) {
+        super(id);
+        this.type = type;
+    }
+
+    /**
+     * Construct for a URI
+     *
+     * @param uri The URI
+     *
+     * @see Identifiable#Identifiable(String)
+     */
+    protected Observable(URI uri, Class<T> type) {
+        super(uri);
+        this.type = type;
     }
 
     /**
@@ -147,11 +141,11 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      *
      * @return The analysis object.
      */
-    public Analysis getAnalysis() {
+    public Analysis<T, ?, ?> getAnalysis() {
         if (this.analysis == null) {
             synchronized (this) {
                 if (this.analysis == null)
-                    this.analysis = Analysis.defaultAnalyser(this.getType());
+                    this.analysis = Analysis.defaultAnalyser((Class<T>) this.getType());
             }
         }
         return this.analysis;
@@ -161,17 +155,16 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * Analyse an object into the correct form.
      *
      * @param o The object
-     * @param <T> The expected result class
      *
      * @return The normalised, analysed object
      *
      * @throws InferenceException If unable to analyse correctly
      */
-    public <T> T analyse(Object o) throws InferenceException {
+    public T analyse(T o) throws InferenceException {
         Normaliser normaliser = this.getNormaliser();
         if (normaliser != null && o instanceof String)
-            o = normaliser.normalise((String) o);
-        return (T) this.getAnalysis().analyse(o);
+            o = (T) normaliser.normalise((String) o);
+        return this.getAnalysis().analyse(o);
     }
 
     /**
@@ -210,7 +203,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     public boolean equals(Object obj) {
         if (!(obj instanceof Observable))
             return false;
-        Observable o = (Observable) obj;
+        Observable<?> o = (Observable) obj;
         URI uri1 = this.getUri();
         URI uri2 = o.getUri();
         if ((uri1 == null && uri2 != null) || (uri1 != null  && uri2 == null))
@@ -218,6 +211,76 @@ public class Observable extends Identifiable implements Comparable<Observable> {
         if (uri1 != null)
             return uri1.equals(uri2);
         return this.getId().equals(o.getId());
+    }
+
+    /**
+     * Construct an optional, canonical string observable for a term.
+     *
+     * @param term The term
+     *
+     * @return The corresponding observable
+     */
+    public static Observable<String> string(Term term) {
+        return new Observable<>(term, String.class, Style.CANONICAL, null, null, Multiplicity.OPTIONAL);
+    }
+
+    /**
+     * Construct an optional, canonical string observable for an identifier.
+     *
+     * @param id The identifier
+     *
+     * @return The corresponding observable
+     */
+    public static Observable<String> string(String id) {
+        return new Observable<>(id, String.class);
+    }
+
+    /**
+     * Construct an optional, canonical string observable for a URI.
+     *
+     * @param uri The URI
+     *
+     * @return The corresponding observable
+     */
+    public static Observable<String> string(URI uri) {
+        return new Observable<>(uri, String.class);
+    }
+
+    /**
+     * Construct an optional, identfiier integer observable for a term.
+     *
+     * @param term The term
+     *
+     * @return The corresponding observable
+     */
+    public static Observable<Integer> integer(Term term) {
+        return new Observable<>(term, Integer.class, Style.IDENTIFIER, null, null, Multiplicity.OPTIONAL);
+    }
+
+
+    /**
+     * Construct an optional, canonical integer observable for an identifier.
+     *
+     * @param id The identifier
+     *
+     * @return The corresponding observable
+     */
+    public static Observable<Integer> integer(String id) {
+        return new Observable<>(id, Integer.class);
+    }
+
+    /**
+     * Construct an optional, identfiier enumeration observable for a term.
+     *
+     * @param clazz The enumeration class
+     * @param term The term
+     *
+     * @param <E> the type of enumneration
+     *
+     * @return The corresponding observable
+     */
+    public static <E extends Enum<E>> Observable<E> enumerated(Class<E> clazz, Term term) {
+        return new Observable<>(term, clazz, Style.IDENTIFIER, null, null, Multiplicity.OPTIONAL);
     }
 
     /**

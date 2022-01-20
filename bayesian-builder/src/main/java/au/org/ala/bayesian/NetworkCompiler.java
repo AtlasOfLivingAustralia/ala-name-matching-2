@@ -1,5 +1,7 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.bayesian.derivation.CompiledDerivation;
+import au.org.ala.names.builder.BuilderException;
 import au.org.ala.util.IdentifierConverter;
 import au.org.ala.util.SimpleIdentifierConverter;
 import au.org.ala.vocab.BayesianTerm;
@@ -8,6 +10,8 @@ import org.jgrapht.Graphs;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -64,50 +68,6 @@ public class NetworkCompiler {
     }
 
     /**
-     * Get the variables required to create a builder for this network.
-     * <p>
-     * These represent utility classes that can be used to generate something.
-     * </p>
-     *
-     * @return The variables
-     */
-    public Set<Derivation.Variable> getBuilderVariables() {
-        Set<Derivation.Variable> variables = new HashSet<>();
-
-        for (Observable observable: this.network.getVertices()) {
-            if (observable.getDerivation() != null) {
-                variables.addAll(observable.getDerivation().getBuilderVariables());
-            }
-            if (observable.getBase() != null) {
-                variables.addAll(observable.getBase().getBuilderVariables());
-            }
-        }
-        return variables;
-    }
-
-    /**
-     * Get the variables required to create a classification for this network.
-     * <p>
-     * These represent utility classes that can be used to generate something.
-     * </p>
-     *
-     * @return The variables
-     */
-    public Set<Derivation.Variable> getClassificationVariables() {
-        Set<Derivation.Variable> variables = new HashSet<>();
-
-        for (Observable observable: this.network.getVertices()) {
-            if (observable.getDerivation() != null) {
-                variables.addAll(observable.getDerivation().getClassificationVariables());
-            }
-            if (observable.getBase() != null) {
-                variables.addAll(observable.getBase().getClassificationVariables());
-            }
-        }
-        return variables;
-    }
-
-    /**
      * Get a list of the things that can modify something.
      *
      * @return The list of modifiers
@@ -119,7 +79,7 @@ public class NetworkCompiler {
     /**
      * Get the collections of erased observables
      */
-    public List<List<Observable>> getErasureStructure() {
+    public List<List<Observable<?>>> getErasureStructure() {
         List<String> erasureGroups = this.network.getGroups();
         return erasureGroups.stream()
                 .map(g -> this.network.getObservables().stream()
@@ -127,6 +87,7 @@ public class NetworkCompiler {
                     .collect(Collectors.toList()))
                 .collect(Collectors.toList());
     }
+
 
     /**
      * Get the list of issue defintitions.
@@ -150,6 +111,7 @@ public class NetworkCompiler {
         all.add(BayesianTerm.class);
         return all;
     }
+
     public void analyse() throws InferenceException {
         this.sources = new DirectedAcyclicGraph<>(Dependency.class);
         Graphs.addGraphReversed(this.sources, this.network.getGraph());
@@ -273,6 +235,88 @@ public class NetworkCompiler {
         throw new InferenceException("Unable to find matching parameter for " + pattern + " from " + candidates);
     }
 
+    /**
+     * Get a list of observables in order of derivation, based on the partial order of inputs and outputs
+     *
+     * @return The observables in derivation order
+     */
+    public List<Observable> getDerivationOrder() throws BuilderException {
+        Predicate<Observable> isDerived = o -> o.getDerivation() != null;
+        final List<Observable> derived = new ArrayList<>(this.orderedNodes.size() + this.additionalNodes.size());
+        derived.addAll(this.orderedNodes.stream().map(Node::getObservable).filter(isDerived).collect(Collectors.toList()));
+        derived.addAll(this.additionalNodes.stream().map(Node::getObservable).filter(isDerived).collect(Collectors.toList()));
+        final Set<Observable> seen = new HashSet<>(derived.size());
+        seen.addAll(this.orderedNodes.stream().map(Node::getObservable).filter(isDerived.negate()).collect(Collectors.toSet()));
+        seen.addAll(this.additionalNodes.stream().map(Node::getObservable).filter(isDerived.negate()).collect(Collectors.toSet()));
+        final List<Observable> ordered = new ArrayList<>(derived.size());
+        while (!derived.isEmpty()) {
+           Observable active = derived.stream().filter(o -> o.getDerivation().getInputs().stream().allMatch(i -> seen.contains(i))).findFirst().orElse(null);
+            if (active == null)
+                throw new BuilderException("Unable to find next derivation in " + derived);
+            ordered.add(active);
+            seen.add(active);
+            derived.remove(active);
+        }
+        return ordered;
+    }
+
+    /**
+     * Get a list of observables in order of base generation
+     *
+     * @return The observables in base generation order
+     */
+    public List<Observable> getBaseOrder() throws BuilderException {
+        Predicate<Observable> isBase = o -> o.getBase() != null;
+        final List<Observable> ordered = new ArrayList<>(this.orderedNodes.size() + this.additionalNodes.size());
+        ordered.addAll(this.orderedNodes.stream().map(Node::getObservable).filter(isBase).collect(Collectors.toList()));
+        ordered.addAll(this.additionalNodes.stream().map(Node::getObservable).filter(isBase).collect(Collectors.toList()));
+         return ordered;
+    }
+
+    /**
+     * Get the variables required to create a builder for this network.
+     * <p>
+     * These represent utility classes that can be used to generate something.
+     * </p>
+     *
+     * @return The variables
+     */
+    public Set<CompiledDerivation.Variable> getBuilderVariables() {
+        return this.getCompiledDerivationVariables(CompiledDerivation::getBuilderVariables);
+    }
+
+    /**
+     * Get the variables required to create a classification for this network.
+     * <p>
+     * These represent utility classes that can be used to generate something.
+     * </p>
+     *
+     * @return The variables
+     */
+    public Set<CompiledDerivation.Variable> getClassificationVariables() {
+        return this.getCompiledDerivationVariables(CompiledDerivation::getClassificationVariables);
+    }
+
+    /**
+     * Collect a set of variables from a compiler derivation.
+     *
+     * @param getter The accessor for the variables.
+     *
+     * @return The set of variables to use.
+     */
+    public Set<CompiledDerivation.Variable> getCompiledDerivationVariables(Function<CompiledDerivation, Collection<CompiledDerivation.Variable>> getter) {
+        Set<CompiledDerivation.Variable> variables = new HashSet<>();
+
+        for (Observable observable: this.network.getVertices()) {
+            if (observable.getDerivation() != null && observable.getDerivation().isCompiled()) {
+                variables.addAll(getter.apply((CompiledDerivation) observable.getDerivation()));
+            }
+            if (observable.getBase() != null && observable.getBase().isCompiled()) {
+                variables.addAll(getter.apply((CompiledDerivation) observable.getBase()));
+            }
+        }
+        return variables;
+    }
 
     protected List<boolean[]> signatures(int size) {
         List<boolean[]> accumulator = new ArrayList<>();

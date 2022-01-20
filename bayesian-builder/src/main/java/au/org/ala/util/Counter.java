@@ -1,6 +1,5 @@
 package au.org.ala.util;
 
-import lombok.Getter;
 import org.slf4j.Logger;
 
 import java.text.MessageFormat;

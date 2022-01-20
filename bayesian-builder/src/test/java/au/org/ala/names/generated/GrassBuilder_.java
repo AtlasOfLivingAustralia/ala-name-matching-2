@@ -1,18 +1,11 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.BayesianException;
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.ParameterAnalyser;
-import au.org.ala.bayesian.Parameters;
+import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.Builder;
 
-import java.util.Arrays;
 import java.util.Deque;
-import java.util.Optional;
 
-import au.org.ala.bayesian.analysis.StringAnalysis;
-
-public class GrassBuilder_ implements Builder {
+public class GrassBuilder_ implements Builder<GrassClassification> {
   public final static String SIGNATURE = "";
 
   public  GrassBuilder_() {
@@ -24,17 +17,22 @@ public class GrassBuilder_ implements Builder {
   }
 
   @Override
-  public void generate(Classifier classifier) throws BayesianException {
+  public void generate(Classifier classifier, Analyser<GrassClassification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
   @Override
-  public void infer(Classifier classifier) throws BayesianException {
+  public void interpret(Classifier classifier, Analyser<GrassClassification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
   @Override
-  public void expand(Classifier classifier, Deque<Classifier> parents) throws BayesianException {
+  public void infer(Classifier classifier, Analyser<GrassClassification> analyser) throws BayesianException {
+    throw new UnsupportedOperationException("Sub-builders do not support this operation");
+  }
+
+  @Override
+  public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<GrassClassification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 

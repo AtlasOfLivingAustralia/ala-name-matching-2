@@ -2,7 +2,6 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.analysis.StringAnalysis;
-import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
 import org.slf4j.Logger;
@@ -10,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Analysis for kingdoms.

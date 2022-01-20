@@ -21,6 +21,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
     private static File work;
     private static File output;
     private static IndexBuilder builder;
+    private static LoadStore parameterised;
 
     private AlaVernacularFactory factory;
     private LuceneClassifierSearcher searcher;
@@ -39,8 +40,8 @@ public class AlaVernacularBuilderTest extends TestUtils {
         builder = new IndexBuilder(config);
         Source source = Source.create(AlaVernacularBuilderTest.class.getResource("/sample-1.zip"), AlaVernacularFactory.instance(), AlaVernacularFactory.instance().getObservables(), config.getTypes());
         builder.load(source);
-        builder.build();
-        builder.buildIndex(output);
+        parameterised = builder.build();
+        builder.buildIndex(output, parameterised);
    }
 
     @AfterClass
@@ -68,11 +69,10 @@ public class AlaVernacularBuilderTest extends TestUtils {
 
     @Test
     public void testLoadBuild1() throws Exception {
-        LoadStore store = this.builder.getParameterisedStore();
-        Classifier doc = store.get(GbifTerm.VernacularName, AlaVernacularFactory.nameId, "https://id.biodiversity.org.au/name/apni/447687");
+        Classifier doc = parameterised.get(GbifTerm.VernacularName, AlaVernacularFactory.nameId, "https://id.biodiversity.org.au/name/apni/447687");
         assertNotNull(doc);
         assertEquals("Hill Sida", doc.get(AlaVernacularFactory.vernacularName));
-        doc = store.get(GbifTerm.VernacularName, AlaVernacularFactory.nameId, "urn:lsid:biodiversity.org.au:afd.name:282881");
+        doc = parameterised.get(GbifTerm.VernacularName, AlaVernacularFactory.nameId, "urn:lsid:biodiversity.org.au:afd.name:282881");
         assertNotNull(doc);
         assertEquals("Jewel Beetles", doc.get(AlaVernacularFactory.vernacularName));
         assertEquals("en", doc.get(AlaVernacularFactory.language));
@@ -93,8 +93,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
 
     @Test
     public void testLoadBuild2() throws Exception {
-        LoadStore store = this.builder.getParameterisedStore();
-        List<Classifier> docs = store.getAllClassifiers(GbifTerm.VernacularName, new Observation(true, AlaVernacularFactory.nameId, "urn:lsid:biodiversity.org.au:afd.name:247359"));
+        List<Classifier> docs = parameterised.getAllClassifiers(GbifTerm.VernacularName, new Observation(true, AlaVernacularFactory.nameId, "urn:lsid:biodiversity.org.au:afd.name:247359"));
         assertNotNull(docs);
         assertEquals(2, docs.size());
         Classifier doc = docs.get(0);

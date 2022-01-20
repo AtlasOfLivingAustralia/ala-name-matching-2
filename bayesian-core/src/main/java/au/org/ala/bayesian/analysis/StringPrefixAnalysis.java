@@ -1,6 +1,5 @@
 package au.org.ala.bayesian.analysis;
 
-import au.org.ala.bayesian.Analysis;
 import au.org.ala.bayesian.InferenceException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Analyse against the beginning of a string

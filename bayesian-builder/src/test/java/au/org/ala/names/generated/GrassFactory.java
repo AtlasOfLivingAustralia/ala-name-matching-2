@@ -1,33 +1,24 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.ClassificationMatcher;
-import au.org.ala.bayesian.ClassifierSearcher;
-import au.org.ala.bayesian.Analyser;
-import au.org.ala.bayesian.NetworkFactory;
-import au.org.ala.bayesian.Normaliser;
-import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable.Multiplicity;
-import static au.org.ala.bayesian.ExternalContext.*;
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.gbif.dwc.terms.Term;
-import org.gbif.dwc.terms.TermFactory;
-
-import au.org.ala.bayesian.analysis.StringAnalysis;
-import au.org.ala.bayesian.Analyser;
-import au.org.ala.bayesian.ClassificationMatcher;
+import static au.org.ala.bayesian.ExternalContext.LUCENE;
 
 public class GrassFactory implements NetworkFactory<GrassClassification, GrassInferencer, GrassFactory> {
     private static GrassFactory instance = null;
 
 
   /** It is raining */
-  public static final Observable rain = new Observable(
+  public static final Observable<String> rain = new Observable(
       "rain",
       null,
       String.class,
@@ -37,7 +28,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
       Multiplicity.OPTIONAL
     );
   /** The sprinkler is on */
-  public static final Observable sprinkler = new Observable(
+  public static final Observable<String> sprinkler = new Observable(
       "sprinkler",
       null,
       String.class,
@@ -47,7 +38,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
       Multiplicity.OPTIONAL
     );
   /** The grass is wet */
-  public static final Observable wet = new Observable(
+  public static final Observable<String> wet = new Observable(
       "wet",
       null,
       String.class,
@@ -57,7 +48,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
       Multiplicity.OPTIONAL
     );
 
-  public static List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
+  public static List<Observable<?>> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
     rain,
     sprinkler,
     wet
@@ -79,27 +70,27 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
   }
 
   @Override
-  public List<Observable> getObservables() {
+  public List<Observable<?>> getObservables() {
       return OBSERVABLES;
   }
 
   @Override
-  public Optional<Observable> getIdentifier() {
+  public Optional<Observable<String>> getIdentifier() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<Observable> getName() {
+  public Optional<Observable<String>> getName() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<Observable> getParent() {
+  public Optional<Observable<String>> getParent() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<Observable> getAccepted() {
+  public Optional<Observable<String>> getAccepted() {
     return Optional.empty();
   }
 

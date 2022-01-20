@@ -50,7 +50,7 @@ public class LuceneUtils {
      *
      * @throws Exception if unable to load the resource
      */
-    public LuceneUtils(Class clazz, String resource, Collection<Observable> observables) throws Exception {
+    public LuceneUtils(Class clazz, String resource, Collection<Observable<?>> observables) throws Exception {
         this.buildObservables(observables);
         this.buildIndexDir();
         this.openWriter();
@@ -66,7 +66,7 @@ public class LuceneUtils {
      *
      * @throws Exception if unable to load the resource
      */
-    public LuceneUtils(Collection<Observable> observables) throws Exception {
+    public LuceneUtils(Collection<Observable<?>> observables) throws Exception {
         this.buildObservables(observables);
         this.buildIndexDir();
         this.openWriter();
@@ -132,10 +132,9 @@ public class LuceneUtils {
         return this.searcher.doc(docs.scoreDocs[0].doc);
     }
 
-    private void buildObservables(Collection<Observable> observables) {
+    private void buildObservables(Collection<Observable<?>> observables) {
         this.observables = new HashMap<>();
-        Observable weight = new Observable(BayesianTerm.weight);
-        weight.setType(Double.class);
+        Observable<Double> weight = new Observable<>(BayesianTerm.weight, Double.class, Observable.Style.IDENTIFIER, null, null, Observable.Multiplicity.OPTIONAL);
         this.observables.put("weight", weight);
         for (Observable o: observables) {
             this.observables.put(o.getId(), o);
@@ -188,7 +187,7 @@ public class LuceneUtils {
         String[] header = reader.readNext();
         Observable[] headerMap = new Observable[header.length];
         headerMap = Arrays.stream(header)
-                .map(h -> this.observables.computeIfAbsent(h, o -> new Observable(TermFactory.instance().findTerm(o))))
+                .map(h -> this.observables.computeIfAbsent(h, o -> Observable.string(TermFactory.instance().findTerm(o))))
                 .collect(Collectors.toList())
                 .toArray(headerMap);
         for (String[] line: reader) {
@@ -200,7 +199,7 @@ public class LuceneUtils {
                         continue;
                     Observable observable = headerMap[i];
                     Object v = observable.getAnalysis().fromString(value);
-                    classifier.add(observable, v);
+                    classifier.add(observable, v, false);
                   }
             }
             classifier.setType(DwcTerm.Taxon);

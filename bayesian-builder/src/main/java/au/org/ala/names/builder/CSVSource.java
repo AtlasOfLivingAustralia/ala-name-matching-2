@@ -28,7 +28,7 @@ public class CSVSource extends Source {
     /** The source of the CSV data */
     private CSVReader reader;
     /** The header map */
-    private Observable[] header;
+    private Observable<?>[] header;
 
     /**
      * Construct with a type and reader.
@@ -46,7 +46,7 @@ public class CSVSource extends Source {
      * @throws IOException when reading the CSV file
      * @throws CsvValidationException if not a CSV file
      */
-    public CSVSource(Term type, Reader reader, NetworkFactory factory, Collection<Observable> observables) throws IOException, CsvValidationException {
+    public CSVSource(Term type, Reader reader, NetworkFactory factory, Collection<Observable<?>> observables) throws IOException, CsvValidationException {
         super(factory, observables, Collections.singleton(type));
         this.type = type;
         this.reader = new CSVReaderBuilder(reader).build();
@@ -68,7 +68,7 @@ public class CSVSource extends Source {
      * @throws IOException if unable to get the data
      * @throws CsvValidationException If the file is invalid
      */
-    public CSVSource(Term type, URL source, NetworkFactory factory, Collection<Observable> observables) throws IOException, CsvValidationException {
+    public CSVSource(Term type, URL source, NetworkFactory factory, Collection<Observable<?>> observables) throws IOException, CsvValidationException {
         super(factory, observables, Collections.singleton(type));
         this.type = type;
         URLConnection connection = source.openConnection();
@@ -90,7 +90,7 @@ public class CSVSource extends Source {
      *
      * @see #CSVSource(Term, URL, NetworkFactory, Collection)
      */
-    public CSVSource(URL source,NetworkFactory factory, Collection<Observable> observables) throws IOException, CsvValidationException {
+    public CSVSource(URL source,NetworkFactory factory, Collection<Observable<?>> observables) throws IOException, CsvValidationException {
         this(DwcTerm.Taxon, source, factory, observables);
     }
 
@@ -107,7 +107,7 @@ public class CSVSource extends Source {
             while ((line = this.reader.readNext()) != null) {
                 Classifier classifier = store.newClassifier();
                 for (int i = 0; i < this.header.length; i++) {
-                    Observable observable = header[i];
+                    Observable<Object> observable = (Observable<Object>) header[i];
                     if (observable.hasProperty(OptimisationTerm.load, false))
                         continue;
                     if (accepted != null && !accepted.contains(header[i]))
@@ -115,9 +115,8 @@ public class CSVSource extends Source {
                     String value = line[i];
                     Object val = observable.getAnalysis().fromString(value);
                     if (val != null)
-                        classifier.add(header[i], val);
+                        classifier.add(observable, val, observable.hasProperty(OptimisationTerm.loadAsVariant, true));
                 }
-                this.infer(classifier);
                 store.store(classifier, this.type);
             }
         } catch (Exception ex) {

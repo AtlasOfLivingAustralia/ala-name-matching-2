@@ -3,9 +3,6 @@ package au.org.ala.names;
 import au.org.ala.bayesian.Analysis;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.StoreException;
-import au.org.ala.bayesian.analysis.EnumAnalysis;
-import org.gbif.common.parsers.NomStatusParser;
-import org.gbif.common.parsers.core.ParseResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

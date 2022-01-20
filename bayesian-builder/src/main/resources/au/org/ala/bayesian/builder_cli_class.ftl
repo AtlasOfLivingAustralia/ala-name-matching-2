@@ -3,6 +3,7 @@ package ${packageName};
 import au.org.ala.names.builder.Cli;
 import au.org.ala.names.builder.IndexBuilder;
 import au.org.ala.names.builder.IndexBuilderConfiguration;
+import au.org.ala.names.builder.LoadStore;
 import au.org.ala.names.builder.Source;
 import org.apache.commons.cli.*;
 
@@ -81,8 +82,8 @@ public class ${className} implements Cli<${classificationClassName}, ${builderCl
        builder.load(source);
        source.close();
      }
-     builder.build();
-     builder.buildIndex(output);
+     LoadStore processed = builder.build();
+     builder.buildIndex(output, processed);
      builder.close();
    }
 }

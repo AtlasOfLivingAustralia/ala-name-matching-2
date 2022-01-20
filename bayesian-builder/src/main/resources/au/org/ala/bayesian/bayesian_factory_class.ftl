@@ -39,7 +39,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     <#if observable.description??>
   /** ${observable.description} */
     </#if>
-  public static final Observable ${observable.javaVariable} = new Observable(
+  public static final Observable<${oType}> ${observable.javaVariable} = new Observable(
       "${observable.id}",
       <#if observable.uri??>URI.create("${observable.uri}")<#else>null</#if>,
       ${oType}.class,
@@ -50,7 +50,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     );
   </#list>
 
-  public static List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
+  public static List<Observable<?>> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
   <#list network.observablesById as observable>
     ${observable.javaVariable}<#if observable?has_next>,</#if>
   </#list>
@@ -84,34 +84,35 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     </#list>
   </#if>
   <#list observable.propertyKeys as key>
-    <#assign param = observable.getProperty(key)>
+    <#list observable.getProperties(key, null) as param>
     ${observable.javaVariable}.setProperty(TERM_FACTORY.findTerm("${key.qualifiedName()}"), <#if param?is_boolean>${param?c}<#elseif param?is_number>${param?c}<#else>"${param?j_string}"</#if>);
+    </#list>
   </#list>
 </#list>
   }
 
   @Override
-  public List<Observable> getObservables() {
+  public List<Observable<?>> getObservables() {
       return OBSERVABLES;
   }
 
   @Override
-  public Optional<Observable> getIdentifier() {
+  public Optional<Observable<String>> getIdentifier() {
     return Optional.<#if network.identifierObservable??>of(${network.identifierObservable.javaVariable})<#else>empty()</#if>;
   }
 
   @Override
-  public Optional<Observable> getName() {
+  public Optional<Observable<String>> getName() {
     return Optional.<#if network.nameObservable??>of(${network.nameObservable.javaVariable})<#else>empty()</#if>;
   }
 
   @Override
-  public Optional<Observable> getParent() {
+  public Optional<Observable<String>> getParent() {
     return Optional.<#if network.parentObservable??>of(${network.parentObservable.javaVariable})<#else>empty()</#if>;
   }
 
   @Override
-  public Optional<Observable> getAccepted() {
+  public Optional<Observable<String>> getAccepted() {
     return Optional.<#if network.acceptedObservable??>of(${network.acceptedObservable.javaVariable})<#else>empty()</#if>;
   }
 

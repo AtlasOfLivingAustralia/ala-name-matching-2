@@ -1,9 +1,6 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.ParameterAnalyser;
-import au.org.ala.bayesian.Parameters;
+import au.org.ala.bayesian.*;
 
 import java.util.Deque;
 
@@ -28,7 +25,16 @@ public class EmptyBuilder implements Builder {
      * @param classifier The classifier
      */
     @Override
-    public void generate(Classifier classifier) {
+    public void generate(Classifier classifier, Analyser analyser) {
+    }
+
+    /**
+     * Null interpretation
+     *
+     * @param classifier The classifier
+     */
+    @Override
+    public void interpret(Classifier classifier, Analyser analyser) {
     }
 
     /**
@@ -37,17 +43,16 @@ public class EmptyBuilder implements Builder {
      * @param classifier The classifier
      */
     @Override
-    public void infer(Classifier classifier) {
+    public void infer(Classifier classifier, Analyser analyser) {
     }
 
     /**
      * Null expansion
-     *
-     * @param classifier The classifier
+     *  @param classifier The classifier
      * @param parents  The classifiers parents
      */
     @Override
-    public void expand(Classifier classifier, Deque<Classifier> parents) {
+    public void expand(Classifier classifier, Deque parents, Analyser analyser) {
     }
 
     /**

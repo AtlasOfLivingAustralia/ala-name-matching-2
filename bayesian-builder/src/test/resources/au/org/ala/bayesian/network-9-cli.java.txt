@@ -3,6 +3,7 @@ package au.org.ala.bayesian.generated;
 import au.org.ala.names.builder.Cli;
 import au.org.ala.names.builder.IndexBuilder;
 import au.org.ala.names.builder.IndexBuilderConfiguration;
+import au.org.ala.names.builder.LoadStore;
 import au.org.ala.names.builder.Source;
 import org.apache.commons.cli.*;
 
@@ -76,8 +77,8 @@ public class Network9Cli implements Cli<Network9Classification, Network9Builder,
        builder.load(source);
        source.close();
      }
-     builder.build();
-     builder.buildIndex(output);
+     LoadStore processed = builder.build();
+     builder.buildIndex(output, processed);
      builder.close();
    }
 }

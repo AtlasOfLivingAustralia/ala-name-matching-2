@@ -1,29 +1,15 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.Analyser;
-import au.org.ala.bayesian.BayesianException;
-import au.org.ala.bayesian.Classification;
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Hints;
-import au.org.ala.bayesian.Issues;
-import au.org.ala.bayesian.Observable;
-import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.*;
+import lombok.SneakyThrows;
+import org.gbif.dwc.terms.Term;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-import lombok.SneakyThrows;
-import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.Term;
-
-import au.org.ala.bayesian.analysis.StringAnalysis;
-import au.org.ala.bayesian.Analyser;
-
 public class GrassClassification implements Classification<GrassClassification> {
-  private Analyser<GrassClassification> analyser;
   private Issues issues;
   private Hints<GrassClassification> hints;
 
@@ -32,20 +18,14 @@ public class GrassClassification implements Classification<GrassClassification> 
   public java.lang.String sprinkler;
   public java.lang.String wet;
 
-  public GrassClassification(Analyser<GrassClassification> analyser) {
-    this.analyser = GrassFactory.instance().createAnalyser();
+  public GrassClassification() {
     this.issues = new Issues();
     this.hints = new Hints<>();
   }
 
-  public GrassClassification() {
-    this(GrassFactory.instance().createAnalyser());
-  }
-
-  public GrassClassification(Classifier classifier, Analyser<GrassClassification> analyser) throws BayesianException {
-    this(analyser);
+  public GrassClassification(Classifier classifier) throws BayesianException {
+    this();
     this.read(classifier, true);
-    this.inferForIndex();
   }
 
   @Override
@@ -79,11 +59,6 @@ public class GrassClassification implements Classification<GrassClassification> 
   @Override
   public Term getType() {
     return GrassFactory.CONCEPT;
-  }
-
-  @Override
-  public Analyser<GrassClassification> getAnalyser() {
-    return this.analyser;
   }
 
   @Override
@@ -126,22 +101,12 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
-  public void inferForIndex() throws BayesianException {
+  public void inferForSearch(Analyser<GrassClassification> analyser) throws BayesianException {
     this.rain = GrassFactory.rain.analyse(this.rain);
     this.sprinkler = GrassFactory.sprinkler.analyse(this.sprinkler);
     this.wet = GrassFactory.wet.analyse(this.wet);
-    this.analyser.analyseForIndex(this);
+    analyser.analyseForSearch(this);
   }
-
-
-  @Override
-  public void inferForSearch() throws BayesianException {
-    this.rain = GrassFactory.rain.analyse(this.rain);
-    this.sprinkler = GrassFactory.sprinkler.analyse(this.sprinkler);
-    this.wet = GrassFactory.wet.analyse(this.wet);
-        this.analyser.analyseForSearch(this);
-  }
-
 
   @Override
   public List<List<Function<GrassClassification, GrassClassification>>> searchModificationOrder() {
@@ -181,14 +146,13 @@ public class GrassClassification implements Classification<GrassClassification> 
   @Override
   public void write(Classifier classifier, boolean overwrite) throws BayesianException {
     if(overwrite){
-      classifier.replace(GrassFactory.rain,this.rain);
-      classifier.replace(GrassFactory.sprinkler,this.sprinkler);
-      classifier.replace(GrassFactory.wet,this.wet);
-    } else {
-      classifier.add(GrassFactory.rain,this.rain);
-      classifier.add(GrassFactory.sprinkler,this.sprinkler);
-      classifier.add(GrassFactory.wet,this.wet);
+      classifier.clear(GrassFactory.rain);
+      classifier.clear(GrassFactory.sprinkler);
+      classifier.clear(GrassFactory.wet);
     }
+    classifier.add(GrassFactory.rain, this.rain, false);
+    classifier.add(GrassFactory.sprinkler, this.sprinkler, false);
+    classifier.add(GrassFactory.wet, this.wet, false);
   }
 
 

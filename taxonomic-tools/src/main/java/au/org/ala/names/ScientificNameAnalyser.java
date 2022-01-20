@@ -680,6 +680,21 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
     }
 
     /**
+     * Decide whether to accept a synonym or not.
+     * <p>
+     * By default, accept a synonym.
+     * </p>
+     *
+     * @param classification The classification the synonym is for
+     * @param candidate      The classifier for the synonym
+     * @return True if this is an acceptable synonym.
+     */
+    @Override
+    public boolean acceptSynonym(Classifier base, Classifier candidate) {
+        return true;
+    }
+
+    /**
      * Check for an invalid value in a name.
      *
      * @param name The name

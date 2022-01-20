@@ -1,6 +1,7 @@
 <#import "derivations.ftl" as derivations>
 package ${packageName};
 
+import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.ParameterAnalyser;
@@ -15,7 +16,7 @@ import java.util.Optional;
 import ${import};
 </#list>
 
-public class ${className} implements Builder {
+public class ${className} implements Builder<${classificationClassName}> {
   public final static String SIGNATURE = "${network.signature}";
 
   public  ${className}() {
@@ -27,17 +28,22 @@ public class ${className} implements Builder {
   }
 
   @Override
-  public void generate(Classifier classifier) throws BayesianException {
+  public void generate(Classifier classifier, Analyser<${classificationClassName}> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
   @Override
-  public void infer(Classifier classifier) throws BayesianException {
+  public void interpret(Classifier classifier, Analyser<${classificationClassName}> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
   @Override
-  public void expand(Classifier classifier, Deque<Classifier> parents) throws BayesianException {
+  public void infer(Classifier classifier, Analyser<${classificationClassName}> analyser) throws BayesianException {
+    throw new UnsupportedOperationException("Sub-builders do not support this operation");
+  }
+
+  @Override
+  public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<${classificationClassName}> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 

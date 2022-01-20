@@ -28,7 +28,7 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
     private static Network9Factory instance = null;
 
 
-  public static final Observable v1 = new Observable(
+  public static final Observable<String> v1 = new Observable(
       "v_1",
       null,
       String.class,
@@ -37,7 +37,7 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
       new StringAnalysis(),
       Multiplicity.OPTIONAL
     );
-  public static final Observable v2 = new Observable(
+  public static final Observable<String> v2 = new Observable(
       "v_2",
       null,
       String.class,
@@ -46,7 +46,7 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
       new StringAnalysis(),
       Multiplicity.OPTIONAL
     );
-  public static final Observable v3 = new Observable(
+  public static final Observable<String> v3 = new Observable(
       "v_3",
       null,
       String.class,
@@ -56,7 +56,7 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
       Multiplicity.OPTIONAL
     );
 
-  public static List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
+  public static List<Observable<?>> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
     v1,
     v2,
     v3
@@ -73,32 +73,33 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
 
   static {
     v1.setExternal(LUCENE, "v_1");
+    v1.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/analysed"), true);
     v2.setExternal(LUCENE, "v_2");
     v3.setExternal(LUCENE, "v_3");
   }
 
   @Override
-  public List<Observable> getObservables() {
+  public List<Observable<?>> getObservables() {
       return OBSERVABLES;
   }
 
   @Override
-  public Optional<Observable> getIdentifier() {
+  public Optional<Observable<String>> getIdentifier() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<Observable> getName() {
+  public Optional<Observable<String>> getName() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<Observable> getParent() {
+  public Optional<Observable<String>> getParent() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<Observable> getAccepted() {
+  public Optional<Observable<String>> getAccepted() {
     return Optional.empty();
   }
 

@@ -1,7 +1,6 @@
 package au.org.ala.names.generated;
 
 import au.org.ala.bayesian.BayesianException;
-import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
 import au.org.ala.bayesian.Inferencer;

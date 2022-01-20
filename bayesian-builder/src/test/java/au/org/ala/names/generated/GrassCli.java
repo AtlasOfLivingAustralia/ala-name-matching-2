@@ -1,9 +1,6 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.names.builder.Cli;
-import au.org.ala.names.builder.IndexBuilder;
-import au.org.ala.names.builder.IndexBuilderConfiguration;
-import au.org.ala.names.builder.Source;
+import au.org.ala.names.builder.*;
 import org.apache.commons.cli.*;
 
 import java.io.File;
@@ -75,8 +72,8 @@ public class GrassCli implements Cli<GrassClassification, GrassBuilder, GrassInf
        builder.load(source);
        source.close();
      }
-     builder.build();
-     builder.buildIndex(output);
+     LoadStore processed = builder.build();
+     builder.buildIndex(output, processed);
      builder.close();
    }
 }

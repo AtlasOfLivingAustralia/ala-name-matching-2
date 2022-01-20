@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import static org.gbif.nameparser.api.Rank.*;
-
 public class RankIDAnalysis extends RangeAnalysis {
     private static final Logger logger = LoggerFactory.getLogger(RankIDAnalysis.class);
 

@@ -1,6 +1,5 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
 
 /**

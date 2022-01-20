@@ -13,14 +13,14 @@ import java.util.Collection;
 import static org.junit.Assert.*;
 
 public class SimpleClassifierTest {
-    private static final Observable SN = new Observable(DwcTerm.scientificName);
-    private static final Observable RANK = new Observable(DwcTerm.taxonRank);
+    private static final Observable<String> SN = Observable.string(DwcTerm.scientificName);
+    private static final Observable<String> RANK = Observable.string(DwcTerm.taxonRank);
 
     @Test
     public void testGet1() throws Exception {
         SimpleClassifier classifier = new SimpleClassifier();
-        classifier.add(SN, "Acacia");
-        classifier.add(RANK, "genus");
+        classifier.add(SN, "Acacia", false);
+        classifier.add(RANK, "genus", false);
         assertEquals("Acacia", classifier.get(SN));
         assertEquals("genus", classifier.get(RANK));
     }
@@ -28,7 +28,7 @@ public class SimpleClassifierTest {
     @Test
     public void testGetAll1() throws Exception {
         SimpleClassifier classifier = new SimpleClassifier();
-        classifier.add(SN, "Acacia");
+        classifier.add(SN, "Acacia", false);
         Collection<String> names = classifier.getAll(SN);
         assertNotNull(names);
         assertEquals(1, names.size());
@@ -38,16 +38,16 @@ public class SimpleClassifierTest {
     @Test
     public void testAdd1() throws Exception {
         SimpleClassifier classifier = new SimpleClassifier();
-        classifier.add(SN, "Acacia");
+        classifier.add(SN, "Acacia", false);
         assertEquals("Acacia", classifier.get(SN));
     }
 
     @Test
     public void testAdd2() throws Exception {
         SimpleClassifier classifier = new SimpleClassifier();
-        classifier.add(SN, "Acacia");
+        classifier.add(SN, "Acacia", false);
         try {
-            classifier.add(SN, "Akacia");
+            classifier.add(SN, "Akacia", false);
             fail("Expecting store exception");
         } catch (StoreException ex) {
         }
@@ -56,8 +56,8 @@ public class SimpleClassifierTest {
     @Test
     public void testAddAll1() throws Exception {
         SimpleClassifier classifier = new SimpleClassifier();
-        classifier.add(SN, "Acacia");
-        classifier.add(RANK, "genus");
+        classifier.add(SN, "Acacia", false);
+        classifier.add(RANK, "genus", false);
         SimpleClassifier classifier2 = new SimpleClassifier();
         classifier2.addAll(SN, classifier);
         assertEquals("Acacia", classifier2.get(SN));
@@ -67,8 +67,9 @@ public class SimpleClassifierTest {
     @Test
     public void testReplace1() throws Exception {
         SimpleClassifier classifier = new SimpleClassifier();
-        classifier.add(SN, "Acacia");
-        classifier.replace(SN, "Eucalyptus");
+        classifier.add(SN, "Acacia", false);
+        classifier.clear(SN);
+        classifier.add(SN, "Eucalyptus", false);
         assertEquals("Eucalyptus", classifier.get(SN));
     }
 

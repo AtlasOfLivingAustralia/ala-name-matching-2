@@ -3,7 +3,6 @@ package au.org.ala.names;
 import au.org.ala.vocab.ALATerm;
 import au.org.ala.vocab.VernacularStatus;
 import org.gbif.dwc.record.Record;
-import org.gbif.dwc.terms.DwcTerm;
 
 import java.util.function.Predicate;
 

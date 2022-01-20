@@ -168,6 +168,18 @@ public class JavaGeneratorTest {
 
 
     @Test
+    public void testGenerateBuilder3() throws Exception {
+        StringWriter writer = new StringWriter();
+        Network network = Network.read(this.getClass().getResource("/au/org/ala/names/lucene/simple-network.json"));
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
+        compiler.analyse();
+        JavaGenerator generator = new JavaGenerator();
+        generator.generateClass(compiler.getChildren().get(0), generator.getBuilderSpec(), writer, compiler.getBuilderVariables());
+        // System.out.println(writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "simple-linnaean-builder.java.txt"), writer.toString());
+    }
+
+    @Test
     public void testGenerateCli1() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-9.json"));

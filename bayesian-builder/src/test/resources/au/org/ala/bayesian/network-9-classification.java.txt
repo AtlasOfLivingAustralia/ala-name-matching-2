@@ -24,7 +24,6 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.derivation.SoundexGenerator;
 
 public class Network9Classification implements Classification<Network9Classification> {
-  private Analyser<Network9Classification> analyser;
   private Issues issues;
   private Hints<Network9Classification> hints;
 
@@ -34,21 +33,15 @@ public class Network9Classification implements Classification<Network9Classifica
   public java.lang.String v2;
   public java.lang.String v3;
 
-  public Network9Classification(Analyser<Network9Classification> analyser) {
-    this.analyser = Network9Factory.instance().createAnalyser();
+  public Network9Classification() {
     this.issues = new Issues();
     this.hints = new Hints<>();
     this.soundex = new SoundexGenerator();
   }
 
-  public Network9Classification() {
-    this(Network9Factory.instance().createAnalyser());
-  }
-
-  public Network9Classification(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
-    this(analyser);
+  public Network9Classification(Classifier classifier) throws BayesianException {
+    this();
     this.read(classifier, true);
-    this.inferForIndex();
   }
 
   @Override
@@ -82,11 +75,6 @@ public class Network9Classification implements Classification<Network9Classifica
   @Override
   public Term getType() {
     return Network9Factory.CONCEPT;
-  }
-
-  @Override
-  public Analyser<Network9Classification> getAnalyser() {
-    return this.analyser;
   }
 
   @Override
@@ -129,28 +117,15 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
   @Override
-  public void inferForIndex() throws BayesianException {
+  public void inferForSearch(Analyser<Network9Classification> analyser) throws BayesianException {
     this.v1 = Network9Factory.v1.analyse(this.v1);
     this.v2 = Network9Factory.v2.analyse(this.v2);
     this.v3 = Network9Factory.v3.analyse(this.v3);
-    this.analyser.analyseForIndex(this);
+    analyser.analyseForSearch(this);
     if (this.v2 == null) {
       this.v2 = this.soundex.soundex(this.v1);
     }
   }
-
-
-  @Override
-  public void inferForSearch() throws BayesianException {
-    this.v1 = Network9Factory.v1.analyse(this.v1);
-    this.v2 = Network9Factory.v2.analyse(this.v2);
-    this.v3 = Network9Factory.v3.analyse(this.v3);
-        this.analyser.analyseForSearch(this);
-    if (this.v2 == null) {
-      this.v2 = this.soundex.soundex(this.v1);
-    }
-  }
-
 
   @Override
   public List<List<Function<Network9Classification, Network9Classification>>> searchModificationOrder() {
@@ -190,14 +165,13 @@ public class Network9Classification implements Classification<Network9Classifica
   @Override
   public void write(Classifier classifier, boolean overwrite) throws BayesianException {
     if(overwrite){
-      classifier.replace(Network9Factory.v1,this.v1);
-      classifier.replace(Network9Factory.v2,this.v2);
-      classifier.replace(Network9Factory.v3,this.v3);
-    } else {
-      classifier.add(Network9Factory.v1,this.v1);
-      classifier.add(Network9Factory.v2,this.v2);
-      classifier.add(Network9Factory.v3,this.v3);
+      classifier.clear(Network9Factory.v1);
+      classifier.clear(Network9Factory.v2);
+      classifier.clear(Network9Factory.v3);
     }
+    classifier.add(Network9Factory.v1, this.v1, false);
+    classifier.add(Network9Factory.v2, this.v2, false);
+    classifier.add(Network9Factory.v3, this.v3, false);
   }
 
 

@@ -6,7 +6,7 @@ import org.gbif.dwc.terms.TermFactory;
 import java.net.URI;
 
 /**
- * Terms used for optimisating search, loading sources and the like.
+ * Terms used for optimisating search, loading sources, code generation and the like.
  * <p>
  * These contain a number of elements that should really be in sub-modules but which are not properly linked
  * if they are absent.
@@ -17,9 +17,37 @@ import java.net.URI;
  * Copyright (c) 2016 CSIRO
  */
 public enum OptimisationTerm implements Term {
-    /** If true (the default) then load this observable from a source. If explicitly false then the observable will not be loaded */
+    /**
+     * If true, this observable is over-written by the analyser.
+     *
+     */
+    analysed,
+    /**
+     * If true (the default) then load this observable from a source.
+     * If explicitly false then the observable will not be loaded
+     */
     load,
-    /** Do not use this observable for candidate search in Lucene, usually for performance reasons */
+    /**
+     * If true then load this observable from a source but only as a variant.
+     * Setting this to true allows additional values to be loaded, even if
+     * the entries are not the accepted value.
+     * False by default.
+     */
+    loadAsVariant,
+    /**
+     * If true then load this observable from DwCA core and extensions that have this row type.
+     * Setting this to an extension URI allows the source to load the value from that extension.
+     */
+    loadFromClass,
+    /**
+     * Use this termto load from a source.
+     * Any terms used here will replace the default term so, if you intend to use that as well, you
+     * will need to include it explicitly.
+     */
+    loadFromTerm,
+    /**
+     * Do not use this observable for candidate search in Lucene, usually for performance reasons
+     */
     luceneNoSearch,
     /**
      * Aggregate multiple terms to a single value when loading from a source.

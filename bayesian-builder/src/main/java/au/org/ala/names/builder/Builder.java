@@ -11,7 +11,7 @@ import java.util.Deque;
  * Subclasses are generated based on the network configuration.
  * </p>
  */
-public interface Builder {
+public interface Builder<C extends Classification<C>> {
     /**
      * Get the erasure signature for this builder.
      *
@@ -21,7 +21,6 @@ public interface Builder {
      */
     public String getSignature();
 
-
     /**
      * Generate for a classifier during building.
      * <p>
@@ -30,23 +29,37 @@ public interface Builder {
      * </p>
      *
      * @param classifier The document
+     * @param analyser The document analyser
      *
      * @throws BayesianException if unable to calculate the inference
       */
-    public void generate(Classifier classifier) throws BayesianException;
+    public void generate(Classifier classifier, Analyser<C> analyser) throws BayesianException;
+
+    /**
+     * Interpret values in a classifier.
+     * <p>
+     * Perform any immedidate derivations that can be collected from the classifier.
+     * </p>
+     *
+     * @param classifier The document
+     * @param analyser The document analyser
+     *
+     * @throws BayesianException if unable to calculate the inference
+     */
+    public void interpret(Classifier classifier, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Infer from a classifier during building.
      * <p>
-     * This method creates all the derived values from the incoming classifier
-     * and the stack of parent documents.
+     * This method creates all the derived values from the incoming classifier.
      * </p>
      *
      * @param classifier The document
+     * @param analyser The document analyser
      *
      * @throws BayesianException if unable to calculate the inference
       */
-    public void infer(Classifier classifier) throws BayesianException;
+    public void infer(Classifier classifier, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Expand a classifier during building.
@@ -56,10 +69,11 @@ public interface Builder {
      *
      * @param document The classifier
      * @param parents The classifier's parents
+     * @param analyser The document analyser
      *
      * @throws BayesianException if unable to calculate the expansion
     */
-    public void expand(Classifier document, Deque<Classifier> parents) throws BayesianException;
+    public void expand(Classifier document, Deque<Classifier> parents, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Build a signture for a classifier.

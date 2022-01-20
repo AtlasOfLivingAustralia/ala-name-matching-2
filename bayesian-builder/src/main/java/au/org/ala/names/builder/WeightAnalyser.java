@@ -2,9 +2,6 @@ package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
-
-import java.io.Closeable;
 
 /**
  * Analyse weights for classifiers.

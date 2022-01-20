@@ -25,7 +25,6 @@ import ${import};
 </#list>
 
 public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements Classification<${className}> {
-  private ${analyserType} analyser;
   private Issues issues;
   private Hints<${className}> hints;
 
@@ -58,8 +57,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   public ${node.observable.type.name} ${node.observable.javaVariable};
 </#list>
 
-  public ${className}(${analyserType} analyser) {
-    this.analyser = ${factoryClassName}.instance().createAnalyser();
+  public ${className}() {
     this.issues = new Issues();
     this.hints = new Hints<>();
 <#list classificationVariables as variable>
@@ -67,14 +65,9 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 </#list>
   }
 
-  public ${className}() {
-    this(${factoryClassName}.instance().createAnalyser());
-  }
-
-  public ${className}(Classifier classifier, ${analyserType} analyser) throws BayesianException {
-    this(analyser);
+  public ${className}(Classifier classifier) throws BayesianException {
+    this();
     this.read(classifier, true);
-    this.inferForIndex();
   }
 
   @Override
@@ -108,11 +101,6 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   @Override
   public Term getType() {
     return ${factoryClassName}.CONCEPT;
-  }
-
-  @Override
-  public ${analyserType} getAnalyser() {
-    return this.analyser;
   }
 
   @Override
@@ -153,50 +141,35 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public void inferForIndex() throws BayesianException {
+  public void inferForSearch(Analyser<${className}> analyser) throws BayesianException {
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.analysis??>
     this.${observable.javaVariable} = ${factoryClassName}.${observable.javaVariable}.analyse(this.${observable.javaVariable});
   </#if>
 </#list>
-    this.analyser.analyseForIndex(this);
-<#list orderedNodes + additionalNodes as node>
-  <#assign observable = node.observable >
-  <#if observable?? && observable.derivation?? && !observable.derivation.generator>
-    <#assign derivation = observable.derivation>
+<#list derivationOrder as observable>
+  <#assign derivation = observable.derivation>
+  <#if derivation.preAnalysis>
     <#if derivation.hasTransform()>
-    if (this.${node.observable.javaVariable} == null) {
-      this.${node.observable.javaVariable} = ${derivation.generateClassificationTransform()};
+    if (this.${observable.javaVariable} == null) {
+      this.${observable.javaVariable} = ${derivation.generateClassificationTransform()};
+    }
+    </#if>
+  </#if>
+</#list>
+    analyser.analyseForSearch(this);
+<#list derivationOrder as observable>
+  <#assign derivation = observable.derivation>
+  <#if derivation.postAnalysis>
+    <#if derivation.hasTransform()>
+    if (this.${observable.javaVariable} == null) {
+      this.${observable.javaVariable} = ${derivation.generateClassificationTransform()};
     }
     </#if>
   </#if>
 </#list>
   }
-
-
-  @Override
-  public void inferForSearch() throws BayesianException {
-<#list orderedNodes + additionalNodes as node>
-  <#assign observable = node.observable >
-  <#if observable?? && observable.analysis??>
-    this.${observable.javaVariable} = ${factoryClassName}.${observable.javaVariable}.analyse(this.${observable.javaVariable});
-  </#if>
-</#list>
-        this.analyser.analyseForSearch(this);
-<#list orderedNodes + additionalNodes as node>
-  <#assign observable = node.observable >
-  <#if observable?? && observable.derivation?? && !observable.derivation.generator>
-    <#assign derivation = observable.derivation>
-    <#if derivation.hasTransform()>
-    if (this.${node.observable.javaVariable} == null) {
-      this.${node.observable.javaVariable} = ${derivation.generateClassificationTransform()};
-    }
-    </#if>
-  </#if>
-</#list>
-  }
-
 
   @Override
   public List<List<Function<${className}, ${className}>>> searchModificationOrder() {
@@ -268,13 +241,12 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   public void write(Classifier classifier, boolean overwrite) throws BayesianException {
     if(overwrite){
 <#list orderedNodes + additionalNodes as node>
-      classifier.replace(${factoryClassName}.${node.observable.javaVariable},this.${node.observable.javaVariable});
-</#list>
-    } else {
-<#list orderedNodes + additionalNodes as node>
-      classifier.add(${factoryClassName}.${node.observable.javaVariable},this.${node.observable.javaVariable});
+      classifier.clear(${factoryClassName}.${node.observable.javaVariable});
 </#list>
     }
+<#list orderedNodes + additionalNodes as node>
+    classifier.add(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable}, false);
+</#list>
   }
 
 

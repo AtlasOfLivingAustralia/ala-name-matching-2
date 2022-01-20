@@ -1,7 +1,6 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.*;
-import au.org.ala.bayesian.Observable;
 import au.org.ala.vocab.TaxonomicStatus;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -12,7 +11,10 @@ import org.gbif.nameparser.api.Rank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory> {
@@ -395,7 +397,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
             AlaLinnaeanClassification finder = new AlaLinnaeanClassification();
             finder.scientificName = key.getScientificName();
             finder.taxonRank = key.getTaxonRank();
-            finder.inferForSearch();
+            finder.inferForSearch(this.getAnalyser());
             Match<AlaLinnaeanClassification> match = this.findSource(finder, false);
             if (match != null && match.isValid())
                 return match.getAccepted();

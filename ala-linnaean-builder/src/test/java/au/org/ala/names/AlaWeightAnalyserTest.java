@@ -14,7 +14,7 @@ import org.junit.Test;
 import java.io.File;
 import java.net.URL;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class AlaWeightAnalyserTest {
     private AlaWeightAnalyser analyser;
@@ -36,19 +36,19 @@ public class AlaWeightAnalyserTest {
     private Classifier makeClassifier(String taxonId, String scientificName, String scientificNameAuthorship, Rank rank, TaxonomicStatus status, NomStatus nomStatus, Integer priority) throws StoreException {
         LuceneClassifier classifier = new LuceneClassifier();
         if (taxonId != null)
-            classifier.add(AlaLinnaeanFactory.taxonId, taxonId);
+            classifier.add(AlaLinnaeanFactory.taxonId, taxonId, false);
         if (scientificName != null)
-            classifier.add(AlaLinnaeanFactory.scientificName, scientificName);
+            classifier.add(AlaLinnaeanFactory.scientificName, scientificName, false);
         if (scientificNameAuthorship != null)
-            classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, scientificNameAuthorship);
+            classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, scientificNameAuthorship, false);
         if (rank != null)
-            classifier.add(AlaLinnaeanFactory.taxonRank, rank);
+            classifier.add(AlaLinnaeanFactory.taxonRank, rank, false);
         if (status != null)
-            classifier.add(AlaLinnaeanFactory.taxonomicStatus, status);
+            classifier.add(AlaLinnaeanFactory.taxonomicStatus, status, false);
         if (nomStatus != null)
-            classifier.add(AlaLinnaeanFactory.nomenclaturalStatus, nomStatus);
+            classifier.add(AlaLinnaeanFactory.nomenclaturalStatus, nomStatus, false);
         if (priority != null)
-            classifier.add(AlaLinnaeanFactory.priority, priority);
+            classifier.add(AlaLinnaeanFactory.priority, priority, false);
         return classifier;
     }
 

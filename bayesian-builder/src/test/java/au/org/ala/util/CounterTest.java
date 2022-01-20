@@ -5,7 +5,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CounterTest {
     private static final Logger logger = LoggerFactory.getLogger(CounterTest.class);
@@ -18,7 +19,7 @@ public class CounterTest {
 
     protected void run(int steps) throws Exception {
         for (int i = 0; i < steps; i++) {
-            Thread.sleep(100);
+            Thread.sleep(1);
             this.counter.increment(i);
         }
     }
@@ -37,14 +38,16 @@ public class CounterTest {
         this.counter.start();
         this.run(10);
         this.counter.stop();
-        assertEquals(10.0, this.counter.getCurrentRate(), 1.0);
+        assertTrue("Rate is " + this.counter.getCurrentRate(), this.counter.getCurrentRate() >= 100.0);
+        assertTrue("Rate is " + this.counter.getCurrentRate(), this.counter.getCurrentRate() <= 1000.0);
     }
 
     @Test
     public void testCurrentRate2() throws Exception {
         this.counter.start();
         this.run(9);
-        assertEquals(10.0, this.counter.getCurrentRate(), 1.0);
+        assertTrue("Rate is " + this.counter.getCurrentRate(), this.counter.getCurrentRate() >= 100.0);
+        assertTrue("Rate is " + this.counter.getCurrentRate(), this.counter.getCurrentRate() <= 1000.0);
         this.counter.stop();
     }
 
@@ -54,7 +57,7 @@ public class CounterTest {
         this.run(9);
         String message = this.counter.buildMessgae(System.currentTimeMillis(), null);
         this.counter.stop();
-        assertEquals("Test 9 elapsed 1, 10/s, 90%, last -", message);
+        assertTrue("Message is " + message, message.matches("Test 9 elapsed [01], \\d\\d\\d/s, 90%, last -"));
     }
 
     @Test
@@ -63,7 +66,7 @@ public class CounterTest {
         this.run(35);
         String message = this.counter.buildMessgae(System.currentTimeMillis(), "Waffle");
         this.counter.stop();
-        assertEquals("Test 35 elapsed 4, 10/s, 350%, last Waffle", message);
+        assertTrue("Message is " + message, message.matches("Test 35 elapsed [01], \\d\\d\\d/s, 350%, last Waffle"));
     }
 
     @Test

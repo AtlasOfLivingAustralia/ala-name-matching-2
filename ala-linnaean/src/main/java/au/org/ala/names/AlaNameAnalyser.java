@@ -1,7 +1,7 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.*;
 import au.org.ala.vocab.BayesianTerm;
 import com.google.common.base.Enums;
 import org.gbif.api.vocabulary.NomenclaturalCode;
@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassification> {
     private Logger logger = LoggerFactory.getLogger(AlaNameAnalyser.class);
 
-    /**
-     * Invalid authorship
-     */
+    /** Invalid authorship */
     public static final Pattern INVALID_AUTHORSHIP = Pattern.compile("\\d+");
+    /** The distance in ranks allowable when looking at synonyms */
+    public static final int SYNONYM_RANK_DISTANCE = 2000;
 
     private static final Issues INDETERMINATE_ISSUES = Issues.of(AlaLinnaeanFactory.INDETERMINATE_NAME);
     private static final Issues AFFINTIY_ISSUES = Issues.of(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME);
@@ -93,6 +93,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         }
         return true;
     }
+
     /**
      * If a classification does not have a direct scientific name/rank combination then infer it.
      * Sub-species ranks are generalised to be a genric infraspecific rank, since there's too
@@ -213,6 +214,36 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             classification.cultivarEpithet = name.getCultivarEpithet();
     }
 
+
+    protected void fillOutClassifier(Analysis analysis, Classifier classifier) throws InferenceException, StoreException {
+        ParsedName name = analysis.getParsedName();
+        if (classifier == null || name == null)
+            return;
+        if (name.isPhraseName()) {
+            if (!classifier.has(AlaLinnaeanFactory.nominatingParty) && name.getNominatingParty() != null) {
+                this.set(classifier, AlaLinnaeanFactory.nominatingParty, name.getNominatingParty());
+            }
+            if (!classifier.has(AlaLinnaeanFactory.voucher) && name.getVoucher() != null) {
+                this.set(classifier, AlaLinnaeanFactory.voucher, AlaLinnaeanFactory.voucher.getAnalysis().analyse(name.getVoucher()));
+            }
+            if (!classifier.has(AlaLinnaeanFactory.phraseName) && name.getStrain() != null) {
+                this.set(classifier, AlaLinnaeanFactory.phraseName, AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getStrain()));
+            }
+        }
+        if (name.getType() == NameType.SCIENTIFIC || name.getType() == NameType.INFORMAL || name.getType() == NameType.PLACEHOLDER) {
+            // Only do this for non-synonyms to avoid dangling speciesID
+            if (!classifier.has(AlaLinnaeanFactory.acceptedNameUsageId) && !classifier.has(AlaLinnaeanFactory.specificEpithet)  && name.getSpecificEpithet() != null && !analysis.isUncertain()) {
+                this.set(classifier, AlaLinnaeanFactory.specificEpithet, name.getSpecificEpithet());
+            }
+        }
+        if (!classifier.has(AlaLinnaeanFactory.acceptedNameUsageId) && !classifier.has(AlaLinnaeanFactory.genus)  && !analysis.isUnranked() && !analysis.getRank().higherThan(Rank.GENUS) && name.getGenus() != null) {
+            this.set(classifier, AlaLinnaeanFactory.genus, name.getGenus());
+        }
+        if (!classifier.has(AlaLinnaeanFactory.cultivarEpithet) && name.getCultivarEpithet() != null) {
+            this.set(classifier, AlaLinnaeanFactory.cultivarEpithet, name.getCultivarEpithet());
+        }
+    }
+
     /**
      * Look for a scientific name of the form "Genus A" or "Genus 453"
      *
@@ -229,21 +260,40 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
     }
 
     /**
+     * Look for a scientific name of the form "Genus A" or "Genus 453"
+     *
+     * @param analysis The analysis
+     * @param classifier The classification
+     */
+    protected void detectNumericPlaceholder(Analysis analysis, Classifier classifier) throws StoreException {
+        Matcher numericPlaceholder = NUMERIC_PLACEHOLDER.matcher(analysis.getScientificName());
+        if (numericPlaceholder.matches()) {
+            if (!classifier.has(AlaLinnaeanFactory.genus))
+                this.set(classifier, AlaLinnaeanFactory.genus, numericPlaceholder.group(1));
+            analysis.setNameType(NameType.PLACEHOLDER);
+        }
+    }
+
+    /**
      * Analyse the information in a classifier and extend the classifier
      * as required for indexing.
      *
-     * @param classification The classification
+     * @param classifier The classifier
      */
     @Override
-    public void analyseForIndex(AlaLinnaeanClassification classification) throws InferenceException {
-        Analysis analysis = new Analysis(classification.scientificName, classification.scientificNameAuthorship, classification.taxonRank, classification.nomenclaturalCode);
-
-        analysis.setKingdom(classification.kingdom);
+    public void analyseForIndex(Classifier classifier) throws InferenceException, StoreException {
+        String id = classifier.get(AlaLinnaeanFactory.taxonId);
+        Analysis analysis = new Analysis(
+                classifier.get(AlaLinnaeanFactory.scientificName),
+                classifier.get(AlaLinnaeanFactory.scientificNameAuthorship),
+                classifier.get(AlaLinnaeanFactory.taxonRank),
+                classifier.get(AlaLinnaeanFactory.nomenclaturalCode)
+                );
+        analysis.setKingdom(classifier.get(AlaLinnaeanFactory.kingdom));
         if (!this.checkKingdom(analysis, KINGDOM_ISSUES))
-            logger.warn("Unrecognised kingdom " + classification.kingdom + " on " + classification.taxonId);
-        this.inferRank(analysis, classification);
+            logger.warn("Unrecognised kingdom " + analysis.getKingdom() + " on " + id);
         if (this.replaceUnprintable(analysis, 'x', DATA_ISSUES))
-            throw new InferenceException("Replacement character in name while indexing for " + classification.taxonId + ": " + classification.scientificName + " " + classification.scientificNameAuthorship);
+            throw new InferenceException("Replacement character in name while indexing for " + id + ": " + classifier.get(AlaLinnaeanFactory.scientificName) + " " + classifier.get(AlaLinnaeanFactory.scientificNameAuthorship));
         this.processIndeterminate(analysis, null, INDETERMINATE_ISSUES);
         this.processAffinitySpecies(analysis, " aff. ", AFFINTIY_ISSUES);
         this.processConferSpecies(analysis, " cf. ", CONFER_ISSUES);
@@ -252,32 +302,37 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         this.processEmbeddedAuthor(analysis, CANONICAL_ISSUES);
         this.parseName(analysis, UNPARSABLE_ISSUES);
         this.processParsedScientificName(analysis, CANONICAL_ISSUES);
-        this.fillOutClassification(analysis, classification);
-        this.detectNumericPlaceholder(analysis, classification);
-        classification.scientificName = analysis.getScientificName();
-        classification.scientificNameAuthorship = analysis.getScientificNameAuthorship();
-        classification.taxonRank = analysis.isUnranked() ? null : analysis.getRank();
-        classification.nameType = analysis.getNameType();
-        classification.kingdom = analysis.getKingdom();
-        if (classification.cultivarEpithet != null && classification.specificEpithet != null) {
+        this.fillOutClassifier(analysis, classifier);
+        this.detectNumericPlaceholder(analysis, classifier);
+        this.set(classifier, AlaLinnaeanFactory.scientificName, analysis.getScientificName());
+        this.set(classifier, AlaLinnaeanFactory.scientificNameAuthorship, analysis.getScientificNameAuthorship());
+        this.set(classifier, AlaLinnaeanFactory.taxonRank, analysis.isUnranked() ? null : analysis.getRank());
+        this.set(classifier, AlaLinnaeanFactory.nameType, analysis.getNameType());
+        this.set(classifier, AlaLinnaeanFactory.kingdom, analysis.getKingdom());
+        if (classifier.has(AlaLinnaeanFactory.cultivarEpithet) && classifier.has(AlaLinnaeanFactory.specificEpithet)) {
             // Check case where cultivar epithet is on specific epithet
-            Matcher matcher = SUSPECTED_CULTIVAR_IN_SPECIFIC_EPITHET.matcher(classification.specificEpithet);
-            if (matcher.find() && matcher.group(1).equals(classification.cultivarEpithet)) {
-                classification.specificEpithet = classification.specificEpithet.substring(0, matcher.start()).trim();
+            String cultivarEpithet = classifier.get(AlaLinnaeanFactory.cultivarEpithet);
+            String specificEpithet = classifier.get(AlaLinnaeanFactory.specificEpithet);
+            Matcher matcher = SUSPECTED_CULTIVAR_IN_SPECIFIC_EPITHET.matcher(specificEpithet);
+            if (matcher.find() && matcher.group(1).equals(cultivarEpithet)) {
+                this.set(classifier, AlaLinnaeanFactory.specificEpithet, specificEpithet.substring(0, matcher.start()).trim());
                 analysis.addIssues(CANONICAL_ISSUES);
             }
         }
 
         // Remove loops in taxonomy
-        if (classification.parentNameUsageId != null && classification.parentNameUsageId.equals(classification.taxonId)) {
-            classification.addIssue(BayesianTerm.parentLoop);
-            classification.parentNameUsageId = null;
+        if (classifier.has(AlaLinnaeanFactory.parentNameUsageId) && classifier.get(AlaLinnaeanFactory.parentNameUsageId).equals(id)) {
+            classifier.clear(AlaLinnaeanFactory.parentNameUsageId);
         }
-        if (classification.acceptedNameUsageId != null && classification.acceptedNameUsageId.equals(classification.taxonId)) {
-            classification.addIssue(BayesianTerm.acceptedLoop);
-            classification.acceptedNameUsageId = null;
+        if (classifier.has(AlaLinnaeanFactory.acceptedNameUsageId) && classifier.get(AlaLinnaeanFactory.acceptedNameUsageId).equals(id)) {
+            classifier.clear(AlaLinnaeanFactory.acceptedNameUsageId);
         }
-        classification.addIssues(analysis.getIssues());
+    }
+
+    protected <T> void set(Classifier classifier, Observable observable, T value) throws StoreException {
+        classifier.clear(observable);
+        if (value != null)
+            classifier.add(observable, value, false);
     }
 
     /**
@@ -352,7 +407,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
      * @return All the names that refer to the classification
      */
     @Override
-    public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) throws InferenceException {
+    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) throws InferenceException {
         Rank rank = classifier.get(AlaLinnaeanFactory.taxonRank);
         NomenclaturalCode code = classifier.get(AlaLinnaeanFactory.nomenclaturalCode);
         String scientificName = classifier.get(name);
@@ -404,5 +459,31 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             analysis.addName(FULL_NORMALISER.normalise(nm));
         }
         return analysis.getNames();
+    }
+
+    /**
+     * Decide whether to accept a synonym or not.
+     * <p>
+     * Only accept synonyms where the classifier is within two linnaean ranks distance of the classification.
+     * The Species and sub-species range always pass because they are too fluid for accurate distance measurements.
+     * </p>
+     *
+     * @param base The classifier the synonym is for
+     * @param candidate      The classifier for the synonym
+     * @return True if this is an acceptable synonym.
+     */
+    @Override
+    public boolean acceptSynonym(Classifier base, Classifier candidate) {
+        Rank baseRank = base.has(AlaLinnaeanFactory.taxonRank) ? base.get(AlaLinnaeanFactory.taxonRank) : Rank.UNRANKED;
+        if (baseRank.otherOrUnranked())
+            return true;
+        Rank candidateRank = candidate.has(AlaLinnaeanFactory.taxonRank) ? candidate.get(AlaLinnaeanFactory.taxonRank) : Rank.UNRANKED;
+        if (candidateRank.otherOrUnranked())
+            return false;
+        if (baseRank.isSpeciesOrBelow() && candidateRank.isSpeciesOrBelow())
+            return true;
+        int classificationRankID = RankIDAnalysis.idFromRank(baseRank);
+        int candidateRankID = RankIDAnalysis.idFromRank(candidateRank);
+        return Math.abs(classificationRankID - candidateRankID) < SYNONYM_RANK_DISTANCE;
     }
 }

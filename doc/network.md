@@ -258,11 +258,12 @@ can be used to improve performance.
   * `min` Use the smallest value for an observable with a comparable type.
 * `http://ala.org.au/optimisation/1.0/dwcaOrder` The name of a class that will be
   used to order values when using `http://ala.org.au/optimisation/1.0/aggregate`
-  The class needs to implement `java.util.Comparator` for the type of object being aggregated.
+  The class needs to implement `java.util.Comparator<org.gbif.dwc.record.Record>` 
+  for the type of object being aggregated.
   Otherwise, the natural ordering is used.
 * `http://ala.org.au/optimisation/1.0/dwcaFilter` The name of a class that will be
   used to filter values when using `http://ala.org.au/optimisation/1.0/aggregate`
-  The class needs to implement `java.util.function.Predicate` 
+  The class needs to implement `java.util.function.Predicate<org.gbif.dwc.record.Record>` 
   for the type of object being aggregated.
 
 #### Derivations
@@ -400,7 +401,7 @@ A typical modification is
   "id" : "misspelled_scientific_name_base",
   "issues" : [ "misspelled_scientific_name" ],
   "condition": {
-    "@class" : "au.org.ala.bayesian.modifier.PresentCondition",
+    "@class" : "au.org.ala.bayesian.condition.PresentCondition",
     "all": false,
     "present": [
       "kingdom",

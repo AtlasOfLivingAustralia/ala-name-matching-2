@@ -37,7 +37,7 @@ public class SimpleClassifier implements Classifier {
      * @return The associated value or null for not present
      */
     @Override
-    public <T> T get(Observable observable) {
+    public <T> T get(Observable<T> observable) {
         return (T) this.values.get(observable);
     }
 
@@ -48,10 +48,10 @@ public class SimpleClassifier implements Classifier {
      * @return The a set of all present values
      */
     @Override
-    public <T> LinkedHashSet<T> getAll(Observable... observables) {
+    public <T> LinkedHashSet<T> getAll(Observable<T>... observables) {
         LinkedHashSet<T> values = new LinkedHashSet<>(observables.length);
         for (Observable observable: observables) {
-            values.add(this.get(observable));
+            values.add((T) this.get(observable));
         }
         return values;
     }
@@ -68,6 +68,17 @@ public class SimpleClassifier implements Classifier {
     }
 
     /**
+     * Does this classifier contain any information about this observable?
+     *
+     * @param observable The observable to test
+     * @return True if there are values in the classifier
+     */
+    @Override
+    public boolean hasAny(Observable observable) {
+        return this.has(observable);
+    }
+
+    /**
      * Does this classifier have a matching term for an observable?
      * <p>
      * If the observable has any combination of a type, normaliser and style,
@@ -80,7 +91,7 @@ public class SimpleClassifier implements Classifier {
      * @throws StoreException if there was a problem matching the result
      */
     @Override
-    public <T> Boolean match(T value, Observable... observables) throws StoreException {
+    public <T> Boolean match(T value, Observable<T>... observables) throws StoreException {
         try {
             for (Observable observable: observables) {
                 Object val = this.values.get(observable);
@@ -105,7 +116,7 @@ public class SimpleClassifier implements Classifier {
      * @throws StoreException if unable to add this variable to the classifier
      */
     @Override
-    public <T> void add(Observable observable, T value) throws StoreException {
+    public <T> void add(Observable<T> observable, T value, boolean variant) throws StoreException {
         if (this.values.containsKey(observable))
             throw new StoreException("Observable " + observable + " already has a value");
         Normaliser normaliser = observable.getNormaliser();
@@ -138,24 +149,17 @@ public class SimpleClassifier implements Classifier {
     }
 
     /**
-     * Set a value in the classifier.
+     * Clear values in the classifier.
      * <p>
      * Replaces any existing values
      * </p>
      *
      * @param observable The observable to store
-     * @param value      The value to store
-     * @throws StoreException if unable to add this variable to the classifier
+      * @throws StoreException if unable to add this variable to the classifier
      */
     @Override
-    public <T> void replace(Observable observable, T value) throws StoreException {
-        Normaliser normaliser = observable.getNormaliser();
-        if (normaliser != null && value != null && value instanceof String)
-            value = (T) normaliser.normalise((String) value);
-        if (value == null)
-            this.values.remove(observable);
-        else
-            this.values.put(observable, value);
+    public void clear(Observable observable) throws StoreException {
+        this.values.remove(observable);
     }
 
     /**

@@ -10,7 +10,6 @@ import org.junit.Test;
 import java.io.File;
 import java.util.Collections;
 import java.util.Set;
-import java.util.function.Function;
 
 import static org.junit.Assert.*;
 

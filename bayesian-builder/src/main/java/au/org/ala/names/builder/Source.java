@@ -1,7 +1,9 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.BayesianException;
+import au.org.ala.bayesian.Classification;
+import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Observable;
-import au.org.ala.bayesian.*;
 import au.org.ala.util.Counter;
 import au.org.ala.vocab.OptimisationTerm;
 import lombok.Getter;
@@ -14,7 +16,10 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 abstract public class Source {
     private final NetworkFactory factory;
-    private final Map<Term, Observable> observables;
+    private final Map<Term, Observable<?>> observables;
     private final Set<Term> types;
     @Getter
     private Counter counter;
@@ -39,7 +44,7 @@ abstract public class Source {
      * @param observables The list of observables (may be null, in which case the factory list is used)
      * @param types The list of record types to load
      */
-    public Source(NetworkFactory factory, Collection<Observable> observables, Collection<Term> types) {
+    public Source(NetworkFactory factory, Collection<Observable<?>> observables, Collection<Term> types) {
         if (observables == null)
             observables = factory.getObservables();
         this.factory = factory;
@@ -60,7 +65,7 @@ abstract public class Source {
      * @return An observable matching the term
      */
     public @NotNull Observable getObservable(@NotNull Term term) {
-        return this.observables.computeIfAbsent(term, t -> new Observable(t));
+        return this.observables.computeIfAbsent(term, t -> Observable.string(t));
     }
 
     /**
@@ -94,24 +99,6 @@ abstract public class Source {
     }
 
     /**
-     * Perform an inference step on a classifier.
-     * <p>
-     * To do this, we convert the classifier data into a classification,
-     * do the inference step and then write it back into the classifier.
-     * </p>
-     *
-     * @param classifier The classifier to expand.
-     *
-     * @throws BayesianException is an error in storage or inference
-     */
-    public void infer(Classifier classifier) throws BayesianException {
-        Classification classification = this.createClassification();
-        classification.read(classifier, true);
-        classification.inferForIndex();
-        classification.write(classifier, true);
-    }
-
-    /**
      * Load this source into an index builder.
      *
      * @param store The store to load into
@@ -142,7 +129,7 @@ abstract public class Source {
      *
      * @throws Exception for all kinds of reasons
      */
-    public static Source create(URL source, NetworkFactory factory, Collection<Observable> observables, Collection<Term> types) throws Exception {
+    public static Source create(URL source, NetworkFactory factory, Collection<Observable<?>> observables, Collection<Term> types) throws Exception {
         if (source.getFile().endsWith(".csv")) {
             return new CSVSource(types.isEmpty() ? DwcTerm.Taxon : types.iterator().next(), source, factory, observables);
         }

@@ -65,21 +65,19 @@ public class IndexBuilderConfigurationTest {
 
     @Test
     public void testCreateLoadStore1() throws Exception {
-        Annotator annotator = new TestAnnotator();
         IndexBuilderConfiguration config = new IndexBuilderConfiguration();
         config.setWork(new File("/tmp"));
         config.setLoadStoreClass(TestLoadStore.class);
-        LoadStore store = config.createLoadStore(annotator);
+        LoadStore store = config.createLoadStore("test", true);
         assertEquals(TestLoadStore.class, store.getClass());
         store.close();
     }
 
     @Test
     public void testCreateBuilder1() throws Exception {
-        Annotator annotator = new TestAnnotator();
         IndexBuilderConfiguration config = new IndexBuilderConfiguration();
         config.setBuilderClass(EmptyBuilder.class);
-        Builder builder  = config.createBuilder(annotator, new EmptyFactory());
+        Builder builder  = config.createBuilder(new EmptyFactory());
         assertEquals(EmptyBuilder.class, builder.getClass());
     }
 

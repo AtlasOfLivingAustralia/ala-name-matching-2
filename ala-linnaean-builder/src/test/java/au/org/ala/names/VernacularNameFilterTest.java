@@ -2,9 +2,7 @@ package au.org.ala.names;
 
 import au.org.ala.names.builder.DwCASource;
 import au.org.ala.vocab.ALATerm;
-import org.gbif.dwc.Archive;
 import org.gbif.dwc.ArchiveFile;
-import org.gbif.dwc.DwcFiles;
 import org.gbif.dwc.record.Record;
 import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.dwc.terms.Term;

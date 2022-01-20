@@ -12,6 +12,8 @@ import org.junit.Test;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -21,7 +23,7 @@ public class ObservableTest {
 
     @Test
     public void testToJson1() throws Exception {
-        Observable observable = new Observable("test_1");
+        Observable<String> observable = Observable.string("test_1");
         ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, observable);
@@ -30,7 +32,7 @@ public class ObservableTest {
 
     @Test
     public void testToJson2() throws Exception {
-        Observable observable = new Observable("test_1");
+        Observable<String> observable =Observable.string("test_1");
         observable.setDescription("A description");
         observable.setUri(URI1);
         ObjectMapper mapper = JsonUtils.createMapper();
@@ -41,7 +43,7 @@ public class ObservableTest {
 
     @Test
     public void testToJson3() throws Exception {
-        Observable observable = new Observable("test_1");
+        Observable<String> observable = Observable.string("test_1");
         List<Observable> vertices = Arrays.asList(observable, observable);
         ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
@@ -56,7 +58,7 @@ public class ObservableTest {
         Term property3 = TermFactory.instance().findPropertyTerm("property_3");
         Term property4 = TermFactory.instance().findPropertyTerm("property_4");
         Term property5 = TermFactory.instance().findPropertyTerm("property_5");
-        Observable observable = new Observable("test_1");
+        Observable<String> observable = Observable.string("test_1");
         observable.setProperty(property1, true);
         observable.setProperty(property2, 1.0);
         observable.setProperty(property3, 11);
@@ -70,7 +72,7 @@ public class ObservableTest {
 
     @Test
     public void testToJson5() throws Exception {
-        Observable observable = new Observable("test_5");
+        Observable<Integer> observable = Observable.integer("test_5");
         observable.setType(Integer.class);
         ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
@@ -80,7 +82,7 @@ public class ObservableTest {
 
     @Test
     public void testToJson6() throws Exception {
-        Observable observable = new Observable("test_6");
+        Observable<String> observable = Observable.string("test_6");
         observable.setMultiplicity(Observable.Multiplicity.REQUIRED);
         ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
@@ -90,12 +92,26 @@ public class ObservableTest {
 
     @Test
     public void testToJson7() throws Exception {
-        Observable observable = new Observable("test_7");
+        Observable<String> observable = Observable.string("test_7");
         observable.setMultiplicity(Observable.Multiplicity.MANY);
         ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, observable);
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "observable-7.json"), writer.toString());
+    }
+
+    @Test
+    public void testToJson8() throws Exception {
+        Term property1 = TermFactory.instance().findPropertyTerm("property_1");
+        Term property2 = TermFactory.instance().findPropertyTerm("property_2");
+        Observable<String> observable = Observable.string("test_1");
+        observable.setProperty(property1, true);
+        observable.setProperty(property2, 1.0);
+        observable.setProperty(property2, 2.0);
+        ObjectMapper mapper = JsonUtils.createMapper();
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, observable);
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "observable-8.json"), writer.toString());
     }
 
     @Test
@@ -168,23 +184,43 @@ public class ObservableTest {
         assertEquals(Observable.Multiplicity.MANY, observable.getMultiplicity());
     }
 
+
+    @Test
+    public void testFromJson8() throws Exception {
+        Term property1 = TermFactory.instance().findPropertyTerm("property_1");
+        Term property2 = TermFactory.instance().findPropertyTerm("property_2");
+        Term property3 = TermFactory.instance().findPropertyTerm("property_3");
+        Term property4 = TermFactory.instance().findPropertyTerm("property_4");
+        Term property5 = TermFactory.instance().findPropertyTerm("property_5");
+        ObjectMapper mapper = JsonUtils.createMapper();
+        Observable observable = mapper.readValue(TestUtils.getResource(this.getClass(), "observable-8.json"), Observable.class);
+        assertEquals("test_1", observable.getId());
+        assertTrue(observable.hasProperty(property1, true));
+        assertFalse(observable.hasProperty(property1, false));
+        assertTrue(observable.hasProperty(property2, 1.0));
+        assertTrue(observable.hasProperty(property2, 2.0));
+        assertEquals(new HashSet(Arrays.asList(1.0, 2.0)), observable.getProperties(property2, null));
+        assertEquals(Collections.emptySet(), observable.getProperties(property3, null));
+        assertEquals(Collections.singleton("Hello"), observable.getProperties(property3, "Hello"));
+    }
+
     @Test
     public void testGetTerm1() {
-        Observable observable = new Observable("scientificName");
+        Observable<String> observable = Observable.string("scientificName");
         Term term = observable.getTerm();
         assertEquals(DwcTerm.scientificName, term);
     }
 
     @Test
     public void testGetTerm2() {
-        Observable observable = new Observable("variety");
+        Observable<String> observable = Observable.string("variety");
         Term term = observable.getTerm();
         assertEquals("http://unknown.org/variety", term.qualifiedName());
     }
 
     @Test
     public void testGetTerm3() {
-        Observable observable = new Observable("variety");
+        Observable<String> observable = Observable.string("variety");
         observable.setUri(URI.create("http://ala.org.au/terms/nameComplete"));
         Term term = observable.getTerm();
         assertEquals("http://ala.org.au/terms/nameComplete", term.qualifiedName());
@@ -192,13 +228,13 @@ public class ObservableTest {
 
     @Test
     public void testGetExternal1() throws Exception {
-        Observable observable = new Observable("vertex1");
+        Observable<String> observable = Observable.string("vertex1");
         assertEquals("vertex1", observable.getExternal(ExternalContext.LUCENE));
     }
 
     @Test
     public void testGetExternal2() throws Exception {
-        Observable observable = new Observable("vertex1");
+        Observable<String> observable = Observable.string("vertex1");
         observable.setExternal(ExternalContext.LUCENE, "v_1");
         assertEquals("v_1", observable.getExternal(ExternalContext.LUCENE));
     }
@@ -206,7 +242,7 @@ public class ObservableTest {
     @Test
     public void testGetProperty1() throws Exception {
         Term property1 = TermFactory.instance().findPropertyTerm("property_1");
-        Observable observable = new Observable("vertex1");
+        Observable<String> observable = Observable.string("vertex1");
         observable.setProperty(property1, 45);
         assertEquals(45, (int) observable.getProperty(property1));
     }

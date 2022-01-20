@@ -3,11 +3,13 @@ package au.org.ala.bayesian.modifier;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.NetworkCompiler;
 import au.org.ala.bayesian.Observable;
-import au.org.ala.names.builder.BuilderException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml.xsd"
+        packageId=""  system="http://gbif.org" scope="system"
+  xml:lang="en">
+
+<dataset>
+        <alternateIdentifier>ALA-Combined</alternateIdentifier>
+    <title>ALA Combined Taxonomy</title>
+    <creator>
+<organizationName>Atlas of Living Australia</organizationName><electronicMailAddress>data_management@ala.org.au</electronicMailAddress>    </creator>
+    <associatedParty>
+<organizationName>Atlas of Living Australia</organizationName><electronicMailAddress>data_management@ala.org.au</electronicMailAddress>    <role>PROCESSOR</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Atlas of Living Australia</organizationName><electronicMailAddress>data_management@ala.org.au</electronicMailAddress>    <role>PROCESSOR</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Department of Environment &amp; Primary Industries</organizationName><onlineUrl>http://lists.ala.org.au/speciesListItem/list/dr1782</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Australian Biological Resources Study</organizationName><onlineUrl>https://lichen.biodiversity.org.au/nsl/services/search/taxonomy</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Australian Biological Resources Study</organizationName><onlineUrl>http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Royal Botanic Gardens Victoria</organizationName><onlineUrl>https://www.rbg.vic.gov.au/science/projects/taxonomy/atlas-of-living-australia-national-species-lists-project</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Landcare Research</organizationName><onlineUrl>http://www.nzor.org.nz/</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Atlas of Living Australia</organizationName><onlineUrl>https://lists.ala.org.au/speciesListItem/list/dr7933?max=10</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Royal Botanic Gardens Victoria</organizationName><onlineUrl>https://moss.biodiversity.org.au/nsl/services/</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>The Catalogue of Life</organizationName><onlineUrl>http://www.catalogueoflife.org/</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Australian Biological Resources Study</organizationName><onlineUrl>http://www.anbg.gov.au/chah/apc/index.html</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Australian Biological Resources Study</organizationName><onlineUrl>http://www.anbg.gov.au/apni/</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Department of Environment &amp; Primary Industries</organizationName><onlineUrl>http://lists.ala.org.au/speciesListItem/list/dr967</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Birds Australia</organizationName><onlineUrl>http://lists.ala.org.au/speciesListItem/list/dr487?max=15</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>The Atlas of Living Australia</organizationName><electronicMailAddress>info@ala.org.au</electronicMailAddress><onlineUrl>https://ala.org.au</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Senior knowledge holders from the Gamilaraay, Yuwaalaraay &amp; Yuwaalayaay languages</organizationName><onlineUrl>https://lists.ala.org.au/speciesListItem/list/dr13266?max=10</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+    <associatedParty>
+<organizationName>Commonwealth Scientific and Industrial Research Organisation</organizationName><onlineUrl>https://www.marine.csiro.au/data/caab/</onlineUrl>    <role>CONTENT_PROVIDER</role>
+    </associatedParty>
+      <pubDate>
+      2022-01-13
+      </pubDate>
+    <language>en</language>
+    <abstract>
+        <para>Resolved taxonomy built from AusFungi, AusMoss, AFD, APNI/APC, NZOR, CAAB, Catalogue of Life and ALA species lists</para>
+    </abstract>
+      <additionalInfo>
+          <para>Created by combining source taxonomies using the ala-name-matching algorithms. See https://github.com/AtlasOfLivingAustralia/ala-name-matching for more information.</para>
+      </additionalInfo>
+
+</dataset>
+
+<additionalMetadata>
+    <metadata>
+      <gbif>
+        <dateStamp>2022-01-13T05:31:50Z</dateStamp>
+      <citation identifier="ALA-Combined">ALA Combined Taxonomy</citation>
+              <bibliography>
+      <citation identifier="DR2201-20150511-20211230">Western Australia ; Conservation status, The Atlas of Living Australia, 2015-05-11</citation>
+      <citation identifier="DR494-20150511-20211230">Birds Australia Sensitive Species List, The Atlas of Living Australia, 2015-05-11</citation>
+      <citation identifier="DR652-20210310-20211230">Queensland : Conservation Status, The Atlas of Living Australia, 2021-03-10</citation>
+      <citation identifier="DR467-20171106-20211230">Western Australia : Conservation Status / Sensitive Species Lists, The Atlas of Living Australia, 2017-11-06</citation>
+      <citation identifier="DR655-20150511-20211230">Victoria : Conservation Status, The Atlas of Living Australia, 2015-05-11</citation>
+      <citation identifier="DR493-20210304-20211230">Queensland Sensitive Species List, The Atlas of Living Australia, 2021-03-04</citation>
+      <citation identifier="APC-20160620-20211230">Australian Plant Census
+IBIS database,
+Centre for Australian National Biodiversity Research,
+Council of Heads of Australasian Herbaria,
+viewed [date], The Atlas of Living Australia, 2016-06-20</citation>
+      <citation identifier="DR492-20171009-20211230">Northern Territory Sensitive Species List, The Atlas of Living Australia, 2017-10-09</citation>
+      <citation identifier="DR654-20150511-20211230">Tasmania : Conservation Status, The Atlas of Living Australia, 2015-05-11</citation>
+      <citation identifier="DR653-20150511-20211230">South Australia : Conservation Status, The Atlas of Living Australia, 2015-05-11</citation>
+      <citation identifier="DR884-20180711-20211230">South Australian Sensitive Species, The Atlas of Living Australia, 2018-07-11</citation>
+      <citation identifier="DR649-20150511-20211230">Australian Capital Territory : Conservation Status Codes, The Atlas of Living Australia, 2015-05-11</citation>
+      <citation identifier="DR487-20160107-20211230">New South Wales Sensitive Species List, Birds Australia, The Atlas of Living Australia, 2016-01-07</citation>
+      <citation identifier="APNI-20181022-20211230">Australian Plant Name Index,
+IBIS database,
+Centre for Australian National Biodiversity Research,
+Australian Government, Canberra,
+Viewed &lt;date&gt;, The Atlas of Living Australia, 2018-10-22</citation>
+      <citation identifier="DR1782-20150511-20211230">Advisory List of Rare or Threatened Plants in Victoria 2014, Department of Environment &amp; Primary Industries, The Atlas of Living Australia, 2015-05-11</citation>
+      <citation identifier="DR2285-20150511-20211230">New Zealand Sensitive Species List for Vascular Plants, The Atlas of Living Australia, 2015-05-11</citation>
+      <citation identifier="DR7933-20200218-20211230">ALA Additional Taxa, Atlas of Living Australia, The Atlas of Living Australia, 2020-02-18</citation>
+      <citation identifier="ABRSL-20210719-20211230">ABRS Lichen Checklist, Australian Biological Resources Study, The Atlas of Living Australia, 2021-07-19</citation>
+      <citation identifier="DR967-20150511-20211230">Advisory List of Threatened Vertebrate Fauna in Victoria 2013, Department of Environment &amp; Primary Industries, The Atlas of Living Australia, 2015-05-11</citation>
+      <citation identifier="AFD-20160127-20211230">Australian Faunal Directory, Australian Biological Resources Study, The Atlas of Living Australia, 2016-01-27</citation>
+      <citation identifier="DR2702-20180809-20211230">AusFungi, Royal Botanic Gardens Victoria, The Atlas of Living Australia, 2018-08-09</citation>
+      <citation identifier="DR13266-20211007-20211230">(Ash A, Giacon J, Lissarrague A (2003) Gamilaraay, Yuwaalaraay &amp; Yuwaalayaay dictionary. IAD Press; Duncan B, White H (2015) Speaking our Way: A collection of Aboriginal languages of the Northern Tablelands of NSW. Northern Tablelands Local Land Services, Inverell, NSW; McKemey MB, White H (2011) Bush Tucker, Boomerangs and Bandages. Traditional Aboriginal Plant Use in the Border Rivers and Gwydir Catchments. Border Rivers-Gwydir Catchment Management Authority, New South Wales, Australia; Giacon, John &amp; Betts, Marianne, 1953- &amp; Walgett High School. Yuwaalaraay - Gamilaraay Language Program (1999). Yaama maliyaa, Yuwaalaraay - Gamilaraay: an aboriginal languages textbook. Walgett High School, Yuwaalaraay Gamilaraay Program, Walgett, N.S.W), The Atlas of Living Australia, 2021-10-07</citation>
+      <citation identifier="DR656-20190705-20211230">Australia wide : Conservation Status : EPBC, The Atlas of Living Australia, 2019-07-05</citation>
+      <citation identifier="DR651-20170126-20211230">Northern Territory : Conservation Status, The Atlas of Living Australia, 2017-01-26</citation>
+      <citation identifier="DR650-20210726-20211230">Seek advice from the contact nominated on the right hand side of this page regarding citation conditions associated with the use of this data., The Atlas of Living Australia, 2021-07-26</citation>
+      <citation identifier="NZOR-20180913-20211230">New Zealand Organism Register, Landcare Research, The Atlas of Living Australia, 2018-09-13</citation>
+      <citation identifier="DR2703-20181022-20211230">AusMoss, Royal Botanic Gardens Victoria, The Atlas of Living Australia, 2018-10-22</citation>
+      <citation identifier="DR2627-20160107-20211230">ACT Sensitive Species List, The Atlas of Living Australia, 2016-01-07</citation>
+      <citation identifier="ALA-20211230">The Atlas of Living Australia, The Atlas of Living Australia, The Atlas of Living Australia</citation>
+      <citation identifier="DR17880-20211118-20211230">Noongar Boodjar Language Centre 2021, Noongar-Wudjari Names for Animals and Plants, The Atlas of Living Australia, 2021-11-18</citation>
+      <citation identifier="CAAB-20210829-20211230">Codes for Australian Aquatic Biota, Commonwealth Scientific and Industrial Research Organisation, The Atlas of Living Australia, 2021-08-29</citation>
+      <citation identifier="CoL-20160129-20211230">Catalogue of Life, The Catalogue of Life, The Atlas of Living Australia, 2016-01-29</citation>
+      <citation identifier="DR17886-20211111-20211230">SE Arnhem Land Plants and Animals, The Atlas of Living Australia, 2021-11-11</citation>
+      <citation identifier="dr653">South Australia : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr17664">ABRSL, Commonwealth Scientific and Industrial Research Organisation</citation>
+      <citation identifier="dr656">Australia wide : Conservation Status : EPBC, Atlas of Living Australia</citation>
+      <citation identifier="dr5214">APC, Centre for Australian National Biodiversity Research</citation>
+      <citation identifier="dr2700">APNI, Centre for Australian National Biodiversity Research</citation>
+      <citation identifier="dr487">New South Wales Sensitive Species List, Atlas of Living Australia</citation>
+      <citation identifier="dr467">Western Australia : Conservation Status / Sensitive Species Lists, Atlas of Living Australia</citation>
+      <citation identifier="dr2703">AusMoss, Royal Botanic Gardens Victoria</citation>
+      <citation identifier="dr652">Queensland : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr2704">CAAB, Commonwealth Scientific and Industrial Research Organisation</citation>
+      <citation identifier="dr2627">ACT Sensitive Species List, Atlas of Living Australia</citation>
+      <citation identifier="dr2702">AusFungi, Royal Botanic Gardens Victoria</citation>
+      <citation identifier="dr649">Australian Capital Territory : Conservation Status Codes, Atlas of Living Australia</citation>
+      <citation identifier="dr2707">NZOR, New Zealand Organism Register</citation>
+      <citation identifier="dr494">Birds Australia Sensitive Species List, Atlas of Living Australia</citation>
+      <citation identifier="dr2705">CoL, Catalogue of Life</citation>
+      <citation identifier="dr655">Victoria : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr13558">ALA Inferences, Atlas of Living Australia</citation>
+      <citation identifier="dr1782">Advisory List of Rare or Threatened Plants in Victoria 2014, Atlas of Living Australia</citation>
+      <citation identifier="dr652">Queensland : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr651">Northern Territory : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr654">Tasmania : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr654">Tasmania : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr653">South Australia : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr494">Birds Australia Sensitive Species List, Atlas of Living Australia</citation>
+      <citation identifier="dr493">Queensland Sensitive Species List, Atlas of Living Australia</citation>
+      <citation identifier="dr650">New South Wales : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr467">Western Australia : Conservation Status / Sensitive Species Lists, Atlas of Living Australia</citation>
+      <citation identifier="dr656">Australia wide : Conservation Status : EPBC, Atlas of Living Australia</citation>
+      <citation identifier="dr655">Victoria : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr493">Queensland Sensitive Species List, Atlas of Living Australia</citation>
+      <citation identifier="dr1782">Advisory List of Rare or Threatened Plants in Victoria 2014, Atlas of Living Australia</citation>
+      <citation identifier="dr5393">ALA, Atlas of Living Australia</citation>
+      <citation identifier="dr2285">New Zealand Sensitive Species List for Vascular Plants, Atlas of Living Australia</citation>
+      <citation identifier="dr492">Northern Territory Sensitive Species List, Atlas of Living Australia</citation>
+      <citation identifier="dr2201">Western Australia ; Conservation status, Atlas of Living Australia</citation>
+      <citation identifier="dr2285">New Zealand Sensitive Species List for Vascular Plants, Atlas of Living Australia</citation>
+      <citation identifier="dr487">New South Wales Sensitive Species List, Atlas of Living Australia</citation>
+      <citation identifier="dr884">South Australian Sensitive Species, Atlas of Living Australia</citation>
+      <citation identifier="dr884">South Australian Sensitive Species, Atlas of Living Australia</citation>
+      <citation identifier="dr7933">ALA, Atlas of Living Australia</citation>
+      <citation identifier="dr651">Northern Territory : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr649">Australian Capital Territory : Conservation Status Codes, Atlas of Living Australia</citation>
+      <citation identifier="dr650">New South Wales : Conservation Status, Atlas of Living Australia</citation>
+      <citation identifier="dr967">Advisory List of Threatened Vertebrate Fauna in Victoria 2013, Atlas of Living Australia</citation>
+      <citation identifier="dr492">Northern Territory Sensitive Species List, Atlas of Living Australia</citation>
+      <citation identifier="dr967">Advisory List of Threatened Vertebrate Fauna in Victoria 2013, Atlas of Living Australia</citation>
+      <citation identifier="apni-apc">APNI/APC, Centre for Australian National Biodiversity Research</citation>
+      <citation identifier="dr2699">AFD, Australian Biological Resources Study</citation>
+      <citation identifier="dr2201">Western Australia ; Conservation status, Atlas of Living Australia</citation>
+      <citation identifier="dr2627">ACT Sensitive Species List, Atlas of Living Australia</citation>
+              </bibliography>
+        </gbif>
+    </metadata>
+</additionalMetadata>
+
+</eml:eml>

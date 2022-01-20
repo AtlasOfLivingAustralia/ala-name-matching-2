@@ -19,7 +19,7 @@ public enum VernacularStatus implements Term, AlternativeNames {
     local(100, false),
     deprecated(-1, true);
 
-    private static final String PREFIX = "ts";
+    private static final String PREFIX = "vs";
     private static final String NS = "http://ala.org.au/vocabulary/1.0/vernacularStatus/";
     private static final URI NS_URI = URI.create(NS);
     /** Priority boost for preferred versions of names with this status */

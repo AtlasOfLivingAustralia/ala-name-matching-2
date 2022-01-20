@@ -1,7 +1,6 @@
 package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
-import au.org.ala.names.builder.Annotator;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -28,8 +27,6 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
     protected final Network network;
     /** The type of term this analyses */
     private final Term type;
-    /** The annotator for this analyser  */
-    protected final Annotator annotator;
     /** The index */
     private final IndexSearcher searcher;
     /** The weight cache */
@@ -37,7 +34,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
     /** The query cache */
     private final Cache<Query, Double>  queryCache;
     /** The weight observable */
-    private final Observable weight;
+    private final Observable<Double> weight;
     /** The default weight */
     private final double defaultWeight;
     /** The query builder */
@@ -51,17 +48,15 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      * Create for an index.
      *
      * @param network The network model
-     * @param annotator The annotator to use
      * @param searcher The index searcher for queries
      * @param weight The weight observable
      * @param defaultWeight The weight to use when a value is unavailable
      *
      * @throws BayesianException if unable to build the analyser
      */
-    public LuceneParameterAnalyser(Network network, Annotator annotator, IndexSearcher searcher, Observable weight, double defaultWeight) throws BayesianException {
+    public LuceneParameterAnalyser(Network network, IndexSearcher searcher, Observable weight, double defaultWeight) throws BayesianException {
         this.network = network;
         this.type = TermFactory.instance().findTerm(network.getConcept().toASCIIString());
-        this.annotator = annotator;
         this.searcher = searcher;
         this.weightCache = new ConcurrentHashMap<>();
         // this.queryCache = null;

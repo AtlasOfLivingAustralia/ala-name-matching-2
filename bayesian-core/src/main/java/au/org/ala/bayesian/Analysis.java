@@ -139,6 +139,8 @@ abstract public class Analysis<C, S, Q> {
      * @param <C> The type of object this analyses
      */
     public static <C, S, Q> Analysis<C, S, Q> defaultAnalyser(Class<C> clazz) throws IllegalArgumentException {
+        if (clazz == null)
+            return (Analysis<C, S, Q>) new StringAnalysis();
         if (clazz == LocalDateAnalysis.class)
             return (Analysis<C, S, Q>) new LocalDateAnalysis();
         if (clazz == Double.class)

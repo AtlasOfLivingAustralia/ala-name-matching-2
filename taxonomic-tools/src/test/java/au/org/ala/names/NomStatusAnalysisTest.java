@@ -1,10 +1,8 @@
 package au.org.ala.names;
 
-import static org.gbif.api.vocabulary.NomenclaturalStatus.*;
-
-import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.junit.Test;
 
+import static org.gbif.api.vocabulary.NomenclaturalStatus.*;
 import static org.junit.Assert.*;
 
 

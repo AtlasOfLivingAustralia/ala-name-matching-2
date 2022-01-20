@@ -25,7 +25,7 @@ public interface Classifier {
      *
      * @param observable The observable
      */
-    public <T> T get(Observable observable);
+    public <T> T get(Observable<T> observable);
 
     /**
      * Get all the possible values, including variants, for some observables.
@@ -38,16 +38,25 @@ public interface Classifier {
      *
      * @return The a set of all present values
      */
-    public <T> LinkedHashSet<T> getAll(Observable... observables);
+    public <T> LinkedHashSet<T> getAll(Observable<T>... observables);
 
     /**
-     * Does this classifier contain any information about this observable?
+     * Does this classifier contain any (non-variant) information about this observable?
      *
      * @param observable The observable to test
      *
-     * @return True if there are values in the classifier
+     * @return True if there are (not variant only) values in the classifier
      */
     public boolean has(Observable observable);
+
+    /**
+     * Does this classifier contain any (variant or non-variant) information about this observable?
+     *
+     * @param observable The observable to test
+     *
+     * @return True if there are (not variant only) values in the classifier
+     */
+    public boolean hasAny(Observable observable);
 
     /**
      * Does this classifier have a matching term for an observable?
@@ -66,11 +75,11 @@ public interface Classifier {
      *
      * @throws StoreException if there was a problem retrieving a value from the classifier or matching the result
      */
-    public <T> Boolean match(T value, Observable... observables) throws StoreException;
+    public <T> Boolean match(T value, Observable<T>... observables) throws StoreException;
 
 
     /**
-     * Match definitavly.
+     * Match definitively.
      * <p>
      * Exceptions and null results are treated as false.
      * </p>
@@ -82,7 +91,7 @@ public interface Classifier {
      *
      * @see #match(Object, Observable...)
      */
-    public default <T> boolean matchClean(T value, Observable... observables) {
+    public default <T> boolean matchClean(T value, Observable<T>... observables) {
         try {
             Boolean match = this.match(value, observables);
             if (match == null)
@@ -109,16 +118,19 @@ public interface Classifier {
      *
      * @param observable The observable to store
      * @param value The value to store
+     * @param variant Load this value as a variant only
      *
      * @throws StoreException if the value is already present or unable to add this variable to the classifier
      */
-    public <T> void add(Observable observable, T value) throws StoreException;
+    public <T> void add(Observable<T> observable, T value, boolean variant) throws StoreException;
 
     /**
      * Copy all values from another classifier
      * <p>
      * Parsing and normalisation has assumed to have already taken place.
      * Values should not be added twice.
+     * Things which are variants should stay as variants; only explicitly non-varant values should be
+     * added as non-variants.
      * </p>
      *
      * @param observable The observable for the values
@@ -126,20 +138,19 @@ public interface Classifier {
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    public void addAll(Observable observable, Classifier classifier) throws StoreException;
+    public <T> void addAll(Observable<T> observable, Classifier classifier) throws StoreException;
 
     /**
-     * Set a value in the classifier.
+     * Clear any values in the classifier
      * <p>
-     * Replaces any existing values
+     * Removes any existing values from the classifier
      * </p>
      *
-     * @param observable The observable to store
-     * @param value The value to store
+     * @param observable The observable to remove
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    public <T> void replace(Observable observable, T value) throws StoreException;
+    public void clear(Observable observable) throws StoreException;
 
     /**
      * Get the identifier for a classifier.

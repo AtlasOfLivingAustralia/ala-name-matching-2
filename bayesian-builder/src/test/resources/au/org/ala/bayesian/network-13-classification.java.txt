@@ -25,7 +25,6 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.analysis.EnumAnalysis;
 
 public class Network13Classification implements Classification<Network13Classification> {
-  private Analyser<Network13Classification> analyser;
   private Issues issues;
   private Hints<Network13Classification> hints;
 
@@ -85,20 +84,14 @@ public class Network13Classification implements Classification<Network13Classifi
   public java.lang.String v2;
   public java.lang.String v3;
 
-  public Network13Classification(Analyser<Network13Classification> analyser) {
-    this.analyser = Network13Factory.instance().createAnalyser();
+  public Network13Classification() {
     this.issues = new Issues();
     this.hints = new Hints<>();
   }
 
-  public Network13Classification() {
-    this(Network13Factory.instance().createAnalyser());
-  }
-
-  public Network13Classification(Classifier classifier, Analyser<Network13Classification> analyser) throws BayesianException {
-    this(analyser);
+  public Network13Classification(Classifier classifier) throws BayesianException {
+    this();
     this.read(classifier, true);
-    this.inferForIndex();
   }
 
   @Override
@@ -132,11 +125,6 @@ public class Network13Classification implements Classification<Network13Classifi
   @Override
   public Term getType() {
     return Network13Factory.CONCEPT;
-  }
-
-  @Override
-  public Analyser<Network13Classification> getAnalyser() {
-    return this.analyser;
   }
 
   @Override
@@ -179,22 +167,12 @@ public class Network13Classification implements Classification<Network13Classifi
   }
 
   @Override
-  public void inferForIndex() throws BayesianException {
+  public void inferForSearch(Analyser<Network13Classification> analyser) throws BayesianException {
     this.v1 = Network13Factory.v1.analyse(this.v1);
     this.v2 = Network13Factory.v2.analyse(this.v2);
     this.v3 = Network13Factory.v3.analyse(this.v3);
-    this.analyser.analyseForIndex(this);
+    analyser.analyseForSearch(this);
   }
-
-
-  @Override
-  public void inferForSearch() throws BayesianException {
-    this.v1 = Network13Factory.v1.analyse(this.v1);
-    this.v2 = Network13Factory.v2.analyse(this.v2);
-    this.v3 = Network13Factory.v3.analyse(this.v3);
-        this.analyser.analyseForSearch(this);
-  }
-
 
   @Override
   public List<List<Function<Network13Classification, Network13Classification>>> searchModificationOrder() {
@@ -248,14 +226,13 @@ public class Network13Classification implements Classification<Network13Classifi
   @Override
   public void write(Classifier classifier, boolean overwrite) throws BayesianException {
     if(overwrite){
-      classifier.replace(Network13Factory.v1,this.v1);
-      classifier.replace(Network13Factory.v2,this.v2);
-      classifier.replace(Network13Factory.v3,this.v3);
-    } else {
-      classifier.add(Network13Factory.v1,this.v1);
-      classifier.add(Network13Factory.v2,this.v2);
-      classifier.add(Network13Factory.v3,this.v3);
+      classifier.clear(Network13Factory.v1);
+      classifier.clear(Network13Factory.v2);
+      classifier.clear(Network13Factory.v3);
     }
+    classifier.add(Network13Factory.v1, this.v1, false);
+    classifier.add(Network13Factory.v2, this.v2, false);
+    classifier.add(Network13Factory.v3, this.v3, false);
   }
 
 

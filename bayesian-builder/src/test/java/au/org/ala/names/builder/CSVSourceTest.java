@@ -21,15 +21,13 @@ import static org.junit.Assert.*;
 public class CSVSourceTest {
     private Network network;
     private SimpleLinnaeanFactory factory;
-    private Annotator annotator;
     private TestLoadStore store;
 
     @Before
     public void setUp() throws Exception {
         this.network = new Network();
         this.factory = SimpleLinnaeanFactory.instance();
-        this.annotator = new TestAnnotator();
-        this.store = new TestLoadStore(this.annotator);
+        this.store = new TestLoadStore("test");
     }
 
     @After

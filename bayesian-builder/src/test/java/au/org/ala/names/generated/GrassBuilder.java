@@ -1,20 +1,13 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.BayesianException;
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.ParameterAnalyser;
-import au.org.ala.bayesian.Parameters;
+import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.Builder;
 
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-import au.org.ala.bayesian.analysis.StringAnalysis;
-
-public class GrassBuilder implements Builder {
+public class GrassBuilder implements Builder<GrassClassification> {
   // Assumed to be stateless
   private static final Builder[] BUILDERS = new Builder[] {
     new GrassBuilder_()
@@ -34,20 +27,20 @@ public class GrassBuilder implements Builder {
     return null;
   }
 
-
   @Override
-  public void generate(Classifier classifier) throws BayesianException {
-        Object d;
+  public void generate(Classifier classifier, Analyser<GrassClassification> analyser) throws BayesianException {
   }
 
   @Override
-  public void infer(Classifier classifier) throws BayesianException {
-    Object d;
+  public void interpret(Classifier classifier, Analyser<GrassClassification> analyser) throws BayesianException {
   }
 
   @Override
-    public void expand(Classifier classifier, Deque<Classifier> parents) throws BayesianException {
-      Object d;
+  public void infer(Classifier classifier, Analyser<GrassClassification> analyser) throws BayesianException {
+  }
+
+  @Override
+  public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<GrassClassification> analyser) throws BayesianException {
   }
 
   @Override

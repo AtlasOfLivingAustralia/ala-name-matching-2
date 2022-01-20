@@ -16,14 +16,14 @@ public class TestClassification implements Classification<TestClassification> {
     public static final Term RANK_RANGE_TERM = TermFactory.instance().findTerm("rankRange");
     public static final Term TEST_ENUM_TERM = TermFactory.instance().findTerm("testEnum");
     public static final Normaliser NORMALISER = new BasicNormaliser("basic", true, true, true, true, false);
-    public static final Observable TAXON_ID = new Observable(DwcTerm.taxonID);
-    public static final Observable CLASS_ = new Observable(DwcTerm.class_);
-    public static final Observable SCIENTIFIC_NAME = new Observable(DwcTerm.scientificName);
-    public static final Observable VERNACULAR_NAME = new Observable(DwcTerm.vernacularName);
-    public static final Observable RANK_ID = new Observable(RANK_ID_TERM);
-    public static final Observable RANK_RANGE = new Observable(RANK_RANGE_TERM);
-    public static final Observable TEST_ENUM = new Observable(TEST_ENUM_TERM);
-    public static final List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
+    public static final Observable<String> TAXON_ID = Observable.string(DwcTerm.taxonID);
+    public static final Observable<String> CLASS_ = Observable.string(DwcTerm.class_);
+    public static final Observable<String> SCIENTIFIC_NAME = Observable.string(DwcTerm.scientificName);
+    public static final Observable<String> VERNACULAR_NAME = Observable.string(DwcTerm.vernacularName);
+    public static final Observable<Integer> RANK_ID = Observable.integer(RANK_ID_TERM);
+    public static final Observable<Integer> RANK_RANGE = Observable.integer(RANK_RANGE_TERM);
+    public static final Observable<TestEnum> TEST_ENUM = Observable.enumerated(TestEnum.class, TEST_ENUM_TERM);
+    public static final List<Observable<?>> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
             TAXON_ID,
             CLASS_,
             SCIENTIFIC_NAME,
@@ -138,11 +138,7 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public void inferForSearch() {
-    }
-
-    @Override
-    public void inferForIndex() {
+    public void inferForSearch(Analyser<TestClassification> analyser) {
     }
 
     /**
@@ -214,21 +210,20 @@ public class TestClassification implements Classification<TestClassification> {
     @Override
     public void write(Classifier classifier, boolean overwrite) throws BayesianException {
         if (overwrite) {
-            classifier.replace(TAXON_ID, this.taxonID);
-            classifier.replace(CLASS_, this.class_);
-            classifier.replace(SCIENTIFIC_NAME, this.scientificName);
-            classifier.replace(VERNACULAR_NAME, this.vernacularName);
-            classifier.replace(RANK_ID, this.rankID);
-            classifier.replace(RANK_RANGE, this.rankRange);
-            classifier.replace(TEST_ENUM, this.testEnum);
-        } else {
-            classifier.add(TAXON_ID, this.taxonID);
-            classifier.add(CLASS_, this.class_);
-            classifier.add(SCIENTIFIC_NAME, this.scientificName);
-            classifier.add(VERNACULAR_NAME, this.vernacularName);
-            classifier.add(RANK_ID, this.rankID);
-            classifier.add(RANK_RANGE, this.rankRange);
-            classifier.add(TEST_ENUM, this.testEnum);
+            classifier.clear(TAXON_ID);
+            classifier.clear(CLASS_);
+            classifier.clear(SCIENTIFIC_NAME);
+            classifier.clear(VERNACULAR_NAME);
+            classifier.clear(RANK_ID);
+            classifier.clear(RANK_RANGE);
+            classifier.clear(TEST_ENUM);
         }
+        classifier.add(TAXON_ID, this.taxonID, false);
+        classifier.add(CLASS_, this.class_, false);
+        classifier.add(SCIENTIFIC_NAME, this.scientificName, false);
+        classifier.add(VERNACULAR_NAME, this.vernacularName, false);
+        classifier.add(RANK_ID, this.rankID, false);
+        classifier.add(RANK_RANGE, this.rankRange, false);
+        classifier.add(TEST_ENUM, this.testEnum, false);
     }
 }
