@@ -221,26 +221,26 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             return;
         if (name.isPhraseName()) {
             if (!classifier.has(AlaLinnaeanFactory.nominatingParty) && name.getNominatingParty() != null) {
-                this.set(classifier, AlaLinnaeanFactory.nominatingParty, name.getNominatingParty());
+                classifier.add(AlaLinnaeanFactory.nominatingParty, name.getNominatingParty(), false, true);
             }
             if (!classifier.has(AlaLinnaeanFactory.voucher) && name.getVoucher() != null) {
-                this.set(classifier, AlaLinnaeanFactory.voucher, AlaLinnaeanFactory.voucher.getAnalysis().analyse(name.getVoucher()));
+                classifier.add(AlaLinnaeanFactory.voucher, AlaLinnaeanFactory.voucher.getAnalysis().analyse(name.getVoucher()), false, true);
             }
             if (!classifier.has(AlaLinnaeanFactory.phraseName) && name.getStrain() != null) {
-                this.set(classifier, AlaLinnaeanFactory.phraseName, AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getStrain()));
+                classifier.add(AlaLinnaeanFactory.phraseName, AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getStrain()), false, true);
             }
         }
         if (name.getType() == NameType.SCIENTIFIC || name.getType() == NameType.INFORMAL || name.getType() == NameType.PLACEHOLDER) {
             // Only do this for non-synonyms to avoid dangling speciesID
             if (!classifier.has(AlaLinnaeanFactory.acceptedNameUsageId) && !classifier.has(AlaLinnaeanFactory.specificEpithet)  && name.getSpecificEpithet() != null && !analysis.isUncertain()) {
-                this.set(classifier, AlaLinnaeanFactory.specificEpithet, name.getSpecificEpithet());
+                classifier.add(AlaLinnaeanFactory.specificEpithet, name.getSpecificEpithet(), false, true);
             }
         }
         if (!classifier.has(AlaLinnaeanFactory.acceptedNameUsageId) && !classifier.has(AlaLinnaeanFactory.genus)  && !analysis.isUnranked() && !analysis.getRank().higherThan(Rank.GENUS) && name.getGenus() != null) {
-            this.set(classifier, AlaLinnaeanFactory.genus, name.getGenus());
+            classifier.add(AlaLinnaeanFactory.genus, name.getGenus(), false, true);
         }
         if (!classifier.has(AlaLinnaeanFactory.cultivarEpithet) && name.getCultivarEpithet() != null) {
-            this.set(classifier, AlaLinnaeanFactory.cultivarEpithet, name.getCultivarEpithet());
+            classifier.add(AlaLinnaeanFactory.cultivarEpithet, name.getCultivarEpithet(), false, true);
         }
     }
 
@@ -269,7 +269,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         Matcher numericPlaceholder = NUMERIC_PLACEHOLDER.matcher(analysis.getScientificName());
         if (numericPlaceholder.matches()) {
             if (!classifier.has(AlaLinnaeanFactory.genus))
-                this.set(classifier, AlaLinnaeanFactory.genus, numericPlaceholder.group(1));
+                classifier.add(AlaLinnaeanFactory.genus, numericPlaceholder.group(1), false, true);
             analysis.setNameType(NameType.PLACEHOLDER);
         }
     }
@@ -304,18 +304,18 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         this.processParsedScientificName(analysis, CANONICAL_ISSUES);
         this.fillOutClassifier(analysis, classifier);
         this.detectNumericPlaceholder(analysis, classifier);
-        this.set(classifier, AlaLinnaeanFactory.scientificName, analysis.getScientificName());
-        this.set(classifier, AlaLinnaeanFactory.scientificNameAuthorship, analysis.getScientificNameAuthorship());
-        this.set(classifier, AlaLinnaeanFactory.taxonRank, analysis.isUnranked() ? null : analysis.getRank());
-        this.set(classifier, AlaLinnaeanFactory.nameType, analysis.getNameType());
-        this.set(classifier, AlaLinnaeanFactory.kingdom, analysis.getKingdom());
+        classifier.add(AlaLinnaeanFactory.scientificName, analysis.getScientificName(), false, true);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, analysis.getScientificNameAuthorship(), false, true);
+        classifier.add(AlaLinnaeanFactory.taxonRank, analysis.isUnranked() ? null : analysis.getRank(), false, true);
+        classifier.add(AlaLinnaeanFactory.nameType, analysis.getNameType(), false, true);
+        classifier.add(AlaLinnaeanFactory.kingdom, analysis.getKingdom(), false, true);
         if (classifier.has(AlaLinnaeanFactory.cultivarEpithet) && classifier.has(AlaLinnaeanFactory.specificEpithet)) {
             // Check case where cultivar epithet is on specific epithet
             String cultivarEpithet = classifier.get(AlaLinnaeanFactory.cultivarEpithet);
             String specificEpithet = classifier.get(AlaLinnaeanFactory.specificEpithet);
             Matcher matcher = SUSPECTED_CULTIVAR_IN_SPECIFIC_EPITHET.matcher(specificEpithet);
             if (matcher.find() && matcher.group(1).equals(cultivarEpithet)) {
-                this.set(classifier, AlaLinnaeanFactory.specificEpithet, specificEpithet.substring(0, matcher.start()).trim());
+                classifier.add(AlaLinnaeanFactory.specificEpithet, specificEpithet.substring(0, matcher.start()).trim(), false, true);
                 analysis.addIssues(CANONICAL_ISSUES);
             }
         }
@@ -327,12 +327,6 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         if (classifier.has(AlaLinnaeanFactory.acceptedNameUsageId) && classifier.get(AlaLinnaeanFactory.acceptedNameUsageId).equals(id)) {
             classifier.clear(AlaLinnaeanFactory.acceptedNameUsageId);
         }
-    }
-
-    protected <T> void set(Classifier classifier, Observable observable, T value) throws StoreException {
-        classifier.clear(observable);
-        if (value != null)
-            classifier.add(observable, value, false);
     }
 
     /**

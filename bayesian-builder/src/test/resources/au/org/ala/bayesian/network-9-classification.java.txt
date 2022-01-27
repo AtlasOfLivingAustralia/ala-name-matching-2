@@ -169,9 +169,9 @@ public class Network9Classification implements Classification<Network9Classifica
       classifier.clear(Network9Factory.v2);
       classifier.clear(Network9Factory.v3);
     }
-    classifier.add(Network9Factory.v1, this.v1, false);
-    classifier.add(Network9Factory.v2, this.v2, false);
-    classifier.add(Network9Factory.v3, this.v3, false);
+    classifier.add(Network9Factory.v1, this.v1, false, false);
+    classifier.add(Network9Factory.v2, this.v2, false, false);
+    classifier.add(Network9Factory.v3, this.v3, false, false);
   }
 
 

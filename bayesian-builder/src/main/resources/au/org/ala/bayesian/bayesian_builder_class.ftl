@@ -64,7 +64,7 @@ public class ${className} implements Builder<${classificationClassName}> {
         <#else>
       ${observable.type.name} v_${observable?index} = ${derivation.generateValue("classifier", factoryClassName)};
         </#if>
-      classifier.add(${factoryClassName}.${observable.javaVariable}, v_${observable?index},  false);
+      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}),  false, false);
     }
     </#if>
     <#if derivation.conditional>
@@ -87,19 +87,19 @@ public class ${className} implements Builder<${classificationClassName}> {
      if (!classifier.has(${factoryClassName}.${observable.javaVariable})){
       ${derivation.valueClass.name} i_${observable?index} = ${derivation.generateValue("classifier", factoryClassName)};
         <#if derivation.hasTransform()>
-      v_${observable?index} = ${derivation.generateBuilderTransform("v_${observable?index}", "e_${observable?index}", "classifier")};
-      classifier.add(${factoryClassName}.${observable.javaVariable}, v_${observable?index}, false);
+      v_${observable?index} = ${factoryClassName}.${observable.javaVariable}.analyse(${derivation.generateBuilderTransform("v_${observable?index}", "e_${observable?index}", "classifier")});
+      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
         <#else>
-      classifier.add(${factoryClassName}.${observable.javaVariable}, i_${observable?index}, false);
+      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
         </#if>
     }
         <#if observable.multiplicity.many>
     for (${derivation.valueClass.name} i_${observable?index}: ${derivation.generateVariants("classifier", factoryClassName)}){
             <#if derivation.hasTransform()>
       ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
-      classifier.add(${factoryClassName}.${observable.javaVariable}, v_${observable?index}, false);
+      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
             <#else>
-      classifier.add(${factoryClassName}.${observable.javaVariable}, i_${observable?index}, false);
+      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
             </#if>
     }
         </#if>
@@ -125,18 +125,18 @@ public class ${className} implements Builder<${classificationClassName}> {
        ${derivation.valueClass.name} i_${observable?index} = ${derivation.generateValue("classifier", factoryClassName)};
       <#if derivation.hasTransform()>
        ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
-       classifier.add(${factoryClassName}.${observable.javaVariable}, v_${observable?index}, false);
+       classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
       <#else>
-       classifier.add(${factoryClassName}.${observable.javaVariable}, i_${observable?index}, false);
+       classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
       </#if>
     }
       <#if observable.multiplicity.many>
     for (${derivation.valueClass.name} i_${observable?index}: ${derivation.generateVariants("classifier", factoryClassName)}){
           <#if derivation.hasTransform()>
       ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
-      classifier.add(${factoryClassName}.${observable.javaVariable}, v_${observable?index}, true);
+      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), true, false);
           <#else>
-      classifier.add(${factoryClassName}.${observable.javaVariable}, i_${observable?index}, true);
+      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), true, false);
           </#if>
     }
       </#if>
@@ -174,18 +174,18 @@ public class ${className} implements Builder<${classificationClassName}> {
           ${derivation.valueClass.name} i_${observable?index} = ${derivation.generateValue(docVar, factoryClassName)};
     <#if derivation.hasTransform()>
           ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
-          classifier.add(${factoryClassName}.${observable.javaVariable}, v_${observable?index}, false);
+          classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
     <#else>
-          classifier.add(${factoryClassName}.${observable.javaVariable}, i_${observable?index}, false);
+          classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
     </#if>
         }
     <#if observable.multiplicity.many>
         for(${derivation.valueClass.name} i_${observable?index}: ${derivation.generateVariants(docVar, factoryClassName)}) {
         <#if derivation.hasTransform()>
           ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
-          classifier.add(${factoryClassName}.${observable.javaVariable}, v_${observable?index},  true);
+          classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}),  true, false);
         <#else>
-          classifier.add(${factoryClassName}.${observable.javaVariable}, i_${observable?index},  true);
+          classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}),  true, false);
         </#if>
         }
     </#if>

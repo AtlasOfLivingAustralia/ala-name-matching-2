@@ -43,6 +43,7 @@
         "uri" : "http://rs.tdwg.org/dwc/terms/scientificName",
         "multiplicity" : "*",
         "normaliser" : "simple_normaliser",
+        "alternativeMatches" : [ "altScientificName" ],
         "properties" : {
           "bayesian:name" : true,
           "http://ala.org.au/optimisation/1.0/analyse" : true,
@@ -65,12 +66,7 @@
         },
         "value" : "class"
       },
-      "includeSelf" : true,
-      "selectable" : true,
-      "valueClass" : "java.lang.String",
-      "conditional" : false,
-      "preAnalysis" : false,
-      "postAnalysis" : true
+      "includeSelf" : true
     },
     "multiplicity" : "*",
     "normaliser" : "simple_normaliser",
@@ -90,12 +86,7 @@
         "source" : "taxonRank",
         "value" : "family"
       },
-      "includeSelf" : true,
-      "selectable" : true,
-      "valueClass" : "java.lang.String",
-      "conditional" : false,
-      "preAnalysis" : false,
-      "postAnalysis" : true
+      "includeSelf" : true
     },
     "multiplicity" : "*",
     "normaliser" : "simple_normaliser",
@@ -115,12 +106,7 @@
         "source" : "taxonRank",
         "value" : "genus"
       },
-      "includeSelf" : true,
-      "selectable" : true,
-      "valueClass" : "java.lang.String",
-      "conditional" : false,
-      "preAnalysis" : false,
-      "postAnalysis" : true
+      "includeSelf" : true
     },
     "group" : "genus",
     "normaliser" : "simple_normaliser",
@@ -141,12 +127,7 @@
         "source" : "taxonRank",
         "value" : "kingdom"
       },
-      "includeSelf" : true,
-      "selectable" : true,
-      "valueClass" : "java.lang.String",
-      "conditional" : false,
-      "preAnalysis" : false,
-      "postAnalysis" : true
+      "includeSelf" : true
     },
     "multiplicity" : "*",
     "normaliser" : "simple_normaliser",
@@ -166,12 +147,7 @@
         "source" : "taxonRank",
         "value" : "order"
       },
-      "includeSelf" : true,
-      "selectable" : true,
-      "valueClass" : "java.lang.String",
-      "conditional" : false,
-      "preAnalysis" : false,
-      "postAnalysis" : true
+      "includeSelf" : true
     },
     "multiplicity" : "*",
     "normaliser" : "simple_normaliser",
@@ -198,12 +174,7 @@
         "source" : "taxonRank",
         "value" : "phylum"
       },
-      "includeSelf" : true,
-      "selectable" : true,
-      "valueClass" : "java.lang.String",
-      "conditional" : false,
-      "preAnalysis" : false,
-      "postAnalysis" : true
+      "includeSelf" : true
     },
     "multiplicity" : "*",
     "normaliser" : "simple_normaliser",
@@ -233,12 +204,7 @@
     "derivation" : {
       "@class" : "au.org.ala.bayesian.derivation.SoundexDerivation",
       "condition" : null,
-      "sources" : [ "genus" ],
-      "valueClass" : "java.lang.String",
-      "conditional" : false,
-      "selectable" : false,
-      "preAnalysis" : false,
-      "postAnalysis" : true
+      "sources" : [ "genus" ]
     },
     "multiplicity" : "*",
     "properties" : {
@@ -250,12 +216,7 @@
     "derivation" : {
       "@class" : "au.org.ala.bayesian.derivation.SoundexDerivation",
       "condition" : null,
-      "sources" : [ "scientificName" ],
-      "valueClass" : "java.lang.String",
-      "conditional" : false,
-      "selectable" : false,
-      "preAnalysis" : false,
-      "postAnalysis" : true
+      "sources" : [ "scientificName" ]
     },
     "multiplicity" : "*",
     "properties" : {

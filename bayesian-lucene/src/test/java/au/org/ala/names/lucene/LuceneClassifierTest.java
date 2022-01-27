@@ -30,7 +30,7 @@ public class LuceneClassifierTest {
     public void testMakeDocumentCopy1() throws Exception {
         String name = "Acacia dealbata";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false, false);
         Document copy = classifier.makeDocumentCopy();
         assertEquals(2, copy.getFields().size());
         assertEquals(name, copy.get(TestClassification.SCIENTIFIC_NAME.getExternal(ExternalContext.LUCENE)));
@@ -41,7 +41,7 @@ public class LuceneClassifierTest {
     public void testMakeDocumentCopy2() throws Exception {
         String name = "Insecta";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.CLASS_, name, false);
+        classifier.add(TestClassification.CLASS_, name, false, false);
         Document copy = classifier.makeDocumentCopy();
         assertEquals(1, copy.getFields().size());
         assertEquals(name, copy.get(TestClassification.CLASS_.getExternal(ExternalContext.LUCENE)));
@@ -51,7 +51,7 @@ public class LuceneClassifierTest {
     public void testMakeDocumentCopy3() throws Exception {
         Integer id = 2000;
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.RANK_ID, id, false);
+        classifier.add(TestClassification.RANK_ID, id, false, false);
         Document copy = classifier.makeDocumentCopy();
         assertEquals(2, copy.getFields().size());
         IndexableField[] fields = copy.getFields(TestClassification.RANK_ID.getExternal(ExternalContext.LUCENE));
@@ -64,7 +64,7 @@ public class LuceneClassifierTest {
     public void testMakeDocumentCopy4() throws Exception {
         Integer id = 100;
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.RANK_RANGE, id, false);
+        classifier.add(TestClassification.RANK_RANGE, id, false, false);
         Document copy = classifier.makeDocumentCopy();
         assertEquals(2, copy.getFields().size());
         IndexableField[] fields = copy.getFields(TestClassification.RANK_RANGE.getExternal(ExternalContext.LUCENE));
@@ -79,7 +79,7 @@ public class LuceneClassifierTest {
     public void testMakeDocumentCopy5() throws Exception {
         TestEnum id = TestEnum.BAR;
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.TEST_ENUM, id, false);
+        classifier.add(TestClassification.TEST_ENUM, id, false, false);
         Document copy = classifier.makeDocumentCopy();
         assertEquals(1, copy.getFields().size());
         assertEquals(id.name().toLowerCase(), copy.get(TestClassification.TEST_ENUM.getExternal(ExternalContext.LUCENE)));
@@ -91,7 +91,7 @@ public class LuceneClassifierTest {
         this.utils = new LuceneUtils(TestClassification.OBSERVABLES);
         Integer id = 2000;
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.RANK_ID, id, false);
+        classifier.add(TestClassification.RANK_ID, id, false, false);
         String docId = this.utils.add(classifier.getDocument());
         Document stored = this.utils.get(docId);
         LuceneClassifier classifier1 = new LuceneClassifier(stored);
@@ -111,7 +111,7 @@ public class LuceneClassifierTest {
         this.utils = new LuceneUtils(TestClassification.OBSERVABLES);
         String name = "Eucaltypus regnans";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false, false);
         String docId = this.utils.add(classifier.getDocument());
         Document stored = this.utils.get(docId);
         LuceneClassifier classifier1 = new LuceneClassifier(stored);
@@ -131,7 +131,7 @@ public class LuceneClassifierTest {
     public void testHas1() throws Exception {
         String name = "Eucaltypus regnans";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false, false);
         assertTrue(classifier.has(TestClassification.SCIENTIFIC_NAME));
     }
 
@@ -139,7 +139,7 @@ public class LuceneClassifierTest {
     public void testMatch1() throws Exception {
         String name = "Eucaltypus regnans";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false, false);
         assertEquals(true, classifier.match(name, TestClassification.SCIENTIFIC_NAME));
     }
 
@@ -147,7 +147,7 @@ public class LuceneClassifierTest {
     public void testMatch2() throws Exception {
         String name = "Eucaltypus regnans";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false, false);
         assertEquals(false, classifier.match(name + "x", TestClassification.SCIENTIFIC_NAME));
     }
 
@@ -155,7 +155,7 @@ public class LuceneClassifierTest {
     public void testMatch3() throws Exception {
         String name = "Eucaltypus regnans";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false, false);
         assertEquals(null, classifier.match(name, TestClassification.CLASS_));
     }
 
@@ -163,9 +163,9 @@ public class LuceneClassifierTest {
     public void add1() throws Exception {
         String name = "Insecta";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.CLASS_, name, false);
+        classifier.add(TestClassification.CLASS_, name, false, false);
         try {
-            classifier.add(TestClassification.CLASS_, name, false);
+            classifier.add(TestClassification.CLASS_, name, false, false);
             fail("Can't add value twice");
         } catch (StoreException ex) {
         }
@@ -175,8 +175,8 @@ public class LuceneClassifierTest {
     public void add2() throws Exception {
         String name = "Insecta";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false);
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name, false, false);
         assertEquals(true, classifier.match(name, TestClassification.SCIENTIFIC_NAME));
     }
 
@@ -185,8 +185,8 @@ public class LuceneClassifierTest {
         String name1 = "Insecta";
         String name2 = "Insects";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name1, false);
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name2, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name1, false, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name2, false, false);
         assertEquals(true, classifier.match(name1, TestClassification.SCIENTIFIC_NAME));
         assertEquals(true, classifier.match(name2, TestClassification.SCIENTIFIC_NAME));
         TestClassification classification = new TestClassification();
@@ -203,9 +203,9 @@ public class LuceneClassifierTest {
         String name1 = "Insecta";
         String name2 = "Insects";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.CLASS_, name1, false);
+        classifier.add(TestClassification.CLASS_, name1, false, false);
         classifier.clear(TestClassification.CLASS_);
-        classifier.add(TestClassification.CLASS_, name2, false);
+        classifier.add(TestClassification.CLASS_, name2, false, false);
         TestClassification classification = new TestClassification();
         classification.read(classifier, false);
         assertEquals(name2, classification.class_);
@@ -216,8 +216,8 @@ public class LuceneClassifierTest {
         String name1 = "Insecta";
         String name2 = "Insects";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name1, false);
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name2, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name1, false, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name2, false, false);
         assertEquals(name1, classifier.get(TestClassification.SCIENTIFIC_NAME));
     }
 
@@ -226,8 +226,8 @@ public class LuceneClassifierTest {
         String name1 = "Insecta";
         String name2 = "Insects";
         LuceneClassifier classifier = new LuceneClassifier();
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name1, false);
-        classifier.add(TestClassification.SCIENTIFIC_NAME, name2, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name1, false, false);
+        classifier.add(TestClassification.SCIENTIFIC_NAME, name2, false, false);
         Set<String> names = classifier.getAll(TestClassification.SCIENTIFIC_NAME);
         assertEquals(2, names.size());
         assertTrue(names.contains(name1));

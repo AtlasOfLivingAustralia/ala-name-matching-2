@@ -1,13 +1,26 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.*;
-import lombok.SneakyThrows;
-import org.gbif.dwc.terms.Term;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.BayesianException;
+import au.org.ala.bayesian.Classification;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Hints;
+import au.org.ala.bayesian.Issues;
+import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.Observation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+
+import lombok.SneakyThrows;
+import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.Term;
+
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.Analyser;
 
 public class GrassClassification implements Classification<GrassClassification> {
   private Issues issues;
@@ -150,9 +163,9 @@ public class GrassClassification implements Classification<GrassClassification> 
       classifier.clear(GrassFactory.sprinkler);
       classifier.clear(GrassFactory.wet);
     }
-    classifier.add(GrassFactory.rain, this.rain, false);
-    classifier.add(GrassFactory.sprinkler, this.sprinkler, false);
-    classifier.add(GrassFactory.wet, this.wet, false);
+    classifier.add(GrassFactory.rain, this.rain, false, false);
+    classifier.add(GrassFactory.sprinkler, this.sprinkler, false, false);
+    classifier.add(GrassFactory.wet, this.wet, false, false);
   }
 
 

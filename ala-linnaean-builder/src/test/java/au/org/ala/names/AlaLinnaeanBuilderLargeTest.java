@@ -157,7 +157,7 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         assertNull(doc.get(AlaLinnaeanFactory.orderId));
         assertNull(doc.get(AlaLinnaeanFactory.classId));
         assertNull(doc.get(AlaLinnaeanFactory.phylumId));
-        assertEquals("ANIMALIA", doc.get(AlaLinnaeanFactory.kingdom));
+        assertEquals("Animalia", doc.get(AlaLinnaeanFactory.kingdom));
         assertEquals("https://biodiversity.org.au/afd/taxa/4647863b-760d-4b59-aaa1-502c8cdf8d3c", doc.get(AlaLinnaeanFactory.kingdomId));
         assertEquals(TaxonomicStatus.subjectiveSynonym, doc.get(AlaLinnaeanFactory.taxonomicStatus));
         AlaLinnaeanParameters_FFTTTTT params = new AlaLinnaeanParameters_FFTTTTT();
@@ -191,7 +191,7 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         assertEquals("Xestoleberididae", doc.get(AlaLinnaeanFactory.scientificName));
         assertEquals("ZISTALIBIRIDIDI", doc.get(AlaLinnaeanFactory.soundexScientificName));
         assertEquals(TaxonomicStatus.accepted, doc.get(AlaLinnaeanFactory.taxonomicStatus));
-        assertEquals("ANIMALIA", doc.get(AlaLinnaeanFactory.kingdom));
+        assertEquals("Animalia", doc.get(AlaLinnaeanFactory.kingdom));
         AlaLinnaeanParameters_FFTTTTT params = new AlaLinnaeanParameters_FFTTTTT();
         doc.loadParameters(params);
         assertEquals(1.0, params.inf_kingdom_t$t_t, 0.00001);
@@ -209,7 +209,6 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         assertEquals(0.0, prob.getPosterior(), 0.00001);
     }
 
-
     @Test
     public void testLoadBuild4() throws Exception {
         Classifier doc = parameterised.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "https://biodiversity.org.au/afd/taxa/da002998-b551-4328-ac4e-5e04fc72708b");
@@ -221,6 +220,23 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         assertEquals("Latham 1790", doc.get(AlaLinnaeanFactory.canonicalAuthorship));
         assertEquals("New Holland Honeyeater", doc.get(AlaLinnaeanFactory.vernacularName));
         assertEquals(TaxonomicStatus.accepted, doc.get(AlaLinnaeanFactory.taxonomicStatus));
+    }
+
+    @Test
+    public void testLoadBuild5() throws Exception {
+        Classifier doc = parameterised.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/name/apni/70666");
+        assertNotNull(doc);
+        assertEquals("FTTTTTT", doc.getSignature());
+        assertEquals("Dolicholus sect. Rhynchosia", doc.get(AlaLinnaeanFactory.scientificName));
+        assertEquals(new HashSet<>(Arrays.asList("Dolicholus sect. Rhynchosia", "Dolicholus Rhynchosia", "Rhynchosia")), doc.getAll(AlaLinnaeanFactory.scientificName));
+        assertEquals("DALICALIS RINCASA", doc.get(AlaLinnaeanFactory.soundexScientificName));
+        assertEquals(new HashSet<>(Arrays.asList("DALICALIS RINCASA", "RINCASA")), doc.getAll(AlaLinnaeanFactory.soundexScientificName));
+        assertEquals("(Lour.) Kuntze", doc.get(AlaLinnaeanFactory.scientificNameAuthorship));
+        assertEquals("Kuntze", doc.get(AlaLinnaeanFactory.canonicalAuthorship));
+        assertEquals(TaxonomicStatus.inferredAccepted, doc.get(AlaLinnaeanFactory.taxonomicStatus));
+        assertEquals("Plantae", doc.get(AlaLinnaeanFactory.kingdom));
+        assertEquals(Rank.SECTION, doc.get(AlaLinnaeanFactory.taxonRank));
+        assertEquals(6300, doc.get(AlaLinnaeanFactory.rankId).intValue());
     }
 
     @Test

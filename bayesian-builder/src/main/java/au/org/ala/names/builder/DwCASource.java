@@ -364,7 +364,7 @@ public class DwCASource extends Source {
             if (values != null) {
                 for (Object value: values) {
                     if (value !=null)
-                        classifier.add(observable, value, observable.hasProperty(OptimisationTerm.loadAsVariant, true));
+                        classifier.add(observable, value, observable.hasProperty(OptimisationTerm.loadAsVariant, true), false);
                 }
             }
         }

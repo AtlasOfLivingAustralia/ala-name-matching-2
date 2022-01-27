@@ -50,7 +50,7 @@ public class LuceneLoadStoreTest {
         while (i < vals.length) {
             Term term = TermFactory.instance().findTerm(vals[i++]);
             String value = vals[i++];
-            classifier.add(Observable.string(term), value, false);
+            classifier.add(Observable.string(term), value, false, false);
         }
         return classifier;
     }

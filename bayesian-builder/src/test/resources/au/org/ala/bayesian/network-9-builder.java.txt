@@ -51,7 +51,7 @@ public class Network9Builder implements Builder<Network9Classification> {
      if (!classifier.has(Network9Factory.v2)){
        java.lang.String i_0 = classifier.get(Network9Factory.v1);
        java.lang.String v_0 = this.soundex.soundex((String) i_0);
-       classifier.add(Network9Factory.v2, v_0, false);
+       classifier.add(Network9Factory.v2, Network9Factory.v2.analyse(v_0), false, false);
     }
   }
 

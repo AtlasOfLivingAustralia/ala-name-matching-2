@@ -1,12 +1,13 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.ClassificationMatcher;
+import au.org.ala.bayesian.ClassifierSearcher;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.NetworkFactory;
+import au.org.ala.bayesian.Normaliser;
+import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observable.Multiplicity;
-import au.org.ala.bayesian.analysis.DoubleAnalysis;
-import au.org.ala.bayesian.analysis.IntegerAnalysis;
-import au.org.ala.bayesian.analysis.StringAnalysis;
-import org.gbif.dwc.terms.Term;
-import org.gbif.dwc.terms.TermFactory;
+import static au.org.ala.bayesian.ExternalContext.*;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -14,8 +15,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static au.org.ala.bayesian.ExternalContext.LUCENE;
-import static au.org.ala.bayesian.ExternalContext.LUCENE_VARIANT;
+import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
+
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.analysis.IntegerAnalysis;
+import au.org.ala.bayesian.analysis.DoubleAnalysis;
+import au.org.ala.bayesian.ClassificationMatcher;
 
 public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClassification, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> {
     private static SimpleLinnaeanFactory instance = null;

@@ -245,7 +245,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 </#list>
     }
 <#list orderedNodes + additionalNodes as node>
-    classifier.add(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable}, false);
+    classifier.add(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable}, false, false);
 </#list>
   }
 
@@ -254,7 +254,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     ${inferencerClassName}.Evidence evidence = new ${inferencerClassName}.Evidence();
 <#list orderedNodes as node>
   <#assign observable = node.observable >
-    evidence.${node.evidence.id} = classifier.match(this.${node.observable.javaVariable}, ${factoryClassName}.${node.observable.javaVariable});
+    evidence.${node.evidence.id} = classifier.match(this.${observable.javaVariable}<#list observable.matchers as matcher>, ${factoryClassName}.${matcher.javaVariable}</#list>);
 </#list>
     return evidence;
   }

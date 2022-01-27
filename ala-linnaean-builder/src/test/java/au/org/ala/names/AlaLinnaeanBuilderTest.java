@@ -159,7 +159,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals("Homonymia", doc.get(AlaLinnaeanFactory.scientificName));
         assertEquals("HAMANIMA", doc.get(AlaLinnaeanFactory.soundexScientificName));
         assertEquals(TaxonomicStatus.accepted, doc.get(AlaLinnaeanFactory.taxonomicStatus));
-        assertEquals("ANIMALIA", doc.get(AlaLinnaeanFactory.kingdom));
+        assertEquals("Animalia", doc.get(AlaLinnaeanFactory.kingdom));
         AlaLinnaeanParameters_FTTTTTT params = new AlaLinnaeanParameters_FTTTTTT();
         doc.loadParameters(params);
         assertEquals(1.0, params.inf_kingdom_t$t_t, 0.00001);

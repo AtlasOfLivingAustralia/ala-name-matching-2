@@ -33,7 +33,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex1() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Acacia", classifier.get(AlaLinnaeanFactory.genus));
         assertEquals("dealbata", classifier.get(AlaLinnaeanFactory.specificEpithet));
@@ -44,7 +44,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex2() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata dealbata", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata dealbata", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Acacia", classifier.get(AlaLinnaeanFactory.genus));
         assertEquals("dealbata", classifier.get(AlaLinnaeanFactory.specificEpithet));
@@ -55,8 +55,8 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseFoIndex3() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata dealbata", false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.VARIETY, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata dealbata", false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.VARIETY, false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Acacia", classifier.get(AlaLinnaeanFactory.genus));
         assertEquals("dealbata", classifier.get(AlaLinnaeanFactory.specificEpithet));
@@ -67,7 +67,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex4() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Plantae", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Plantae", false, false);
         this.analyser.analyseForIndex(classifier);
         assertNull(classifier.get(AlaLinnaeanFactory.genus));
         assertNull(classifier.get(AlaLinnaeanFactory.specificEpithet));
@@ -78,7 +78,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex5() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp.", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp.", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Acacia sp.", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals("Acacia", classifier.get(AlaLinnaeanFactory.genus));
@@ -90,7 +90,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex6() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata?", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata?", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Acacia dealbata?", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals("Acacia", classifier.get(AlaLinnaeanFactory.genus));
@@ -103,7 +103,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex7() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Conospermum taxifolium 'Tasmanian form'", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Conospermum taxifolium 'Tasmanian form'", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Conospermum taxifolium 'Tasmanian form'", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals("Conospermum", classifier.get(AlaLinnaeanFactory.genus));
@@ -117,9 +117,9 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex8() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Conospermum taxifolium 'Tasmanian form'", false);
-        classifier.add(AlaLinnaeanFactory.genus, "Conospermum", false);
-        classifier.add(AlaLinnaeanFactory.specificEpithet, "taxifolium 'Tasmanian form'", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Conospermum taxifolium 'Tasmanian form'", false, false);
+        classifier.add(AlaLinnaeanFactory.genus, "Conospermum", false, false);
+        classifier.add(AlaLinnaeanFactory.specificEpithet, "taxifolium 'Tasmanian form'", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Conospermum taxifolium 'Tasmanian form'", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals("Conospermum", classifier.get(AlaLinnaeanFactory.genus));
@@ -133,8 +133,8 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex9() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Melanogaster", false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SERIES, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Melanogaster", false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SERIES, false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Melanogaster", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals(Rank.SERIES, classifier.get(AlaLinnaeanFactory.taxonRank));
@@ -144,7 +144,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex10() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Goodenia sp. Bachsten Creek (M.D.Barrett 685) WA Herbarium", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Goodenia sp. Bachsten Creek (M.D.Barrett 685) WA Herbarium", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Goodenia sp. Bachsten Creek (M.D.Barrett 685)", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals("WA Herbarium", classifier.get(AlaLinnaeanFactory.nominatingParty));
@@ -160,7 +160,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex11() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Astrotricha sp. 1", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Astrotricha sp. 1", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Astrotricha sp. 1", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals(Rank.SPECIES, classifier.get(AlaLinnaeanFactory.taxonRank));
@@ -171,8 +171,8 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex12() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Dryopteris rotundata (Willd.) C.Chr.", false);
-        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "(Willd.) C.Chr.", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Dryopteris rotundata (Willd.) C.Chr.", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "(Willd.) C.Chr.", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Dryopteris rotundata", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals("(Willd.) C.Chr.", classifier.get(AlaLinnaeanFactory.scientificNameAuthorship));
@@ -184,7 +184,7 @@ public class AlaNameAnalyserTest {
     @Test(expected = InferenceException.class)
     public void testAnalyseForIndex13() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Dryopteris r\ufffdtundata", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Dryopteris r\ufffdtundata", false, false);
         this.analyser.analyseForIndex(classifier);
     }
 
@@ -192,7 +192,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex14() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Arabella sp1", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Arabella sp1", false, false);
          this.analyser.analyseForIndex(classifier);
         assertEquals("Arabella sp1", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals(NameType.PLACEHOLDER, classifier.get(AlaLinnaeanFactory.nameType));
@@ -202,8 +202,8 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseForIndex15() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Symbrenthia", false);
-        classifier.add(AlaLinnaeanFactory.kingdom, "InvalidKingdom", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Symbrenthia", false, false);
+        classifier.add(AlaLinnaeanFactory.kingdom, "InvalidKingdom", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Symbrenthia", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals(NameType.SCIENTIFIC, classifier.get(AlaLinnaeanFactory.nameType));
@@ -653,10 +653,10 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames1() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata", false);
-        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Link", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SPECIES, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Link", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SPECIES, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), false);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -668,8 +668,8 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames2() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata", false);
-        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Link", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Link", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), false);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -683,10 +683,10 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames3() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acäcia dealbata", false);
-        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Link", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SPECIES, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acäcia dealbata", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Link", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SPECIES, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), false);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -699,10 +699,10 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames4() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Goodenia ser. Bracteolatae", false);
-        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Benth.", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SERIES, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Goodenia ser. Bracteolatae", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Benth.", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SERIES, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), false);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -716,9 +716,9 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames5() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata Link dealbata", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SUBSPECIES, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata Link dealbata", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SUBSPECIES, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), false);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -731,7 +731,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames6() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp. Bigge Island (A.A. Mitchell 3436)", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp. Bigge Island (A.A. Mitchell 3436)", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -744,7 +744,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames7() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia 'Morning Glory'", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia 'Morning Glory'", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), false);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -755,10 +755,10 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames8() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata", false);
-        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Link", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SPECIES, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia dealbata", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Link", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.SPECIES, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -770,9 +770,9 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames9() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sect. Acacia", false);
-        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Mill.", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sect. Acacia", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Mill.", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -785,9 +785,9 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames10() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Goodenia subsect. Bracteolatae", false);
-        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "(Benth.) K.Krause", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Goodenia subsect. Bracteolatae", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "(Benth.) K.Krause", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -800,9 +800,9 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames11() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia 'H.L.White'", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.UNRANKED, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia 'H.L.White'", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.UNRANKED, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -813,9 +813,9 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames12() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia $ Brunioideae", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.INFRAGENUS, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia $ Brunioideae", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.INFRAGENUS, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -826,9 +826,9 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames13() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia Div. II Bipinnatae", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.INFRAGENUS, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia Div. II Bipinnatae", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.INFRAGENUS, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -839,9 +839,9 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames14() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp. laterite", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.UNRANKED, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp. laterite", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.UNRANKED, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -853,9 +853,9 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames15() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp. holey trunk", false);
-        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false);
-        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.UNRANKED, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia sp. holey trunk", false, false);
+        classifier.add(AlaLinnaeanFactory.nomenclaturalCode, NomenclaturalCode.BOTANICAL, false, false);
+        classifier.add(AlaLinnaeanFactory.taxonRank, Rank.UNRANKED, false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -868,7 +868,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames16() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Grevillea brachystylis subsp. Busselton (G.J.Keighery s.n. 28/8/1985)", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Grevillea brachystylis subsp. Busselton (G.J.Keighery s.n. 28/8/1985)", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -881,7 +881,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames17() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acianthus sp. 'Gibraltar Range'", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acianthus sp. 'Gibraltar Range'", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -893,7 +893,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames18() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Grevillea sp. aff. patulifolia 'Kanangra'", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Grevillea sp. aff. patulifolia 'Kanangra'", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -905,7 +905,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames19() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Grevillea sp. nov. 'Belowra'", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Grevillea sp. nov. 'Belowra'", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -916,7 +916,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames20() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Arthrinium aff. amnium 'Coastal'", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Arthrinium aff. amnium 'Coastal'", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -928,7 +928,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames21() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Oenochrominae s. str.", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Oenochrominae s. str.", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -941,7 +941,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames22() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Canarium acutifolium var. acutifolium", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Canarium acutifolium var. acutifolium", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -953,7 +953,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames23() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Phasma (Bacteria) spinosum", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Phasma (Bacteria) spinosum", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -965,7 +965,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames24() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia subsect. Capitatae-Racemosae", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Acacia subsect. Capitatae-Racemosae", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -976,7 +976,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames25() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Astrotricha sp. 1", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Astrotricha sp. 1", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -987,8 +987,8 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames26() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Dryopteris rotundata (Willd.) C.Chr.", false);
-        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "(Willd.) C.Chr.", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Dryopteris rotundata (Willd.) C.Chr.", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "(Willd.) C.Chr.", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -1001,7 +1001,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames27() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Polynema filius", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Polynema filius", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);
@@ -1013,7 +1013,7 @@ public class AlaNameAnalyserTest {
     @Test
     public void testAnalyseNames28() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Arabella sp1", false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Arabella sp1", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.empty(), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), true);
         assertNotNull(names);
         logger.info("Names " + names);

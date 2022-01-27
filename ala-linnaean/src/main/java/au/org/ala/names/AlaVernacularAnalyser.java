@@ -47,17 +47,11 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
                 weight /= 10.0;
             if (taxonomicStatus != null && !taxonomicStatus.isAcceptedFlag())
                 weight /= 10.0;
-            this.set(classifier, AlaVernacularFactory.weight, Math.max(1.0, weight));
+            classifier.add(AlaVernacularFactory.weight, Math.max(1.0, weight), false, true);
         }
         if (classifier.has(AlaVernacularFactory.acceptedNameUsageId)) {
-            this.set(classifier, AlaVernacularFactory.taxonId, classifier.get(AlaVernacularFactory.acceptedNameUsageId));
+            classifier.add(AlaVernacularFactory.taxonId, classifier.get(AlaVernacularFactory.acceptedNameUsageId), false, true);
         }
-    }
-
-    protected <T> void set(Classifier classifier, Observable observable, T value) throws StoreException {
-        classifier.clear(observable);
-        if (value != null)
-            classifier.add(observable, value, false);
     }
 
     /**

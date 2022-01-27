@@ -43,7 +43,7 @@ public class ALAClassificationMatcherTest {
         Hints<AlaLinnaeanClassification> hints = classification.getHints();
         assertNotNull(hints);
         Set<String> values = hints.getHints(AlaLinnaeanFactory.kingdom);
-        assertEquals(Collections.singleton("PROTISTA"), values);
+        assertEquals(Collections.singleton("Protista"), values);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ALAClassificationMatcherTest {
         Hints<AlaLinnaeanClassification> hints = classification.getHints();
         assertNotNull(hints);
         Set<String> values = hints.getHints(AlaLinnaeanFactory.kingdom);
-        assertEquals(Collections.singleton("ANIMALIA"), values);
+        assertEquals(Collections.singleton("Animalia"), values);
     }
 
 }

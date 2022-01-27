@@ -166,8 +166,8 @@ public class AlaWeightAnalyser implements WeightAnalyser, Annotator {
                     double weight = Double.parseDouble(row[1]);
                     LuceneClassifier classifier = this.weightStore.newClassifier();
                     classifier.identify();
-                    classifier.add(AlaLinnaeanFactory.taxonId, taxonId, false);
-                    classifier.add(AlaLinnaeanFactory.weight, weight, false);
+                    classifier.add(AlaLinnaeanFactory.taxonId, taxonId, false, false);
+                    classifier.add(AlaLinnaeanFactory.weight, weight, false, false);
                     this.weightStore.store(classifier, DwcTerm.Taxon);
                     counter.increment(taxonId);
                 }

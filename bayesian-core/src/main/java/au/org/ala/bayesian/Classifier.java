@@ -119,10 +119,11 @@ public interface Classifier {
      * @param observable The observable to store
      * @param value The value to store
      * @param variant Load this value as a variant only
+     * @param replace Replace the non-variant value with this value
      *
      * @throws StoreException if the value is already present or unable to add this variable to the classifier
      */
-    public <T> void add(Observable<T> observable, T value, boolean variant) throws StoreException;
+    public <T> void add(Observable<T> observable, T value, boolean variant, boolean replace) throws StoreException;
 
     /**
      * Copy all values from another classifier

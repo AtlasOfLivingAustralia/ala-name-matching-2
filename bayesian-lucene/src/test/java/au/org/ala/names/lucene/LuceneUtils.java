@@ -199,7 +199,7 @@ public class LuceneUtils {
                         continue;
                     Observable observable = headerMap[i];
                     Object v = observable.getAnalysis().fromString(value);
-                    classifier.add(observable, v, false);
+                    classifier.add(observable, v, false, false);
                   }
             }
             classifier.setType(DwcTerm.Taxon);

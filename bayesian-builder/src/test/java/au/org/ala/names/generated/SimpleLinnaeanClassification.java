@@ -1,14 +1,29 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.*;
-import au.org.ala.bayesian.derivation.SoundexGenerator;
-import lombok.SneakyThrows;
-import org.gbif.dwc.terms.Term;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.BayesianException;
+import au.org.ala.bayesian.Classification;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Hints;
+import au.org.ala.bayesian.Issues;
+import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.Observation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+
+import lombok.SneakyThrows;
+import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.Term;
+
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.derivation.SoundexGenerator;
+import au.org.ala.bayesian.analysis.IntegerAnalysis;
+import au.org.ala.bayesian.analysis.DoubleAnalysis;
 
 public class SimpleLinnaeanClassification implements Classification<SimpleLinnaeanClassification> {
   private Issues issues;
@@ -309,21 +324,21 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       classifier.clear(SimpleLinnaeanFactory.parentNameUsageId);
       classifier.clear(SimpleLinnaeanFactory.taxonomicStatus);
     }
-    classifier.add(SimpleLinnaeanFactory.taxonId, this.taxonId, false);
-    classifier.add(SimpleLinnaeanFactory.taxonRank, this.taxonRank, false);
-    classifier.add(SimpleLinnaeanFactory.specificEpithet, this.specificEpithet, false);
-    classifier.add(SimpleLinnaeanFactory.scientificNameAuthorship, this.scientificNameAuthorship, false);
-    classifier.add(SimpleLinnaeanFactory.scientificName, this.scientificName, false);
-    classifier.add(SimpleLinnaeanFactory.soundexScientificName, this.soundexScientificName, false);
-    classifier.add(SimpleLinnaeanFactory.genus, this.genus, false);
-    classifier.add(SimpleLinnaeanFactory.family, this.family, false);
-    classifier.add(SimpleLinnaeanFactory.order, this.order, false);
-    classifier.add(SimpleLinnaeanFactory.class_, this.class_, false);
-    classifier.add(SimpleLinnaeanFactory.phylum, this.phylum, false);
-    classifier.add(SimpleLinnaeanFactory.kingdom, this.kingdom, false);
-    classifier.add(SimpleLinnaeanFactory.acceptedNameUsageId, this.acceptedNameUsageId, false);
-    classifier.add(SimpleLinnaeanFactory.parentNameUsageId, this.parentNameUsageId, false);
-    classifier.add(SimpleLinnaeanFactory.taxonomicStatus, this.taxonomicStatus, false);
+    classifier.add(SimpleLinnaeanFactory.taxonId, this.taxonId, false, false);
+    classifier.add(SimpleLinnaeanFactory.taxonRank, this.taxonRank, false, false);
+    classifier.add(SimpleLinnaeanFactory.specificEpithet, this.specificEpithet, false, false);
+    classifier.add(SimpleLinnaeanFactory.scientificNameAuthorship, this.scientificNameAuthorship, false, false);
+    classifier.add(SimpleLinnaeanFactory.scientificName, this.scientificName, false, false);
+    classifier.add(SimpleLinnaeanFactory.soundexScientificName, this.soundexScientificName, false, false);
+    classifier.add(SimpleLinnaeanFactory.genus, this.genus, false, false);
+    classifier.add(SimpleLinnaeanFactory.family, this.family, false, false);
+    classifier.add(SimpleLinnaeanFactory.order, this.order, false, false);
+    classifier.add(SimpleLinnaeanFactory.class_, this.class_, false, false);
+    classifier.add(SimpleLinnaeanFactory.phylum, this.phylum, false, false);
+    classifier.add(SimpleLinnaeanFactory.kingdom, this.kingdom, false, false);
+    classifier.add(SimpleLinnaeanFactory.acceptedNameUsageId, this.acceptedNameUsageId, false, false);
+    classifier.add(SimpleLinnaeanFactory.parentNameUsageId, this.parentNameUsageId, false, false);
+    classifier.add(SimpleLinnaeanFactory.taxonomicStatus, this.taxonomicStatus, false, false);
   }
 
 
@@ -333,7 +348,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     evidence.e$taxonRank = classifier.match(this.taxonRank, SimpleLinnaeanFactory.taxonRank);
     evidence.e$specificEpithet = classifier.match(this.specificEpithet, SimpleLinnaeanFactory.specificEpithet);
     evidence.e$scientificNameAuthorship = classifier.match(this.scientificNameAuthorship, SimpleLinnaeanFactory.scientificNameAuthorship);
-    evidence.e$scientificName = classifier.match(this.scientificName, SimpleLinnaeanFactory.scientificName);
+    evidence.e$scientificName = classifier.match(this.scientificName, SimpleLinnaeanFactory.scientificName, SimpleLinnaeanFactory.altScientificName);
     evidence.e$soundexScientificName = classifier.match(this.soundexScientificName, SimpleLinnaeanFactory.soundexScientificName);
     evidence.e$genus = classifier.match(this.genus, SimpleLinnaeanFactory.genus);
     evidence.e$family = classifier.match(this.family, SimpleLinnaeanFactory.family);

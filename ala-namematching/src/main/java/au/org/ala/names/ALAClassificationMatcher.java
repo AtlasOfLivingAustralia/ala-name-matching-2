@@ -254,6 +254,10 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         if (results.stream().allMatch(r -> r.getMatch().taxonomicStatus.isAcceptedFlag() && r.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName))) {
             return results.get(0).with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);
         }
+        // If all doubtful and they have the same name and nomenclaural code, then choose the most likely
+        if (results.stream().allMatch(r -> r.getMatch().taxonomicStatus.isDoubtfulFlag() && r.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName))) {
+            return results.get(0).with(AlaLinnaeanFactory.MULTIPLE_MATCHES);
+        }
         return null;
     }
 

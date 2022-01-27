@@ -39,6 +39,19 @@
       "multiplicity": "1"
     },
     {
+      "id": "taxonRank",
+      "label": "R",
+      "type": "org.gbif.nameparser.api.Rank",
+      "uri": "http://rs.tdwg.org/dwc/terms/taxonRank",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/additional": true,
+        "http://ala.org.au/optimisation/1.0/analysed": true
+      },
+      "analysis": {
+        "@class": "au.org.ala.names.RankAnalysis"
+      }
+    },
+    {
       "id": "rankID",
       "label": "rID",
       "type": "java.lang.Integer",
@@ -57,6 +70,17 @@
       }
     },
     {
+      "id": "altScientificName",
+      "label": "altSN",
+      "uri": "http://ala.org.au/terms/1.0/altScientificName",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/altName": true
+      },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE",
+      "multiplicity": "*"
+    },
+    {
       "id": "scientificName",
       "label": "SN",
       "uri": "http://rs.tdwg.org/dwc/terms/scientificName",
@@ -71,17 +95,6 @@
       "normaliser": "simple_normaliser",
       "style": "PHRASE",
       "multiplicity": "+"
-    },
-    {
-      "id": "altScientificName",
-      "label": "altSN",
-      "uri": "http://ala.org.au/terms/1.0/altScientificName",
-      "properties": {
-        "http://ala.org.au/bayesian/1.0/altName": true
-      },
-      "normaliser": "simple_normaliser",
-      "style": "PHRASE",
-      "multiplicity": "*"
     },
     {
       "id": "synonymScientificName",
@@ -136,7 +149,8 @@
         "sources": [
           "specificEpithet"
         ],
-        "rank": "SPECIES"
+        "rank": "SPECIES",
+        "epithet": true
       }
     },
     {
@@ -652,19 +666,6 @@
       },
       "analysis": {
         "@class": "au.org.ala.names.NameTypeAnalysis"
-      }
-    },
-    {
-      "id": "taxonRank",
-      "label": "R",
-      "type": "org.gbif.nameparser.api.Rank",
-      "uri": "http://rs.tdwg.org/dwc/terms/taxonRank",
-      "properties": {
-        "http://ala.org.au/bayesian/1.0/additional": true,
-        "http://ala.org.au/optimisation/1.0/analysed": true
-      },
-      "analysis": {
-        "@class": "au.org.ala.names.RankAnalysis"
       }
     },
     {

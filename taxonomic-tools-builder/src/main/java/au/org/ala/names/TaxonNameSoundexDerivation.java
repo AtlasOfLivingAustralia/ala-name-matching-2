@@ -33,6 +33,10 @@ public class TaxonNameSoundexDerivation extends CopyDerivation {
     @JsonProperty
     @Getter
     private NameType defaultNameType = NameType.SCIENTIFIC;
+    /** Treat this as an epithet only */
+    @JsonProperty
+    @Getter
+    private boolean epithet = false;
 
     /**
      * Construct a new derivation.
@@ -85,14 +89,16 @@ public class TaxonNameSoundexDerivation extends CopyDerivation {
     public String generateBuilderTransform(String var, String extra2, String documentVar) {
         final String extra1 = this.rank == null ? "null" : "org.gbif.nameparser.api.Rank." + this.rank.name();
         extra2 = this.nameType == null ? "org.gbif.nameparser.api.NameType." + this.defaultNameType.name() : extra2;
-        return "this." + INSTANCE_VAR + ".treatWord((String) " + var + ", " + extra1 + ", " + extra2 + ")";
+        final String extra3 = this.epithet ? "true" : "false";
+        return "this." + INSTANCE_VAR + ".treatWord((String) " + var + ", " + extra1 + ", " + extra2 + ", " + extra3 + ")";
     }
 
     @Override
     public String generateClassificationTransform() {
         final String extra1 = this.rank == null ? "null" : "org.gbif.nameparser.api.Rank." + this.rank.name();
         final String extra2 = this.nameType == null ? "org.gbif.nameparser.api.NameType." + this.defaultNameType.name() : "this." + this.nameType.getJavaVariable();
-        return this.getSources().stream().map(s -> "this." + INSTANCE_VAR + ".treatWord(this." + s.getJavaVariable() + ", " + extra1 + ", " + extra2 + ")").collect(Collectors.joining(" + "));
+        final String extra3 = this.epithet ? "true" : "false";
+        return this.getSources().stream().map(s -> "this." + INSTANCE_VAR + ".treatWord(this." + s.getJavaVariable() + ", " + extra1 + ", " + extra2 + ", " + extra3 + ")").collect(Collectors.joining(" + "));
     }
 
 }

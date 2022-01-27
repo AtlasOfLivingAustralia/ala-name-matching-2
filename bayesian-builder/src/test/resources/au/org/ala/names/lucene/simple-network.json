@@ -36,6 +36,13 @@
       "normaliser": "lower_case_normaliser"
     },
     {
+      "id": "altScientificName",
+      "uri": "http://ala.org.au/terms/1.0/altScientificName",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/altName": true
+      }
+    },
+    {
       "id": "scientificName",
       "uri": "http://rs.tdwg.org/dwc/terms/scientificName",
       "multiplicity" : "*",
@@ -47,16 +54,12 @@
           "http://ala.org.au/terms/1.0/TaxonVariant"
         ]
       },
-      "normaliser": "simple_normaliser"
+      "normaliser": "simple_normaliser",
+      "alternativeMatches": [
+        "altScientificName"
+      ]
     },
-    {
-      "id": "altScientificName",
-      "uri": "http://ala.org.au/terms/1.0/altScientificName",
-      "properties": {
-        "http://ala.org.au/bayesian/1.0/altName": true
-      }
-    },
-    {
+   {
       "id": "synonymScientificName",
       "uri": "http://ala.org.au/terms/1.0/synonymScientificName",
       "properties": {

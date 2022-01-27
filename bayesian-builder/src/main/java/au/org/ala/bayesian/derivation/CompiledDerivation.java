@@ -68,6 +68,7 @@ abstract public class CompiledDerivation extends Derivation {
      *
      * @return True if there is a condition attached to the derivation
      */
+    @JsonIgnore
     public boolean isConditional() {
         return this.condition != null;
     }
@@ -92,6 +93,7 @@ abstract public class CompiledDerivation extends Derivation {
      *
      * @return True if there is a condition attached to the derivation
      */
+    @JsonIgnore
     public boolean isSelectable() {
         return false;
     }
@@ -150,6 +152,7 @@ abstract public class CompiledDerivation extends Derivation {
      *
      * @return True if this variable is an interpreter
      */
+    @JsonIgnore
     public boolean isPreAnalysis() {
         return !this.isGenerator() && this.getInputs().stream()
                 .allMatch(o ->
@@ -163,11 +166,17 @@ abstract public class CompiledDerivation extends Derivation {
                         !o.hasProperty(BayesianTerm.copy, true) &&
                         (
                             o.getDerivation() == null ||
-                            o.getDerivation().isCompiled() && !((CompiledDerivation) o.getDerivation()).isPreAnalysis()
+                            o.getDerivation().isCompiled() && !((CompiledDerivation) o.getDerivation()).isPostAnalysis()
                         )
                 );
     }
 
+    /**
+     * Should this derivation run after the analyser has run?
+     *
+     * @return True if not a generator and not pre-analysis
+     */
+    @JsonIgnore
     public boolean isPostAnalysis() {
         return !this.isGenerator() && !this.isPreAnalysis();
     }
@@ -220,6 +229,7 @@ abstract public class CompiledDerivation extends Derivation {
      *
      * @return The value class
      */
+    @JsonIgnore
     abstract public Class<?> getValueClass();
 
     /**

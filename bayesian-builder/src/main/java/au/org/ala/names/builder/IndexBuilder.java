@@ -230,6 +230,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
                     try {
                         this.builder.generate(c, this.analyser);
                         this.annotate(c);
+                        this.buildNames(c);
                         this.builder.interpret(c, this.analyser);
                         return c;
                     } catch (BayesianException ex) {
@@ -239,6 +240,46 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
                 );
         target.commit();
         return target;
+    }
+
+    /**
+     * Get the alternative name interretations for a classifier.
+     *
+     * @param classifier The classifier to expand
+     *
+     * @throws BayesianException if unable to interpret the names
+     */
+    public void buildNames(Cl classifier) throws BayesianException {
+        final String id = classifier.get(this.identifier);
+        final Set<String> names = new LinkedHashSet<>(); // Require order
+        Set<String> altNames = new LinkedHashSet<>();
+
+        // Add all possible names something could be seen as
+        names.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
+        classifier.setNames(names);
+        if (!this.name.getMultiplicity().isMany() && names.size() > 1) {
+            logger.warn("Classifier " + id + " with single value name " + this.name.getId() + " has multiple names " + names);
+        } else {
+            for (String nm : names) { // Add any new and interesting variants of the name
+                Boolean match = classifier.match(nm, this.name);
+                if (match == null || !match)
+                    classifier.add(this.name, nm, true, false);
+            }
+        }
+
+        // Add alternative names
+        if (this.altName.isPresent()) {
+            altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName,false).stream()
+                    .filter(n -> !names.contains(n))
+                    .collect(Collectors.toSet()));
+            if (!this.altName.get().getMultiplicity().isMany() && altNames.size() > 1) {
+                logger.warn("Classifier " + id + " with single value alternate name " + this.altName.get().getId() + " has multiple names " + altNames);
+            } else {
+                for (String nm : altNames) {
+                    classifier.add(this.altName.get(), nm, false, false);
+                }
+            }
+        }
     }
 
     /**
@@ -284,7 +325,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
             logger.warn("Classifier " + id + " with single value synonym name " + this.synonymName.get().getId() + " has multiple names " + synonymNames);
         } else {
             for (String nm : synonymNames) {
-                classifier.add(this.synonymName.get(), nm, true);
+                classifier.add(this.synonymName.get(), nm, true, false);
             }
         }
         return classifier;
@@ -360,35 +401,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         String id = classifier.get(this.identifier);
         // Perform all derivations
         this.builder.expand(classifier, parents, this.analyser);
-        final Set<String> names = new LinkedHashSet<>(); // Require order
-        Set<String> altNames = new LinkedHashSet<>();
-        Set<String> synonymNames = new LinkedHashSet<>();
-
-        // Add all possible names something could be seen as
-        names.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
-        classifier.setNames(names);
-        if (!this.name.getMultiplicity().isMany() && names.size() > 1) {
-            logger.warn("Classifier " + id + " with single value name " + this.name.getId() + " has multiple names " + names);
-        } else {
-            for (String nm : names) { // Add any new and interesting variants of the name
-                Boolean match = classifier.match(nm, this.name);
-                if (match == null || !match)
-                    classifier.add(this.name, nm, false);
-            }
-        }
-
-        // Add alternative names
-        if (this.altName.isPresent()) {
-            altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName,false).stream().filter(n -> !names.contains(n)).collect(Collectors.toSet()));
-            if (!this.altName.get().getMultiplicity().isMany() && altNames.size() > 1) {
-                logger.warn("Classifier " + id + " with single value alternate name " + this.altName.get().getId() + " has multiple names " + altNames);
-            } else {
-                for (String nm : altNames) {
-                    classifier.add(this.altName.get(), nm, false);
-                }
-            }
-        }
-        List<String> trail = parents.stream().map(p -> p.get(this.identifier).toString()).collect(Collectors.toList());
+        List<String> trail = parents.stream().map(p -> p.get(this.identifier)).collect(Collectors.toList());
         Collections.reverse(trail);
         classifier.setTrail(trail);
         if (this.parent.isPresent()) {
@@ -454,7 +467,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         allNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
         classifier.setNames(allNames);
         for (String nm: allNames)
-            classifier.add(this.name, nm, true);
+            classifier.add(this.name, nm, true, false);
         if (accepted.isPresent()){
             Classifier acc = accepted.get();
             for (Observable obs: this.copy) {
@@ -525,8 +538,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         weight = this.weightAnalyser.modify(classifier, weight);
         if (weight < 1.0)
             throw new BuilderException("Weight must be greater than or equoal to 1 for " + classifier.get(this.identifier) + " weight " + weight);
-        classifier.clear(this.weight);
-        classifier.add(this.weight, weight, false);
+        classifier.add(this.weight, weight, false, true);
         return classifier;
     }
 
@@ -643,8 +655,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         weight = this.weightAnalyser.modify(classifier, weight);
         if (weight < 1.0)
             throw new BuilderException("Weight must be greater than or equoal to 1 for " + classifier.get(this.identifier) + " weight " + weight);
-        classifier.clear(this.weight);
-        classifier.add(this.weight, weight, false);
+        classifier.add(this.weight, weight, false, true);
     }
 
     /**
@@ -706,15 +717,15 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        metadata.add(identifier, UUID.randomUUID().toString(), false);
-        metadata.add(title, this.network.getId(), false);
-        metadata.add(description, this.network.getDescription(), false);
-        metadata.add(creator, System.getProperty("user.name", "unknown"), false);
-        metadata.add(created, TIMESTAMP.format(timestamp), false);
-        metadata.add(builderClass, this.config.getBuilderClass().getName(), false);
-        metadata.add(version, this.getClass().getPackage().getSpecificationVersion(), false);
+        metadata.add(identifier, UUID.randomUUID().toString(), false, true);
+        metadata.add(title, this.network.getId(), false, true);
+        metadata.add(description, this.network.getDescription(), false, true);
+        metadata.add(creator, System.getProperty("user.name", "unknown"), false, true);
+        metadata.add(created, TIMESTAMP.format(timestamp), false, true);
+        metadata.add(builderClass, this.config.getBuilderClass().getName(), false, true);
+        metadata.add(version, this.getClass().getPackage().getSpecificationVersion(), false, true);
         try {
-            metadata.add(source, mapper.writeValueAsString(this.network), false);
+            metadata.add(source, mapper.writeValueAsString(this.network), false, true);
         } catch (JsonProcessingException ex) {
             throw new StoreException("Unable to write network configuration", ex);
         }
@@ -745,8 +756,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         if (id == null || this.identifiers.contains(id)) {
             logger.warn("Non-unique or null identifier " + id + " replacing with " + classifier.getIdentifier());
             id = classifier.getIdentifier();
-            classifier.clear(this.identifier);
-            classifier.add(this.identifier, id, false);
+            classifier.add(this.identifier, id, false, true);
             classifier.annotate(BayesianTerm.identifierCreated);
         }
         this.identifiers.add(id);

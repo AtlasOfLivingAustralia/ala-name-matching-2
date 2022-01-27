@@ -116,7 +116,9 @@ public class SimpleClassifier implements Classifier {
      * @throws StoreException if unable to add this variable to the classifier
      */
     @Override
-    public <T> void add(Observable<T> observable, T value, boolean variant) throws StoreException {
+    public <T> void add(Observable<T> observable, T value, boolean variant, boolean replace) throws StoreException {
+        if (replace)
+            this.values.remove(observable);
         if (this.values.containsKey(observable))
             throw new StoreException("Observable " + observable + " already has a value");
         Normaliser normaliser = observable.getNormaliser();

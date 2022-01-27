@@ -230,9 +230,9 @@ public class Network13Classification implements Classification<Network13Classifi
       classifier.clear(Network13Factory.v2);
       classifier.clear(Network13Factory.v3);
     }
-    classifier.add(Network13Factory.v1, this.v1, false);
-    classifier.add(Network13Factory.v2, this.v2, false);
-    classifier.add(Network13Factory.v3, this.v3, false);
+    classifier.add(Network13Factory.v1, this.v1, false, false);
+    classifier.add(Network13Factory.v2, this.v2, false, false);
+    classifier.add(Network13Factory.v3, this.v3, false, false);
   }
 
 

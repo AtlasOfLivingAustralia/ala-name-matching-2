@@ -24,7 +24,7 @@ public class AlaVernacularAnalyserTest {
     @Test
     public void testAnalyseForIndex1() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaVernacularFactory.vernacularName, "Common Wombat", false);
+        classifier.add(AlaVernacularFactory.vernacularName, "Common Wombat", false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Common Wombat", classifier.get(AlaVernacularFactory.vernacularName));
         assertEquals(1.0, classifier.get(AlaVernacularFactory.weight), 0.00001);
@@ -33,8 +33,8 @@ public class AlaVernacularAnalyserTest {
     @Test
     public void testAnalyseForIndex2() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaVernacularFactory.vernacularName, "Common Wombat", false);
-        classifier.add(AlaVernacularFactory.vernacularStatus, VernacularStatus.preferred, false);
+        classifier.add(AlaVernacularFactory.vernacularName, "Common Wombat", false, false);
+        classifier.add(AlaVernacularFactory.vernacularStatus, VernacularStatus.preferred, false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Common Wombat", classifier.get(AlaVernacularFactory.vernacularName));
         assertEquals(20.0, classifier.get(AlaVernacularFactory.weight), 0.00001);
@@ -43,8 +43,8 @@ public class AlaVernacularAnalyserTest {
     @Test
     public void testAnalyseForIndex3() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaVernacularFactory.vernacularName, "Common Wombat", false);
-        classifier.add(AlaVernacularFactory.taxonRank, Rank.SPECIES, false);
+        classifier.add(AlaVernacularFactory.vernacularName, "Common Wombat", false, false);
+        classifier.add(AlaVernacularFactory.taxonRank, Rank.SPECIES, false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Common Wombat", classifier.get(AlaVernacularFactory.vernacularName));
         assertEquals(10.0, classifier.get(AlaVernacularFactory.weight), 0.00001);
@@ -54,8 +54,8 @@ public class AlaVernacularAnalyserTest {
     @Test
     public void testAnalyseForIndex4() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaVernacularFactory.vernacularName, "Common Wombat", false);
-        classifier.add(AlaVernacularFactory.taxonomicStatus, TaxonomicStatus.homotypicSynonym, false);
+        classifier.add(AlaVernacularFactory.vernacularName, "Common Wombat", false, false);
+        classifier.add(AlaVernacularFactory.taxonomicStatus, TaxonomicStatus.homotypicSynonym, false, false);
         this.analyser.analyseForIndex(classifier);
         assertEquals("Common Wombat", classifier.get(AlaVernacularFactory.vernacularName));
         assertEquals(1.0, classifier.get(AlaVernacularFactory.weight), 0.00001);
@@ -74,7 +74,7 @@ public class AlaVernacularAnalyserTest {
     @Test
     public void testAnalyseNames1() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaVernacularFactory.vernacularName, "King Island Dunnart", false);
+        classifier.add(AlaVernacularFactory.vernacularName, "King Island Dunnart", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaVernacularFactory.vernacularName, Optional.empty(), Optional.empty(), false);
         assertNotNull(names);
         assertEquals(1, names.size());
@@ -84,7 +84,7 @@ public class AlaVernacularAnalyserTest {
     @Test
     public void testAnalyseNames2() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaVernacularFactory.vernacularName, "Mārū", false);
+        classifier.add(AlaVernacularFactory.vernacularName, "Mārū", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaVernacularFactory.vernacularName, Optional.empty(), Optional.empty(), false);
         assertNotNull(names);
         assertEquals(2, names.size());
@@ -95,7 +95,7 @@ public class AlaVernacularAnalyserTest {
     @Test
     public void testAnalyseNames3() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaVernacularFactory.vernacularName, "Yellow-fin Tuna", false);
+        classifier.add(AlaVernacularFactory.vernacularName, "Yellow-fin Tuna", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaVernacularFactory.vernacularName, Optional.empty(), Optional.empty(), false);
         assertNotNull(names);
         assertEquals(3, names.size());
@@ -107,7 +107,7 @@ public class AlaVernacularAnalyserTest {
     @Test
     public void testAnalyseNames4() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaVernacularFactory.vernacularName, "Yellow - footed Hopping-mouse", false);
+        classifier.add(AlaVernacularFactory.vernacularName, "Yellow - footed Hopping-mouse", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaVernacularFactory.vernacularName, Optional.empty(), Optional.empty(), false);
         assertNotNull(names);
         assertEquals(3, names.size());
@@ -120,7 +120,7 @@ public class AlaVernacularAnalyserTest {
     @Test
     public void testAnalyseNames5() throws Exception {
         Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaVernacularFactory.vernacularName, "Sturt's Desert-Pea", false);
+        classifier.add(AlaVernacularFactory.vernacularName, "Sturt's Desert-Pea", false, false);
         Set<String> names = this.analyser.analyseNames(classifier, AlaVernacularFactory.vernacularName, Optional.empty(), Optional.empty(), false);
         assertNotNull(names);
         assertEquals(6, names.size());

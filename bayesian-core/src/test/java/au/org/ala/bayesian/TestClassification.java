@@ -218,12 +218,12 @@ public class TestClassification implements Classification<TestClassification> {
             classifier.clear(RANK_RANGE);
             classifier.clear(TEST_ENUM);
         }
-        classifier.add(TAXON_ID, this.taxonID, false);
-        classifier.add(CLASS_, this.class_, false);
-        classifier.add(SCIENTIFIC_NAME, this.scientificName, false);
-        classifier.add(VERNACULAR_NAME, this.vernacularName, false);
-        classifier.add(RANK_ID, this.rankID, false);
-        classifier.add(RANK_RANGE, this.rankRange, false);
-        classifier.add(TEST_ENUM, this.testEnum, false);
+        classifier.add(TAXON_ID, this.taxonID, false, false);
+        classifier.add(CLASS_, this.class_, false, false);
+        classifier.add(SCIENTIFIC_NAME, this.scientificName, false, false);
+        classifier.add(VERNACULAR_NAME, this.vernacularName, false, false);
+        classifier.add(RANK_ID, this.rankID, false, false);
+        classifier.add(RANK_RANGE, this.rankRange, false, false);
+        classifier.add(TEST_ENUM, this.testEnum, false, false);
     }
 }

@@ -92,7 +92,7 @@ public class TaxonNameSoundEx {
         return output;
     }
 
-    public static String treatWord(String str, Rank rank, NameType nameType) {
+    public static String treatWord(String str, Rank rank, NameType nameType, boolean epithet) {
         char startLetter;
         str = normalize(str, nameType);
         if (StringUtils.isBlank(str))
@@ -163,7 +163,8 @@ public class TaxonNameSoundEx {
             // now drop any repeated characters (AA becomes A, BB or BBB becomes B, etc.)
             temp = temp.replaceAll("(\\w)\\1+", "$1");
 
-            if ((rank == null || rank.isSpeciesOrBelow()) && builder.length() > 0) {
+            // Specific or subspecific epithets get endings
+            if (epithet) {
                 if (temp.endsWith("IS")) {
                     temp = temp.substring(0, temp.length() - 2) + "A";
                 } else if (temp.endsWith("IM")) {
@@ -173,9 +174,11 @@ public class TaxonNameSoundEx {
                 }
                 //temp = temp.replaceAll("(\\w)\\1+", "$1");
             }
+            // Following words for species level ranks are treated as epithets
             if (builder.length() > 0)
                 builder.append(' ');
             builder.append(temp);
+            epithet = epithet || ((rank == null || rank.isSpeciesOrBelow()) && builder.length() > 0);
         }
         return builder.length() == 0 ? null : builder.toString();
     }

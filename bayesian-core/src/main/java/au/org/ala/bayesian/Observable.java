@@ -3,6 +3,7 @@ package au.org.ala.bayesian;
 import au.org.ala.util.MulitplicitySerializer;
 import au.org.ala.util.MultiplicityDeserializer;
 import au.org.ala.vocab.BayesianTerm;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -12,6 +13,8 @@ import lombok.Setter;
 import org.gbif.dwc.terms.Term;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A node of a bayseian network, representing some sort of observable element that can be reasoned about.
@@ -60,8 +63,14 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
     private Normaliser normaliser;
     /** The object that analyses this observable and provides equivalence. */
     @JsonProperty
+    @Getter
     @Setter
     private Analysis<T, ?, ?> analysis;
+    /** Observables that provide additional matches, in addition to this match. See {@link BayesianTerm#name} and {@link BayesianTerm#altName} */
+    @JsonProperty
+    @Getter
+    @Setter
+    private List<Observable<T>> alternativeMatches;
 
     // Ensure Bayesian Term vocabulary is properly loaded
     static {
@@ -165,6 +174,25 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
         if (normaliser != null && o instanceof String)
             o = (T) normaliser.normalise((String) o);
         return this.getAnalysis().analyse(o);
+    }
+
+    /**
+     * Get the list of observables that can be enlisted to make a match.
+     * <p>
+     * The actual observable is always first, followed by any alternative matches
+     * </p>
+     *
+     * @return The list of observables that can be used for a match
+     *
+     * @see #alternativeMatches
+     */
+    @JsonIgnore
+    public List<Observable<T>> getMatchers() {
+        List<Observable<T>> matchers = new ArrayList<>();
+        matchers.add(this);
+        if (this.alternativeMatches != null)
+            matchers.addAll(this.alternativeMatches);
+        return matchers;
     }
 
     /**

@@ -256,10 +256,13 @@ public class LuceneClassifier implements Classifier {
      * @param observable The observable to store
      * @param value      The value to store
      * @param variant    Write as a variant only
+     * @param replace Replace the non-variant value
      * @throws StoreException if unable to add this variable to the classifier
      */
     @Override
-    public <T> void add(Observable<T> observable, T value, boolean variant) throws StoreException {
+    public <T> void add(Observable<T> observable, T value, boolean variant, boolean replace) throws StoreException {
+        if (replace)
+            this.document.removeFields(observable.getExternal(LUCENE));
         if (value == null)
             return;
         boolean index = !observable.hasProperty(BayesianTerm.index, false); // True by default

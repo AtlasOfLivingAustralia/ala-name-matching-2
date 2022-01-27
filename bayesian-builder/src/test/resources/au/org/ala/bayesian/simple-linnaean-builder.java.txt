@@ -52,11 +52,11 @@ public class SimpleLinnaeanBuilder implements Builder<SimpleLinnaeanClassificati
      if (!classifier.has(SimpleLinnaeanFactory.soundexScientificName)){
        java.lang.String i_0 = classifier.get(SimpleLinnaeanFactory.scientificName);
        java.lang.String v_0 = this.soundex.soundex((String) i_0);
-       classifier.add(SimpleLinnaeanFactory.soundexScientificName, v_0, false);
+       classifier.add(SimpleLinnaeanFactory.soundexScientificName, SimpleLinnaeanFactory.soundexScientificName.analyse(v_0), false, false);
     }
     for (java.lang.String i_0: classifier.getAll(SimpleLinnaeanFactory.scientificName)){
       java.lang.String v_0 = this.soundex.soundex((String) i_0);
-      classifier.add(SimpleLinnaeanFactory.soundexScientificName, v_0, true);
+      classifier.add(SimpleLinnaeanFactory.soundexScientificName, SimpleLinnaeanFactory.soundexScientificName.analyse(v_0), true, false);
     }
   }
 
@@ -70,7 +70,7 @@ public class SimpleLinnaeanBuilder implements Builder<SimpleLinnaeanClassificati
       if (d_0 != null) {
         if (!classifier.has(SimpleLinnaeanFactory.genus)) {
           java.lang.String i_0 = d_0.get(SimpleLinnaeanFactory.scientificName);
-          classifier.add(SimpleLinnaeanFactory.genus, i_0, false);
+          classifier.add(SimpleLinnaeanFactory.genus, SimpleLinnaeanFactory.genus.analyse(i_0), false, false);
         }
       }
       Classifier d_1;
@@ -81,10 +81,10 @@ public class SimpleLinnaeanBuilder implements Builder<SimpleLinnaeanClassificati
       if (d_1 != null) {
         if (!classifier.has(SimpleLinnaeanFactory.family)) {
           java.lang.String i_1 = d_1.get(SimpleLinnaeanFactory.scientificName);
-          classifier.add(SimpleLinnaeanFactory.family, i_1, false);
+          classifier.add(SimpleLinnaeanFactory.family, SimpleLinnaeanFactory.family.analyse(i_1), false, false);
         }
         for(java.lang.String i_1: d_1.getAll(SimpleLinnaeanFactory.scientificName, SimpleLinnaeanFactory.synonymScientificName)) {
-          classifier.add(SimpleLinnaeanFactory.family, i_1,  true);
+          classifier.add(SimpleLinnaeanFactory.family, SimpleLinnaeanFactory.family.analyse(i_1),  true, false);
         }
       }
       Classifier d_2;
@@ -95,10 +95,10 @@ public class SimpleLinnaeanBuilder implements Builder<SimpleLinnaeanClassificati
       if (d_2 != null) {
         if (!classifier.has(SimpleLinnaeanFactory.order)) {
           java.lang.String i_2 = d_2.get(SimpleLinnaeanFactory.scientificName);
-          classifier.add(SimpleLinnaeanFactory.order, i_2, false);
+          classifier.add(SimpleLinnaeanFactory.order, SimpleLinnaeanFactory.order.analyse(i_2), false, false);
         }
         for(java.lang.String i_2: d_2.getAll(SimpleLinnaeanFactory.scientificName, SimpleLinnaeanFactory.synonymScientificName)) {
-          classifier.add(SimpleLinnaeanFactory.order, i_2,  true);
+          classifier.add(SimpleLinnaeanFactory.order, SimpleLinnaeanFactory.order.analyse(i_2),  true, false);
         }
       }
       Classifier d_3;
@@ -109,10 +109,10 @@ public class SimpleLinnaeanBuilder implements Builder<SimpleLinnaeanClassificati
       if (d_3 != null) {
         if (!classifier.has(SimpleLinnaeanFactory.class_)) {
           java.lang.String i_3 = d_3.get(SimpleLinnaeanFactory.scientificName);
-          classifier.add(SimpleLinnaeanFactory.class_, i_3, false);
+          classifier.add(SimpleLinnaeanFactory.class_, SimpleLinnaeanFactory.class_.analyse(i_3), false, false);
         }
         for(java.lang.String i_3: d_3.getAll(SimpleLinnaeanFactory.scientificName, SimpleLinnaeanFactory.synonymScientificName)) {
-          classifier.add(SimpleLinnaeanFactory.class_, i_3,  true);
+          classifier.add(SimpleLinnaeanFactory.class_, SimpleLinnaeanFactory.class_.analyse(i_3),  true, false);
         }
       }
       Classifier d_4;
@@ -123,10 +123,10 @@ public class SimpleLinnaeanBuilder implements Builder<SimpleLinnaeanClassificati
       if (d_4 != null) {
         if (!classifier.has(SimpleLinnaeanFactory.phylum)) {
           java.lang.String i_4 = d_4.get(SimpleLinnaeanFactory.scientificName);
-          classifier.add(SimpleLinnaeanFactory.phylum, i_4, false);
+          classifier.add(SimpleLinnaeanFactory.phylum, SimpleLinnaeanFactory.phylum.analyse(i_4), false, false);
         }
         for(java.lang.String i_4: d_4.getAll(SimpleLinnaeanFactory.scientificName, SimpleLinnaeanFactory.synonymScientificName)) {
-          classifier.add(SimpleLinnaeanFactory.phylum, i_4,  true);
+          classifier.add(SimpleLinnaeanFactory.phylum, SimpleLinnaeanFactory.phylum.analyse(i_4),  true, false);
         }
       }
       Classifier d_5;
@@ -137,10 +137,10 @@ public class SimpleLinnaeanBuilder implements Builder<SimpleLinnaeanClassificati
       if (d_5 != null) {
         if (!classifier.has(SimpleLinnaeanFactory.kingdom)) {
           java.lang.String i_5 = d_5.get(SimpleLinnaeanFactory.scientificName);
-          classifier.add(SimpleLinnaeanFactory.kingdom, i_5, false);
+          classifier.add(SimpleLinnaeanFactory.kingdom, SimpleLinnaeanFactory.kingdom.analyse(i_5), false, false);
         }
         for(java.lang.String i_5: d_5.getAll(SimpleLinnaeanFactory.scientificName, SimpleLinnaeanFactory.synonymScientificName)) {
-          classifier.add(SimpleLinnaeanFactory.kingdom, i_5,  true);
+          classifier.add(SimpleLinnaeanFactory.kingdom, SimpleLinnaeanFactory.kingdom.analyse(i_5),  true, false);
         }
       }
   }

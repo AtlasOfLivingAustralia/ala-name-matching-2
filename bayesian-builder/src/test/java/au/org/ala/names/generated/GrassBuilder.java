@@ -1,11 +1,19 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.BayesianException;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.ParameterAnalyser;
+import au.org.ala.bayesian.Parameters;
 import au.org.ala.names.builder.Builder;
 
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+
+import au.org.ala.bayesian.analysis.StringAnalysis;
 
 public class GrassBuilder implements Builder<GrassClassification> {
   // Assumed to be stateless

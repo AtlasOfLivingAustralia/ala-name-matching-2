@@ -1,5 +1,7 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 
 public class GrassParameters_ implements Parameters {
