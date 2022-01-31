@@ -2,6 +2,7 @@ package au.org.ala.util;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
+import lombok.Getter;
 import org.gbif.dwc.terms.Term;
 
 import java.util.*;
@@ -23,6 +24,8 @@ public class SimpleClassifier implements Classifier {
     private Set<String> names;
     private Map<Observable, Object> values;
     private List<String> trail;
+    @Getter
+    private Parameters cachedParameters;
 
     public SimpleClassifier() {
         this.annotations = new HashSet<>();
@@ -248,6 +251,7 @@ public class SimpleClassifier implements Classifier {
     @Override
     public void loadParameters(Parameters parameters) throws StoreException {
         parameters.load(this.parameters);
+        this.cachedParameters = parameters;
     }
 
     /**
@@ -258,6 +262,7 @@ public class SimpleClassifier implements Classifier {
      */
     @Override
     public void storeParameters(Parameters parameters) throws StoreException {
+        this.cachedParameters = parameters;
         this.parameters = parameters.store();
     }
 

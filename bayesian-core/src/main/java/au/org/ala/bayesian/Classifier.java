@@ -229,7 +229,19 @@ public interface Classifier {
     public void annotate(Term annotation) throws StoreException;
 
     /**
-     * Load the inference parameters in a classifier
+     * Get the parameters associated with this classifier
+     *
+     * @return A pre-loaded set of parameters or null for not loaded
+     *
+     * @see #loadParameters(Parameters)
+     */
+    public Parameters getCachedParameters();
+
+    /**
+     * Load the inference parameters in a classifier.
+     * <p>
+     * This loads the parameters and, if they can be accessed via {@link #getCachedParameters()}
+     * </p>
      *
      * @throws StoreException if unable to retrieve the parameters
      */

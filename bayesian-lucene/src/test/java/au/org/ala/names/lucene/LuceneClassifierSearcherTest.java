@@ -28,7 +28,7 @@ public class LuceneClassifierSearcherTest {
     @Test
     public void testSearch1() throws Exception {
         this.lucene = new LuceneUtils(LuceneClassifierSearcherTest.class, "lucene-searcher-1.csv", TestClassification.OBSERVABLES);
-        this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir());
+        this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir(), null);
         TestClassification classification = new TestClassification();
         classification.scientificName = "Lates calcarifer";
         List<LuceneClassifier> classifiers = this.searcher.search(classification);
@@ -44,7 +44,7 @@ public class LuceneClassifierSearcherTest {
     @Test
     public void testSearch2() throws Exception {
         this.lucene = new LuceneUtils(LuceneClassifierSearcherTest.class, "lucene-searcher-1.csv", TestClassification.OBSERVABLES);
-        this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir());
+        this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir(), null);
         TestClassification classification = new TestClassification();
         classification.class_ = "Reptilia";
         List<LuceneClassifier> classifiers = this.searcher.search(classification);
@@ -60,7 +60,7 @@ public class LuceneClassifierSearcherTest {
     @Test
     public void testSearch3() throws Exception {
         this.lucene = new LuceneUtils(LuceneClassifierSearcherTest.class, "lucene-searcher-1.csv", TestClassification.OBSERVABLES);
-        this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir());
+        this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir(), null);
         TestClassification classification = new TestClassification();
         classification.class_ = "Reptilia";
         classification.rankID = 7000;

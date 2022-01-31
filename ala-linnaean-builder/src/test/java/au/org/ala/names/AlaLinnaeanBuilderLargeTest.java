@@ -1,9 +1,6 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.ClassificationMatcher;
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Inference;
-import au.org.ala.bayesian.Match;
+import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.IndexBuilder;
 import au.org.ala.names.builder.IndexBuilderConfiguration;
 import au.org.ala.names.builder.LoadStore;
@@ -34,7 +31,7 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
 
     private AlaLinnaeanFactory factory;
     private LuceneClassifierSearcher searcher;
-    private ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory> matcher;
+    private ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory, MatchMeasurement> matcher;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -66,8 +63,8 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
     @Before
     public void setUp() throws Exception {
         this.factory = AlaLinnaeanFactory.instance();
-        this.searcher = new LuceneClassifierSearcher(this.output);
-        this.matcher = this.factory.createMatcher(this.searcher);
+        this.searcher = new LuceneClassifierSearcher(this.output, null);
+        this.matcher = this.factory.createMatcher(this.searcher, null);
     }
 
     @After
@@ -253,7 +250,7 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
     public void testMatch1() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia congesta wonganensis";
-        Match<AlaLinnaeanClassification> match = matcher.findMatch(classification);
+        Match<AlaLinnaeanClassification, MatchMeasurement> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2888346", match.getMatch().taxonId);
         assertEquals(0.0000121, match.getProbability().getEvidence(), 0.0000001);

@@ -1,10 +1,12 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.util.Service;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Normalise a string in a consistent way.
  */
+@Service
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
 abstract public class Normaliser extends Identifiable {
     /**

@@ -1,13 +1,16 @@
 package au.org.ala.bayesian.generated;
 
 import au.org.ala.bayesian.ClassificationMatcher;
+import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observable.Multiplicity;
 import static au.org.ala.bayesian.ExternalContext.*;
+import au.org.ala.vocab.BayesianTerm;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -259,6 +262,16 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   */
   public static final Term REMOVED_ORDER = TERM_FACTORY.findTerm("http://ala.org.au/issues/1.0/removedOrder");
 
+  public static final List<Term> ISSUES = Collections.unmodifiableList(Arrays.asList(
+          BayesianTerm.illformedData,
+          BayesianTerm.invalidMatch,
+          REMOVED_RANK,
+          REMOVED_PHYLUM,
+          REMOVED_CLASS,
+          REMOVED_ORDER
+  ));
+
+
   static {
     acceptedNameUsageId.setExternal(LUCENE, "dwc_acceptedNameUsageID");
     acceptedNameUsageId.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/accepted"), true);
@@ -324,8 +337,18 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   }
 
   @Override
+  public String getNetworkId() {
+    return "simple-linnaean";
+  }
+
+  @Override
   public List<Observable<?>> getObservables() {
-      return OBSERVABLES;
+    return OBSERVABLES;
+  }
+
+  @Override
+  public List<Term> getAllIssues() {
+    return ISSUES;
   }
 
   @Override
@@ -364,8 +387,8 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   }
 
   @Override
-  public ClassificationMatcher<SimpleLinnaeanClassification, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> createMatcher(ClassifierSearcher searcher){
-        return new ClassificationMatcher<>(this, searcher);
+  public ClassificationMatcher<SimpleLinnaeanClassification, SimpleLinnaeanInferencer, SimpleLinnaeanFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config){
+        return new ClassificationMatcher<>(this, searcher, config);
   }
 
   public static SimpleLinnaeanFactory instance() {

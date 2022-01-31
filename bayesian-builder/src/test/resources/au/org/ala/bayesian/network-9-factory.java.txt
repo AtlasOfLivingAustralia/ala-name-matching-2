@@ -1,13 +1,16 @@
 package au.org.ala.bayesian.generated;
 
 import au.org.ala.bayesian.ClassificationMatcher;
+import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observable.Multiplicity;
 import static au.org.ala.bayesian.ExternalContext.*;
+import au.org.ala.vocab.BayesianTerm;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -71,6 +74,12 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
   public static final Term CONCEPT = TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/Concept");
 
 
+  public static final List<Term> ISSUES = Collections.unmodifiableList(Arrays.asList(
+          BayesianTerm.illformedData,
+          BayesianTerm.invalidMatch
+  ));
+
+
   static {
     v1.setExternal(LUCENE, "v_1");
     v1.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/analysed"), true);
@@ -79,8 +88,18 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
   }
 
   @Override
+  public String getNetworkId() {
+    return "network_9";
+  }
+
+  @Override
   public List<Observable<?>> getObservables() {
-      return OBSERVABLES;
+    return OBSERVABLES;
+  }
+
+  @Override
+  public List<Term> getAllIssues() {
+    return ISSUES;
   }
 
   @Override
@@ -119,8 +138,8 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
   }
 
   @Override
-  public au.org.ala.test.TestMatcher createMatcher(ClassifierSearcher searcher) {
-        return new au.org.ala.test.TestMatcher(this,searcher);
+  public au.org.ala.test.TestMatcher createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config) {
+        return new au.org.ala.test.TestMatcher(this, searcher, config);
   }
 
   public static Network9Factory instance() {

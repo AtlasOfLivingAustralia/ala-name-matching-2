@@ -9,8 +9,6 @@ import au.org.ala.bayesian.Inferencer;
 public class ${className} implements Inferencer<${classificationClassName}> {
   public final static String SIGNATURE = "${network.signature}";
 
-  private ThreadLocal<${parametersClassName}> parameters = ThreadLocal.withInitial(() -> new ${parametersClassName}());
-
   public ${className}() {
   }
 
@@ -99,8 +97,11 @@ public class ${className} implements Inferencer<${classificationClassName}> {
   @Override
   public Inference probability(${classificationClassName} classification, Classifier classifier) throws BayesianException {
     ${parentClassName}.Evidence evidence = classification.match(classifier);
-    ${parametersClassName} params = this.parameters.get();
-    classifier.loadParameters(params);
+    ${parametersClassName} params = (${parametersClassName}) classifier.getCachedParameters();
+    if (params == null) {
+      params = new ${parametersClassName}();
+      classifier.loadParameters(params);
+    }
     return this.probability(evidence, params);
   }
 

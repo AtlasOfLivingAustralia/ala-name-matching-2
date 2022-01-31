@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory> {
+public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory, MatchMeasurement> {
     private static final Logger logger = LoggerFactory.getLogger(ALAClassificationMatcher.class);
 
     private static final int SPECIES_RANK_ID = RankIDAnalysis.idFromRank(Rank.SPECIES);
@@ -31,11 +31,11 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     /** First four characters for valid checks */
     private static final int MIN_VALID_LENGTH = 4;
 
-    private static final Comparator<Match<AlaLinnaeanClassification>> MATCH_SORTER = new Comparator<Match<AlaLinnaeanClassification>>() {
+    private static final Comparator<Match<AlaLinnaeanClassification, MatchMeasurement>> MATCH_SORTER = new Comparator<Match<AlaLinnaeanClassification, MatchMeasurement>>() {
         private static final double DISTANCE = 0.10;
 
         @Override
-        public int compare(Match<AlaLinnaeanClassification> o1, Match<AlaLinnaeanClassification> o2) {
+        public int compare(Match<AlaLinnaeanClassification, MatchMeasurement> o1, Match<AlaLinnaeanClassification, MatchMeasurement> o2) {
             double p1 = o1.getProbability().getPosterior();
             double p2 = o2.getProbability().getPosterior();
             AlaLinnaeanClassification m1 = o1.getMatch();
@@ -50,6 +50,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         }
     };
 
+    /** Hints for kingdoms */
     private Cache<KingdomKey, AlaLinnaeanClassification> kingdomCache;
 
     /**
@@ -58,13 +59,13 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * @param factory  The factory for creating objects for the matcher to work on
      * @param searcher The mechanism for getting candidiates
      */
-    public ALAClassificationMatcher(AlaLinnaeanFactory factory, ClassifierSearcher<?> searcher) {
-        super(factory, searcher);
+    public ALAClassificationMatcher(AlaLinnaeanFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config) {
+        super(factory, searcher, config);
         this.kingdomCache = Cache2kBuilder.of(KingdomKey.class, AlaLinnaeanClassification.class)
                 .entryCapacity(100000)
                 .permitNullValues(true)
                 .loader(this::doFindKingdom)
-                .enableJmx(true)
+                .enableJmx(this.getConfig().isEnableJmx())
                 .build();
     }
 
@@ -78,8 +79,8 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * @throws BayesianException     if there is a problem retrieving information or makign inferences
      */
     @Override
-    protected List<Match<AlaLinnaeanClassification>> annotate(List<Match<AlaLinnaeanClassification>> results) throws BayesianException {
-        List<Match<AlaLinnaeanClassification>> results1 = super.annotate(results);
+    protected List<Match<AlaLinnaeanClassification, MatchMeasurement>> annotate(List<Match<AlaLinnaeanClassification, MatchMeasurement>> results) throws BayesianException {
+        List<Match<AlaLinnaeanClassification, MatchMeasurement>> results1 = super.annotate(results);
         return results1.stream()
                 .map(m -> this.detectMisapplied(m, results1))
                 .map(m -> this.detectExcluded(m, results1))
@@ -94,7 +95,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      *
      * @param results The list of candidate matches
      */
-    protected Match<AlaLinnaeanClassification> detectMisapplied(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
+    protected Match<AlaLinnaeanClassification, MatchMeasurement> detectMisapplied(final Match<AlaLinnaeanClassification, MatchMeasurement> match, final List<Match<AlaLinnaeanClassification, MatchMeasurement>> results) {
         AlaLinnaeanClassification m = match.getMatch();
         if (m.taxonomicStatus != null && m.taxonomicStatus.isMisappliedFlag())
             return match.with(AlaLinnaeanFactory.MISAPPLIED_NAME);
@@ -107,7 +108,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      *
      * @param results The list of candidate matches
      */
-    protected Match<AlaLinnaeanClassification> detectExcluded(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
+    protected Match<AlaLinnaeanClassification, MatchMeasurement> detectExcluded(final Match<AlaLinnaeanClassification, MatchMeasurement> match, final List<Match<AlaLinnaeanClassification, MatchMeasurement>> results) {
         AlaLinnaeanClassification m = match.getMatch();
         if (m.taxonomicStatus != null && m.taxonomicStatus.isExcludedFlag())
             return match.with(AlaLinnaeanFactory.EXCLUDED_NAME);
@@ -119,10 +120,10 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      *
      * @param results The list of candidate matches
      */
-    protected Match<AlaLinnaeanClassification> detectPartialMisapplied(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
+    protected Match<AlaLinnaeanClassification, MatchMeasurement> detectPartialMisapplied(final Match<AlaLinnaeanClassification, MatchMeasurement> match, final List<Match<AlaLinnaeanClassification, MatchMeasurement>> results) {
         AlaLinnaeanClassification m = match.getMatch();
         if (m.taxonomicStatus != null && m.scientificName != null && m.taxonomicStatus.isPlaced()) {
-            for (Match<AlaLinnaeanClassification> match2 : results) {
+            for (Match<AlaLinnaeanClassification, MatchMeasurement> match2 : results) {
                 AlaLinnaeanClassification m2 = match2.getMatch();
                 if (match2 != match && m.scientificName.equalsIgnoreCase(m2.scientificName) && m2.taxonomicStatus != null && m2.taxonomicStatus.isMisappliedFlag())
                     return match.with(AlaLinnaeanFactory.PARTIALLY_MISAPPLIED_NAME);
@@ -136,10 +137,10 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      *
      * @param results The list of candidate matches
      */
-    protected Match<AlaLinnaeanClassification> detectPartialExcluded(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
+    protected Match<AlaLinnaeanClassification, MatchMeasurement> detectPartialExcluded(final Match<AlaLinnaeanClassification, MatchMeasurement> match, final List<Match<AlaLinnaeanClassification, MatchMeasurement>> results) {
         AlaLinnaeanClassification m = match.getMatch();
         if (m.taxonomicStatus != null && m.scientificName != null && m.taxonomicStatus.isPlaced()) {
-            for (Match<AlaLinnaeanClassification> match2 : results) {
+            for (Match<AlaLinnaeanClassification, MatchMeasurement> match2 : results) {
                 AlaLinnaeanClassification m2 = match2.getMatch();
                 if (match2 != match && m.scientificName.equalsIgnoreCase(m2.scientificName) && m2.taxonomicStatus != null && m2.taxonomicStatus.isExcludedFlag())
                     return match.with(AlaLinnaeanFactory.PARTIALLY_EXCLUDED_NAME);
@@ -156,7 +157,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      *
      * @return If there is a possible parent/child synonym, a match flagged with the synoym
      */
-    protected Match<AlaLinnaeanClassification> detectParentChildSynonym(final Match<AlaLinnaeanClassification> match, final List<Match<AlaLinnaeanClassification>> results) {
+    protected Match<AlaLinnaeanClassification, MatchMeasurement> detectParentChildSynonym(final Match<AlaLinnaeanClassification, MatchMeasurement> match, final List<Match<AlaLinnaeanClassification, MatchMeasurement>> results) {
         final String taxonId = match.getMatch().taxonId;
         final String scientificName = match.getMatch().scientificName;
 
@@ -180,17 +181,17 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * @return A single acceptable result, or null
      */
     @Override
-    protected Match<AlaLinnaeanClassification> findSingle(AlaLinnaeanClassification classification, List<Match<AlaLinnaeanClassification>> results) throws BayesianException {
+    protected Match<AlaLinnaeanClassification, MatchMeasurement> findSingle(AlaLinnaeanClassification classification, List<Match<AlaLinnaeanClassification, MatchMeasurement>> results, MatchMeasurement measurement) throws BayesianException {
         results = results.stream().filter(m -> !this.isBadEvidence(m)).collect(Collectors.toList());
         if (results.isEmpty())
             return null;
         if (results.size() == 1)
             return results.get(0);
         // See if we have an unresolvable homonym
-        Match<AlaLinnaeanClassification> unresolvedHomonym = this.detectUnresolvableHomonym(classification, results);
+        Match<AlaLinnaeanClassification, MatchMeasurement> unresolvedHomonym = this.detectUnresolvableHomonym(classification, results);
         if (unresolvedHomonym != null)
             return unresolvedHomonym;
-        final Match<AlaLinnaeanClassification> trial = results.get(0);
+        final Match<AlaLinnaeanClassification, MatchMeasurement> trial = results.get(0);
         final AlaLinnaeanClassification tc = trial.getMatch();
         final String tn = tc.scientificName;
         final TaxonomicStatus tts = tc.taxonomicStatus != null ? tc.taxonomicStatus : TaxonomicStatus.unknown;
@@ -200,11 +201,11 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         // See if we have collection of misapplied results
         if (tts.isMisappliedFlag() && results.stream().allMatch(m -> m == trial || m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isMisappliedFlag() &&  m.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName)))
             return trial.boost(results).with(AlaLinnaeanFactory.MISAPPLIED_NAME);
-        List<Match<AlaLinnaeanClassification>> acceptable = results.stream().filter(m -> this.isAcceptableMatch(m)).collect(Collectors.toList());
+        List<Match<AlaLinnaeanClassification, MatchMeasurement>> acceptable = results.stream().filter(m -> this.isAcceptableMatch(m)).collect(Collectors.toList());
         if (!acceptable.isEmpty()) {
             if (acceptable.size() == 1)
                 return acceptable.get(0);
-            final Match<AlaLinnaeanClassification> best = acceptable.get(0);
+            final Match<AlaLinnaeanClassification, MatchMeasurement> best = acceptable.get(0);
             final AlaLinnaeanClassification bc = best.getMatch();
             final TaxonomicStatus bts = bc.taxonomicStatus != null ? bc.taxonomicStatus : TaxonomicStatus.unknown;
             if (bts.isPlaced()) {
@@ -246,7 +247,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         // Look for a common parent if all synonyms
         if (results.stream().allMatch(r -> r.getMatch().taxonomicStatus.isSynonymLike() && r.getMatch() != r.getAccepted())) {
             int limitRankID = this.limitRankID(classification);
-            final Match<AlaLinnaeanClassification> lub = this.lub(results);
+            final Match<AlaLinnaeanClassification, MatchMeasurement> lub = this.lub(results);
             if (lub != null && lub.getAccepted().rankId != null && lub.getAccepted().rankId > limitRankID)
                 return lub.with(AlaLinnaeanFactory.SYNTHETIC_MATCH);
         }
@@ -270,7 +271,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      *
      * @return True if positively a match
      */
-    protected <T> boolean hasMatchingValue(T value, Match<AlaLinnaeanClassification> match, Observable... observables) {
+    protected <T> boolean hasMatchingValue(T value, Match<AlaLinnaeanClassification, MatchMeasurement> match, Observable... observables) {
         try {
             Boolean same = match.getAcceptedCandidate().match(value, observables);
             return same != null && same;
@@ -289,7 +290,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * @param results The usable results
      * @return An unresolved homonym match if there is one.
      */
-    protected Match<AlaLinnaeanClassification> detectUnresolvableHomonym(AlaLinnaeanClassification classification, List<Match<AlaLinnaeanClassification>> results) {
+    protected Match<AlaLinnaeanClassification, MatchMeasurement> detectUnresolvableHomonym(AlaLinnaeanClassification classification, List<Match<AlaLinnaeanClassification, MatchMeasurement>> results) {
         if (results.size() < 1)
             return null;
         final String scientificName = classification.scientificName;
@@ -301,7 +302,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         if (codes.size() > 1)
-            return (Match<AlaLinnaeanClassification>) Match.invalidMatch().with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);
+            return (Match<AlaLinnaeanClassification, MatchMeasurement>) Match.invalidMatch().with(AlaLinnaeanFactory.UNRESOLVED_HOMONYM);
         return null;
     }
 
@@ -326,7 +327,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * @return The sort to use
      */
     @Override
-    protected Comparator<Match<AlaLinnaeanClassification>> getMatchSorter() {
+    protected Comparator<Match<AlaLinnaeanClassification, MatchMeasurement>> getMatchSorter() {
         return MATCH_SORTER;
     }
 
@@ -402,7 +403,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
             finder.scientificName = key.getScientificName();
             finder.taxonRank = key.getTaxonRank();
             finder.inferForSearch(this.getAnalyser());
-            Match<AlaLinnaeanClassification> match = this.findSource(finder, false);
+            Match<AlaLinnaeanClassification, MatchMeasurement> match = this.findSource(finder, false, null);
             if (match != null && match.isValid())
                 return match.getAccepted();
             return null;

@@ -39,6 +39,8 @@
     <cache2k.version>1.2.4.Final</cache2k.version>
     <auto-service.version>1.0-rc7</auto-service.version>
     <junit.version>4.13.1</junit.version>
+    <opencsv.version>5.0</opencsv.version>
+    <jcommander.version>1.78</jcommander.version>
   </properties>
 
   <!-- Required because we use the GBIF Term system -->

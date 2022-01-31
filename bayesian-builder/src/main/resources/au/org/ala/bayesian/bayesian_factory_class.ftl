@@ -3,13 +3,16 @@
 package ${packageName};
 
 import au.org.ala.bayesian.ClassificationMatcher;
+import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observable.Multiplicity;
 import static au.org.ala.bayesian.ExternalContext.*;
+import au.org.ala.vocab.BayesianTerm;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -73,6 +76,15 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   public static final Term ${issue.javaConstant} = TERM_FACTORY.findTerm("${issue.uri}");
 </#list>
 
+  public static final List<Term> ISSUES = Collections.unmodifiableList(Arrays.asList(
+          BayesianTerm.illformedData,
+          BayesianTerm.invalidMatch<#if issues?size != 0>,</#if>
+<#list issues as issue>
+          ${issue.javaConstant}<#if issue?has_next>,</#if>
+</#list>
+  ));
+
+
   static {
 <#list network.observablesById as observable>
   <#list externalContexts as context>
@@ -92,8 +104,18 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
+  public String getNetworkId() {
+    return "${network.id}";
+  }
+
+  @Override
   public List<Observable<?>> getObservables() {
-      return OBSERVABLES;
+    return OBSERVABLES;
+  }
+
+  @Override
+  public List<Term> getAllIssues() {
+    return ISSUES;
   }
 
   @Override
@@ -137,12 +159,12 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
   @Override
 <#if matcherImplementationClassName??>
-  public ${matcherImplementationClassName} createMatcher(ClassifierSearcher searcher) {
-        return new ${matcherImplementationClassName}(this,searcher);
+  public ${matcherImplementationClassName} createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config) {
+        return new ${matcherImplementationClassName}(this, searcher, config);
   }
 <#else>
-  public ClassificationMatcher<${classificationClassName}, ${inferencerClassName}, ${className}> createMatcher(ClassifierSearcher searcher){
-        return new ClassificationMatcher<>(this, searcher);
+  public ClassificationMatcher<${classificationClassName}, ${inferencerClassName}, ${className}, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config){
+        return new ClassificationMatcher<>(this, searcher, config);
   }
 </#if>
 

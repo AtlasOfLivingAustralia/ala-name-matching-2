@@ -9,8 +9,6 @@ import au.org.ala.bayesian.Inferencer;
 public class Network2Inferencer_ implements Inferencer<Network2Classification> {
   public final static String SIGNATURE = "";
 
-  private ThreadLocal<Network2Parameters_> parameters = ThreadLocal.withInitial(() -> new Network2Parameters_());
-
   public Network2Inferencer_() {
   }
 
@@ -69,8 +67,11 @@ public class Network2Inferencer_ implements Inferencer<Network2Classification> {
   @Override
   public Inference probability(Network2Classification classification, Classifier classifier) throws BayesianException {
     Network2Inferencer.Evidence evidence = classification.match(classifier);
-    Network2Parameters_ params = this.parameters.get();
-    classifier.loadParameters(params);
+    Network2Parameters_ params = (Network2Parameters_) classifier.getCachedParameters();
+    if (params == null) {
+      params = new Network2Parameters_();
+      classifier.loadParameters(params);
+    }
     return this.probability(evidence, params);
   }
 

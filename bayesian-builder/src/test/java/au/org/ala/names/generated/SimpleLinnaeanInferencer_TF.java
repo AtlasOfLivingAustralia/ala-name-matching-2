@@ -9,8 +9,6 @@ import au.org.ala.bayesian.Inferencer;
 public class SimpleLinnaeanInferencer_TF implements Inferencer<SimpleLinnaeanClassification> {
   public final static String SIGNATURE = "TF";
 
-  private ThreadLocal<SimpleLinnaeanParameters_TF> parameters = ThreadLocal.withInitial(() -> new SimpleLinnaeanParameters_TF());
-
   public SimpleLinnaeanInferencer_TF() {
   }
 
@@ -225,8 +223,11 @@ public class SimpleLinnaeanInferencer_TF implements Inferencer<SimpleLinnaeanCla
   @Override
   public Inference probability(SimpleLinnaeanClassification classification, Classifier classifier) throws BayesianException {
     SimpleLinnaeanInferencer.Evidence evidence = classification.match(classifier);
-    SimpleLinnaeanParameters_TF params = this.parameters.get();
-    classifier.loadParameters(params);
+    SimpleLinnaeanParameters_TF params = (SimpleLinnaeanParameters_TF) classifier.getCachedParameters();
+    if (params == null) {
+      params = new SimpleLinnaeanParameters_TF();
+      classifier.loadParameters(params);
+    }
     return this.probability(evidence, params);
   }
 

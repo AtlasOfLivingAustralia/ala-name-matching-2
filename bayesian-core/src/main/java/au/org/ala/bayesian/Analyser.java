@@ -1,5 +1,7 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.util.Service;
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -17,6 +19,7 @@ import java.util.Set;
  * </p>
  *
  */
+@Service
 public interface Analyser<C extends Classification> {
     /**
      * Analyse the information in a classifier and extend the classifier

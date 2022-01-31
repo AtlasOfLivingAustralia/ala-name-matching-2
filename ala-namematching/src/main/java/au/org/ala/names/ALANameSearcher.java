@@ -1,10 +1,9 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.BayesianException;
-import au.org.ala.bayesian.Match;
-import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
+import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
 import lombok.Getter;
 import org.gbif.dwc.terms.DwcTerm;
 
@@ -17,7 +16,7 @@ import java.io.File;
  * name index.
  * </p>
  */
-public class ALANameSearcher {
+public class ALANameSearcher implements AutoCloseable {
     @Getter
     private LuceneClassifierSearcher searcher;
     @Getter
@@ -27,18 +26,22 @@ public class ALANameSearcher {
     @Getter
     private ALAVernacularClassificationMatcher vernacularMatcher;
 
-    public ALANameSearcher(File index, File vernacular) throws StoreException {
-        this.searcher = new LuceneClassifierSearcher(index);
-        this.vernacularSearcher = new LuceneClassifierSearcher(vernacular);
-        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher);
-        this.vernacularMatcher = new ALAVernacularClassificationMatcher(AlaVernacularFactory.instance(), this.vernacularSearcher);
+    public ALANameSearcher(File index, File vernacular, LuceneClassifierSearcherConfiguration sConfig, ClassificationMatcherConfiguration cConfig) throws StoreException {
+        this.searcher = new LuceneClassifierSearcher(index, sConfig);
+        this.vernacularSearcher = new LuceneClassifierSearcher(vernacular, sConfig);
+        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, cConfig);
+        this.vernacularMatcher = new ALAVernacularClassificationMatcher(AlaVernacularFactory.instance(), this.vernacularSearcher, cConfig);
     }
 
     /**
      * Close the searcher
      */
-    public void close() throws StoreException {
+    @Override
+    public void close() throws Exception {
+        this.matcher.close();
+        this.vernacularMatcher.close();
         this.searcher.close();
+        this.vernacularSearcher.close();
     }
 
     /**
@@ -50,7 +53,7 @@ public class ALANameSearcher {
      *
      * @throws BayesianException if unable to compuete match charactersics
       */
-    public Match<AlaLinnaeanClassification> search(AlaLinnaeanClassification template) throws BayesianException {
+    public Match<AlaLinnaeanClassification, MatchMeasurement> search(AlaLinnaeanClassification template) throws BayesianException {
         return this.matcher.findMatch(template);
     }
 
@@ -82,7 +85,7 @@ public class ALANameSearcher {
      *
      * @throws BayesianException if unable to compuete match charactersics
       */
-    public Match<AlaVernacularClassification> search(AlaVernacularClassification template) throws BayesianException {
+    public Match<AlaVernacularClassification, MatchMeasurement> search(AlaVernacularClassification template) throws BayesianException {
         return this.vernacularMatcher.findMatch(template);
     }
 

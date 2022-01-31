@@ -1,6 +1,11 @@
 package au.org.ala.names;
 
+import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.Match;
+import au.org.ala.bayesian.MatchMeasurement;
+import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
+import com.opencsv.CSVWriter;
+import com.opencsv.CSVWriterBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
 import org.gbif.nameparser.api.Rank;
@@ -13,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,8 +34,10 @@ import static org.junit.Assert.assertEquals;
 public class PerformanceTest {
     private static final Logger logger = LoggerFactory.getLogger(PerformanceTest.class);
 
-    public static final String INDEX = "/data/lucene/index-20210811-2";
-    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-2";
+    public static final int SEARCH_QUERY_LIMIT = 15;
+    public static final int SEARCH_CACHE_SIZE = 10000;
+    public static final String INDEX = "/data/lucene/index-20210811-2" ;
+    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-2" ;
 
 
     private ALANameSearcher searcher;
@@ -42,7 +51,15 @@ public class PerformanceTest {
             throw new IllegalStateException("Index " + index + " not present");
         if (!vernacular.exists())
             throw new IllegalStateException("Vernacular Index " + vernacular + " not present");
-        this.searcher = new ALANameSearcher(index, vernacular);
+        LuceneClassifierSearcherConfiguration sConfig = LuceneClassifierSearcherConfiguration.builder()
+                .queryLimit(SEARCH_QUERY_LIMIT)
+                .cacheSize(SEARCH_CACHE_SIZE)
+                .build();
+        ClassificationMatcherConfiguration cConfig = ClassificationMatcherConfiguration.builder()
+                .enableJmx(true)
+                .statistics(true)
+                .build();
+        this.searcher = new ALANameSearcher(index, vernacular, sConfig, cConfig);
     }
 
     @After
@@ -87,15 +104,15 @@ public class PerformanceTest {
                     classification.genus = StringUtils.trimToNull(row[7]);
                     classification.taxonRank = this.rankAnalysis.fromString(StringUtils.trimToNull(row[8]));
                     expectedScientificName = StringUtils.trimToNull(row[9]);
-                 } catch (Exception ex) {
+                } catch (Exception ex) {
                     throw new IllegalStateException("Error on line " + line, ex);
                 }
                 matched++;
                 try {
                     classification.inferForSearch(this.searcher.getMatcher().getAnalyser());
                     Rank expectedRank = classification.taxonRank;
-                    Match<AlaLinnaeanClassification> match = this.searcher.search(classification.clone());
-                    for (Term issue: match.getIssues()) {
+                    Match<AlaLinnaeanClassification, MatchMeasurement> match = this.searcher.search(classification.clone());
+                    for (Term issue : match.getIssues()) {
                         int count = issueCount.getOrDefault(issue, 0);
                         issueCount.put(issue, count + 1);
                     }
@@ -134,7 +151,7 @@ public class PerformanceTest {
                     if (expectValid == match.isValid()) {
                         expected++;
                     } else {
-                        logger.info("Unexpected validity line {}, values {}" , line, row);
+                        logger.info("Unexpected validity line {}, values {}", line, row);
                         if (match.isValid())
                             logger.warn("Matched line {} to {}: {}", line, match.getAccepted().taxonId, match.getAccepted().scientificName);
                     }
@@ -158,10 +175,13 @@ public class PerformanceTest {
             logger.info("Expected match rate " + expectedRate);
             logger.info("Accurate match rate " + accurateRate);
             logger.info("Clean match rate " + cleanRate);
-            for (Map.Entry<Term, Integer> entry: issueCount.entrySet()) {
+            for (Map.Entry<Term, Integer> entry : issueCount.entrySet()) {
                 logger.info(entry.getKey().toString() + ": " + entry.getValue());
             }
-       } finally {
+            StringWriter sw = new StringWriter();
+            this.searcher.getMatcher().reportStatistics(sw);
+            logger.info(sw.toString());
+        } finally {
             if (s != null)
                 s.close();
         }

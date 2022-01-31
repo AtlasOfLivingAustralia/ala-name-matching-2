@@ -10,16 +10,25 @@ import java.util.Collection;
  * A classification match.
  */
 @Value
-public class Match<C extends Classification<C>> {
-    private static final Match<?> INVALID_MATCH = new Match<>(null, null, null, null, null, null, Issues.of(BayesianTerm.invalidMatch));
+public class Match<C extends Classification<C>, M extends MatchMeasurement> {
+    private static final Match<?, ?> INVALID_MATCH = new Match<>(null, null, null, null, null, null, Issues.of(BayesianTerm.invalidMatch), null);
 
+    /** The classification that was actually searched for */
     private C actual;
+    /** The candidate match */
     private Classifier candidate;
+    /** The match classification */
     private C match;
+    /** The synonym de-referenced accepted candidate match */
     private Classifier acceptedCandidate;
+    /** The accepted classification */
     private C accepted;
+    /** The match probability */
     private Inference probability;
+    /** Any issues associated with the match */
     private Issues issues;
+    /** The performance measurement for the match (may be null if no measurement was recorded) */
+    private M measurement;
 
     /**
      * Construct for a match and a probability
@@ -28,8 +37,9 @@ public class Match<C extends Classification<C>> {
      * @param candidate The candidate classifier
      * @param probability The match probability
      * @param issues The issues list
+     * @param measurement The collection statistics
      */
-    protected Match(C actual, Classifier candidate, C match, Classifier acceptedCandidate, C accepted, Inference probability, Issues issues) {
+    protected Match(C actual, Classifier candidate, C match, Classifier acceptedCandidate, C accepted, Inference probability, Issues issues, M measurement) {
         this.actual = actual;
         this.candidate = candidate;
         this.match = match;
@@ -37,6 +47,7 @@ public class Match<C extends Classification<C>> {
         this.accepted = accepted;
         this.probability = probability;
         this.issues = issues;
+        this.measurement = measurement;
     }
 
     /**
@@ -48,7 +59,7 @@ public class Match<C extends Classification<C>> {
      * @param probabilty The inferred probability of the match
      */
     public Match(C actual, Classifier candidate, C match, Inference probabilty) {
-        this(actual, candidate, match, candidate, match, probabilty, match.getIssues().merge(actual.getIssues()));
+        this(actual, candidate, match, candidate, match, probabilty, match.getIssues().merge(actual.getIssues()), null);
     }
 
     /**
@@ -59,8 +70,8 @@ public class Match<C extends Classification<C>> {
      *
      * @return A new match with a new accepted
      */
-    public Match<C> withAccepted(Classifier acceptedCandidate, C accepted) {
-        return new Match<>(this.actual, this.candidate, this.match, acceptedCandidate, accepted, this.probability, this.issues.merge(accepted.getIssues()));
+    public Match<C, M> withAccepted(Classifier acceptedCandidate, C accepted) {
+        return new Match<>(this.actual, this.candidate, this.match, acceptedCandidate, accepted, this.probability, this.issues.merge(accepted.getIssues()), this.measurement);
     }
 
     /**
@@ -79,10 +90,10 @@ public class Match<C extends Classification<C>> {
      *
      * @return This if the additional issues are null or empty, otherwise a match with merged issues.
      */
-    public Match<C> with(Issues additional) {
+    public Match<C, M> with(Issues additional) {
         if (additional == null || additional.isEmpty())
             return this;
-        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.issues.merge(additional));
+        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.issues.merge(additional), this.measurement);
     }
 
     /**
@@ -90,8 +101,8 @@ public class Match<C extends Classification<C>> {
      *
      * @param issue The issue
      */
-    public Match<C> with(Term issue) {
-       return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.issues.with(issue));
+    public Match<C, M> with(Term issue) {
+       return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.issues.with(issue), this.measurement);
     }
 
     /**
@@ -99,14 +110,27 @@ public class Match<C extends Classification<C>> {
      *
      * @param matches The liust of matches
      */
-    public Match<C> boost(Collection<Match<C>> matches) {
+    public Match<C, M> boost(Collection<Match<C, M>> matches) {
         Inference p = this.probability;
-        for (Match<C> match: matches) {
+        for (Match<C, M> match: matches) {
             if (match.getMatch() == this.match)
                 continue;
             p = p.or(match.getProbability());
         }
-        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, p, this.issues);
+        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, p, this.issues, this.measurement);
+    }
+
+    /**
+     * Add measurements to the match.
+     *
+     * @param measurement The measurements
+     *
+     * @return A match with the appropriate measurements attached
+     */
+    public Match<C, M> with(M measurement) {
+        if (measurement == null && this.measurement == null)
+            return this;
+        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.issues, measurement);
     }
 
     /**
@@ -114,7 +138,7 @@ public class Match<C extends Classification<C>> {
      *
      * @return The invalid match singleton
      */
-    public static <T extends Classification<T>> Match<T> invalidMatch() {
-        return (Match<T>) INVALID_MATCH;
+    public static <T extends Classification<T>, M extends MatchMeasurement> Match<T, M> invalidMatch() {
+        return (Match<T, M>) INVALID_MATCH;
     }
 }

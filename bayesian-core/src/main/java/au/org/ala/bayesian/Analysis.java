@@ -1,6 +1,7 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.bayesian.analysis.*;
+import au.org.ala.util.Service;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -18,6 +19,7 @@ import java.util.List;
  * @param <S> The type of object this analyser reads/writes.
  * @param <Q> The type of object this analyser uses to query the store
  */
+@Service
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
 abstract public class Analysis<C, S, Q> {
     /**

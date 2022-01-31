@@ -5,7 +5,7 @@ import au.org.ala.bayesian.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ALAVernacularClassificationMatcher extends ClassificationMatcher<AlaVernacularClassification, AlaVernacularInferencer, AlaVernacularFactory> {
+public class ALAVernacularClassificationMatcher extends ClassificationMatcher<AlaVernacularClassification, AlaVernacularInferencer, AlaVernacularFactory, MatchMeasurement> {
     /** The default immediately acceptable threshold for something to be regarded as accepted. @see #isImmediateMatch */
     public static double POSSIBLE_THRESHOLD = 0.02;
     /** The default immediately acceptable threshold for something to be regarded as accepted. @see #isImmediateMatch */
@@ -18,9 +18,10 @@ public class ALAVernacularClassificationMatcher extends ClassificationMatcher<Al
      *
      * @param factory  The factory for creating objects for the matcher to work on
      * @param searcher The mechanism for getting candidiates
+     * @param config The classificatio configuration
      */
-    public ALAVernacularClassificationMatcher(AlaVernacularFactory factory, ClassifierSearcher<?> searcher) {
-        super(factory, searcher);
+    public ALAVernacularClassificationMatcher(AlaVernacularFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config) {
+        super(factory, searcher, config);
     }
 
     /**
@@ -30,21 +31,21 @@ public class ALAVernacularClassificationMatcher extends ClassificationMatcher<Al
      * @return A single acceptable result, or null
      */
     @Override
-    protected Match<AlaVernacularClassification> findSingle(final AlaVernacularClassification classification, final List<Match<AlaVernacularClassification>> results) {
+    protected Match<AlaVernacularClassification, MatchMeasurement> findSingle(final AlaVernacularClassification classification, final List<Match<AlaVernacularClassification, MatchMeasurement>> results, MatchMeasurement measurement) {
         if (results.isEmpty())
             return null;
         if (results.size() == 1 && !this.isBadEvidence(results.get(0)))
             return results.get(0);
         // Combine vernacular names pointing to the same thing
         final List<String> ids = results.stream().map(m -> m.getAccepted().taxonId).distinct().collect(Collectors.toList());
-        final List<Match<AlaVernacularClassification>> combined = ids.stream().map(id -> {
-            final Match<AlaVernacularClassification> first = results.stream().filter(m -> id.equals(m.getAccepted().taxonId)).findFirst().get();
-            final List<Match<AlaVernacularClassification>> boosts = results.stream().filter(m -> m != first && id.equals(m.getAccepted().taxonId)).collect(Collectors.toList());
+        final List<Match<AlaVernacularClassification, MatchMeasurement>> combined = ids.stream().map(id -> {
+            final Match<AlaVernacularClassification, MatchMeasurement> first = results.stream().filter(m -> id.equals(m.getAccepted().taxonId)).findFirst().get();
+            final List<Match<AlaVernacularClassification, MatchMeasurement>> boosts = results.stream().filter(m -> m != first && id.equals(m.getAccepted().taxonId)).collect(Collectors.toList());
             return first.boost(boosts);
         })
                 .sorted(this.getMatchSorter())
                 .collect(Collectors.toList());
-        List<Match<AlaVernacularClassification>> usable = results.stream().filter(m -> !this.isBadEvidence(m)).collect(Collectors.toList());
+        List<Match<AlaVernacularClassification, MatchMeasurement>> usable = results.stream().filter(m -> !this.isBadEvidence(m)).collect(Collectors.toList());
         if (usable.isEmpty())
             return null;
         return usable.get(0);
@@ -78,7 +79,7 @@ public class ALAVernacularClassificationMatcher extends ClassificationMatcher<Al
      *
      * @return True if this is a possible match
      */
-    protected boolean isImmediateMatch(Match<AlaVernacularClassification> match) {
+    protected boolean isImmediateMatch(Match<AlaVernacularClassification, MatchMeasurement> match) {
         Inference p = match.getProbability();
         return p.getPosterior() >= IMMEDIATE_THRESHOLD && p.getConditional() >= IMMEDIATE_THRESHOLD;
     }
@@ -90,7 +91,7 @@ public class ALAVernacularClassificationMatcher extends ClassificationMatcher<Al
      *
      * @return True if this is an acceptable match
      */
-    protected boolean isAcceptableMatch(Match<AlaVernacularClassification> match) {
+    protected boolean isAcceptableMatch(Match<AlaVernacularClassification, MatchMeasurement> match) {
         Inference p = match.getProbability();
         return p.getPosterior() >= ACCEPTABLE_THRESHOLD && p.getEvidence() >= EVIDENCE_THRESHOLD && p.getConditional() >= POSSIBLE_THRESHOLD;
     }

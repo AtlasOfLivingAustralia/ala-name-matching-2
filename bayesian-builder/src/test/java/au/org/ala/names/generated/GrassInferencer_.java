@@ -9,8 +9,6 @@ import au.org.ala.bayesian.Inferencer;
 public class GrassInferencer_ implements Inferencer<GrassClassification> {
   public final static String SIGNATURE = "";
 
-  private ThreadLocal<GrassParameters_> parameters = ThreadLocal.withInitial(() -> new GrassParameters_());
-
   public GrassInferencer_() {
   }
 
@@ -79,8 +77,11 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
   @Override
   public Inference probability(GrassClassification classification, Classifier classifier) throws BayesianException {
     GrassInferencer.Evidence evidence = classification.match(classifier);
-    GrassParameters_ params = this.parameters.get();
-    classifier.loadParameters(params);
+    GrassParameters_ params = (GrassParameters_) classifier.getCachedParameters();
+    if (params == null) {
+      params = new GrassParameters_();
+      classifier.loadParameters(params);
+    }
     return this.probability(evidence, params);
   }
 

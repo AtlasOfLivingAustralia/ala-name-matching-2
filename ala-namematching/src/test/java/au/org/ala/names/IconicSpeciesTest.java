@@ -2,6 +2,7 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Match;
+import au.org.ala.bayesian.MatchMeasurement;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
 import org.gbif.utils.file.csv.CSVReader;
@@ -40,7 +41,7 @@ public class IconicSpeciesTest {
             throw new IllegalStateException("Index " + index + " not present");
         if (!vernacular.exists())
             throw new IllegalStateException("Vernacular Index " + vernacular + " not present");
-        this.searcher = new ALANameSearcher(index, vernacular);
+        this.searcher = new ALANameSearcher(index, vernacular, null, null);
         this.analyser = new AlaNameAnalyser();
     }
 
@@ -49,7 +50,7 @@ public class IconicSpeciesTest {
         this.searcher.close();
     }
 
-    private int testIssues(Match<?> match, String name, int line) {
+    private int testIssues(Match<?, ?> match, String name, int line) {
         Issues issues = match.getIssues();
         if (issues.isEmpty())
             return 0;
@@ -73,7 +74,7 @@ public class IconicSpeciesTest {
         return 0;
     }
     
-    private int testMatch(AlaLinnaeanClassification template, Match<AlaLinnaeanClassification> match, int line) {
+    private int testMatch(AlaLinnaeanClassification template, Match<AlaLinnaeanClassification, MatchMeasurement> match, int line) {
         int errors = 0;
         String scientificName = template.scientificName;
         if (!match.isValid()) {
@@ -99,7 +100,7 @@ public class IconicSpeciesTest {
     }
 
 
-    private int testMatch(AlaVernacularClassification template, Match<AlaVernacularClassification> match, Match<AlaLinnaeanClassification> scientific, int line, boolean matchVernacular) throws Exception  {
+    private int testMatch(AlaVernacularClassification template, Match<AlaVernacularClassification, MatchMeasurement> match, Match<AlaLinnaeanClassification, MatchMeasurement> scientific, int line, boolean matchVernacular) throws Exception  {
         int errors = 0;
         String vernacularName = template.vernacularName;
         if (!match.isValid()) {
@@ -162,7 +163,7 @@ public class IconicSpeciesTest {
                 } catch (Exception ex) {
                     throw new IllegalStateException("Error on line " + line, ex);
                 }
-                Match<AlaLinnaeanClassification> match = this.searcher.search(classification);
+                Match<AlaLinnaeanClassification, MatchMeasurement> match = this.searcher.search(classification);
                 errors += this.testMatch(classification, match, line);
                 AlaLinnaeanClassification nameOnly = new AlaLinnaeanClassification();
                 nameOnly.scientificName = scientificName;
@@ -174,7 +175,7 @@ public class IconicSpeciesTest {
                 if (vernacularName != null) {
                     AlaVernacularClassification vernacularClassification = new AlaVernacularClassification();
                     vernacularClassification.vernacularName = vernacularName;
-                    Match<AlaVernacularClassification> vernacularMatch = this.searcher.search(vernacularClassification);
+                    Match<AlaVernacularClassification, MatchMeasurement> vernacularMatch = this.searcher.search(vernacularClassification);
                     errors += testMatch(vernacularClassification, vernacularMatch, match, line, matchVernacular);
                 }
             }

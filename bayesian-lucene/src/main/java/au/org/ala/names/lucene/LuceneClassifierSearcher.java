@@ -2,27 +2,40 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.vocab.OptimisationTerm;
+import lombok.Getter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.cache2k.Cache;
+import org.cache2k.Cache2kBuilder;
 import org.gbif.dwc.terms.Term;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A searcher that searches a lucene index for possible candidates.
  */
-public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifier> {
-    /** The maximum number of results to return */
-    private int limit;
+public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifier> implements AutoCloseable, LuceneClassifierSearcherMXBean {
+    private static final Logger logger = LoggerFactory.getLogger(LuceneClassifierSearcher.class);
+
+    /** The searcher configuration */
+    private LuceneClassifierSearcherConfiguration config;
     /** The location of the lucene index */
     private Directory directory;
     /** The index reader */
@@ -31,21 +44,51 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
     private IndexSearcher searcher;
     /** Query utiltities */
     private QueryUtils queryUtils;
+    /** The classifier cache */
+    private Cache<Integer, LuceneClassifier> classifierCache;
+    /** JMX registration */
+    private ObjectInstance mbean;
+    /** The get count */
+    private AtomicLong gets = new AtomicLong();
+    /** The query count */
+    private AtomicLong queries = new AtomicLong();
 
     /**
      * Construct for a path to the lucene index.
      *
      * @param path The path
+     * @param config The searcher configuration (null for a default value)
      *
      * @throws StoreException if unable to open the index
      */
-    public LuceneClassifierSearcher(Path path) throws StoreException {
+    public LuceneClassifierSearcher(Path path, LuceneClassifierSearcherConfiguration config) throws StoreException {
+        this.config = config == null ? LuceneClassifierSearcherConfiguration.builder().build() : config;
+        String name = path.getFileName().toString();
         try {
             this.directory = FSDirectory.open(path);
             this.indexReader = DirectoryReader.open(this.directory);
             this.searcher = new IndexSearcher(this.indexReader);
             this.queryUtils = new QueryUtils();
-            this.limit = 20;
+            if (this.config.isCache()) {
+                this.classifierCache = Cache2kBuilder.of(Integer.class, LuceneClassifier.class)
+                        .name(name)
+                        .permitNullValues(true)
+                        .entryCapacity(this.config.getCacheSize())
+                        .suppressExceptions(false)
+                        .loader(this::doGet)
+                        .buildForIntKey();
+            } else {
+                this.classifierCache = null;
+            }
+            if (this.config.isEnableJmx()) {
+                try {
+                    MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+                    ObjectName on = new ObjectName(this.getClass().getPackage().getName() + ":type=" + this.getClass().getSimpleName() + ",name=" + name);
+                    this.mbean = mbs.registerMBean(this, on);
+                } catch (Exception ex) {
+                    logger.error("Unable to register searcher " + name, ex);
+                }
+            }
         } catch (IOException ex) {
             throw new StoreException("Unable to open lucene index at " + path, ex);
         }
@@ -55,11 +98,32 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
      * Construct for a file to the lucene index directory.
      *
      * @param file The path
+     * @param config The searcher configuration (null for a default value)
      *
      * @throws StoreException if unable to open the index
      */
-    public LuceneClassifierSearcher(File file) throws StoreException {
-        this(file.toPath());
+    public LuceneClassifierSearcher(File file, LuceneClassifierSearcherConfiguration config) throws StoreException {
+        this(file.toPath(), config);
+    }
+
+    /**
+     * Get the number of individual document retrievals
+     *
+     * @return The get count
+     */
+    @Override
+    public long getGets() {
+        return this.gets.get();
+    }
+
+    /**
+     * Get the number of queries
+     *
+     * @return The query count
+     */
+    @Override
+    public long getQueries() {
+        return this.queries.get();
     }
 
     /**
@@ -73,6 +137,7 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
      */
     @Override
     public LuceneClassifier get(Term type, Observable identifier, Object id) throws BayesianException {
+        this.gets.incrementAndGet();
         BooleanQuery.Builder builder = this.queryUtils.createBuilder();
         builder.add(LuceneClassifier.getTypeClause(type));
         builder.add(
@@ -89,11 +154,23 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
                 return null;
             if (docs.totalHits.value > 1)
                 throw new StoreException("Multiple matches for identifier " + id);
-            Document document = this.indexReader.document(docs.scoreDocs[0].doc);
-            return new LuceneClassifier(document);
+            int docID = docs.scoreDocs[0].doc;
+            return this.classifierCache == null ? this.doGet(docID) : this.classifierCache.get(docID);
         } catch (IOException ex) {
             throw new StoreException("Unable to retrive documents", ex);
         }
+    }
+
+    /**
+     * Cache get for a document.
+     *
+     * @param docID The document ID
+     *
+     * @return The classifier from the index.
+     */
+    protected LuceneClassifier doGet(int docID) throws IOException {
+        Document document = this.indexReader.document(docID);
+        return new LuceneClassifier(document);
     }
 
     /**
@@ -110,6 +187,7 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
      */
     @Override
     public List<LuceneClassifier> search(Classification classification) throws StoreException {
+        this.queries.incrementAndGet();
         Collection<Observation> criteria = classification.toObservations();
         BooleanQuery.Builder builder = this.queryUtils.createBuilder();
         builder.add(LuceneClassifier.getTypeClause(classification.getType()));
@@ -124,11 +202,10 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
         Query query = builder.build();
         List<LuceneClassifier> classifiers = null;
         try {
-            TopDocs docs = this.searcher.search(query, this.limit);
-            classifiers = new ArrayList<>(Math.min(this.limit, (int) docs.totalHits.value));
+            TopDocs docs = this.searcher.search(query, this.config.getQueryLimit());
+            classifiers = new ArrayList<>(Math.min(this.config.getQueryLimit(), (int) docs.totalHits.value));
             for (ScoreDoc doc: docs.scoreDocs) {
-                Document document = this.indexReader.document(doc.doc);
-                classifiers.add(new LuceneClassifier(document));
+                classifiers.add(this.classifierCache == null ? this.doGet(doc.doc) : this.classifierCache.get(doc.doc));
             }
         } catch (IOException ex) {
             throw new StoreException("Unable to retrive documents", ex);
@@ -144,6 +221,17 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
     @Override
     public void close() throws StoreException {
         try {
+            if (this.mbean != null) {
+                try {
+                    MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+                    mbs.unregisterMBean(this.mbean.getObjectName());
+                } catch (Exception ex) {
+                    logger.error("Unable to deregister searcher " + mbean.getObjectName(), ex);
+                }
+            }
+            if (this.classifierCache != null) {
+                this.classifierCache.close();
+            }
             this.searcher = null;
             if (this.indexReader != null) {
                 this.indexReader.close();

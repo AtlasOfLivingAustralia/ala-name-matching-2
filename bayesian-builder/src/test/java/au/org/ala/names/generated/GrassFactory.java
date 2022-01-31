@@ -1,13 +1,16 @@
 package au.org.ala.names.generated;
 
 import au.org.ala.bayesian.ClassificationMatcher;
+import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observable.Multiplicity;
 import static au.org.ala.bayesian.ExternalContext.*;
+import au.org.ala.vocab.BayesianTerm;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -72,6 +75,12 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
   public static final Term CONCEPT = TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/Concept");
 
 
+  public static final List<Term> ISSUES = Collections.unmodifiableList(Arrays.asList(
+          BayesianTerm.illformedData,
+          BayesianTerm.invalidMatch
+  ));
+
+
   static {
     rain.setExternal(LUCENE, "rain");
     sprinkler.setExternal(LUCENE, "sprinkler");
@@ -79,8 +88,18 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
   }
 
   @Override
+  public String getNetworkId() {
+    return "grass";
+  }
+
+  @Override
   public List<Observable<?>> getObservables() {
-      return OBSERVABLES;
+    return OBSERVABLES;
+  }
+
+  @Override
+  public List<Term> getAllIssues() {
+    return ISSUES;
   }
 
   @Override
@@ -119,8 +138,8 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
   }
 
   @Override
-  public ClassificationMatcher<GrassClassification, GrassInferencer, GrassFactory> createMatcher(ClassifierSearcher searcher){
-        return new ClassificationMatcher<>(this, searcher);
+  public ClassificationMatcher<GrassClassification, GrassInferencer, GrassFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config){
+        return new ClassificationMatcher<>(this, searcher, config);
   }
 
   public static GrassFactory instance() {

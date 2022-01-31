@@ -24,8 +24,8 @@ public class ALAClassificationMatcherTest {
         File index = new File(INDEX);
         if (!index.exists())
             throw new IllegalStateException("Index " + index + " not present");
-        this.searcher = new LuceneClassifierSearcher(index);
-        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher);
+        this.searcher = new LuceneClassifierSearcher(index, null);
+        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, null);
     }
 
     @After

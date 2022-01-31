@@ -25,7 +25,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
 
     private AlaVernacularFactory factory;
     private LuceneClassifierSearcher searcher;
-    private ClassificationMatcher<AlaVernacularClassification, AlaVernacularInferencer, AlaVernacularFactory> matcher;
+    private ClassificationMatcher<AlaVernacularClassification, AlaVernacularInferencer, AlaVernacularFactory, MatchMeasurement> matcher;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -57,8 +57,8 @@ public class AlaVernacularBuilderTest extends TestUtils {
     @Before
     public void setUp() throws Exception {
         this.factory = AlaVernacularFactory.instance();
-        this.searcher = new LuceneClassifierSearcher(this.output);
-        this.matcher = this.factory.createMatcher(this.searcher);
+        this.searcher = new LuceneClassifierSearcher(this.output, null);
+        this.matcher = this.factory.createMatcher(this.searcher, null);
     }
 
     @After
@@ -122,7 +122,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
     public void testMatch1() throws Exception {
         AlaVernacularClassification classification = new AlaVernacularClassification();
         classification.vernacularName = "Flood Mallow";
-        Match<AlaVernacularClassification> match = matcher.findMatch(classification);
+        Match<AlaVernacularClassification, MatchMeasurement> match = matcher.findMatch(classification);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2902835", match.getMatch().taxonId);
         assertEquals(0.07299, match.getProbability().getEvidence(), 0.00001);

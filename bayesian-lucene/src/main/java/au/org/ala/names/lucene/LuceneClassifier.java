@@ -58,6 +58,9 @@ public class LuceneClassifier implements Classifier {
     /** Has this document been retrieved from a store (in which case it is hard ti store again */
     @Getter
     private final boolean retrieved;
+    /** The cached parameters */
+    @Getter
+    private Parameters cachedParameters;
 
     /**
      * Construct for an empty document
@@ -67,6 +70,7 @@ public class LuceneClassifier implements Classifier {
         super();
         this.document = new Document();
         this.retrieved = false;
+        this.cachedParameters = null;
     }
 
     /**
@@ -78,6 +82,7 @@ public class LuceneClassifier implements Classifier {
         super();
         this.document = document;
         this.retrieved = true;
+        this.cachedParameters = null;
     }
 
     /**
@@ -463,6 +468,7 @@ public class LuceneClassifier implements Classifier {
     public void loadParameters(Parameters parameters) throws StoreException {
         BytesRef bytes = this.document.getBinaryValue(PARAMETERS_FIELD);
 
+        this.cachedParameters = null;
         if (bytes == null)
             return;
         try {
@@ -470,6 +476,7 @@ public class LuceneClassifier implements Classifier {
         } catch (IOException ex) {
             throw new StoreException("Unable to load parameters", ex);
         }
+        this.cachedParameters = parameters;
     }
 
     /**
@@ -484,6 +491,7 @@ public class LuceneClassifier implements Classifier {
             BytesRef bytes = new BytesRef(parameters.storeAsBytes());
             this.document.removeFields(PARAMETERS_FIELD);
             this.document.add(new StoredField(PARAMETERS_FIELD, bytes));
+            this.cachedParameters = parameters;
         } catch (IOException ex) {
             throw new StoreException("Unable to save parameters to document", ex);
         }

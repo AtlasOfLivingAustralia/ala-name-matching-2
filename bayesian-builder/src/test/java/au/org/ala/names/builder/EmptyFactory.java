@@ -1,16 +1,30 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.*;
+import au.org.ala.vocab.BayesianTerm;
 import lombok.NonNull;
+import org.gbif.dwc.terms.Term;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyInferencer, EmptyFactory> {
     @Override
+    public @NonNull String getNetworkId() {
+        return "empty";
+    }
+
+    @Override
     public @NonNull List<Observable<?>> getObservables() {
         return Collections.emptyList();
+    }
+
+
+    @Override
+    public @NonNull List<Term> getAllIssues() {
+        return Arrays.asList(BayesianTerm.illformedData, BayesianTerm.invalidMatch);
     }
 
     @Override
@@ -70,7 +84,7 @@ public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyIn
      * @return The new matcher
      */
     @Override
-    public @NonNull ClassificationMatcher<EmptyClassification, EmptyInferencer, EmptyFactory> createMatcher(ClassifierSearcher searcher) {
+    public @NonNull ClassificationMatcher<EmptyClassification, EmptyInferencer, EmptyFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config) {
         return null;
     }
 }

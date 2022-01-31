@@ -1,5 +1,6 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.util.Service;
 import org.gbif.dwc.terms.Term;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  *
  * @param <C> The type of classification used to search
  */
+@Service
 abstract public class ClassifierSearcher<C extends Classifier> {
     /**
      * Search for a classifier by identifier.
