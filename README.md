@@ -14,7 +14,7 @@ narrowing conditional probabilities to the smallest possible set of antecendents
 
 ## Test indexes
 
-To use the test cases in ala-namematching module, you will need the corresponding
+To use the test cases in ala-linnaean module, you will need the corresponding
 Linnaean and vernacular name indexes. You can get:
 
 * [index-20210811-2.zip](https://archives.ala.org.au/archives/nameindexes/20210811-2/index-20210811-2.zip)
@@ -25,6 +25,7 @@ These need to be unzipped into `/data/lucene`
 Every time the network definition changes, the indexes change, since the underlying
 inference model will have also changed.
 If you get exceptions or errors, you may need a new copy of the index.
+
 ## Name Matching Libraries
 
 ### Generic Libraries
@@ -74,9 +75,6 @@ There are two netorks:
 * [ALA Linnaean](ala-linnaean/README.md)
   The classes needed to implement and analyse the Linnaean and vernacular networks
   and match a search against candidates.
-* [ALA Linnaean Builder](ala-linnaean-builder/README.md)
-  The classes needed to build name indexes for both networks.
-* [ALA Namematching](../ala-namematching/README.md)
   A library that allows a client to build a template of known information
   about a name, search an index built by the ALA builder library and
   return a "most likely" match to a specific taxon.
@@ -84,3 +82,5 @@ There are two netorks:
   to take care of oddities such as parent-child synonyms, misapplied names, etc.
   This is the library that an application would use to implement
   name searching.
+* [ALA Linnaean Builder](ala-linnaean-builder/README.md)
+  The classes needed to build name indexes for both networks.

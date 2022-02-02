@@ -31,6 +31,17 @@
             <groupId>au.org.ala.names</groupId>
             <artifactId>bayesian-lucene</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>${opencsv.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>${jcommander.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -185,16 +185,17 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         results = results.stream().filter(m -> !this.isBadEvidence(m)).collect(Collectors.toList());
         if (results.isEmpty())
             return null;
-        if (results.size() == 1)
-            return results.get(0);
-        // See if we have an unresolvable homonym
-        Match<AlaLinnaeanClassification, MatchMeasurement> unresolvedHomonym = this.detectUnresolvableHomonym(classification, results);
-        if (unresolvedHomonym != null)
-            return unresolvedHomonym;
         final Match<AlaLinnaeanClassification, MatchMeasurement> trial = results.get(0);
         final AlaLinnaeanClassification tc = trial.getMatch();
         final String tn = tc.scientificName;
         final TaxonomicStatus tts = tc.taxonomicStatus != null ? tc.taxonomicStatus : TaxonomicStatus.unknown;
+        if (results.size() == 1)
+            return trial;
+        // From now on, there should be more than one result
+        // See if we have an unresolvable homonym
+        Match<AlaLinnaeanClassification, MatchMeasurement> unresolvedHomonym = this.detectUnresolvableHomonym(classification, results);
+        if (unresolvedHomonym != null)
+            return unresolvedHomonym;
         // See if we have a single accepted/variety of synonyms
         if (tts.isAcceptedFlag() && results.stream().allMatch(m -> m == trial || m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike() && m.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName)))
             return trial.boost(results).with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
