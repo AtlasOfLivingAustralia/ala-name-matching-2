@@ -7,6 +7,8 @@ import au.org.ala.names.builder.DefaultWeightAnalyser;
 import au.org.ala.names.builder.WeightAnalyser;
 import au.org.ala.util.IdentifierConverter;
 import au.org.ala.util.SimpleIdentifierConverter;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import freemarker.core.Environment;
@@ -19,7 +21,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.cli.*;
 import org.gbif.dwc.terms.TermFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Compile a network into java code.
@@ -317,25 +315,16 @@ public class JavaGenerator extends Generator {
      */
     public static void main(String[] args) throws Exception {
         Options options = new Options();
-        Option pkgOption = Option.builder("p").longOpt("package").desc("Output package name").hasArg().argName("PACKAGE").build();
-        Option outputOption = Option.builder("o").longOpt("output").desc("Base output directory (not including package)").hasArg().argName("DIR").type(File.class).build();
-        options.addOption(pkgOption);
-        options.addOption(outputOption);
+        JCommander commander = JCommander.newBuilder().addObject(options).args(args).build();
 
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse(options, args);
-        String pkg = cmd.getOptionValue("p", "au.org.ala.names.generated");
-        File output = new File(cmd.getOptionValue("o", System.getProperty("user.dir")));
-
-        log.info("Generating for package " + pkg + " and output " + output.getAbsolutePath());
-        if (!pkg.matches("[a-z]+(\\.[a-z]+)*"))
-            throw new IllegalArgumentException("Invalid package name " + pkg);
-        if (!output.exists())
-            throw new IllegalArgumentException("Output directory " + output + " does not exist");
-        JavaGenerator generator = new JavaGenerator(output, output, pkg);
-        for (String s: cmd.getArgList()) {
-            File source = new File(s);
-            log.info("Generating " + source.getAbsolutePath());
+        log.info("Generating for package " + options.pkg + " and output " + options.output.getAbsolutePath());
+        if (!options.pkg.matches("[a-z]+(\\.[a-z]+)*"))
+            throw new IllegalArgumentException("Invalid package name " + options.pkg);
+        if (!options.output.exists())
+            throw new IllegalArgumentException("Output directory " + options.output + " does not exist");
+        JavaGenerator generator = new JavaGenerator(options.output, options.output, options.pkg);
+        for (File source: options.sources) {
+             log.info("Generating " + source.getAbsolutePath());
             if (!source.exists())
                 throw new IllegalArgumentException("Base network " + source + " does not exist");
             Network network = Network.read(source.toURI().toURL());
@@ -343,5 +332,14 @@ public class JavaGenerator extends Generator {
             compiler.analyse();
             generator.generate(compiler);
         }
+    }
+
+    public static class Options {
+        @Parameter(names = "-o")
+        public File output = new File(System.getProperty("user.dir"));
+        @Parameter(names = "-p")
+        public String pkg = "au.org.ala.names.generated";
+        @Parameter(required = true)
+        public List<File> sources;
     }
 }

@@ -1,5 +1,7 @@
 package au.org.ala.bayesian;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import freemarker.core.Environment;
 import freemarker.ext.beans.BeanModel;
 import freemarker.ext.beans.BeansWrapper;
@@ -7,16 +9,12 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
-import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -153,20 +151,12 @@ public class DotGenerator extends Generator {
      */
     public static void main(String[] args) throws Exception {
         Options options = new Options();
-        Option outputOption = Option.builder("o").longOpt("output").desc("Output file name (stdout by default)").hasArg().argName("FILE").type(File.class).build();
-        Option fullOption = Option.builder("f").longOpt("full").desc("Full network graph including calculations").build();
-        options.addOption(outputOption);
-        options.addOption(fullOption);
-
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse(options, args);
         Writer output = new OutputStreamWriter(System.out);
-        if (cmd.hasOption("o")) {
-            output = new FileWriter(new File(cmd.getOptionValue("o")));
+        if (options.output != null) {
+            output = new FileWriter(options.output);
         }
-        DotGenerator generator = new DotGenerator(output, cmd.hasOption("f"));
-        for (String s: cmd.getArgList()) {
-            File source = new File(s);
+        DotGenerator generator = new DotGenerator(output, options.full);
+        for (File source: options.sources) {
             logger.info("Generating " + source.getAbsolutePath());
             if (!source.exists())
                 throw new IllegalArgumentException("Base network " + source + " does not exist");
@@ -176,6 +166,15 @@ public class DotGenerator extends Generator {
             generator.generate(compiler);
         }
         output.close();
+    }
+
+    public static class Options {
+        @Parameter(names = "-o")
+        public File output = null;
+        @Parameter(names = "-f")
+        public boolean full = false;
+        @Parameter(required = true)
+        public List<File> sources;
     }
 
 }

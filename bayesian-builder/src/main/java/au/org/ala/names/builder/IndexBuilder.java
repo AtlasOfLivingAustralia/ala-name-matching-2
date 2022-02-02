@@ -6,12 +6,13 @@ import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.Counter;
 import au.org.ala.vocab.BayesianTerm;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.apache.commons.cli.*;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
@@ -802,66 +803,61 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      */
     public static void main(String[] args) throws Exception {
         Options options = new Options();
-        Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
-        Option workOption = Option.builder("w").longOpt("work").desc("Working directory").hasArg().argName("DIR").type(File.class).build();
-        Option networkOption = Option.builder("n").longOpt("network").desc("Network description").hasArg().argName("URL").type(URL.class).build();
-        Option builderClassOption = Option.builder("b").longOpt("builder").desc("Network description").hasArg().argName("CLASS").type(Class.class).build();
-        Option outputOption = Option.builder("o").longOpt("output").desc("Output index directory").hasArg().argName("DIR").type(File.class).build();
-        Option helpOption = Option.builder("h").longOpt("help").desc("Print help").build();
-        options.addOption(configOption);
-        options.addOption(workOption);
-        options.addOption(networkOption);
-        options.addOption(builderClassOption);
-        options.addOption(outputOption);
-        options.addOption(helpOption);
+        JCommander commander = JCommander.newBuilder().addObject(options).args(args).build();
         IndexBuilderConfiguration config;
         File output;
 
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption(helpOption.getOpt())) {
-            HelpFormatter help = new HelpFormatter();
-            help.printHelp("java -jar name-matching-builder [OPTIONS] [SOURCES]", options);
-            System.exit(0);
-        }
-        if (cmd.hasOption(configOption.getOpt())) {
-            config = IndexBuilderConfiguration.read(((URL) cmd.getParsedOptionValue(configOption.getOpt())));
+        if (options.config != null) {
+            config = IndexBuilderConfiguration.read(options.config);
         } else {
             config = new IndexBuilderConfiguration();
         }
-        if (cmd.hasOption(workOption.getOpt())) {
-            config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));
+        if (options.work != null) {
+            config.setWork(options.work);
         }
-        if (cmd.hasOption(networkOption.getOpt())) {
-            config.setNetwork((URL) cmd.getParsedOptionValue(networkOption.getOpt()));
+        if (options.network != null) {
+            config.setNetwork(options.network);
         }
-        if (cmd.hasOption(builderClassOption.getOpt())) {
-            config.setBuilderClass((Class) cmd.getParsedOptionValue(builderClassOption.getOpt()));
+        if (options.builder != null) {
+            config.setBuilderClass((Class<? extends Builder>) Class.forName(options.builder));
         }
-        if (cmd.hasOption(outputOption.getOpt())) {
-            output = (File) cmd.getParsedOptionValue(outputOption.getOpt());
+        if (options.output != null) {
+            output = options.output;
         } else {
             output = new File(config.getWork(), "output");
         }
         IndexBuilder builder = new IndexBuilder(config);
-        for (String input: cmd.getArgs()) {
-            File in = new File(input);
+        for (File input: options.sources) {
             Source source = null;
-            if (!in.exists()) {
-                System.err.println("Input file " + in + " does not exist");
+            if (!input.exists()) {
+                System.err.println("Input file " + input + " does not exist");
                 System.exit(1);
             }
-            if (input.endsWith(".csv")) {
-                source = new CSVSource(builder.conceptTerm, new FileReader(in), builder.getFactory(), builder.getNetwork().getObservables());
+            if (input.getName().endsWith(".csv")) {
+                source = new CSVSource(builder.conceptTerm, new FileReader(input), builder.getFactory(), builder.getNetwork().getObservables());
             } else {
-                System.err.println("Unable to determine the type of " + in);
+                System.err.println("Unable to determine the type of " + input);
             }
             builder.load(source);
         }
         LoadStore parameterised = builder.build();
         builder.buildIndex(output, parameterised);
         builder.close();
+    }
+
+    public static class Options {
+        @Parameter(names = "-c")
+        public URL config;
+        @Parameter(names = "-w")
+        public File work;
+        @Parameter(names = "-n")
+        public URL network;
+        @Parameter(names = "-b")
+        public String builder;
+        @Parameter(names = "-o")
+        public File output;
+        @Parameter(required = true)
+        public List<File> sources;
     }
 
     /**

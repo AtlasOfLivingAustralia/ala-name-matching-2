@@ -1,84 +1,32 @@
 package au.org.ala.bayesian.generated;
 
-import au.org.ala.names.builder.Cli;
-import au.org.ala.names.builder.IndexBuilder;
-import au.org.ala.names.builder.IndexBuilderConfiguration;
-import au.org.ala.names.builder.LoadStore;
-import au.org.ala.names.builder.Source;
-import org.apache.commons.cli.*;
-
-import java.io.File;
-import java.net.URL;
 import java.util.Arrays;
+import au.org.ala.names.builder.AbstractCli;
+import au.org.ala.names.builder.IndexBuilderConfiguration;
+import com.beust.jcommander.JCommander;
 
 import au.org.ala.bayesian.derivation.SoundexGenerator;
 
 
-public class Network9Cli implements Cli<Network9Classification, Network9Builder, Network9Inferencer, Network9Factory> {
-   public static void main(String[] args) throws Exception {
-     Options options = new Options();
-     Option configFileOption = Option.builder("f").longOpt("config-file").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
-     Option workOption = Option.builder("w").longOpt("work").desc("Working directory").hasArg().argName("DIR").type(File.class).build();
-     Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration directory").hasArg().argName("DIR").type(File.class).build();
-     Option dataOption = Option.builder("d").longOpt("data").desc("Specify a data directory").hasArg().argName("DIR").type(File.class).build();
-     Option outputOption = Option.builder("o").longOpt("output").desc("Output index directory").hasArg().argName("DIR").type(File.class).build();
-     Option threadsOption = Option.builder("t").longOpt("threads").desc("Number of parallel threads to use").hasArg().argName("N").type(Integer.class).build();
-     Option helpOption = Option.builder("h").longOpt("help").desc("Print help").build();
-     options.addOption(configFileOption);
-     options.addOption(workOption);
-     options.addOption(configOption);
-     options.addOption(dataOption);
-     options.addOption(outputOption);
-     options.addOption(threadsOption);
-     options.addOption(helpOption);
-     IndexBuilderConfiguration config;
-     File output;
+public class Network9Cli extends AbstractCli<Network9Classification, Network9Builder, Network9Inferencer, Network9Factory> {
 
-     CommandLineParser parser = new DefaultParser();
-     CommandLine cmd = parser.parse(options, args);
+  protected IndexBuilderConfiguration getDefaultIndexBuilderConfiguration() {
+    IndexBuilderConfiguration configuration = new IndexBuilderConfiguration();
+    configuration.setBuilderClass(Network9Builder.class);
+    configuration.setFactoryClass(Network9Factory.class);
+    configuration.setWeightAnalyserClass(au.org.ala.names.builder.DefaultWeightAnalyser.class);
+    configuration.setNetwork(Network9Builder.class.getResource("network-9.json"));
+    configuration.setTypes(Arrays.asList(Network9Factory.CONCEPT));
+    return configuration;
+  }
 
-     if (cmd.hasOption(helpOption.getOpt())) {
-       HelpFormatter help = new HelpFormatter();
-       help.printHelp("java -jar name-matching-builder.jar [OPTIONS] [SOURCES]", options);
-       System.exit(0);
+  public static void main(String[] args) throws Exception {
+     Network9Cli cli = new Network9Cli();
+     JCommander commander = JCommander.newBuilder().addObject(cli).args(args).build();
+     if (!cli.validate() || cli.isHelp()) {
+       commander.usage();
+       return;
      }
-     if (cmd.hasOption(configFileOption.getOpt())) {
-       config = IndexBuilderConfiguration.read(((URL) cmd.getParsedOptionValue(configFileOption.getOpt())));
-     } else {
-       config = new IndexBuilderConfiguration();
-       config.setBuilderClass(Network9Builder.class);
-       config.setFactoryClass(Network9Factory.class);
-       config.setWeightAnalyserClass(au.org.ala.names.builder.DefaultWeightAnalyser.class);
-       config.setNetwork(Network9Builder.class.getResource("network-9.json"));
-       config.setTypes(Arrays.asList(Network9Factory.CONCEPT));
-     }
-     if (cmd.hasOption(workOption.getOpt())) {
-       config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));
-     }
-     if (cmd.hasOption(configOption.getOpt())) {
-       config.setConfig((File) cmd.getParsedOptionValue(configOption.getOpt()));
-     }
-     if (cmd.hasOption(dataOption.getOpt())) {
-       config.setData((File) cmd.getParsedOptionValue(dataOption.getOpt()));
-     }
-     if (cmd.hasOption(outputOption.getOpt())) {
-       output = (File) cmd.getParsedOptionValue(outputOption.getOpt());
-     } else {
-       output = new File(config.getWork(), "output");
-     }
-     if (cmd.hasOption(threadsOption.getOpt())) {
-       config.setThreads(Integer.parseInt(cmd.getOptionValue(threadsOption.getOpt())));
-     }
-     IndexBuilder builder = new IndexBuilder(config);
-     for (String input: cmd.getArgs()) {
-       URL in = new URL(input);
-       Source source = null;
-       source = Source.create(in, builder.getFactory(), builder.getNetwork().getObservables(), config.getTypes());
-       builder.load(source);
-       source.close();
-     }
-     LoadStore processed = builder.build();
-     builder.buildIndex(output, processed);
-     builder.close();
+     cli.run();
    }
 }

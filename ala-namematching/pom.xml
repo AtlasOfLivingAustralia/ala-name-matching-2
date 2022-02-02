@@ -38,7 +38,6 @@
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
             <version>${jcommander.version}</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
