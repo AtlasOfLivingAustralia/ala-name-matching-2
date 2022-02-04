@@ -60,6 +60,8 @@ suite of tools and software.
 
 * [Taxonomic Tools](taxonomic-tools/README.md)
   Utility vocabularies and processing designed to handle biological taxonomy.
+* [Taxonomic Tools Builder](taxonomic-tools-builder/README.md)
+  Builder processing designed to complement the taxonomic tools.
 
 ### ALA-Specific Libraries
 

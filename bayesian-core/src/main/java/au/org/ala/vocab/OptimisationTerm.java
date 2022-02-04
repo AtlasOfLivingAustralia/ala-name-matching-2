@@ -50,6 +50,10 @@ public enum OptimisationTerm implements Term {
      */
     luceneNoSearch,
     /**
+     * Boost to apply to lucene searches when looking for candidates
+     */
+    luceneBoost,
+    /**
      * Aggregate multiple terms to a single value when loading from a source.
      * The value gives the aggregation operation.
      * Possible values are:

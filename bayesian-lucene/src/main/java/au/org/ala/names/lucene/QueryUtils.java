@@ -25,7 +25,7 @@ import static au.org.ala.bayesian.ExternalContext.LUCENE_VARIANT;
  */
 public class QueryUtils {
     /** The amount to boost results from a matching name */
-    public static final float NAME_BOOST = 5.0f;
+    public static final float NAME_BOOST = 2.0f;
 
     private Analyzer analyzer;
 
@@ -86,7 +86,7 @@ public class QueryUtils {
      * @throws StoreException if unable to convert to a query
      */
     public BooleanClause asClause(Observation observation) throws StoreException {
-        return this.asClause(observation, true);
+        return this.asClause(observation, true, 1.0f);
     }
 
     /**
@@ -111,12 +111,13 @@ public class QueryUtils {
      *
      * @param observation The observation
      * @param required True if the clause is required
+     * @param boost Add a boost to the query if required. 1,0f means no boost
      *
      * @return A matching lucene clause
      *
      * @throws StoreException if unable to convert to a query
      */
-    public BooleanClause asClause(Observation observation, boolean required) throws StoreException {
+    public BooleanClause asClause(Observation observation, boolean required, float boost) throws StoreException {
         Observable observable = observation.getObservable();
         String field = observable.getExternal(observable.getMultiplicity().isMany() ? LUCENE_VARIANT : LUCENE);
         Query base;
@@ -131,8 +132,10 @@ public class QueryUtils {
                 observable.getNormaliser(),
                 observable.getAnalysis(),
                 observation.isSingleton() ? observation.getValue() : observation.getValues()
-        );
+            );
         }
+        if (boost != 1.0f)
+            base = new BoostQuery(base, boost);
         return new BooleanClause(base, observation.isPositive() ? (required ? BooleanClause.Occur.MUST : BooleanClause.Occur.SHOULD) : BooleanClause.Occur.MUST_NOT);
     }
 

@@ -114,7 +114,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
         classification.vernacularName = "Australian hollyhock";
         List<LuceneClassifier> classifiers = this.searcher.search(classification);
         assertNotNull(classifiers);
-        assertEquals(20, classifiers.size());
+        assertEquals(2, classifiers.size());
         assertEquals("https://id.biodiversity.org.au/node/apni/2902835", classifiers.get(0).get(AlaVernacularFactory.taxonId));
     }
 

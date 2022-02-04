@@ -118,13 +118,13 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         assertEquals(1.0, prob.getPosterior(), 0.00001);
         evidence.e$genus = false;
         prob = inference.probability(evidence, params);
-        assertEquals(0.00073, prob.getPosterior(), 0.00001);
+        assertEquals(0.00097, prob.getPosterior(), 0.00001);
         evidence.e$soundexGenus = true;
         prob = inference.probability(evidence, params);
         assertEquals(0.0, prob.getPosterior(), 0.00001); // Zero because genus is still false see modifiers
         evidence.e$soundexGenus = false;
         prob = inference.probability(evidence, params);
-        assertEquals(0.00073, prob.getPosterior(), 0.00001);
+        assertEquals(0.00097, prob.getPosterior(), 0.00001);
         evidence.e$scientificName = false;
         prob = inference.probability(evidence, params);
         assertEquals(0.0, prob.getPosterior(), 0.00001);
@@ -242,7 +242,7 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         classification.scientificName = "Amphileptus rotundus";
         List<LuceneClassifier> classifiers = this.searcher.search(classification);
         assertNotNull(classifiers);
-        assertEquals(20, classifiers.size());
+        assertEquals(1, classifiers.size());
         assertEquals("9f8111dcc72d108b8306d92d63bfd511", classifiers.get(0).get(AlaLinnaeanFactory.taxonId));
     }
 

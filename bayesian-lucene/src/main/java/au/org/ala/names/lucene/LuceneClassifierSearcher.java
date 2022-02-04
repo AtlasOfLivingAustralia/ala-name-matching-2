@@ -196,15 +196,25 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
             builder.add(this.queryUtils.nameClause(name));
         for (Observation observation: criteria) {
             if (!observation.getObservable().hasProperty(OptimisationTerm.luceneNoSearch, true)) {
-                builder.add(this.queryUtils.asClause(observation, false));
+                try {
+                    Object bv = observation.getObservable().getProperty(OptimisationTerm.luceneBoost);
+                    float boost = bv != null && bv instanceof Number ? ((Number) bv).floatValue() : 1.0f;
+                    builder.add(this.queryUtils.asClause(observation, false, boost));
+                } catch (Exception ex) {
+                    this.logger.error("Unable to add claause for " + observation, ex);
+                    throw new StoreException("Unable to add claause for " + observation, ex);
+                }
             }
         }
         Query query = builder.build();
         List<LuceneClassifier> classifiers = null;
         try {
             TopDocs docs = this.searcher.search(query, this.config.getQueryLimit());
+            float cutoff = this.config.getScoreCutoff();
             classifiers = new ArrayList<>(Math.min(this.config.getQueryLimit(), (int) docs.totalHits.value));
             for (ScoreDoc doc: docs.scoreDocs) {
+                if (doc.score < cutoff)
+                    continue;
                 classifiers.add(this.classifierCache == null ? this.doGet(doc.doc) : this.classifierCache.get(doc.doc));
             }
         } catch (IOException ex) {

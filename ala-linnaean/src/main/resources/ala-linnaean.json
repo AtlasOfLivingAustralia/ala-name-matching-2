@@ -112,7 +112,8 @@
       "label": "xSN",
       "uri": "http://ala.org.au/terms/1.0/soundexScientificName",
       "properties": {
-        "http://ala.org.au/optimisation/1.0/load": false
+        "http://ala.org.au/optimisation/1.0/load": false,
+        "http://ala.org.au/optimisation/1.0/luceneBoost": 5.0
       },
       "derivation": {
         "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
@@ -203,7 +204,8 @@
       "label": "xG",
       "uri": "http://ala.org.au/terms/1.0/soundexGenus",
       "properties": {
-        "http://ala.org.au/optimisation/1.0/load": false
+        "http://ala.org.au/optimisation/1.0/load": false,
+        "http://ala.org.au/optimisation/1.0/luceneBoost": 1.5
       },
       "group": "genus",
       "multiplicity": "*",
@@ -795,11 +797,6 @@
     },
     {
       "source": "taxonID",
-      "target": "canonicalAuthorship",
-      "edge": {}
-    },
-    {
-      "source": "taxonID",
       "target": "stateOrProvince",
       "edge": {}
     },
@@ -845,11 +842,21 @@
     },
     {
       "source": "scientificName",
+      "target": "canonicalAuthorship",
+      "edge": {}
+    },
+    {
+      "source": "scientificName",
       "target": "speciesID",
       "edge": {}
     },
     {
       "source": "soundexScientificName",
+      "target": "speciesID",
+      "edge": {}
+    },
+    {
+      "source": "canonicalAuthorship",
       "target": "speciesID",
       "edge": {}
     },

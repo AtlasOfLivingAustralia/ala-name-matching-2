@@ -131,7 +131,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals("b465f067-a2c1-4c6c-88cc-e394c23e4f87", doc.get(AlaLinnaeanFactory.acceptedNameUsageId));
         AlaLinnaeanParameters_FFFFFFT params = new AlaLinnaeanParameters_FFFFFFT();
         doc.loadParameters(params);
-        assertEquals(1.0, params.inf_kingdom_t$t_tt, 0.00001);
+        assertEquals(1.0, params.inf_kingdom_t$t_ttt, 0.00001);
         AlaLinnaeanInferencer_FFFFFFT inference = new AlaLinnaeanInferencer_FFFFFFT();
         AlaLinnaeanInferencer.Evidence evidence = new AlaLinnaeanInferencer.Evidence();
         evidence.e$scientificName = true;
@@ -191,7 +191,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         classification.scientificName = "Canarium acutifolium var. acutifolium";
         List<LuceneClassifier> classifiers = this.searcher.search(classification);
         assertNotNull(classifiers);
-        assertEquals(20, classifiers.size());
+        assertEquals(1, classifiers.size());
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", classifiers.get(0).get(AlaLinnaeanFactory.taxonId));
     }
 
@@ -201,7 +201,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         classification.scientificName = "Canarium acutifolium acutifolium";
         List<LuceneClassifier> classifiers = this.searcher.search(classification);
         assertNotNull(classifiers);
-        assertEquals(20, classifiers.size());
+        assertEquals(1, classifiers.size());
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", classifiers.get(0).get(AlaLinnaeanFactory.taxonId));
     }
 

@@ -15,6 +15,10 @@ public class LuceneClassifierSearcherConfiguration {
     @JsonProperty
     @Builder.Default
     private boolean enableJmx = false;
+    /** The minimum score for a candidate */
+    @JsonProperty
+    @Builder.Default
+    private float scoreCutoff = 1.0f;
     /** The limit to the number of results returned by a query */
     @JsonProperty
     @Builder.Default
