@@ -3,6 +3,7 @@
 * [Overview](#overview)
   * [Bayes Theorem](#bayes-theorem)
   * [A Note](#a-note)
+* [Usage](usage.md) How to use the libraries to match things.
 * [Bayesian](bayesian.md) Basic principles of bayesian networks and how they are implemented
   * [Bayesian Network](network.md) How to define a Bayesian network for something.
 

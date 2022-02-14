@@ -1,6 +1,5 @@
 package au.org.ala.bayesian;
 
-import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import freemarker.core.Environment;
 import freemarker.ext.beans.BeanModel;

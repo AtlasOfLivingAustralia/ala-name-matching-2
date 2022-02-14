@@ -4,8 +4,6 @@ import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
-import com.opencsv.CSVWriter;
-import com.opencsv.CSVWriterBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
 import org.gbif.nameparser.api.Rank;
@@ -18,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;

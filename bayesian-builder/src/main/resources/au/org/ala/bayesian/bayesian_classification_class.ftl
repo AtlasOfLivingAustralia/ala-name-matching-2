@@ -5,10 +5,13 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.Hints;
+import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.fidelity.CompositeFidelity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -169,6 +172,19 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     </#if>
   </#if>
 </#list>
+  }
+
+  @Override
+  public Fidelity<${className}> buildFidelity(${className} actual) throws InferenceException {
+    CompositeFidelity<${className}> fidelity = new CompositeFidelity<>(this, actual);
+<#list orderedNodes + additionalNodes as node>
+  <#assign observable = node.observable >
+  <#if observable?? && observable.analysis??>
+    if (this.${observable.javaVariable} != null)
+      fidelity.add(${factoryClassName}.${observable.javaVariable}.getAnalysis().buildFidelity(this.${observable.javaVariable}, actual.${observable.javaVariable}));
+  </#if>
+</#list>
+    return fidelity;
   }
 
   @Override

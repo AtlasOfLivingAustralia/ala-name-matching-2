@@ -86,3 +86,7 @@ There are two netorks:
   name searching.
 * [ALA Linnaean Builder](ala-linnaean-builder/README.md)
   The classes needed to build name indexes for both networks.
+  This also includes some useful tools for testing and analysis.
+* [ALA Distribution](ala-distribution/README.md)
+  A packaged distribution of the name index builders and tools.
+

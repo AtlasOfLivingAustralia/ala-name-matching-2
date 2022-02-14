@@ -1,8 +1,11 @@
 package au.org.ala.bayesian.analysis;
 
 import au.org.ala.bayesian.Analysis;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.Range;
 
 /**
@@ -54,6 +57,37 @@ abstract public class RangeAnalysis extends Analysis<Integer, Integer, Range<Int
     @Override
     public Integer fromStore(Integer value) throws StoreException {
         return value;
+    }
+    /**
+     * Compute a fidelity measure for this type of object.
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<Integer> buildFidelity(Integer original, Integer actual) throws InferenceException {
+        return original == null ? null : new SimpleFidelity<>(
+                original,
+                actual,
+                actual == null ?
+                        0.0 :
+                        1.0 - Math.min(1.0, Math.abs(original - actual) / this.getFidelityScale())
+        );
+    }
+
+    /**
+     * How far away an actual value can be from an original value before zero
+     * fidelity is reported.
+     * <p>
+     * This value defaults to 1.0 but can be overridden by subclasses.
+     * </p>
+     *
+     * @return The fidelity scale
+     */
+    @JsonIgnore
+    public double getFidelityScale() {
+        return 1.0;
     }
 
     /**

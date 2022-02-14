@@ -11,7 +11,7 @@ import java.util.Collection;
  */
 @Value
 public class Match<C extends Classification<C>, M extends MatchMeasurement> {
-    private static final Match<?, ?> INVALID_MATCH = new Match<>(null, null, null, null, null, null, Issues.of(BayesianTerm.invalidMatch), null);
+    private static final Match<?, ?> INVALID_MATCH = new Match<>(null, null, null, null, null, null, null, Issues.of(BayesianTerm.invalidMatch), null);
 
     /** The classification that was actually searched for */
     private C actual;
@@ -25,6 +25,8 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
     private C accepted;
     /** The match probability */
     private Inference probability;
+    /** The match fidelity - how close to the original question we were */
+    private Fidelity<C> fidelity;
     /** Any issues associated with the match */
     private Issues issues;
     /** The performance measurement for the match (may be null if no measurement was recorded) */
@@ -36,16 +38,18 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
      * @param match The match
      * @param candidate The candidate classifier
      * @param probability The match probability
+     * @param fidelity The fidelity
      * @param issues The issues list
      * @param measurement The collection statistics
      */
-    protected Match(C actual, Classifier candidate, C match, Classifier acceptedCandidate, C accepted, Inference probability, Issues issues, M measurement) {
+    protected Match(C actual, Classifier candidate, C match, Classifier acceptedCandidate, C accepted, Inference probability, Fidelity<C> fidelity, Issues issues, M measurement) {
         this.actual = actual;
         this.candidate = candidate;
         this.match = match;
         this.acceptedCandidate = acceptedCandidate;
         this.accepted = accepted;
         this.probability = probability;
+        this.fidelity = fidelity;
         this.issues = issues;
         this.measurement = measurement;
     }
@@ -59,7 +63,7 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
      * @param probabilty The inferred probability of the match
      */
     public Match(C actual, Classifier candidate, C match, Inference probabilty) {
-        this(actual, candidate, match, candidate, match, probabilty, match.getIssues().merge(actual.getIssues()), null);
+        this(actual, candidate, match, candidate, match, probabilty, null, match.getIssues().merge(actual.getIssues()), null);
     }
 
     /**
@@ -71,7 +75,7 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
      * @return A new match with a new accepted
      */
     public Match<C, M> withAccepted(Classifier acceptedCandidate, C accepted) {
-        return new Match<>(this.actual, this.candidate, this.match, acceptedCandidate, accepted, this.probability, this.issues.merge(accepted.getIssues()), this.measurement);
+        return new Match<>(this.actual, this.candidate, this.match, acceptedCandidate, accepted, this.probability, null, this.issues.merge(accepted.getIssues()), this.measurement);
     }
 
     /**
@@ -93,7 +97,7 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
     public Match<C, M> with(Issues additional) {
         if (additional == null || additional.isEmpty())
             return this;
-        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.issues.merge(additional), this.measurement);
+        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.fidelity, this.issues.merge(additional), this.measurement);
     }
 
     /**
@@ -102,7 +106,7 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
      * @param issue The issue
      */
     public Match<C, M> with(Term issue) {
-       return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.issues.with(issue), this.measurement);
+       return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.fidelity, this.issues.with(issue), this.measurement);
     }
 
     /**
@@ -117,7 +121,7 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
                 continue;
             p = p.or(match.getProbability());
         }
-        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, p, this.issues, this.measurement);
+        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, p, this.fidelity, this.issues, this.measurement);
     }
 
     /**
@@ -130,7 +134,21 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
     public Match<C, M> with(M measurement) {
         if (measurement == null && this.measurement == null)
             return this;
-        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.issues, measurement);
+        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.fidelity, this.issues, measurement);
+    }
+
+
+    /**
+     * Add a fidelity to the match.
+     *
+     * @param fidelity The fidelity
+     *
+     * @return A match with the appropriate measurements attached
+     */
+    public Match<C, M> with(Fidelity<C> fidelity) {
+        if (fidelity == null && this.fidelity == null)
+            return this;
+        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, fidelity, this.issues, measurement);
     }
 
     /**

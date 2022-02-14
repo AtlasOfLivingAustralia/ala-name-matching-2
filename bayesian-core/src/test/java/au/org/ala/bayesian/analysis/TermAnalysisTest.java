@@ -1,5 +1,6 @@
 package au.org.ala.bayesian.analysis;
 
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.vocab.BayesianTerm;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.Term;
@@ -94,5 +95,28 @@ public class TermAnalysisTest {
     }
 
 
+    public void testBuildFidelity1() throws Exception {
+        Fidelity<Term> fidelity = this.analysis.buildFidelity(BayesianTerm.analysisMethod, BayesianTerm.analysisMethod);
+        assertNotNull(fidelity);
+        assertEquals(1.0, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity2() throws Exception {
+        Fidelity<Term> fidelity = this.analysis.buildFidelity(BayesianTerm.analysisMethod, BayesianTerm.isRoot);
+        assertNotNull(fidelity);
+        assertEquals(0.0, fidelity.getFidelity(), 0.00001);
+    }
+
+
+    public void testBuildFidelity3() throws Exception {
+        Fidelity<Term> fidelity = this.analysis.buildFidelity(null, BayesianTerm.isRoot);
+        assertNull(fidelity);
+    }
+
+    public void testBuildFidelity4() throws Exception {
+        Fidelity<Term> fidelity = this.analysis.buildFidelity(BayesianTerm.isSynonym, null);
+        assertNotNull(fidelity);
+        assertEquals(0.0, fidelity.getFidelity(), 0.00001);
+    }
 
 }

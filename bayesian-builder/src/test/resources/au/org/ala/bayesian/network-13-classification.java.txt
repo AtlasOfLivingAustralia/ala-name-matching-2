@@ -4,10 +4,13 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.Hints;
+import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.fidelity.CompositeFidelity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -172,6 +175,18 @@ public class Network13Classification implements Classification<Network13Classifi
     this.v2 = Network13Factory.v2.analyse(this.v2);
     this.v3 = Network13Factory.v3.analyse(this.v3);
     analyser.analyseForSearch(this);
+  }
+
+  @Override
+  public Fidelity<Network13Classification> buildFidelity(Network13Classification actual) throws InferenceException {
+    CompositeFidelity<Network13Classification> fidelity = new CompositeFidelity<>(this, actual);
+    if (this.v1 != null)
+      fidelity.add(Network13Factory.v1.getAnalysis().buildFidelity(this.v1, actual.v1));
+    if (this.v2 != null)
+      fidelity.add(Network13Factory.v2.getAnalysis().buildFidelity(this.v2, actual.v2));
+    if (this.v3 != null)
+      fidelity.add(Network13Factory.v3.getAnalysis().buildFidelity(this.v3, actual.v3));
+    return fidelity;
   }
 
   @Override

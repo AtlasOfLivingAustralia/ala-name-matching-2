@@ -2,7 +2,6 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.vocab.OptimisationTerm;
-import lombok.Getter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -25,7 +24,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**

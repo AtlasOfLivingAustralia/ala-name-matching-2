@@ -1,7 +1,9 @@
 package au.org.ala.bayesian.analysis;
 
 import au.org.ala.bayesian.Analysis;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
 
 import java.util.Objects;
 
@@ -91,6 +93,18 @@ public class EnumAnalysis<E extends Enum<E>> extends Analysis<E, String, String>
     @Override
     public E fromStore(String value) {
         return this.fromString(value);
+    }
+
+    /**
+     * Compute a fidelity measure for this type of object.
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<E> buildFidelity(E original, E actual) throws InferenceException {
+        return original == null ? null : new SimpleFidelity<>(original, actual, original.equals(actual) ? 1.0 : 0.0);
     }
 
     /**

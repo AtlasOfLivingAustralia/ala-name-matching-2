@@ -192,6 +192,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         if (measurement != null)
             measurement.stop();
         this.recordMeasurement(measurement);
+        match = match.getActual() == null ? match : match.with(classification.buildFidelity(match.getActual()));
         return this.config.isInstrument() ? match.with(measurement) : match;
     }
 

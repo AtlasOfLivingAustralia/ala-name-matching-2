@@ -147,6 +147,19 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
     void inferForSearch(@NonNull Analyser<C> analyser) throws BayesianException;
 
     /**
+     * Build a fidelity model for this (original) classification against an actual classification.
+     * <p>
+     * The fidelity model can be used to build an estimate of how much the matched classification
+     * has been messed about before a match could be found.
+     * </p>
+     *
+     * @param actual The acutal classification used
+     *
+     * @return A fidelity measure for the classification.
+     */
+    Fidelity<C> buildFidelity(C actual) throws InferenceException;
+
+    /**
      *
      * Read this classification from a classifier.
      * <p>

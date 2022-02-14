@@ -96,6 +96,21 @@ abstract public class Analysis<C, S, Q> {
     abstract public C fromString(String value) throws StoreException;
 
     /**
+     * Compute a fidelity measure for this type of object.
+     * <p>
+     * If the original is null or otherwise emopty, then the computed fidelity is also null
+     * </p>
+      *
+     * @param original The original value
+     * @param actual The actual value
+     *
+     * @return The computed fidelity. Null if there is no fidelity to compute
+     *
+     * @throws InferenceException if unable to compute a fidelity
+     */
+    abstract public Fidelity<C> buildFidelity(C original, C actual) throws InferenceException;
+
+    /**
      * Test for equivalence.
      * <p>
      * By default, if either value1 or value2 is null, the result is null.

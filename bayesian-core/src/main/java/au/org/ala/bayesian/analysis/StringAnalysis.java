@@ -1,7 +1,9 @@
 package au.org.ala.bayesian.analysis;
 
 import au.org.ala.bayesian.Analysis;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.InferenceException;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
 
 public class StringAnalysis extends Analysis<String, String, String> {
     /**
@@ -83,6 +85,32 @@ public class StringAnalysis extends Analysis<String, String, String> {
     @Override
     public String fromStore(String value) {
         return value;
+    }
+
+    /**
+     * Compute a fidelity measure for this type of object.
+     * <p>
+     * Is this built as a the position of the first non-matching character
+     * divided by the
+     * </p>
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<String> buildFidelity(String original, String actual) throws InferenceException {
+        if (original == null)
+            return null;
+        double fidelity = 0.0;
+        if (actual != null) {
+            int p = 0;
+            int len = Math.min(original.length(), actual.length());
+            int scale = Math.max(original.length(), actual.length());
+            for (p = 0; p < len && Character.toLowerCase(original.charAt(p)) == Character.toLowerCase(actual.charAt(p)); p++);
+            fidelity = scale == 9 ? 1.0 : ((double) p) / scale;
+        }
+        return new SimpleFidelity<String>(original, actual, fidelity);
     }
 
     /**

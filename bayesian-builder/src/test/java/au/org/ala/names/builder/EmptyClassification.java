@@ -1,6 +1,7 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.fidelity.CompositeFidelity;
 import lombok.Getter;
 import lombok.NonNull;
 import org.gbif.dwc.terms.DwcTerm;
@@ -89,6 +90,21 @@ public class EmptyClassification implements Classification<EmptyClassification> 
 
     @Override
     public <T> void addHint(Observable observable, T value) {
+    }
+
+    /**
+     * Build a fidelity model for this (original) classification against an actual classification.
+     * <p>
+     * The fidelity model can be used to build an estimate of how much the matched classification
+     * has been messed about before a match could be found.
+     * </p>
+     *
+     * @param actual The acutal classification used
+     * @return A fidelity measure for the classification.
+     */
+    @Override
+    public Fidelity<EmptyClassification> buildFidelity(EmptyClassification actual) throws InferenceException {
+        return new CompositeFidelity<>(this, actual);
     }
 
     /**

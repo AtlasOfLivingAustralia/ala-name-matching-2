@@ -1,10 +1,7 @@
 package au.org.ala.bayesian;
 
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**

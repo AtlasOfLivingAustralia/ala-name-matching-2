@@ -38,12 +38,6 @@
             <version>${opencsv.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>${jcommander.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

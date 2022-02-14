@@ -4,10 +4,13 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.Hints;
+import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.fidelity.CompositeFidelity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,6 +122,18 @@ public class GrassClassification implements Classification<GrassClassification> 
     this.sprinkler = GrassFactory.sprinkler.analyse(this.sprinkler);
     this.wet = GrassFactory.wet.analyse(this.wet);
     analyser.analyseForSearch(this);
+  }
+
+  @Override
+  public Fidelity<GrassClassification> buildFidelity(GrassClassification actual) throws InferenceException {
+    CompositeFidelity<GrassClassification> fidelity = new CompositeFidelity<>(this, actual);
+    if (this.rain != null)
+      fidelity.add(GrassFactory.rain.getAnalysis().buildFidelity(this.rain, actual.rain));
+    if (this.sprinkler != null)
+      fidelity.add(GrassFactory.sprinkler.getAnalysis().buildFidelity(this.sprinkler, actual.sprinkler));
+    if (this.wet != null)
+      fidelity.add(GrassFactory.wet.getAnalysis().buildFidelity(this.wet, actual.wet));
+    return fidelity;
   }
 
   @Override

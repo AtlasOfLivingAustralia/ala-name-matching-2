@@ -1,7 +1,9 @@
 package au.org.ala.names;
 
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
 import org.slf4j.Logger;
@@ -91,6 +93,33 @@ public class KingdomAnalysis extends StringAnalysis {
             return null;
         return KINGDOM_MAP.getOrDefault(value.toUpperCase(), value);
     }
+    /**
+     * Compute a fidelity measure for this type of object.
+     * <p>
+     * If status is within the same class, then fidelity is at leaset 0.5
+     * </p>
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<String> buildFidelity(String original, String actual) throws InferenceException {
+        if (original == null)
+            return null;
+        double fidelity = 0.0;
+        if (actual != null) {
+            if (original.equalsIgnoreCase(actual))
+                fidelity = 1.0;
+            else {
+                Boolean equivalent = this.equivalent(original, actual);
+                if (equivalent != null && equivalent.booleanValue())
+                    fidelity = 0.5;
+            }
+        }
+        return new SimpleFidelity<>(original, actual, fidelity);
+    }
+
 
     /**
      * Test for equivalence.

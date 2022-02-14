@@ -1,6 +1,8 @@
 package au.org.ala.names;
 
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.analysis.EnumAnalysis;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
 import au.org.ala.vocab.TaxonomicStatus;
 
 import java.util.*;
@@ -50,6 +52,33 @@ public class TaxonomicStatusAnalysis extends EnumAnalysis<TaxonomicStatus> {
         if (value == null)
             return null;
         return value.name();
+    }
+
+    /**
+     * Compute a fidelity measure for this type of object.
+     * <p>
+     * If status is within the same class, then fidelity is at leaset 0.5
+     * </p>
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<TaxonomicStatus> buildFidelity(TaxonomicStatus original, TaxonomicStatus actual) {
+        if (original == null)
+            return null;
+        double fidelity = 0.0;
+        if (actual != null) {
+            if (original.equals(actual))
+                fidelity = 1.0;
+            else {
+                Boolean equivalent = this.equivalent(original, actual);
+                if (equivalent != null && equivalent.booleanValue())
+                    fidelity = 0.5;
+            }
+        }
+        return new SimpleFidelity<>(original, actual, fidelity);
     }
 
     /**

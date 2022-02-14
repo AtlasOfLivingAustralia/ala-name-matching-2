@@ -1,7 +1,10 @@
 package au.org.ala.names;
 
+import au.org.ala.bayesian.Fidelity;
+import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.StoreException;
 import au.org.ala.bayesian.analysis.RangeAnalysis;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.nameparser.api.Rank;
@@ -82,6 +85,28 @@ public class RankIDAnalysis extends RangeAnalysis {
 
     /** Helper for dealing with ranks as strings */
     private final RankAnalysis rankAnalysis = new RankAnalysis();
+
+    /**
+     * Compute a fidelity measure for this type of object.
+     * <p>
+     * We accept ranks within a linnaean range as more or less equivalent
+     * </p>
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<Integer> buildFidelity(Integer original, Integer actual) throws InferenceException {
+        if (original == null)
+            return null;
+        double fidelity = 0.0;
+        if (actual != null) {
+            double scale = original > 7000 && actual > 7000 ? 4000.0 : 1000.0;
+            fidelity = 1.0 - Math.min(1.0, Math.abs(original - actual) / scale);
+        }
+        return new SimpleFidelity<>(original, actual, fidelity);
+    }
 
 
     /**

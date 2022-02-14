@@ -1,5 +1,6 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.bayesian.fidelity.CompositeFidelity;
 import au.org.ala.util.BasicNormaliser;
 import lombok.Getter;
 import lombok.NonNull;
@@ -139,6 +140,26 @@ public class TestClassification implements Classification<TestClassification> {
 
     @Override
     public void inferForSearch(Analyser<TestClassification> analyser) {
+    }
+
+    @Override
+    public Fidelity<TestClassification> buildFidelity(TestClassification actual) throws InferenceException {
+        CompositeFidelity<TestClassification> fidelity = new CompositeFidelity<>(this, actual);
+        if (this.taxonID != null)
+            fidelity.add(TAXON_ID.getAnalysis().buildFidelity(this.taxonID, actual.taxonID));
+        if (this.class_ != null)
+            fidelity.add(CLASS_.getAnalysis().buildFidelity(this.class_, actual.class_));
+        if (this.scientificName != null)
+            fidelity.add(SCIENTIFIC_NAME.getAnalysis().buildFidelity(this.scientificName, actual.scientificName));
+        if (this.vernacularName != null)
+            fidelity.add(VERNACULAR_NAME.getAnalysis().buildFidelity(this.vernacularName, actual.vernacularName));
+        if (this.rankID != null)
+            fidelity.add(RANK_ID.getAnalysis().buildFidelity(this.rankID, actual.rankID));
+        if (this.rankRange != null)
+            fidelity.add(RANK_RANGE.getAnalysis().buildFidelity(this.rankRange, actual.rankRange));
+        if (this.testEnum != null)
+            fidelity.add(TEST_ENUM.getAnalysis().buildFidelity(this.testEnum, actual.testEnum));
+        return fidelity;
     }
 
     /**

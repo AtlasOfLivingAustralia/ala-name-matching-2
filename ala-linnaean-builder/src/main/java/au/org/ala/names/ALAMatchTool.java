@@ -13,7 +13,6 @@ import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.util.List;
 
 public class ALAMatchTool extends MatchTool<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory, MatchMeasurement> {

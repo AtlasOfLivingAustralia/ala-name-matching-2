@@ -4,10 +4,13 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.Hints;
+import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.fidelity.CompositeFidelity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -206,6 +209,42 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     if (this.soundexScientificName == null) {
       this.soundexScientificName = this.soundex.soundex(this.scientificName);
     }
+  }
+
+  @Override
+  public Fidelity<SimpleLinnaeanClassification> buildFidelity(SimpleLinnaeanClassification actual) throws InferenceException {
+    CompositeFidelity<SimpleLinnaeanClassification> fidelity = new CompositeFidelity<>(this, actual);
+    if (this.taxonId != null)
+      fidelity.add(SimpleLinnaeanFactory.taxonId.getAnalysis().buildFidelity(this.taxonId, actual.taxonId));
+    if (this.taxonRank != null)
+      fidelity.add(SimpleLinnaeanFactory.taxonRank.getAnalysis().buildFidelity(this.taxonRank, actual.taxonRank));
+    if (this.specificEpithet != null)
+      fidelity.add(SimpleLinnaeanFactory.specificEpithet.getAnalysis().buildFidelity(this.specificEpithet, actual.specificEpithet));
+    if (this.scientificNameAuthorship != null)
+      fidelity.add(SimpleLinnaeanFactory.scientificNameAuthorship.getAnalysis().buildFidelity(this.scientificNameAuthorship, actual.scientificNameAuthorship));
+    if (this.scientificName != null)
+      fidelity.add(SimpleLinnaeanFactory.scientificName.getAnalysis().buildFidelity(this.scientificName, actual.scientificName));
+    if (this.soundexScientificName != null)
+      fidelity.add(SimpleLinnaeanFactory.soundexScientificName.getAnalysis().buildFidelity(this.soundexScientificName, actual.soundexScientificName));
+    if (this.genus != null)
+      fidelity.add(SimpleLinnaeanFactory.genus.getAnalysis().buildFidelity(this.genus, actual.genus));
+    if (this.family != null)
+      fidelity.add(SimpleLinnaeanFactory.family.getAnalysis().buildFidelity(this.family, actual.family));
+    if (this.order != null)
+      fidelity.add(SimpleLinnaeanFactory.order.getAnalysis().buildFidelity(this.order, actual.order));
+    if (this.class_ != null)
+      fidelity.add(SimpleLinnaeanFactory.class_.getAnalysis().buildFidelity(this.class_, actual.class_));
+    if (this.phylum != null)
+      fidelity.add(SimpleLinnaeanFactory.phylum.getAnalysis().buildFidelity(this.phylum, actual.phylum));
+    if (this.kingdom != null)
+      fidelity.add(SimpleLinnaeanFactory.kingdom.getAnalysis().buildFidelity(this.kingdom, actual.kingdom));
+    if (this.acceptedNameUsageId != null)
+      fidelity.add(SimpleLinnaeanFactory.acceptedNameUsageId.getAnalysis().buildFidelity(this.acceptedNameUsageId, actual.acceptedNameUsageId));
+    if (this.parentNameUsageId != null)
+      fidelity.add(SimpleLinnaeanFactory.parentNameUsageId.getAnalysis().buildFidelity(this.parentNameUsageId, actual.parentNameUsageId));
+    if (this.taxonomicStatus != null)
+      fidelity.add(SimpleLinnaeanFactory.taxonomicStatus.getAnalysis().buildFidelity(this.taxonomicStatus, actual.taxonomicStatus));
+    return fidelity;
   }
 
   @Override

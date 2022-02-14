@@ -45,6 +45,7 @@ public class ALANameSearcherTest {
         assertTrue(result.isValid());
         assertEquals("https://biodiversity.org.au/afd/taxa/061fef09-7c9d-4b6d-9827-4da13a350dc6", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -56,6 +57,7 @@ public class ALANameSearcherTest {
         assertTrue(result.isValid());
         assertEquals("https://biodiversity.org.au/afd/taxa/a51dca29-50e7-49b4-ae35-5c35a9c4f854", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -67,6 +69,7 @@ public class ALANameSearcherTest {
         assertTrue(result.isValid());
         assertEquals("54105060", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -79,6 +82,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/apni/2902250", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/node/apni/2902250", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.EXCLUDED_NAME), result.getIssues());
     }
 
@@ -92,6 +96,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/instance/fungi/60071845", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/node/fungi/60098663", result.getAccepted().taxonId);
         assertEquals(0.99973, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -107,6 +112,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/6c212123-fadc-4307-8dd8-ac501bb534ba", result.getAccepted().taxonId);
         assertEquals("Stigmodera aurifera", result.getMatch().scientificName);
         assertEquals(0.52323, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
         template = new AlaLinnaeanClassification();
         template.scientificName = "Stigmodera aurifera Carter, 1922";
@@ -116,6 +122,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/6c212123-fadc-4307-8dd8-ac501bb534ba", result.getAccepted().taxonId);
         assertEquals("Stigmodera aurifera", result.getMatch().scientificName);
         assertEquals( 0.523233, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -131,6 +138,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/03ff8172-bda5-4751-819e-fbfaf8c98c8e", result.getAccepted().taxonId);
         assertEquals("Rhinotia", result.getMatch().scientificName);
         assertEquals(0.99995, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -145,6 +153,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51382879", result.getAccepted().taxonId);
         assertEquals("Acacia", result.getMatch().scientificName);
         assertEquals(0.96328, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM), result.getIssues());
     }
 
@@ -164,6 +173,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/766f0a13-c31c-46e5-8d36-6cff88292635", result.getAccepted().taxonId);
         assertEquals("Myrmecia", result.getMatch().scientificName);
         assertEquals(0.99995, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -177,6 +187,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/953a5af4-2932-4c8b-8f33-850b5f8f3fed", result.getAccepted().taxonId);
         assertEquals("Neobatrachus sudellae", result.getMatch().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -191,6 +202,7 @@ public class ALANameSearcherTest {
         assertEquals("Eucalyptus acaciaeformis", result.getMatch().scientificName);
         assertEquals("Eucalyptus acaciiformis", result.getAccepted().scientificName);
         assertEquals(0.99449, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -204,6 +216,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/name/apni/173312", result.getAccepted().taxonId);
         assertEquals("Banksia canei 'Celia Rosser'", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -217,6 +230,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/24bc164a-85b2-4633-85c5-a3b399daec0a", result.getAccepted().taxonId);
         assertEquals("Stephanopis similis", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -230,6 +244,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/2358fcc0-8db2-475d-8da4-fd4bd5e711f2", result.getAccepted().taxonId);
         assertEquals("Fraus latistria", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -243,6 +258,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/name/apni/110385", result.getAccepted().taxonId);
         assertEquals("Metrosideros fulgens", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -256,6 +272,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/name/apni/233086", result.getAccepted().taxonId);
         assertEquals("Metrosideros scandens", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM), result.getIssues());
     }
 
@@ -272,6 +289,7 @@ public class ALANameSearcherTest {
         assertEquals("NZOR-6-54688", result.getAccepted().taxonId);
         assertEquals("Tyto alba", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -286,6 +304,7 @@ public class ALANameSearcherTest {
         assertEquals("55056020", result.getAccepted().taxonId);
         assertEquals("Erythroclonium sonderi", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.MULTIPLE_MATCHES), result.getIssues());
     }
 
@@ -301,6 +320,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/7780957e-8aa8-41a3-930c-bd842fad94e9", result.getAccepted().taxonId);
         assertEquals("Pateobatis", result.getAccepted().scientificName);
         assertEquals(0.99995, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.77778, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_FAMILY, AlaLinnaeanFactory.REMOVED_ORDER), result.getIssues());
     }
 
@@ -331,6 +351,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51299884", result.getAccepted().taxonId);
         assertEquals("Banksia", result.getAccepted().scientificName);
         assertEquals(0.88469, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM, AlaLinnaeanFactory.PARTIALLY_MISAPPLIED_NAME), result.getIssues());
     }
 
@@ -344,6 +365,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/fungi/60104095", result.getAccepted().taxonId);
         assertEquals("Ceratiomyxa fruticulosa", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -358,6 +380,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/bfc16a3f-f295-462b-b3e9-3a419e2a8506", result.getAccepted().taxonId);
         assertEquals("Chromis hypsilepis", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.81818, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_AUTHORSHIP, AlaLinnaeanFactory.CANONICAL_NAME, BayesianTerm.illformedData), result.getIssues());
     }
 
@@ -389,6 +412,7 @@ public class ALANameSearcherTest {
         assertEquals(Rank.GENUS, result.getAccepted().taxonRank);
         assertEquals("Lepiota", result.getAccepted().scientificName);
         assertEquals(0.99995, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -405,6 +429,7 @@ public class ALANameSearcherTest {
         assertEquals("3ee7602753dd2c3dcaf1f98320e5bcc5", result.getAccepted().taxonId);
         assertEquals("Cryptochilium", result.getAccepted().scientificName);
         assertEquals(0.99970, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.42993, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_CLASS, AlaLinnaeanFactory.REMOVED_PHYLUM, AlaLinnaeanFactory.REMOVED_ORDER, AlaLinnaeanFactory.HIGHER_ORDER_MATCH), result.getIssues());
         template.kingdom = "Chromista";
         template.soundexKingdom = null;
@@ -414,6 +439,7 @@ public class ALANameSearcherTest {
         assertEquals("3ee7602753dd2c3dcaf1f98320e5bcc5", result.getAccepted().taxonId);
         assertEquals("Cryptochilium", result.getAccepted().scientificName);
         assertEquals(0.99970, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.42993, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.REMOVED_ORDER, AlaLinnaeanFactory.REMOVED_CLASS, AlaLinnaeanFactory.REMOVED_PHYLUM), result.getIssues());
     }
 
@@ -428,6 +454,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/7160b77f-d2d6-4c19-a35d-74073bc49bf4", result.getAccepted().taxonId);
         assertEquals("Earias", result.getAccepted().scientificName);
         assertEquals(0.99995, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.32139, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -450,6 +477,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/apni/2907413", result.getAccepted().taxonId);
         assertEquals("Acacia continua", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.86667, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(BayesianTerm.illformedData, AlaLinnaeanFactory.REMOVED_FAMILY, AlaLinnaeanFactory.REMOVED_ORDER), result.getIssues());
     }
 
@@ -464,6 +492,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/apni/2892448", result.getAccepted().taxonId);
         assertEquals("Acanthus", result.getAccepted().scientificName);
         assertEquals(0.98116, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM), result.getIssues());
     }
 
@@ -478,6 +507,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/apni/2900678", result.getAccepted().taxonId);
         assertEquals("Banksia spinulosa var. collina", result.getAccepted().scientificName);
         assertEquals(0.91652, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -498,6 +528,7 @@ public class ALANameSearcherTest {
         assertEquals("NZOR-6-80058", result.getAccepted().taxonId);
         assertEquals("Dendrothele pulvinata", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -518,6 +549,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51371471", result.getAccepted().taxonId);
         assertEquals("Rubiaceae", result.getAccepted().scientificName);
         assertEquals(0.99689, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.23684, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_PHYLUM, AlaLinnaeanFactory.REMOVED_CLASS, AlaLinnaeanFactory.REMOVED_ORDER, AlaLinnaeanFactory.CANONICAL_NAME, AlaLinnaeanFactory.HIGHER_ORDER_MATCH), result.getIssues());
     }
 
@@ -533,6 +565,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/c17a2f1f-262c-4865-a713-38d67ad39992", result.getAccepted().taxonId);
         assertEquals("Clathria", result.getAccepted().scientificName);
         assertEquals(0.99805, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.56111, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM, AlaLinnaeanFactory.PARENT_CHILD_SYNONYM, AlaLinnaeanFactory.HIGHER_ORDER_MATCH), result.getIssues());
     }
 
@@ -547,6 +580,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/320d2e8b-d0f8-44df-a66c-c1ea01df3570", result.getAccepted().taxonId);
         assertEquals("Greenidea", result.getAccepted().scientificName);
         assertEquals(0.91736, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM, AlaLinnaeanFactory.PARENT_CHILD_SYNONYM, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -564,6 +598,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51371471", result.getAccepted().taxonId);
         assertEquals("Rubiaceae", result.getAccepted().scientificName);
         assertEquals(0.99689, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.44444, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH), result.getIssues());
     }
 
@@ -581,6 +616,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/b19c506f-17a4-4e50-8d9f-b76cf225c08a", result.getAccepted().taxonId);
         assertEquals("POLYNEMIDAE", result.getAccepted().scientificName);
         assertEquals(0.99999, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.35593, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -596,6 +632,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/fungi/60093449", result.getAccepted().taxonId);
         assertEquals("Laccaria", result.getAccepted().scientificName);
         assertEquals(0.99995, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.41558, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH), result.getIssues());
     }
 
@@ -610,6 +647,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/apni/2916466", result.getAccepted().taxonId);
         assertEquals("Alyxia", result.getAccepted().scientificName);
         assertEquals(0.99995, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -630,6 +668,7 @@ public class ALANameSearcherTest {
         assertEquals("NZOR-6-101987", result.getAccepted().taxonId);
         assertEquals("Strombus", result.getAccepted().scientificName);
         assertEquals(0.98616, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.34794, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_ORDER, AlaLinnaeanFactory.REMOVED_FAMILY, AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -646,6 +685,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/6eeb0f6c-21c5-4129-8700-3189e99188e8", result.getAccepted().taxonId);
         assertEquals("Eulalia", result.getAccepted().scientificName);
         assertEquals(0.90277, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.84848, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH), result.getIssues());
     }
 
@@ -666,6 +706,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/cb67f3f6-ad5e-4e65-9298-6f52cf0d08d9", result.getAccepted().taxonId);
         assertEquals("Aedes", result.getAccepted().scientificName);
         assertEquals(0.99995, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.45694, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.REMOVED_AUTHORSHIP, AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -681,6 +722,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/d019cab5-8ace-4040-9220-cc090f5e9885", result.getAccepted().taxonId);
         assertEquals("Callogobius", result.getAccepted().scientificName);
         assertEquals(0.99995, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.48778, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.CONFER_SPECIES_NAME), result.getIssues());
     }
 
@@ -696,6 +738,7 @@ public class ALANameSearcherTest {
         assertEquals("Mynes", result.getMatch().scientificName);
         assertEquals("Symbrenthia", result.getAccepted().scientificName);
         assertEquals(0.94261, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.38527, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH), result.getIssues());
     }
 
@@ -712,6 +755,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/apni/2892942", result.getAccepted().taxonId);
         assertEquals("Acacia paraneura", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.INDETERMINATE_NAME, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -732,6 +776,7 @@ public class ALANameSearcherTest {
         assertEquals("NZOR-6-45059", result.getAccepted().taxonId);
         assertEquals("Amylocystis lapponicus", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.84211, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
 
@@ -750,6 +795,7 @@ public class ALANameSearcherTest {
         assertEquals("Hydnoplicata whitei", result.getMatch().scientificName);
         assertEquals("Hydnoplicata convoluta", result.getAccepted().scientificName);
         assertEquals(0.99954, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -763,6 +809,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/3f66250c-eec1-4f23-8338-26663c929d66", result.getAccepted().taxonId);
         assertEquals("Cygnus atratus", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.MULTIPLE_MATCHES), result.getIssues());
     }
 
@@ -777,6 +824,7 @@ public class ALANameSearcherTest {
         assertNotNull(result.getAccepted());
         assertEquals("https://id.biodiversity.org.au/node/fungi/60098663", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.84615, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_PHYLUM, AlaLinnaeanFactory.REMOVED_CLASS, AlaLinnaeanFactory.REMOVED_ORDER), result.getIssues());
     }
 
@@ -795,6 +843,7 @@ public class ALANameSearcherTest {
         assertNotNull(result.getAccepted());
         assertEquals("https://id.biodiversity.org.au/node/fungi/60096937", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.68421, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.REMOVED_PHYLUM, AlaLinnaeanFactory.REMOVED_CLASS, AlaLinnaeanFactory.REMOVED_ORDER), result.getIssues());
     }
 
@@ -808,6 +857,7 @@ public class ALANameSearcherTest {
         assertNotNull(result.getAccepted());
         assertEquals("https://id.biodiversity.org.au/node/apni/2904909", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.66667, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME), result.getIssues());
     }
 
@@ -820,6 +870,7 @@ public class ALANameSearcherTest {
         assertNotNull(result.getAccepted());
         assertEquals("https://biodiversity.org.au/afd/taxa/061fef09-7c9d-4b6d-9827-4da13a350dc6", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.66667, result.getFidelity().getFidelity(), 0.00001);
         assertTrue(result.getIssues().contains(AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME));
     }
 
@@ -834,6 +885,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/instance/apni/51400951", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51401037", result.getAccepted().taxonId);
         assertEquals(0.77269, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(TaxonomicStatus.misapplied, result.getMatch().taxonomicStatus);
         assertEquals(Issues.of(AlaLinnaeanFactory.MISAPPLIED_NAME), result.getIssues());
     }
@@ -871,6 +923,7 @@ public class ALANameSearcherTest {
         assertNotNull(result.getAccepted());
         assertEquals("https://id.biodiversity.org.au/node/apni/2912987", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(TaxonomicStatus.accepted, result.getAccepted().taxonomicStatus);
         assertEquals(Issues.of(AlaLinnaeanFactory.PARTIALLY_MISAPPLIED_NAME, AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
     }
@@ -1037,6 +1090,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/416d9a5b-b43a-4ed3-9431-b0e6e7a693d4", result.getMatch().taxonId);
         assertEquals("https://biodiversity.org.au/afd/taxa/9e27e64f-407b-4050-96ef-4ea4381b1554", result.getAccepted().taxonId);
         assertEquals(0.94261, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.44444, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH), result.getIssues());
     }
 
@@ -1189,6 +1243,7 @@ public class ALANameSearcherTest {
         assertEquals("ALA_134351", result.getMatch().taxonId);
         assertEquals("ALA_134351", result.getAccepted().taxonId);
         assertEquals(0.52323, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME, AlaLinnaeanFactory.MULTIPLE_MATCHES), result.getIssues());
 
         // Match onto higher order without further info
@@ -1199,6 +1254,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51282936", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51282936", result.getAccepted().taxonId);
         assertEquals(0.99995, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.35248, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME, AlaLinnaeanFactory.HIGHER_ORDER_MATCH), result.getIssues());
 
         // Actual taxon
@@ -1209,6 +1265,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/apni/2919780", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/node/apni/2919780", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -1226,6 +1283,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51299919", result.getAccepted().taxonId);
         assertEquals("Buchnera", result.getAccepted().scientificName);
         assertEquals(0.98713, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.30356, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.AFFINITY_SPECIES_NAME, AlaLinnaeanFactory.REMOVED_ORDER, AlaLinnaeanFactory.REMOVED_FAMILY), result.getIssues());
     }
 
@@ -1248,6 +1306,7 @@ public class ALANameSearcherTest {
         assertEquals("40041023", result.getMatch().taxonId);
         assertEquals("40041023", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.66667, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME, AlaLinnaeanFactory.MULTIPLE_MATCHES), result.getIssues());
     }
 
@@ -1336,6 +1395,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/apni/2892448", result.getAccepted().taxonId);
         assertEquals("Acanthus", result.getAccepted().scientificName);
         assertEquals(0.99845, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM), result.getIssues());
     }
 
@@ -1454,6 +1514,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51371471", result.getAccepted().taxonId);
         assertEquals("Rubiaceae", result.getAccepted().scientificName);
         assertEquals(0.78189, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM), result.getIssues());
     }
 
@@ -1470,6 +1531,7 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51371471", result.getAccepted().taxonId);
         assertEquals("Rubiaceae", result.getAccepted().scientificName);
         assertEquals(0.99689, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -1484,6 +1546,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/6e95cd75-80b9-41ce-8dd2-eae29a8f7e1b", result.getAccepted().taxonId);
         assertEquals("BDELLOIDEA", result.getAccepted().scientificName);
         assertEquals(0.66667, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(AlaLinnaeanFactory.UNRESOLVED_HOMONYM), result.getIssues());
     }
 
@@ -1500,6 +1563,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/065763e7-e00d-4e5d-a9d0-99b290c4b2c8", result.getAccepted().taxonId);
         assertEquals("EUGREGARINORIDA", result.getAccepted().scientificName);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
     }
 
@@ -1597,6 +1661,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/9b4ad548-8bb3-486a-ab0a-905506c463ea", result.getMatch().taxonId);
         assertEquals("https://biodiversity.org.au/afd/taxa/9b4ad548-8bb3-486a-ab0a-905506c463ea", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
         template.scientificName = "Eolophus roseicapillus";
         result = this.searcher.search(template);
@@ -1604,6 +1669,7 @@ public class ALANameSearcherTest {
         assertEquals("https://biodiversity.org.au/afd/taxa/9b4ad548-8bb3-486a-ab0a-905506c463ea", result.getMatch().taxonId);
         assertEquals("https://biodiversity.org.au/afd/taxa/9b4ad548-8bb3-486a-ab0a-905506c463ea", result.getAccepted().taxonId);
         assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
         assertEquals(Issues.of(), result.getIssues());
 
     }
@@ -1660,8 +1726,8 @@ public class ALANameSearcherTest {
         template.vernacularName = "Blue Gum"; // Multiple possibilities
         Match<AlaVernacularClassification, MatchMeasurement> result = this.searcher.search(template);
         assertTrue(result.isValid());
-        assertEquals("https://id.biodiversity.org.au/node/apni/2892322", result.getMatch().taxonId);
-        assertEquals("https://id.biodiversity.org.au/node/apni/2892322", result.getAccepted().taxonId);
+        assertEquals("https://id.biodiversity.org.au/node/apni/5272169", result.getMatch().taxonId);
+        assertEquals("https://id.biodiversity.org.au/node/apni/5272169", result.getAccepted().taxonId);
         assertEquals(Issues.of(), result.getIssues());
     }
 

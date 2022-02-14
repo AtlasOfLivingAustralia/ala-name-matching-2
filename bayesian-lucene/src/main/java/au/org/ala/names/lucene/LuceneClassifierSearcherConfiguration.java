@@ -2,7 +2,6 @@ package au.org.ala.names.lucene;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Value;
 
 /**

@@ -3,8 +3,6 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.NetworkFactory;
-import com.beust.jcommander.IParameterValidator;
-import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.FileConverter;
 import com.beust.jcommander.converters.URLConverter;

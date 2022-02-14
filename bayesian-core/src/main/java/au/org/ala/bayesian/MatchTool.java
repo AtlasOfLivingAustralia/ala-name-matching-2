@@ -1,6 +1,5 @@
 package au.org.ala.bayesian;
 
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
 import org.slf4j.Logger;
@@ -41,6 +40,7 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
     protected BiFunction<Check, Match<C, M>, Object> searchName;
     protected BiFunction<Check, Match<C, M>, Object> matchName;
     protected BiFunction<Check, Match<C, M>, Object> matchProbability;
+    protected BiFunction<Check, Match<C, M>, Object> matchFidelity;
 
     /**
      * Construct for a searchable store.
@@ -161,6 +161,10 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
         this.matchProbability = (c, m) -> m.isValid() ? m.getProbability().getPosterior() : null;
         this.outputs.add(this.matchProbability);
         this.headers.add("matchProbability");
+        // Add the match fidelity
+        this.matchFidelity = (c, m) -> m.getFidelity() != null ? m.getFidelity().getFidelity() : null;
+        this.outputs.add(this.matchFidelity);
+        this.headers.add("matchFidelity");
         // Add the search name (the name which was actually looked for)
         this.searchName = (c, m) -> m.getActual() != null ? m.getActual().getName() : null;
         this.outputs.add(this.searchName);

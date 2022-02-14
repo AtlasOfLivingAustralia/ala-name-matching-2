@@ -59,7 +59,7 @@
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
-      <version>5.0</version>
+      <version>${opencsv.version}</version>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>

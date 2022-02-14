@@ -1,8 +1,10 @@
 package au.org.ala.bayesian.analysis;
 
 import au.org.ala.bayesian.Analysis;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
 
 /**
  * The default integer analysis
@@ -77,6 +79,18 @@ public class BooleanAnalysis extends Analysis<Boolean, Boolean, Boolean> {
     @Override
     public Boolean fromStore(Boolean value) {
         return value;
+    }
+
+    /**
+     * Compute a fidelity measure for this type of object.
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<Boolean> buildFidelity(Boolean original, Boolean actual) throws InferenceException {
+        return original == null ? null : new SimpleFidelity<>(original, actual, original.equals(actual) ? 1.0 : 0.0);
     }
 
     /**

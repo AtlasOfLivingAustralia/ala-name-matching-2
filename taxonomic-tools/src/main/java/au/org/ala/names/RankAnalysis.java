@@ -1,7 +1,9 @@
 package au.org.ala.names;
 
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.analysis.EnumAnalysis;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -124,6 +126,30 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
     @Override
     public String toQuery(Rank value) {
         return super.toQuery(this.tidy(value));
+    }
+
+    /**
+     * Compute a fidelity measure for this type of object.
+     * <p>
+     * We accept ranks within a linnaean range as more or less equivalent
+     * </p>
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<Rank> buildFidelity(Rank original, Rank actual) throws InferenceException {
+        if (original == null)
+            return null;
+        double fidelity = 0.0;
+        if (actual != null) {
+            int oid = RankIDAnalysis.idFromRank(original);
+            int aid = RankIDAnalysis.idFromRank(actual);
+            double scale = oid > 7000 && aid > 7000 ? 4000.0 : 1000.0;
+            fidelity = 1.0 - Math.min(1.0, Math.abs(oid - aid) / scale);
+        }
+        return new SimpleFidelity<>(original, actual, fidelity);
     }
 
     /**

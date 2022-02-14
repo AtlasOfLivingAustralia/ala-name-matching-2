@@ -18,6 +18,7 @@
     <module>taxonomic-tools-builder</module>
     <module>ala-linnaean</module>
     <module>ala-linnaean-builder</module>
+    <module>ala-distribution</module>
   </modules>
 
   <name>Name Matching v2</name>

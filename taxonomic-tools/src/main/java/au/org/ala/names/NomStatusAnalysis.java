@@ -1,8 +1,10 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.Analysis;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,6 +91,18 @@ public class NomStatusAnalysis extends Analysis<NomStatus, String, String> {
     @Override
     public NomStatus fromStore(String value) throws StoreException {
         return this.fromString(value);
+    }
+
+    /**
+     * Compute a fidelity measure for this type of object.
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<NomStatus> buildFidelity(NomStatus original, NomStatus actual) throws InferenceException {
+        return original == null ? null : new SimpleFidelity<>(original, actual, original.equals(actual) ? 1.0 : 0.0);
     }
 
     /**
