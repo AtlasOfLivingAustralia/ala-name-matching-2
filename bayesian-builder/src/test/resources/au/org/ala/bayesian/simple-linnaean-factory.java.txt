@@ -352,6 +352,11 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   }
 
   @Override
+  public Term getConcept() {
+    return CONCEPT;
+  }
+
+  @Override
   public Optional<Observable<String>> getIdentifier() {
     return Optional.of(taxonId);
   }

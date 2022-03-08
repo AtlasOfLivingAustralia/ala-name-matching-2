@@ -1,5 +1,6 @@
 package au.org.ala.bayesian;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Value;
 
 /**
@@ -38,6 +39,7 @@ public class Inference {
      *
      * @return The boost
      */
+    @JsonIgnore
     public double getBoost() {
         return this.evidence > MINIMUM_PROBABILITY ? this.conditional / this.evidence : 0.0;
     }
@@ -129,5 +131,14 @@ public class Inference {
         double posterior = evidence < MINIMUM_PROBABILITY ? 0.0 : hypothesis / evidence;
         double conditional = prior < MINIMUM_PROBABILITY ? 0.0 : hypothesis / prior;
         return new Inference(prior, evidence, conditional, posterior);
+    }
+
+    /**
+     * Return a unit probability
+     *
+     * @return A unit probability (actually {@link #MAXIMUM_PROBABILITY})
+     */
+    public static Inference one() {
+        return new Inference(MAXIMUM_PROBABILITY, MAXIMUM_PROBABILITY, MAXIMUM_PROBABILITY, MAXIMUM_PROBABILITY);
     }
 }

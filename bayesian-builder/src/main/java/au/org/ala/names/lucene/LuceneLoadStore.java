@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -290,7 +291,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     @Override
     public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws BayesianException {
         this.ensureReader();
-        return new LuceneParameterAnalyser(network, this.searcher, weight, defaultWeight);
+        return new LuceneParameterAnalyser(network, this.searcher, weight, defaultWeight, network.getInputs(), network.getOutputs(), true);
     }
 
     /**

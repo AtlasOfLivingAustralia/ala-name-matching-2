@@ -119,9 +119,9 @@ public class NetworkCompiler {
         this.nodes = this.network.getVertices().stream().collect(Collectors.toMap(v -> v.getId(), v -> new Node(v)));
         this.orderedNodes = this.network.getVertices().stream().map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
         this.additionalNodes = this.network.getObservablesById().stream().filter(o -> o.hasProperty(BayesianTerm.additional, true) && !nodes.containsKey(o.getId())).map(o -> new Node(o)).collect(Collectors.toList());
-        this.inputs = this.network.getVertices().stream().filter(v -> this.network.getIncoming(v).isEmpty()).map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
+        this.inputs = this.network.getInputs().stream().map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
         this.inputSignatures = this.signatures(this.inputs.size());
-        this.outputs = this.network.getVertices().stream().filter(v -> this.network.getOutgoing(v).isEmpty()).map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
+        this.outputs = this.network.getOutputs().stream().map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
 
         for (Node node: this.inputs) {
             node.input = true;

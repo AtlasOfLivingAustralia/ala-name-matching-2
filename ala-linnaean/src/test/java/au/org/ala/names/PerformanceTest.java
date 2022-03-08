@@ -35,6 +35,7 @@ public class PerformanceTest {
     public static final int SEARCH_CACHE_SIZE = 10000;
     public static final String INDEX = "/data/lucene/index-20210811-2" ;
     public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-2" ;
+    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-2";
 
 
     private ALANameSearcher searcher;
@@ -44,6 +45,7 @@ public class PerformanceTest {
     public void setUp() throws Exception {
         File index = new File(INDEX);
         File vernacular = new File(VERNACULAR_INDEX);
+        File suggester = new File(SUGGESTER_INDEX);
         if (!index.exists())
             throw new IllegalStateException("Index " + index + " not present");
         if (!vernacular.exists())
@@ -56,7 +58,7 @@ public class PerformanceTest {
                 .enableJmx(true)
                 .statistics(true)
                 .build();
-        this.searcher = new ALANameSearcher(index, vernacular, sConfig, cConfig);
+        this.searcher = new ALANameSearcher(index, vernacular, suggester, sConfig, cConfig);
     }
 
     @After

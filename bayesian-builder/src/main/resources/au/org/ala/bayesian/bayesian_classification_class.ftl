@@ -19,6 +19,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -27,6 +30,7 @@ import org.gbif.dwc.terms.Term;
 import ${import};
 </#list>
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements Classification<${className}> {
   private Issues issues;
   private Hints<${className}> hints;
@@ -102,32 +106,47 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
+  @JsonIgnore
   public Term getType() {
     return ${factoryClassName}.CONCEPT;
   }
 
   @Override
+  @JsonIgnore
   public Issues getIssues() {
     return this.issues;
   }
 
+  @JsonProperty("issues")
+  public List<String> getIssueStrings() {
+    return this.issues.asStrings();
+  }
+
+  @JsonProperty("issues")
+  public void setIssueStrings(List<String> issues) {
+    this.issues = Issues.fromStrings(issues);
+  }
 
   @Override
+  @JsonIgnore
   public String getIdentifier() {
     return <#if network.identifierObservable??>this.${network.identifierObservable.javaVariable}<#else>null</#if>;
   }
 
   @Override
+  @JsonIgnore
   public String getName() {
     return <#if network.nameObservable??>this.${network.nameObservable.javaVariable}<#else>null</#if>;
   }
 
   @Override
+  @JsonIgnore
   public String getParent() {
     return <#if network.parentObservable??>this.${network.parentObservable.javaVariable}<#else>null</#if>;
   }
 
   @Override
+  @JsonIgnore
   public String getAccepted() {
     return <#if network.acceptedObservable??>this.${network.acceptedObservable.javaVariable}<#else>null</#if>;
   }

@@ -119,6 +119,11 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
+  public Term getConcept() {
+    return CONCEPT;
+  }
+
+  @Override
   public Optional<Observable<String>> getIdentifier() {
     return Optional.<#if network.identifierObservable??>of(${network.identifierObservable.javaVariable})<#else>empty()</#if>;
   }

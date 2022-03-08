@@ -1,0 +1,13 @@
+{
+  "score" : 20.0,
+  "name" : "Eccles",
+  "lsid" : "ID-1",
+  "left" : "10",
+  "right" : "20",
+  "cl" : {
+    "issues" : [ "http://ala.org.au/issues/1.0/conferSpeciesName" ],
+    "scientificName" : "Ecclesonia goonus",
+    "nomenclaturalCode" : "ICZN",
+    "genus" : "Ecclesonia"
+  }
+}

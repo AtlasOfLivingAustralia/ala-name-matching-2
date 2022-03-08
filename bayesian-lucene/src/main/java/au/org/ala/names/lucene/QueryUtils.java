@@ -6,7 +6,11 @@ import org.apache.commons.lang3.Range;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.core.UnicodeWhitespaceTokenizer;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
+import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilterFactory;
+import org.apache.lucene.analysis.ngram.NGramFilterFactory;
+import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.index.Term;
@@ -16,6 +20,8 @@ import org.apache.lucene.util.QueryBuilder;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static au.org.ala.bayesian.ExternalContext.LUCENE;
 import static au.org.ala.bayesian.ExternalContext.LUCENE_VARIANT;
@@ -102,6 +108,7 @@ public class QueryUtils {
         query = new BoostQuery(query, NAME_BOOST);
         return new BooleanClause(query, BooleanClause.Occur.SHOULD);
     }
+
     /**
      * Concert an observation into a potentially required boolean clause.
      * <p>
@@ -137,6 +144,22 @@ public class QueryUtils {
         if (boost != 1.0f)
             base = new BoostQuery(base, boost);
         return new BooleanClause(base, observation.isPositive() ? (required ? BooleanClause.Occur.MUST : BooleanClause.Occur.SHOULD) : BooleanClause.Occur.MUST_NOT);
+    }
+
+    /**
+     * Construct a wildcard clause for an observable.
+     *
+     * @param field The field
+     * @param value The value to search, with "*" wildcards
+     * @param boost The boost value for the query
+     *
+     * @return A wildcard clause
+     */
+    public BooleanClause asWildcardClause(String field, String value, float boost) {
+        Query base = new WildcardQuery(new Term(field, value));
+        if (boost != 1.0f)
+            base = new BoostQuery(base, boost);
+        return new BooleanClause(base, BooleanClause.Occur.SHOULD);
     }
 
     /**
@@ -183,6 +206,8 @@ public class QueryUtils {
         if (value != null && !type.isAssignableFrom(value.getClass()))
             throw new StoreException("Value " + value + " does not match " + type);
         Q query = analysis.toQuery((C) value);
+        if (query == null)
+            return new TermQuery(new Term(field));
         if (query instanceof String && normaliser != null)
             query = (Q) normaliser.normalise((String) query);
         if (query instanceof Integer) {
@@ -217,7 +242,37 @@ public class QueryUtils {
      */
     protected Analyzer createAnalyzer() throws StoreException {
         try {
-            return CustomAnalyzer.builder().withTokenizer(KeywordTokenizerFactory.NAME).addTokenFilter(LowerCaseFilterFactory.NAME).build();
+            return CustomAnalyzer.builder()
+                    .withTokenizer(KeywordTokenizerFactory.NAME)
+                    .addTokenFilter(LowerCaseFilterFactory.NAME)
+                    .build();
+        } catch (IOException ex) {
+            throw new StoreException("Unable to construct an analyzer", ex);
+        }
+    }
+
+    /**
+     * Create a text analyser for the store.
+     * <p>
+     * By default, this is a lower-case, keyword analyzer (i.e. case insensitive, treating eveything as a single unit)
+     * </p>
+     *
+     * @return A analyzer.
+     *
+     * @throws StoreException if unable to construct the analyzer
+     */
+    protected Analyzer createSuggesterAnalyzer() throws StoreException {
+        try {
+            Map<String, String> ngramParams = new HashMap<>();
+            ngramParams.put("minGramSize", "3");
+            ngramParams.put("maxGramSize", "30");
+            ngramParams.put("keepShortTerm", "true");
+            return CustomAnalyzer.builder()
+                    .withTokenizer(KeywordTokenizerFactory.NAME)
+                    .addTokenFilter(ASCIIFoldingFilterFactory.NAME)
+                    .addTokenFilter(LowerCaseFilterFactory.NAME)
+                    .addTokenFilter(NGramFilterFactory.NAME, ngramParams)
+                    .build();
         } catch (IOException ex) {
             throw new StoreException("Unable to construct an analyzer", ex);
         }

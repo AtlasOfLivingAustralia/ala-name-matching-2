@@ -430,6 +430,26 @@ public class Network extends Identifiable {
     }
 
     /**
+     * Get the list of input observables
+     *
+     * @return The list of observables in the network not dependent on anything
+     */
+    @JsonIgnore
+    public List<Observable> getInputs() {
+        return this.getVertices().stream().filter(o -> this.getIncoming(o).isEmpty()).collect(Collectors.toList());
+    }
+
+    /**
+     * Get the list of output observables
+     *
+     * @return The list of observables in the network with no dependencies
+     */
+    @JsonIgnore
+    public List<Observable> getOutputs() {
+        return this.getVertices().stream().filter(o -> this.getOutgoing(o).isEmpty()).collect(Collectors.toList());
+    }
+
+    /**
      * Get the list of groups for this network.
      *
      * @return The list of erasure groups, in network order.

@@ -17,6 +17,11 @@ public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyIn
     }
 
     @Override
+    public @NonNull Term getConcept() {
+        return BayesianTerm.Concept;
+    }
+
+    @Override
     public @NonNull List<Observable<?>> getObservables() {
         return Collections.emptyList();
     }

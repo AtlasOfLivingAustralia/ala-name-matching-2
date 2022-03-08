@@ -14,7 +14,7 @@ import java.util.List;
  * @param <C> The type of classification used to search
  */
 @Service
-abstract public class ClassifierSearcher<C extends Classifier> {
+abstract public class ClassifierSearcher<C extends Classifier> implements AutoCloseable {
     /**
      * Search for a classifier by identifier.
      *
@@ -29,6 +29,19 @@ abstract public class ClassifierSearcher<C extends Classifier> {
     abstract public C get(Term type, Observable identifier, Object id) throws BayesianException;
 
     /**
+     * Search for all classifiers by identifier.
+     *
+     * @param type The type of classifier to get
+     * @param identifier The identifier observable
+     * @param id The id to search for
+     *
+     * @return All classifiers in retrieval order
+     *
+     * @throws BayesianException if unable to retrieve information about the classifier
+     */
+    abstract public List<C> getAll(Term type, Observable identifier, Object id) throws BayesianException;
+
+    /**
      * Search for a set of possible candidate classifiers that match the supplied classification.
      *
      * @param classification The classification
@@ -38,11 +51,4 @@ abstract public class ClassifierSearcher<C extends Classifier> {
      * @throws BayesianException if unable to correctly match the classifiers
      */
     abstract public List<C> search(Classification classification) throws BayesianException;
-
-    /**
-     * Close the searcher.
-     *
-     * @throws StoreException if unable to close for some reason
-     */
-    abstract public void close() throws StoreException;
 }

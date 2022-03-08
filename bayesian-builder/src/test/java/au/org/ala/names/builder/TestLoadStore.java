@@ -5,6 +5,7 @@ import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneClassifier;
 import org.gbif.dwc.terms.Term;
 
+import java.io.Closeable;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -113,6 +114,10 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
             @Override
             public double computeConditional(Observation observation, Observation... inputs) {
                 return 1.0;
+            }
+
+            @Override
+            public void close()  {
             }
         };
     }

@@ -2,10 +2,10 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.ExternalContext;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.util.FileUtils;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.BayesianTerm;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
+import com.opencsv.*;
 import lombok.Getter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -50,11 +50,25 @@ public class LuceneUtils {
      *
      * @throws Exception if unable to load the resource
      */
-    public LuceneUtils(Class clazz, String resource, Collection<Observable<?>> observables) throws Exception {
+    public LuceneUtils(Class clazz, String resource, Collection<Observable<?>> observables, Observable<String> namer) throws Exception {
+        this(clazz, resource, observables, namer, false);
+    }
+
+    /**
+     * Create a lucene utility connection for a resourced CSV file containing index terms
+     *
+     * @param clazz The class to load from
+     * @param resource The resource to load (CSV file)
+     * @param observables The list of observables to convert from/to
+     * @param ignoreDuplicates Ignore duplicate identifiers
+     *
+     * @throws Exception if unable to load the resource
+     */
+    public LuceneUtils(Class clazz, String resource, Collection<Observable<?>> observables, Observable<String> namer, boolean ignoreDuplicates) throws Exception {
         this.buildObservables(observables);
         this.buildIndexDir();
         this.openWriter();
-        this.makeIndex(clazz, resource);
+        this.makeIndex(clazz, resource, namer, ignoreDuplicates);
         this.openSearcher();
     }
 
@@ -90,7 +104,7 @@ public class LuceneUtils {
             this.indexWriter = null;
         }
         if (this.indexDir != null) {
-            TestUtils.deleteAll(this.indexDir.toFile());
+            FileUtils.deleteAll(this.indexDir.toFile());
             this.indexDir = null;
         }
     }
@@ -178,12 +192,15 @@ public class LuceneUtils {
      *
      * @param clazz The class to load the resource for
      * @param resource The resource path to the CSV fiel
+     * @param ignoreDuplicates Ignore duplicate ids
      *
      * @throws Exception
      */
-    private void makeIndex(Class clazz, String resource) throws Exception {
+    private void makeIndex(Class clazz, String resource, Observable<String> namer, boolean ignoreDuplicates) throws Exception {
         Reader r = TestUtils.getResourceReader(clazz, resource);
-        CSVReader reader = new CSVReaderBuilder(r).build();
+        boolean tabs = resource.endsWith(".txt");
+        CSVParser parser = new CSVParserBuilder().withSeparator(tabs ? '\t' : ',').build();
+        CSVReader reader = new CSVReaderBuilder(r).withCSVParser(parser).build();
         String[] header = reader.readNext();
         Observable[] headerMap = new Observable[header.length];
         headerMap = Arrays.stream(header)
@@ -192,14 +209,20 @@ public class LuceneUtils {
                 .toArray(headerMap);
         for (String[] line: reader) {
             LuceneClassifier classifier = new LuceneClassifier();
+            Set<Observable> seen = new HashSet<>();
             for (int i = 0; i < header.length; i++) {
                 if (i < line.length && line[i] != null && !line[i].isEmpty()) {
                     String value = line[i];
                     if (value == null || value.isEmpty())
                         continue;
                     Observable observable = headerMap[i];
+                    if (seen.contains(observable) && ignoreDuplicates)
+                        continue;
+                    seen.add(observable);
                     Object v = observable.getAnalysis().fromString(value);
                     classifier.add(observable, v, false, false);
+                    if (observable == namer && v != null)
+                        classifier.setNames(Collections.singleton(v.toString()));
                   }
             }
             classifier.setType(DwcTerm.Taxon);

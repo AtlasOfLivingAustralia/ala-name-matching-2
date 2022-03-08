@@ -3,33 +3,45 @@ package au.org.ala.names;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.MatchMeasurement;
+import au.org.ala.util.FileUtils;
 import au.org.ala.vocab.BayesianTerm;
 import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.api.Rank;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 public class ALANameSearcherTest {
     public static final String INDEX = "/data/lucene/index-20210811-2";
     public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-2";
+    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-2";
 
     private ALANameSearcher searcher;
+
+    // @BeforeClass // Uncomment if you want the suggester index to be built during testing
+    public static void setUpClass() throws Exception {
+        FileUtils.deleteAll(new File(SUGGESTER_INDEX));
+    }
 
     @Before
     public void setUp() throws Exception {
         File index = new File(INDEX);
         File vernacular = new File(VERNACULAR_INDEX);
+        File suggester = new File(SUGGESTER_INDEX);
         if (!index.exists())
             throw new IllegalStateException("Index " + index + " not present");
         if (!vernacular.exists())
             throw new IllegalStateException("Vernacular Index " + vernacular + " not present");
-        this.searcher = new ALANameSearcher(index, vernacular, null, null);
+        this.searcher = new ALANameSearcher(index, vernacular,  suggester, null, null);
     }
 
     @After
@@ -1833,4 +1845,148 @@ public class ALANameSearcherTest {
         assertEquals("https://id.biodiversity.org.au/node/apni/2913490", result.getAccepted().taxonId);
         assertEquals(Issues.of(AlaVernacularFactory.MISSPELLED_VERNACULAR_NAME), result.getIssues());
     }
+
+
+    @Test
+    public void testIdentifierSearch1() throws Exception {
+        Match<AlaLinnaeanClassification, MatchMeasurement> result = this.searcher.search("https://id.biodiversity.org.au/node/fungi/60096937");
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/node/fungi/60096937", result.getMatch().taxonId);
+        assertEquals("Scleroderma aurantium", result.getMatch().scientificName);
+        assertEquals(TaxonomicStatus.accepted, result.getMatch().taxonomicStatus);
+        assertEquals("https://id.biodiversity.org.au/node/fungi/60096937", result.getAccepted().taxonId);
+        assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
+        assertEquals(Issues.of(), result.getIssues());
+    }
+
+    @Test
+    public void testIdentifierSearch2() throws Exception {
+        Match<AlaLinnaeanClassification, MatchMeasurement> result = this.searcher.search("https://id.biodiversity.org.au/instance/apni/884491");
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/instance/apni/884491", result.getMatch().taxonId);
+        assertEquals("Brunoniaceae", result.getMatch().scientificName);
+        assertEquals(TaxonomicStatus.heterotypicSynonym, result.getMatch().taxonomicStatus);
+        assertEquals("https://id.biodiversity.org.au/taxon/apni/51300149", result.getAccepted().taxonId);
+        assertEquals("Goodeniaceae", result.getAccepted().scientificName);
+        assertEquals(TaxonomicStatus.accepted, result.getAccepted().taxonomicStatus);
+        assertEquals(1.0, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.00001);
+        assertEquals(Issues.of(), result.getIssues());
+    }
+
+    @Test
+    public void testIdentifierSearch3() throws Exception {
+        Match<AlaLinnaeanClassification, MatchMeasurement> result = this.searcher.search("NothingToSeeHere");
+        assertFalse(result.isValid());
+    }
+
+    @Test
+    public void testGetVernacluarNames1() throws Exception {
+        List<String> result = this.searcher.getVernacularNames("NothingToSeeHere");
+        assertNotNull(result);
+        assertEquals(Arrays.asList(), result);
+    }
+
+    @Test
+    public void testGetVernacluarNames2() throws Exception {
+        List<String> result = this.searcher.getVernacularNames("https://biodiversity.org.au/afd/taxa/1a85a82f-5a1f-4c56-9f04-918643461260");
+        assertNotNull(result);
+        assertEquals(Arrays.asList("Western Sawshelled Turtle", "Bell's Turtle", "western sawshelled turtle"), result);
+    }
+
+    @Test
+    public void testGetVernacluarNames3() throws Exception {
+        List<String> result = this.searcher.getVernacularNames("https://biodiversity.org.au/afd/taxa/d692b693-42bb-40b7-81db-f7af5d7958a5");
+        assertNotNull(result);
+        assertEquals(Arrays.asList(), result);
+    }
+
+    @Test
+    public void testGetVernacluarNames4() throws Exception {
+        List<String> result = this.searcher.getVernacularNames("https://id.biodiversity.org.au/taxon/apni/51395378");
+        assertNotNull(result);
+        assertEquals(Arrays.asList("Mosquito Orchids", "Mayfly Orchids"), result);
+    }
+
+    @Test // Orange Roughy should be first as standard name
+    public void testGetVernacluarNames5() throws Exception {
+        List<String> result = this.searcher.getVernacularNames("https://biodiversity.org.au/afd/taxa/340484bd-33f6-4b46-a63c-751f0b159ed1");
+        assertNotNull(result);
+        assertEquals(Arrays.asList("Orange Roughy", "Deep-sea Perch", "Sea Perch", "Orange Ruff", "Red Roughy", "Deepsea Perch"), result);
+    }
+
+    @Test
+    public void testAutocomplete1() throws Exception {
+        List<Autocomplete> result = this.searcher.autocomplete("Elusor", 10, false);
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        Autocomplete autocomplete = result.get(0);
+        assertEquals("Elusor", autocomplete.getName());
+        assertEquals("https://biodiversity.org.au/afd/taxa/2591a002-27b9-412d-a243-0b8c7cdc66a5", autocomplete.getTaxonId());
+        autocomplete = result.get(1);
+        assertEquals("Elusor macrurus", autocomplete.getName());
+        assertEquals("https://biodiversity.org.au/afd/taxa/d315deea-822c-4f2c-b439-da33d6af5fd6", autocomplete.getTaxonId());
+    }
+
+    @Test
+    public void testAutocomplete2() throws Exception {
+        List<Autocomplete> result = this.searcher.autocomplete("Mary riv", 10, false);
+        assertNotNull(result);
+        assertTrue(result.size() > 1);
+        assertTrue(result.stream().anyMatch(a -> "Mary River Turtle".equals(a.getName())));
+        assertTrue(result.stream().anyMatch(a -> "Elusor macrurus".equals(a.getClassification().scientificName)));
+        assertTrue(result.stream().anyMatch(a -> "Maccullochella mariensis".equals(a.getClassification().scientificName)));
+        assertTrue(result.stream().anyMatch(a -> "Samadera sp. Mary River (I.D.Cowie 1454)".equals(a.getClassification().scientificName)));
+    }
+
+    @Test
+    public void testAutocomplete3() throws Exception {
+        List<Autocomplete> result = this.searcher.autocomplete("Mary river t", 10, false);
+        assertNotNull(result);
+        assertTrue(result.size() > 1);
+        assertTrue(result.stream().anyMatch(a -> "Mary River Turtle".equals(a.getName())));
+        assertTrue(result.stream().anyMatch(a -> "Elusor macrurus".equals(a.getClassification().scientificName)));
+        assertFalse(result.stream().anyMatch(a -> "Maccullochella mariensis".equals(a.getClassification().scientificName)));
+        assertFalse(result.stream().anyMatch(a -> "Samadera sp. Mary River (I.D.Cowie 1454)".equals(a.getClassification().scientificName)));
+    }
+
+    @Test
+    public void testAutocomplete4() throws Exception {
+        List<Autocomplete> result = this.searcher.autocomplete("Acacia d", 50, true);
+        assertNotNull(result);
+        assertTrue(result.size() > 1);
+        assertTrue(result.stream().anyMatch(a -> "Acacia dura".equals(a.getName())));
+        assertTrue(result.stream().anyMatch(a -> "Acacia decora".equals(a.getName())));
+    }
+
+    @Test
+    public void testAutocomplete5() throws Exception {
+        List<Autocomplete> result = this.searcher.autocomplete("Acacia", 1, false);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        Autocomplete autocomplete = result.get(0);
+        assertEquals("Acacia", autocomplete.getName());
+    }
+
+    @Test
+    public void testAutocomplete6() throws Exception {
+        List<Autocomplete> result = this.searcher.autocomplete("Mylitta pse", 10, true);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        Autocomplete autocomplete = result.get(0);
+        assertEquals("Mylitta pseudacaciae", autocomplete.getName());
+        assertEquals("Hysterangium pseudacaciae", autocomplete.getClassification().scientificName);
+        assertNotNull(autocomplete.getSynonyms());
+        assertEquals(1, autocomplete.getSynonyms().size());
+        assertEquals("Mylitta pseudacaciae", autocomplete.getSynonyms().get(0).getClassification().scientificName);
+    }
+
+    @Test
+    public void testAutocomplete7() throws Exception {
+        List<Autocomplete> result = this.searcher.autocomplete("Mylitta pse", 10, false);
+        assertNotNull(result);
+        assertEquals(0 ,result.size());
+    }
+
 }

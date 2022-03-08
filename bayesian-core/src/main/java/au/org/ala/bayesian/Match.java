@@ -75,7 +75,7 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
      * @return A new match with a new accepted
      */
     public Match<C, M> withAccepted(Classifier acceptedCandidate, C accepted) {
-        return new Match<>(this.actual, this.candidate, this.match, acceptedCandidate, accepted, this.probability, null, this.issues.merge(accepted.getIssues()), this.measurement);
+        return new Match<>(this.actual, this.candidate, this.match, acceptedCandidate, accepted, this.probability, this.fidelity, this.issues.merge(accepted.getIssues()), this.measurement);
     }
 
     /**
@@ -85,6 +85,32 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
      */
     public boolean isValid() {
         return this.match != null;
+    }
+
+    /**
+     * Get the left-value of the accepted taxon
+     *
+     * @return The left-value
+     *
+     * @throws StoreException if unable to retrieve the left value
+     */
+    public Integer getLeft() throws StoreException {
+        Classifier classifier = this.acceptedCandidate != null ? this.acceptedCandidate : this.candidate;
+        int[] index = classifier == null ? null : classifier.getIndex();
+        return index == null ? null : index[0];
+    }
+
+    /**
+     * Get the right-value of the accepted taxon
+     *
+     * @return The right-value
+     *
+     * @throws StoreException if unable to retrieve the right value
+     */
+    public Integer getRight() throws StoreException {
+        Classifier classifier = this.acceptedCandidate != null ? this.acceptedCandidate : this.candidate;
+        int[] index = classifier == null ? null : classifier.getIndex();
+        return index == null ? null : index[1];
     }
 
     /**
@@ -107,6 +133,17 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
      */
     public Match<C, M> with(Term issue) {
        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, this.fidelity, this.issues.with(issue), this.measurement);
+    }
+
+    /**
+     * Change the probability of the match.
+     *
+     * @param probability The new probability
+     */
+    public Match<C, M> with(Inference probability) {
+        if (probability == null)
+            return this;
+        return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, probability, this.fidelity, this.issues, this.measurement);
     }
 
     /**

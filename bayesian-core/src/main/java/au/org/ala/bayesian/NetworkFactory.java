@@ -30,6 +30,14 @@ public interface NetworkFactory<C extends Classification<C>, I extends Inference
     public List<Observable<?>> getObservables();
 
     /**
+     * Get the concept associated with this network
+     *
+     * @return The concept
+     */
+    @NonNull
+    public Term getConcept();
+
+    /**
      * Get the observable that acts as the identifier for the classification
      *
      * @return The identifier observable

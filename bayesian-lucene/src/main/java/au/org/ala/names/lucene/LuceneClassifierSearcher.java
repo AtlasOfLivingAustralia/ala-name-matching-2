@@ -1,15 +1,23 @@
 package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.analysis.TermAnalysis;
+import au.org.ala.vocab.BayesianTerm;
 import au.org.ala.vocab.OptimisationTerm;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.*;
+import org.apache.lucene.search.suggest.DocumentDictionary;
+import org.apache.lucene.search.suggest.Lookup;
+import org.apache.lucene.search.suggest.analyzing.FuzzySuggester;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
+import org.cache2k.extra.jmx.JmxSupport;
 import org.gbif.dwc.terms.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,17 +37,24 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * A searcher that searches a lucene index for possible candidates.
  */
-public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifier> implements AutoCloseable, LuceneClassifierSearcherMXBean {
+public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifier> implements LuceneClassifierSearcherMXBean {
     private static final Logger logger = LoggerFactory.getLogger(LuceneClassifierSearcher.class);
+
+    /** Batch size for retrieving all values */
+    private static final int BATCH_SIZE = 20;
 
     /** The searcher configuration */
     private LuceneClassifierSearcherConfiguration config;
     /** The location of the lucene index */
+    @Getter(AccessLevel.PACKAGE)
     private Directory directory;
     /** The index reader */
+    @Getter(AccessLevel.PACKAGE)
     private IndexReader indexReader;
     /** The index searcher */
     private IndexSearcher searcher;
+    /** The suggester for auto-lookup */
+    private Lookup suggester;
     /** Query utiltities */
     private QueryUtils queryUtils;
     /** The classifier cache */
@@ -68,13 +83,14 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
             this.searcher = new IndexSearcher(this.indexReader);
             this.queryUtils = new QueryUtils();
             if (this.config.isCache()) {
-                this.classifierCache = Cache2kBuilder.of(Integer.class, LuceneClassifier.class)
+                Cache2kBuilder<Integer, LuceneClassifier> builder = Cache2kBuilder.of(Integer.class, LuceneClassifier.class)
                         .name(name)
                         .permitNullValues(true)
                         .entryCapacity(this.config.getCacheSize())
-                        .suppressExceptions(false)
-                        .loader(this::doGet)
-                        .buildForIntKey();
+                        .loader(this::doGet);
+                if (this.config.isEnableJmx())
+                    builder.enable(JmxSupport.class);
+                this.classifierCache = builder.build();
             } else {
                 this.classifierCache = null;
             }
@@ -157,6 +173,44 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
         } catch (IOException ex) {
             throw new StoreException("Unable to retrive documents", ex);
         }
+    }
+
+    /**
+     * Search for classifiers by identifier.
+     *
+     * @param identifier The identifier
+     *
+     * @return The results in retrieval order
+     *
+     * @throws BayesianException if unable to retrieve or infer information about the classifier
+     */
+    @Override
+    public List<LuceneClassifier> getAll(Term type, Observable identifier, Object id) throws BayesianException {
+        this.gets.incrementAndGet();
+        List<LuceneClassifier> results = new ArrayList<>(BATCH_SIZE);
+        BooleanQuery.Builder builder = this.queryUtils.createBuilder();
+        builder.add(LuceneClassifier.getTypeClause(type));
+        builder.add(
+                this.queryUtils.asQuery(
+                        identifier.getExternal(ExternalContext.LUCENE),
+                        identifier.getStyle(),
+                        identifier.getNormaliser(),
+                        identifier.getAnalysis(),
+                        id),
+                BooleanClause.Occur.MUST);
+        Query query = builder.build();
+        try {
+            TopDocs docs = this.searcher.search(query, BATCH_SIZE);
+            while (docs.scoreDocs.length > 0) {
+                for (ScoreDoc doc: docs.scoreDocs) {
+                    results.add(this.classifierCache == null ? this.doGet(doc.doc) : this.classifierCache.get(doc.doc));
+                }
+                docs = this.searcher.searchAfter(docs.scoreDocs[docs.scoreDocs.length - 1], query, BATCH_SIZE);
+            }
+        } catch (IOException ex) {
+            throw new StoreException("Unable to retrive documents", ex);
+        }
+        return results;
     }
 
     /**

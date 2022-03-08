@@ -6,7 +6,7 @@ package au.org.ala.bayesian;
  * This interface forms the base of actual parameter analysers.
  * </p>
  */
-public interface ParameterAnalyser {
+public interface ParameterAnalyser extends AutoCloseable {
     /**
      * Get the total weight for all entries.
      *

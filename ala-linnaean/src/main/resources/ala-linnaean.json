@@ -1126,6 +1126,11 @@
       "id": "inferred_nomenclatural_code",
       "uri": "http://ala.org.au/issues/1.0/inferredNomenclaturalCode",
       "description": "The nomenclatural code has been inferred from other evidence in the classification."
+    },
+    {
+      "id": "vernacular_match",
+      "uri": "http://ala.org.au/issues/1.0/vernacularMatch",
+      "description": "A match on vernacular name."
     }
   ],
   "modifications": [

@@ -1,9 +1,12 @@
 package au.org.ala.bayesian;
 
 import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A list of issues associated with some operation.
@@ -44,6 +47,29 @@ public class Issues extends HashSet<Term> {
         for (Term t: terms)
             issues.interiorAdd(t);
         return issues;
+    }
+
+    /**
+     * Create a set of issues from a list of strings
+     *
+     * @param strings The strings
+     *
+     * @return An issues list
+     */
+    public static Issues fromStrings(Collection<String> strings) {
+        Issues issues = new Issues();
+        final TermFactory factory = TermFactory.instance();
+        issues.interiorAddAll(strings.stream().map(t -> factory.findTerm(t)).collect(Collectors.toList()));
+        return issues;
+    }
+
+    /**
+     * Convert a list of issues into a list of strings suitable for JSON.
+     *
+     * @return The list of issue strings
+     */
+    public List<String> asStrings() {
+        return this.stream().map(Term::qualifiedName).collect(Collectors.toList());
     }
 
     /**

@@ -7,11 +7,14 @@ import au.org.ala.names.builder.LoadStore;
 import au.org.ala.names.builder.Source;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
+import au.org.ala.util.FileUtils;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.api.Rank;
 import org.junit.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Arrays;
@@ -24,6 +27,8 @@ import static org.junit.Assert.*;
  * Test using a large (20000 record) dataset
  */
 public class AlaLinnaeanBuilderLargeTest extends TestUtils {
+    private static final Logger logger = LoggerFactory.getLogger(AlaLinnaeanBuilderLargeTest.class);
+
     private static File work;
     private static File output;
     private static IndexBuilder builder;
@@ -35,8 +40,8 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        work = makeTmpDir("work");
-        output = makeTmpDir("output");
+        work = FileUtils.makeTmpDir("work");
+        output = FileUtils.makeTmpDir("output");
         IndexBuilderConfiguration config = new IndexBuilderConfiguration();
         config.setBuilderClass(AlaLinnaeanBuilder.class);
         config.setNetwork(AlaLinnaeanBuilder.class.getResource("/ala-linnaean.json"));
@@ -46,7 +51,9 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         builder = new IndexBuilder(config);
         Source source = Source.create(AlaLinnaeanBuilderLargeTest.class.getResource("/sample-2.zip"), AlaLinnaeanFactory.instance(), AlaLinnaeanFactory.instance().getObservables(), config.getTypes());
         builder.load(source);
+        long buildStart = System.currentTimeMillis();
         parameterised = builder.build();
+        logger.info("Parameterised build took " + (System.currentTimeMillis() - buildStart) + " ms");
         builder.buildIndex(output, parameterised);
    }
 
@@ -55,9 +62,9 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         if (builder != null)
             builder.close();
         if (output != null)
-            deleteAll(output);
+            FileUtils.deleteAll(output);
         if (work != null)
-            deleteAll(work);
+            FileUtils.deleteAll(work);
     }
 
     @Before

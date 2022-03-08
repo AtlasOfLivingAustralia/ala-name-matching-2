@@ -7,6 +7,7 @@ import au.org.ala.names.builder.LoadStore;
 import au.org.ala.names.builder.Source;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
+import au.org.ala.util.FileUtils;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.dwc.terms.DwcTerm;
@@ -30,8 +31,8 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        work = makeTmpDir("work");
-        output = makeTmpDir("output");
+        work = FileUtils.makeTmpDir("work");
+        output = FileUtils.makeTmpDir("output");
         IndexBuilderConfiguration config = new IndexBuilderConfiguration();
         config.setBuilderClass(AlaLinnaeanBuilder.class);
         config.setNetwork(AlaLinnaeanBuilder.class.getResource("/ala-linnaean.json"));
@@ -50,9 +51,9 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         if (builder != null)
             builder.close();
         if (output != null)
-            deleteAll(output);
+            FileUtils.deleteAll(output);
         if (work != null)
-            deleteAll(work);
+            FileUtils.deleteAll(work);
     }
 
     @Before

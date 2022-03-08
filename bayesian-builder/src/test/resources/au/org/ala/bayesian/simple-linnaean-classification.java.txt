@@ -18,6 +18,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -28,6 +31,7 @@ import au.org.ala.bayesian.derivation.SoundexGenerator;
 import au.org.ala.bayesian.analysis.IntegerAnalysis;
 import au.org.ala.bayesian.analysis.DoubleAnalysis;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class SimpleLinnaeanClassification implements Classification<SimpleLinnaeanClassification> {
   private Issues issues;
   private Hints<SimpleLinnaeanClassification> hints;
@@ -127,32 +131,47 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
+  @JsonIgnore
   public Term getType() {
     return SimpleLinnaeanFactory.CONCEPT;
   }
 
   @Override
+  @JsonIgnore
   public Issues getIssues() {
     return this.issues;
   }
 
+  @JsonProperty("issues")
+  public List<String> getIssueStrings() {
+    return this.issues.asStrings();
+  }
+
+  @JsonProperty("issues")
+  public void setIssueStrings(List<String> issues) {
+    this.issues = Issues.fromStrings(issues);
+  }
 
   @Override
+  @JsonIgnore
   public String getIdentifier() {
     return this.taxonId;
   }
 
   @Override
+  @JsonIgnore
   public String getName() {
     return this.scientificName;
   }
 
   @Override
+  @JsonIgnore
   public String getParent() {
     return this.parentNameUsageId;
   }
 
   @Override
+  @JsonIgnore
   public String getAccepted() {
     return this.acceptedNameUsageId;
   }

@@ -35,8 +35,10 @@
     <maven.version>3.6.1</maven.version>
     <commons-lang3.version>3.11</commons-lang3.version>
     <commons-codec.version>1.14</commons-codec.version>
+    <commons-text.version>1.9</commons-text.version>
     <dwc-api.version>1.27</dwc-api.version>
-    <cache2k.version>1.2.4.Final</cache2k.version>
+    <cache2k.version>2.6.1.Final</cache2k.version>
+    <cache2k.version>2.6.1.Final</cache2k.version>
     <auto-service.version>1.0-rc7</auto-service.version>
     <junit.version>4.13.1</junit.version>
     <opencsv.version>5.0</opencsv.version>
@@ -128,6 +130,20 @@
         <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.2.1</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>jar-no-fork</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

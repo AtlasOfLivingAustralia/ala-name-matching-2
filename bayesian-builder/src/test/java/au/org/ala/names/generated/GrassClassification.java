@@ -18,6 +18,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -25,6 +28,7 @@ import org.gbif.dwc.terms.Term;
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.Analyser;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class GrassClassification implements Classification<GrassClassification> {
   private Issues issues;
   private Hints<GrassClassification> hints;
@@ -73,32 +77,47 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
+  @JsonIgnore
   public Term getType() {
     return GrassFactory.CONCEPT;
   }
 
   @Override
+  @JsonIgnore
   public Issues getIssues() {
     return this.issues;
   }
 
+  @JsonProperty("issues")
+  public List<String> getIssueStrings() {
+    return this.issues.asStrings();
+  }
+
+  @JsonProperty("issues")
+  public void setIssueStrings(List<String> issues) {
+    this.issues = Issues.fromStrings(issues);
+  }
 
   @Override
+  @JsonIgnore
   public String getIdentifier() {
     return null;
   }
 
   @Override
+  @JsonIgnore
   public String getName() {
     return null;
   }
 
   @Override
+  @JsonIgnore
   public String getParent() {
     return null;
   }
 
   @Override
+  @JsonIgnore
   public String getAccepted() {
     return null;
   }

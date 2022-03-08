@@ -23,7 +23,7 @@ public class TestAnalyser implements Analyser<TestClassification> {
      */
     @Override
     public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) throws InferenceException {
-        return classifier.getAll(TestClassification.SCIENTIFIC_NAME);
+        return classifier.getAll(TestFactory.SCIENTIFIC_NAME);
     }
 
     @Override

@@ -103,6 +103,11 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
   }
 
   @Override
+  public Term getConcept() {
+    return CONCEPT;
+  }
+
+  @Override
   public Optional<Observable<String>> getIdentifier() {
     return Optional.empty();
   }

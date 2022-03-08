@@ -29,6 +29,7 @@ public class IconicSpeciesTest {
 
     public static final String INDEX = "/data/lucene/index-20210811-2";
     public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-2";
+    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-2";
 
     private ALANameSearcher searcher;
     private AlaNameAnalyser analyser;
@@ -37,11 +38,12 @@ public class IconicSpeciesTest {
     public void setUp() throws Exception {
         File index = new File(INDEX);
         File vernacular = new File(VERNACULAR_INDEX);
+        File suggester = new File(SUGGESTER_INDEX);
         if (!index.exists())
             throw new IllegalStateException("Index " + index + " not present");
         if (!vernacular.exists())
             throw new IllegalStateException("Vernacular Index " + vernacular + " not present");
-        this.searcher = new ALANameSearcher(index, vernacular, null, null);
+        this.searcher = new ALANameSearcher(index, vernacular, suggester, null, null);
         this.analyser = new AlaNameAnalyser();
     }
 

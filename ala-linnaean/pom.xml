@@ -33,9 +33,21 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
+            <groupId>au.org.ala.names</groupId>
+            <artifactId>bayesian-lucene</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>${opencsv.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>name-matching-common-test</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>

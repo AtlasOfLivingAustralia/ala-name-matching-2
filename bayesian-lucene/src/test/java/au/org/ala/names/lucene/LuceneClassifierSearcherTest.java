@@ -1,6 +1,7 @@
 package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.TestClassification;
+import au.org.ala.bayesian.TestFactory;
 import org.junit.After;
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ public class LuceneClassifierSearcherTest {
 
     @Test
     public void testSearch1() throws Exception {
-        this.lucene = new LuceneUtils(LuceneClassifierSearcherTest.class, "lucene-searcher-1.csv", TestClassification.OBSERVABLES);
+        this.lucene = new LuceneUtils(LuceneClassifierSearcherTest.class, "lucene-searcher-1.csv", TestFactory.OBSERVABLES, TestFactory.SCIENTIFIC_NAME);
         LuceneClassifierSearcherConfiguration config = LuceneClassifierSearcherConfiguration.builder().scoreCutoff(0.1f).build();
         this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir(), config);
         TestClassification classification = new TestClassification();
@@ -36,15 +37,15 @@ public class LuceneClassifierSearcherTest {
         assertNotNull(classifiers);
         assertEquals(1, classifiers.size());
         LuceneClassifier c1 = classifiers.get(0);
-        assertEquals("Lates calcarifer", c1.get(TestClassification.SCIENTIFIC_NAME));
-        assertEquals("ACTINOPTERYGII", c1.get(TestClassification.CLASS_));
-        assertEquals("Barramundi", c1.get(TestClassification.VERNACULAR_NAME));
-        assertEquals(Integer.valueOf(7000), c1.get(TestClassification.RANK_ID));
+        assertEquals("Lates calcarifer", c1.get(TestFactory.SCIENTIFIC_NAME));
+        assertEquals("ACTINOPTERYGII", c1.get(TestFactory.CLASS_));
+        assertEquals("Barramundi", c1.get(TestFactory.VERNACULAR_NAME));
+        assertEquals(Integer.valueOf(7000), c1.get(TestFactory.RANK_ID));
     }
 
     @Test
     public void testSearch2() throws Exception {
-        this.lucene = new LuceneUtils(LuceneClassifierSearcherTest.class, "lucene-searcher-1.csv", TestClassification.OBSERVABLES);
+        this.lucene = new LuceneUtils(LuceneClassifierSearcherTest.class, "lucene-searcher-1.csv", TestFactory.OBSERVABLES, TestFactory.SCIENTIFIC_NAME);
         LuceneClassifierSearcherConfiguration config = LuceneClassifierSearcherConfiguration.builder().scoreCutoff(0.1f).build();
         this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir(), config);
         TestClassification classification = new TestClassification();
@@ -53,15 +54,15 @@ public class LuceneClassifierSearcherTest {
         assertNotNull(classifiers);
         assertEquals(2, classifiers.size());
         LuceneClassifier c1 = classifiers.get(0);
-        assertEquals("reptilia", ((String) c1.get(TestClassification.CLASS_)).toLowerCase());
+        assertEquals("reptilia", ((String) c1.get(TestFactory.CLASS_)).toLowerCase());
         LuceneClassifier c2 = classifiers.get(1);
-        assertEquals("reptilia", ((String) c2.get(TestClassification.CLASS_)).toLowerCase());
+        assertEquals("reptilia", ((String) c2.get(TestFactory.CLASS_)).toLowerCase());
     }
 
 
     @Test
     public void testSearch3() throws Exception {
-        this.lucene = new LuceneUtils(LuceneClassifierSearcherTest.class, "lucene-searcher-1.csv", TestClassification.OBSERVABLES);
+        this.lucene = new LuceneUtils(LuceneClassifierSearcherTest.class, "lucene-searcher-1.csv", TestFactory.OBSERVABLES, TestFactory.SCIENTIFIC_NAME);
         LuceneClassifierSearcherConfiguration config = LuceneClassifierSearcherConfiguration.builder().scoreCutoff(0.1f).build();
         this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir(), config);
         TestClassification classification = new TestClassification();
@@ -71,10 +72,10 @@ public class LuceneClassifierSearcherTest {
         assertNotNull(classifiers);
         assertEquals(3, classifiers.size());
         LuceneClassifier c1 = classifiers.get(0);
-        assertEquals(true, c1.match("Reptilia", TestClassification.CLASS_));
-        assertEquals(true, c1.match(7000, TestClassification.RANK_ID));
+        assertEquals(true, c1.match("Reptilia", TestFactory.CLASS_));
+        assertEquals(true, c1.match(7000, TestFactory.RANK_ID));
         LuceneClassifier c2 = classifiers.get(1);
-        assertEquals(true, c2.match("reptilia", TestClassification.CLASS_));
-        assertEquals(true, c2.match(7000, TestClassification.RANK_ID));
+        assertEquals(true, c2.match("reptilia", TestFactory.CLASS_));
+        assertEquals(true, c2.match(7000, TestFactory.RANK_ID));
     }
 }

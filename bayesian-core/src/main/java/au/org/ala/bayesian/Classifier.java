@@ -24,8 +24,27 @@ public interface Classifier {
      * Get the value for an observable.
      *
      * @param observable The observable
+     *
+     * @param <T> The type of value returned
+     *
+     * @return The retrieved value or the default if not found
      */
     public <T> T get(Observable<T> observable);
+
+    /**
+     * Get a vavlue with a default if not found.
+     *
+     * @param observable The observable
+     * @param dflt The default value
+     *
+     * @param <T> The type of value returned
+     *
+     * @return The retrieved value or the default if not found
+     */
+    default public <T> T getOrDefault(Observable<T> observable, T dflt) {
+        T result = this.get(observable);
+        return result == null ? dflt : result;
+    }
 
     /**
      * Get all the possible values, including variants, for some observables.

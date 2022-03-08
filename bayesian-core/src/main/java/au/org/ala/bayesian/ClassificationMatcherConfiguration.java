@@ -22,5 +22,9 @@ public class ClassificationMatcherConfiguration {
     @JsonProperty
     @Builder.Default
     private boolean statistics = false;
+    /** The size of secondary caches, sych as a quick kingdom lookup. Defaults to 100000 */
+    @JsonProperty
+    @Builder.Default
+    private int secondaryCacheSize = 100000;
 
 }

@@ -16,6 +16,14 @@ The current indexes are in `20210811-2`:
 `index-20210811-2.zip` and `vernacular-20210811-2.zip`
 Generally, these are expected to be unzipped into the `/data/lucene` directory.
 
+#### Suggester Index
+
+The suggester index is used to provide auto-suggest options.
+If not present, the suggester i8ndex is built from search indexes
+on-demand, a process that can take 20 minutes or more.
+If the file `/data/tmp/suggest-20210811-2/suggester.bin` exists,
+then the already built index in `/data/tmp/suggest-20210811-2` is used.
+
 ### Building
 
 You will need to do a `mvn install` in the root directory to make the libraries available.
@@ -58,6 +66,7 @@ import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
 
 File index = new File("/data/lucene/index-20210811-2");
 File vernacular = new File("/data/lucene/vernacular-20210811-2");
+File suggester = new File("/data/tmp/suggest-20210811-2");
 LuceneClassifierSearcherConfiguration sConfig = LuceneClassifierSearcherConfiguration.builder()
         .queryLimit(10)
         .cacheSize(20000)
@@ -66,7 +75,7 @@ ClassificationMatcherConfiguration cConfig = ClassificationMatcherConfiguration.
         .enableJmx(true)
         .statistics(true)
         .build();
-this.searcher = new ALANameSearcher(index, vernacular, sConfig, cConfig);
+this.searcher = new ALANameSearcher(index, vernacular, suggester, sConfig, cConfig);
 ```
 
 The `index` and `vernacular` variables give the location of the lucene index files for

@@ -7,6 +7,7 @@ import au.org.ala.names.builder.LoadStore;
 import au.org.ala.names.builder.Source;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
+import au.org.ala.util.FileUtils;
 import au.org.ala.util.TestUtils;
 import org.gbif.dwc.terms.GbifTerm;
 import org.junit.*;
@@ -29,8 +30,8 @@ public class AlaVernacularBuilderTest extends TestUtils {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        work = makeTmpDir("work");
-        output = makeTmpDir("output");
+        work = FileUtils.makeTmpDir("work");
+        output = FileUtils.makeTmpDir("output");
         IndexBuilderConfiguration config = new IndexBuilderConfiguration();
         config.setTypes(Arrays.asList(GbifTerm.VernacularName));
         config.setBuilderClass(AlaVernacularBuilder.class);
@@ -49,9 +50,9 @@ public class AlaVernacularBuilderTest extends TestUtils {
         if (builder != null)
             builder.close();
         if (output != null)
-            deleteAll(output);
+            FileUtils.deleteAll(output);
         if (work != null)
-            deleteAll(work);
+            FileUtils.deleteAll(work);
     }
 
     @Before

@@ -63,6 +63,8 @@ public enum BayesianTerm implements Term {
     illformedData,
     /** Issue flagging an invalid match */
     invalidMatch,
+    /** Issue flagging that the match is based on identifier lookup */
+    identifierMatch,
     /** Default concept type */
     Concept,
     /** Record type describing document metadata */

@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
+import org.cache2k.extra.jmx.JmxSupport;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.api.Rank;
 import org.slf4j.Logger;
@@ -61,12 +62,13 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      */
     public ALAClassificationMatcher(AlaLinnaeanFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config) {
         super(factory, searcher, config);
-        this.kingdomCache = Cache2kBuilder.of(KingdomKey.class, AlaLinnaeanClassification.class)
-                .entryCapacity(100000)
+        Cache2kBuilder<KingdomKey, AlaLinnaeanClassification> builder = Cache2kBuilder.of(KingdomKey.class, AlaLinnaeanClassification.class)
+                .entryCapacity(this.getConfig().getSecondaryCacheSize())
                 .permitNullValues(true)
-                .loader(this::doFindKingdom)
-                .enableJmx(this.getConfig().isEnableJmx())
-                .build();
+                .loader(this::doFindKingdom);
+        if (this.getConfig().isEnableJmx())
+            builder.enable(JmxSupport.class);
+        this.kingdomCache = builder.build();
     }
 
     /**
@@ -454,6 +456,18 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Close the matcher
+     *
+     * @throws StoreException if unable to close for some reason.
+     */
+    @Override
+    public void close() throws Exception {
+        super.close();
+        if (this.kingdomCache != null)
+            this.kingdomCache.close();
     }
 
     /**

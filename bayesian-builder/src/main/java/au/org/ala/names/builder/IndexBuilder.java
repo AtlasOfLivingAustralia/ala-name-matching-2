@@ -146,7 +146,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.altName.ifPresent(o -> this.stored.add(o));
         this.synonymName.ifPresent(o -> this.stored.add(o));
         this.stored.addAll(this.copy);
-        this.identifiers = new HashSet<>();
+        this.identifiers = Collections.synchronizedSet(new HashSet<>());
         this.mbeans = new HashSet<>();
         this.stores = new ArrayList<>();
         this.loader = this.createWorkStore("loader");
@@ -553,15 +553,20 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      */
     public LoadStore<Cl> parameterise(LoadStore<Cl> source) throws BayesianException {
         final LoadStore<Cl> target = this.createWorkStore("parameterised");
-        final ParameterAnalyser parameterAnalyser = source.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight());
-        this.process(
-                "parameterise",
-                "Parameterised {0} concepts, {2,number,0.0}/s, last {4}",
-                source,
-                target,
-                c -> this.parameterise(c, parameterAnalyser)
-        );
-        target.commit();
+        try {
+            try (final ParameterAnalyser parameterAnalyser = source.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight())) {
+                this.process(
+                        "parameterise",
+                        "Parameterised {0} concepts, {2,number,0.0}/s, last {4}",
+                        source,
+                        target,
+                        c -> this.parameterise(c, parameterAnalyser)
+                );
+                target.commit();
+            }
+        } catch (Exception ex) {
+            throw new BayesianException("Unable to close parameter analyser", ex);
+        }
         return target;
     }
 
