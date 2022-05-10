@@ -339,7 +339,7 @@ public class NetworkCompiler {
     public class Node {
         /** The associated observable */
         @Getter
-        private Observable observable;
+        private final Observable observable;
         /** The variable that holds the matchiung evidence for this variable (if any) */
         @Getter
         private Variable evidence;

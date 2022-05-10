@@ -20,7 +20,7 @@ public class MatchMeasurement {
      * The sequence number for ordering measurements
      */
     @Getter
-    private long sequence = SEQUENCE.getAndIncrement();
+    private final long sequence = SEQUENCE.getAndIncrement();
     /**
      * The start time for this match
      */

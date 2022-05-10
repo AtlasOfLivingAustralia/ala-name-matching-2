@@ -30,13 +30,13 @@ public enum VernacularStatus implements Term, AlternativeNames {
     }
 
     @Getter
-    private int priority;
+    private final int priority;
     @Getter
-    private boolean exclude;
+    private final boolean exclude;
     @Getter
-    private String[] alternatives;
+    private final String[] alternatives;
 
-    private VernacularStatus(int priority, boolean exclude, String... alternatives) {
+    VernacularStatus(int priority, boolean exclude, String... alternatives) {
         this.priority = priority;
         this.exclude = exclude;
         this.alternatives = alternatives;

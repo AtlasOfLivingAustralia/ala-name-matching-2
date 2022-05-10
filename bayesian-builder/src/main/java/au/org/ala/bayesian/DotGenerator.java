@@ -36,13 +36,13 @@ public class DotGenerator extends Generator {
 
 
     /** The object wrapper to use */
-    private BeansWrapper wrapper;
+    private final BeansWrapper wrapper;
     /** The template to use for generation */
-    private Template dotTemplate;
+    private final Template dotTemplate;
     /** The writer to output to */
-    private Writer writer;
+    private final Writer writer;
     /** Include the full network */
-    private boolean full;
+    private final boolean full;
 
     public DotGenerator(Writer writer, boolean full) throws IOException {
         this.writer = writer;

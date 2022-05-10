@@ -3,6 +3,7 @@ package au.org.ala.names;
 import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.MatchMeasurement;
+import au.org.ala.bayesian.MatchOptions;
 import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
@@ -108,7 +109,7 @@ public class PerformanceTest {
                 }
                 matched++;
                 try {
-                    classification.inferForSearch(this.searcher.getMatcher().getAnalyser());
+                    classification.inferForSearch(this.searcher.getMatcher().getAnalyser(), MatchOptions.ALL);
                     Rank expectedRank = classification.taxonRank;
                     Match<AlaLinnaeanClassification, MatchMeasurement> match = this.searcher.search(classification.clone());
                     for (Term issue : match.getIssues()) {

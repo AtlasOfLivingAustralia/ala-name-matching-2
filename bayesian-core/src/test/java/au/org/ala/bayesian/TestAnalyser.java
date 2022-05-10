@@ -15,7 +15,7 @@ public class TestAnalyser implements Analyser<TestClassification> {
      * No extension
      */
     @Override
-    public void analyseForSearch(TestClassification classification) throws InferenceException {
+    public void analyseForSearch(TestClassification classification, MatchOptions options) throws InferenceException {
     }
 
     /**

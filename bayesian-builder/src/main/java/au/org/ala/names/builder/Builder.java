@@ -19,7 +19,7 @@ public interface Builder<C extends Classification<C>> {
      *
      * @see Inferencer#getSignature()
      */
-    public String getSignature();
+    String getSignature();
 
     /**
      * Generate for a classifier during building.
@@ -33,7 +33,7 @@ public interface Builder<C extends Classification<C>> {
      *
      * @throws BayesianException if unable to calculate the inference
       */
-    public void generate(Classifier classifier, Analyser<C> analyser) throws BayesianException;
+    void generate(Classifier classifier, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Interpret values in a classifier.
@@ -46,7 +46,7 @@ public interface Builder<C extends Classification<C>> {
      *
      * @throws BayesianException if unable to calculate the inference
      */
-    public void interpret(Classifier classifier, Analyser<C> analyser) throws BayesianException;
+    void interpret(Classifier classifier, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Infer from a classifier during building.
@@ -59,7 +59,7 @@ public interface Builder<C extends Classification<C>> {
      *
      * @throws BayesianException if unable to calculate the inference
       */
-    public void infer(Classifier classifier, Analyser<C> analyser) throws BayesianException;
+    void infer(Classifier classifier, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Expand a classifier during building.
@@ -73,7 +73,7 @@ public interface Builder<C extends Classification<C>> {
      *
      * @throws BayesianException if unable to calculate the expansion
     */
-    public void expand(Classifier document, Deque<Classifier> parents, Analyser<C> analyser) throws BayesianException;
+    void expand(Classifier document, Deque<Classifier> parents, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Build a signture for a classifier.
@@ -85,7 +85,7 @@ public interface Builder<C extends Classification<C>> {
      *
      * @see Inferencer#getSignature()
      */
-    public String buildSignature(Classifier classifier);
+    String buildSignature(Classifier classifier);
 
     /**
      * Calculate parameter values for a particular document.
@@ -97,5 +97,5 @@ public interface Builder<C extends Classification<C>> {
      *
      * @throws BayesianException if unable to calculate the parameters
      */
-    public Parameters calculate(ParameterAnalyser analyser, Classifier document) throws BayesianException;
+    Parameters calculate(ParameterAnalyser analyser, Classifier document) throws BayesianException;
 }

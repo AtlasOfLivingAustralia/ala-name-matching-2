@@ -24,9 +24,9 @@ import java.util.Collections;
  */
 public class CSVSource extends Source {
     /** The type of data in the source */
-    private Term type;
+    private final Term type;
     /** The source of the CSV data */
-    private CSVReader reader;
+    private final CSVReader reader;
     /** The header map */
     private Observable<?>[] header;
 

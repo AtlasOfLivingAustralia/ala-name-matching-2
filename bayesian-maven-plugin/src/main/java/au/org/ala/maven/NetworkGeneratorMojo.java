@@ -134,11 +134,10 @@ public class NetworkGeneratorMojo extends AbstractMojo {
      *
      * @see AbstractMojo#execute()
      *
-     * @throws MojoExecutionException
-     * @throws MojoFailureException
+     * @throws MojoExecutionException if there is an error in generation
      */
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException {
         try {
             if (this.project == null)
                 throw new MojoExecutionException("Network code generator requires a project");

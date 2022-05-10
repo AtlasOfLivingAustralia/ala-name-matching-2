@@ -4,6 +4,7 @@ import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -25,7 +26,7 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     }
 
     @Override
-    public Collection<Observation> toObservations() {
+    public Collection<Observation<?>> toObservations() {
         return Collections.emptyList();
     }
 
@@ -50,7 +51,7 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     }
 
     @Override
-    public void inferForSearch(Analyser analyser) {
+    public void inferForSearch(@NonNull Analyser analyser, @NonNull MatchOptions options) {
     }
 
     /**
@@ -59,8 +60,9 @@ public class EmptyClassification implements Classification<EmptyClassification> 
      * @return The cloned classification
      */
     @Override
+    @SneakyThrows
     public @NonNull EmptyClassification clone() {
-        return (EmptyClassification) this.clone();
+        return (EmptyClassification) super.clone();
     }
 
     /**
@@ -84,66 +86,29 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     }
 
     @Override
-    public Hints<EmptyClassification> getHints() {
+    public @NonNull Hints<EmptyClassification> getHints() {
         return new Hints<>();
     }
 
     @Override
-    public <T> void addHint(Observable observable, T value) {
+    public <T> void addHint(Observable<T> observable, T value) {
     }
 
-    /**
-     * Build a fidelity model for this (original) classification against an actual classification.
-     * <p>
-     * The fidelity model can be used to build an estimate of how much the matched classification
-     * has been messed about before a match could be found.
-     * </p>
-     *
-     * @param actual The acutal classification used
-     * @return A fidelity measure for the classification.
-     */
     @Override
-    public Fidelity<EmptyClassification> buildFidelity(EmptyClassification actual) throws InferenceException {
+    public Fidelity<EmptyClassification> buildFidelity(EmptyClassification actual) {
         return new CompositeFidelity<>(this, actual);
     }
 
-    /**
-     * The order in which to modify this classification.
-     * <p>
-     * Returned is a list of functions that will take a classification and return
-     * a modified classification
-     * </p>
-     *
-     * @return
-     */
-    @Override
+     @Override
     public List<List<Function<EmptyClassification, EmptyClassification>>> searchModificationOrder() {
         return Collections.emptyList();
     }
 
-    /**
-     * The order in which to modify this classification.
-     * <p>
-     * Returned is a list of functions that will take a classification and return
-     * a modified classification
-     * </p>
-     *
-     * @return
-     */
     @Override
     public List<List<Function<EmptyClassification, EmptyClassification>>> matchModificationOrder() {
         return Collections.emptyList();
     }
 
-    /**
-     * The order in which to modify this classification.
-     * <p>
-     * Returned is a list of functions that will take a classification and return
-     * a modified classification
-     * </p>
-     *
-     * @return
-     */
     @Override
     public List<List<Function<EmptyClassification, EmptyClassification>>> hintModificationOrder() {
         return Collections.emptyList();

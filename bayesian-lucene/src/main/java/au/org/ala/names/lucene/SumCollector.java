@@ -14,13 +14,13 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.DoubleAdder;
 
 public class SumCollector extends SimpleCollector {
-    private IndexSearcher searcher;
-    private ConcurrentMap<Integer, Double> cache;
-    private String field;
-    private double defaultValue;
-    private Set<String> fields;
+    private final IndexSearcher searcher;
+    private final ConcurrentMap<Integer, Double> cache;
+    private final String field;
+    private final double defaultValue;
+    private final Set<String> fields;
     private int base;
-    private DoubleAdder sum;
+    private final DoubleAdder sum;
 
     public SumCollector(IndexSearcher searcher, ConcurrentMap<Integer, Double> cache, String field, double defaultValue) {
         this.searcher = searcher;

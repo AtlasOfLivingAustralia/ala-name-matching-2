@@ -3,6 +3,7 @@ package au.org.ala.names;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
+import au.org.ala.bayesian.MatchOptions;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.vocab.BayesianTerm;
 import org.gbif.api.vocabulary.NomenclaturalCode;
@@ -213,7 +214,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch1() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia dealbata";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
@@ -225,7 +226,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch2() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia dealbata dealbata";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.INFRASPECIFIC_NAME, classification.taxonRank);
@@ -238,7 +239,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia dealbata dealbata";
         classification.taxonRank = Rank.VARIETY;
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
         assertEquals(Rank.VARIETY, classification.taxonRank);
@@ -250,7 +251,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch4() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Plantae";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertNull(classification.genus);
         assertNull(classification.specificEpithet);
         assertNull(classification.taxonRank);
@@ -264,7 +265,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "sp.";
         try {
-            this.analyser.analyseForSearch(classification);
+            this.analyser.analyseForSearch(classification, MatchOptions.ALL);
             fail("Expecting inference exception");
         } catch (InferenceException e) {
         }
@@ -274,7 +275,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch6() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia dealbata?";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Acacia dealbata", classification.scientificName);
         assertEquals("Acacia", classification.genus);
         assertNull(classification.specificEpithet);
@@ -287,7 +288,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch7() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia aff. dealbata";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Acacia aff. dealbata", classification.scientificName);
         assertEquals("Acacia", classification.genus);
         assertNull(classification.specificEpithet);
@@ -300,7 +301,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch8() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia cf. dealbata";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Acacia cf. dealbata", classification.scientificName);
         assertEquals("Acacia", classification.genus);
         assertNull(classification.specificEpithet);
@@ -314,7 +315,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch9() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia sp. dealbata";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Acacia dealbata", classification.scientificName);
         assertEquals("Acacia", classification.genus);
         assertEquals("dealbata", classification.specificEpithet);
@@ -327,7 +328,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch10() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Sida sp. Walhallow Station (C.Edgood 28/Oct/94)";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Sida sp. Walhallow Station (C.Edgood 28/Oct/94)", classification.scientificName);
         assertEquals("Sida", classification.genus);
         assertNull(classification.specificEpithet);
@@ -340,7 +341,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch11() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Goodenia sp. Bachsten Creek (M.D.Barrett 685) WA Herbarium";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Goodenia sp. Bachsten Creek (M.D.Barrett 685)", classification.scientificName);
         assertEquals("WA Herbarium", classification.nominatingParty);
         assertEquals("Goodenia", classification.genus);
@@ -350,14 +351,14 @@ public class AlaNameAnalyserTest {
         assertNull(classification.scientificNameAuthorship);
         assertEquals(Rank.SPECIES, classification.taxonRank);
         assertEquals(NameType.INFORMAL, classification.nameType);
-        assertEquals(Issues.of(), classification.getIssues());
+        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
     }
 
     @Test
     public void testAnalyseForSearch12() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Canarium acutifolium var. acutifolium";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Canarium acutifolium var. acutifolium", classification.scientificName);
         assertEquals("Canarium", classification.genus);
         assertEquals("acutifolium", classification.specificEpithet);
@@ -370,7 +371,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch13() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Canarium acutifolium acutifolium";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Canarium acutifolium acutifolium", classification.scientificName);
         assertEquals("Canarium", classification.genus);
         assertEquals("acutifolium", classification.specificEpithet);
@@ -385,7 +386,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Melanogaster";
         classification.taxonRank = Rank.SERIES;
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Melanogaster", classification.scientificName);
         assertEquals(Rank.SERIES, classification.taxonRank);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
@@ -398,7 +399,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Canarium longiflorum";
         classification.scientificNameAuthorship = "Zipp.";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Canarium longiflorum", classification.scientificName);
         assertEquals("Zipp.", classification.scientificNameAuthorship);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
@@ -410,7 +411,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch16() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Astrotricha sp. 1";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Astrotricha sp. 1", classification.scientificName);
         assertEquals(NameType.PLACEHOLDER, classification.nameType);
         assertEquals(Issues.of(), classification.getIssues());
@@ -422,7 +423,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Dryopteris rotundata (Willd.) C.Chr.";
         classification.scientificNameAuthorship = "(Willd.) C.Chr.";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Dryopteris rotundata", classification.scientificName);
         assertEquals("(Willd.) C.Chr.", classification.scientificNameAuthorship);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
@@ -434,10 +435,10 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch18() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Aleucosia fulvipes (Unmatched taxon)";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Aleucosia fulvipes", classification.scientificName);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
-        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
+        assertEquals(Issues.of(BayesianTerm.illformedData, AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
     }
 
     // Commentary
@@ -446,7 +447,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.genus = "Aleucosia";
         classification.specificEpithet = "fulvipes";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Aleucosia fulvipes", classification.scientificName);
         assertEquals(Rank.SPECIES, classification.taxonRank);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
@@ -459,10 +460,10 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch20() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "A\ufffdeucosia fulvipes";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Axeucosia fulvipes", classification.scientificName);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
-        assertEquals(Issues.of(BayesianTerm.illformedData), classification.getIssues());
+        assertEquals(Issues.of(BayesianTerm.illformedData, AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
     }
 
     // Surrounding quotes
@@ -470,10 +471,10 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch21() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "'Aleucosia fulvipes'";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Aleucosia fulvipes", classification.scientificName);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
-        assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
+        assertEquals(Issues.of(BayesianTerm.illformedData, AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
     }
 
     // Embedded author
@@ -482,7 +483,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Gymnothorax javanicus (Bleeker, 1859)";
         classification.scientificNameAuthorship = "Bleeker";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Gymnothorax javanicus", classification.scientificName);
         assertEquals("Bleeker", classification.scientificNameAuthorship);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
@@ -495,7 +496,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Ahamitermes inclusus Gay, 1955";
         classification.scientificNameAuthorship = "Gay";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Ahamitermes inclusus", classification.scientificName);
         assertEquals("Gay", classification.scientificNameAuthorship);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
@@ -508,7 +509,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch24() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Ahamitermes inclusus Gay, 1955";
-         this.analyser.analyseForSearch(classification);
+         this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Ahamitermes inclusus", classification.scientificName);
         assertEquals("Gay, 1955", classification.scientificNameAuthorship);
         assertEquals(Issues.of(AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
@@ -526,7 +527,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Ahamitermes inclusus";
         classification.scientificNameAuthorship = "Gay, 1955";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Ahamitermes inclusus", classification.scientificName);
         assertEquals("Gay, 1955", classification.scientificNameAuthorship);
         assertEquals(Issues.of(), classification.getIssues());
@@ -543,7 +544,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch26() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Brachychiton 'Coral Beauty'";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Brachychiton 'Coral Beauty'", classification.scientificName);
         assertEquals(null, classification.scientificNameAuthorship);
         assertEquals(null, classification.nomenclaturalCode);
@@ -555,7 +556,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch27() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Clathria 1";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Clathria 1", classification.scientificName);
         assertEquals("Clathria", classification.genus);
         assertEquals(NameType.PLACEHOLDER, classification.nameType);
@@ -568,7 +569,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch28() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia bivenosa DC.";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Acacia bivenosa", classification.scientificName);
         assertEquals("DC.", classification.scientificNameAuthorship);
         assertEquals("Acacia", classification.genus);
@@ -581,7 +582,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch29() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Arabella sp1";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Arabella sp1", classification.scientificName);
         assertEquals("Arabella", classification.genus);
         assertEquals(NameType.PLACEHOLDER, classification.nameType);
@@ -593,7 +594,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch30() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "fam. Physidae gen. Physa";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Physa", classification.scientificName);
         assertEquals("Physa", classification.genus);
         assertEquals("Physidae", classification.family);
@@ -607,12 +608,12 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForSearch31() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Callogobius clitellus cf";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Callogobius clitellus cf.", classification.scientificName);
         assertEquals("Callogobius", classification.genus);
         assertEquals(Rank.SPECIES, classification.taxonRank);
         assertEquals(NameType.INFORMAL, classification.nameType);
-        assertEquals(Issues.of(AlaLinnaeanFactory.CONFER_SPECIES_NAME), classification.getIssues());
+        assertEquals(Issues.of(AlaLinnaeanFactory.CONFER_SPECIES_NAME, AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
     }
 
     // Invalid kingdom
@@ -621,7 +622,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Symbrenthia";
         classification.kingdom = "InvalidKingdom";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Symbrenthia", classification.scientificName);
         assertEquals(NameType.SCIENTIFIC, classification.nameType);
         assertEquals(Issues.of(AlaLinnaeanFactory.INVALID_KINGDOM, AlaLinnaeanFactory.REMOVED_KINGDOM), classification.getIssues());
@@ -639,7 +640,7 @@ public class AlaNameAnalyserTest {
         classification.order = "Flora";
         classification.family = "Physidae";
         classification.genus = "Genus";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Physidae", classification.scientificName);
         assertNull(classification.kingdom);
         assertNull(classification.phylum);
@@ -647,7 +648,70 @@ public class AlaNameAnalyserTest {
         assertNull(classification.order);
         assertEquals("Physidae", classification.family);
         assertNull(classification.genus);
+        assertEquals(Issues.of(BayesianTerm.illformedData, AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
+    }
+
+    @Test
+    public void testAnalyseForSearch34() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Acacia dealbata";
+        this.analyser.analyseForSearch(classification, MatchOptions.NONE);
+        assertEquals("Acacia", classification.genus);
+        assertEquals("dealbata", classification.specificEpithet);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertEquals(NameType.SCIENTIFIC, classification.nameType);
+        assertEquals(Issues.of(), classification.getIssues());
+    }
+
+    @Test
+    public void testAnalyseForSearch35() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Sida sp. Walhallow Station (C.Edgood 28/Oct/94)";
+        this.analyser.analyseForSearch(classification, MatchOptions.NONE);
+        assertEquals("Sida sp. Walhallow Station (C.Edgood 28/Oct/94)", classification.scientificName);
+        assertEquals("Sida", classification.genus);
+        assertNull(classification.specificEpithet);
+        assertEquals(Rank.SPECIES, classification.taxonRank);
+        assertEquals(NameType.INFORMAL, classification.nameType);
+        assertEquals(Issues.of(), classification.getIssues());
+    }
+
+    @Test
+    public void testAnalyseForSearch36() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Canarium longiflorum";
+        classification.scientificNameAuthorship = "Zipp.";
+        this.analyser.analyseForSearch(classification, MatchOptions.NONE);
+        assertEquals("Canarium longiflorum", classification.scientificName);
+        assertEquals("Zipp.", classification.scientificNameAuthorship);
+        assertEquals(NameType.SCIENTIFIC, classification.nameType);
+        assertEquals(Issues.of(), classification.getIssues());
+    }
+
+    @Test
+    public void testAnalyseForSearch37() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "'Aleucosia fulvipes'";
+        this.analyser.analyseForSearch(classification, MatchOptions.NONE);
+        assertEquals("'Aleucosia fulvipes'", classification.scientificName);
+        assertEquals(NameType.SCIENTIFIC, classification.nameType);
         assertEquals(Issues.of(BayesianTerm.illformedData), classification.getIssues());
+    }
+
+    @Test
+    public void testAnalyseForSearch38() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "*";
+        classification.kingdom = "Animalia";
+        classification.class_ = "Malacostraca";
+        classification.order = "Decapoda";
+        classification.family = "Parthenopidae";
+        classification.genus = "Parthenope";
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
+        assertEquals("Parthenope", classification.scientificName);
+        assertEquals(Rank.GENUS, classification.taxonRank);
+        assertEquals(NameType.SCIENTIFIC, classification.nameType);
+        assertEquals(Issues.of(BayesianTerm.illformedData, AlaLinnaeanFactory.CANONICAL_NAME), classification.getIssues());
     }
 
     @Test

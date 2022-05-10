@@ -38,6 +38,26 @@ abstract public class CompiledDerivation extends Derivation {
     }
 
     /**
+     * Is this dervivation optional
+     *
+     * @return True if there is a match option that can be applied
+     */
+    @JsonIgnore
+    public boolean isOptional() {
+        return false;
+    }
+
+    /**
+     * Return the options that will allow this derivation.
+     *
+     * @param optionsVar The variable holding the match options
+     * @return A condition to use or null for no condition
+     */
+    public String buildOptionCondition(String optionsVar) {
+        return null;
+    }
+
+    /**
      * Get the variables that this builder/derivation uses.
      * <p>
      * By default, this is an empty list.
@@ -206,7 +226,7 @@ abstract public class CompiledDerivation extends Derivation {
      * @return The extra variable, or null for none (defaults to null)
      */
     @JsonIgnore
-    public Observable getExtra() {
+    public Observable<?> getExtra() {
         return null;
     }
 
@@ -219,7 +239,7 @@ abstract public class CompiledDerivation extends Derivation {
      * @return The ancillary variable generator
      */
     public String generateExtra(String classifierVar, String observablesClass) {
-        Observable extra = this.getExtra();
+        Observable<?> extra = this.getExtra();
 
         return extra == null ? "null" : classifierVar + ".get(" + observablesClass + "." + extra.getJavaVariable() + ")";
     }
@@ -278,17 +298,17 @@ abstract public class CompiledDerivation extends Derivation {
      * Used to model required instance variables.
      */
     public class Variable {
-        private Class clazz;
-        private String name;
+        private final Class<?> clazz;
+        private final String name;
 
-        public Variable(Class clazz, String name) {
+        public Variable(Class<?> clazz, String name) {
             if (clazz == null || name == null)
                 throw new IllegalArgumentException("Variable must have both class and name");
             this.clazz = clazz;
             this.name = name;
         }
 
-        public Class getClazz() {
+        public Class<?> getClazz() {
             return clazz;
         }
 

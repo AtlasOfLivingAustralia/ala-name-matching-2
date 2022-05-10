@@ -42,7 +42,7 @@ public class RankIDAnalysis extends RangeAnalysis {
             CSVReader reader = CSVReaderFactory.build(RankAnalysis.class.getResourceAsStream("ranks.csv"), "UTF-8", ",", '"', 1);
             while (reader.hasNext()) {
                 String val;
-                String row[] = reader.next();
+                String[] row = reader.next();
                 if (row.length < 2)
                     continue;
                 if (row[0].startsWith("#"))
@@ -66,7 +66,7 @@ public class RankIDAnalysis extends RangeAnalysis {
             CSVReader reader = CSVReaderFactory.build(RankAnalysis.class.getResourceAsStream("ranks.csv"), "UTF-8", ",", '"', 1);
             while (reader.hasNext()) {
                 String val;
-                String row[] = reader.next();
+                String[] row = reader.next();
                 if (row.length < 4)
                     continue;
                 if (row[0].startsWith("#"))
@@ -174,9 +174,7 @@ public class RankIDAnalysis extends RangeAnalysis {
         Range<Integer> range2 = RankIDAnalysis.RANGE_MAP.get(rank2);
         if (range1 != null && range1.contains(value2))
             return true;
-        if (range2 != null && range2.contains(value1))
-            return true;
-        return false;
+        return range2 != null && range2.contains(value1);
     }
 
 

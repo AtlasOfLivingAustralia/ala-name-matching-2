@@ -13,13 +13,13 @@ import java.util.function.Function;
  */
 public class BacktrackingIterator<C> implements Iterator<C>, Iterable<C> {
     /** The initial copy of the object */
-    private C init;
+    private final C init;
     /** The modifications that are applied to each copy */
-    private List<List<Function<C, C>>> modifications;
+    private final List<List<Function<C, C>>> modifications;
     /** The stack of current positions */
-    private Stack<Integer> positions;
+    private final Stack<Integer> positions;
     /** The stack of intermediate elements */
-    private Stack<C> elements;
+    private final Stack<C> elements;
 
     public BacktrackingIterator(C init, List<List<Function<C, C>>> modifications) {
         this.init = init;

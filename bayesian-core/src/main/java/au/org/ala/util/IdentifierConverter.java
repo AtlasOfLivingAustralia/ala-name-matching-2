@@ -14,5 +14,5 @@ public interface IdentifierConverter {
      *
      * @return A string that can be used as a variable/column name
      */
-    public String convert(Identifiable id);
+    String convert(Identifiable id);
 }

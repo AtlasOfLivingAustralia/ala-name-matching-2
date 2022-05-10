@@ -256,7 +256,7 @@ public class TaxonNameSoundEx {
             temp = temp.replaceAll("SC", "S");
             temp = temp.replaceAll("EOUYKZH", "IAIICS");
 
-            return source.substring(0, 1) + temp;
+            return source.charAt(0) + temp;
         } else {
             return source;
         }

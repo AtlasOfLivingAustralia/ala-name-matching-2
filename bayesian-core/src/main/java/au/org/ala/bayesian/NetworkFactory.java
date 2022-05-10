@@ -18,56 +18,49 @@ public interface NetworkFactory<C extends Classification<C>, I extends Inference
      *
      * @return The network identifier
      */
-    @NonNull
-    public String getNetworkId();
+    @NonNull String getNetworkId();
 
     /**
      * Get a list of all the observables used by the network.
      *
      * @return The observables list
      */
-    @NonNull
-    public List<Observable<?>> getObservables();
+    @NonNull List<Observable<?>> getObservables();
 
     /**
      * Get the concept associated with this network
      *
      * @return The concept
      */
-    @NonNull
-    public Term getConcept();
+    @NonNull Term getConcept();
 
     /**
      * Get the observable that acts as the identifier for the classification
      *
      * @return The identifier observable
      */
-    @NonNull
-    public Optional<Observable<String>> getIdentifier();
+    @NonNull Optional<Observable<String>> getIdentifier();
 
     /**
      * Get the observable that acts as the name for the classification
      *
      * @return The name observable
      */
-    @NonNull
-    public Optional<Observable<String>> getName();
+    @NonNull Optional<Observable<String>> getName();
 
     /**
      * Get the observable that acts as the parent link for the classification
      *
      * @return An optional parent observable
      */
-    @NonNull
-    public Optional<Observable<String>> getParent();
+    @NonNull Optional<Observable<String>> getParent();
 
     /**
      * Get the observable that acts as the accepted link for the classification
      *
      * @return An optional accepted observable
      */
-    @NonNull
-    public Optional<Observable<String>> getAccepted();
+    @NonNull Optional<Observable<String>> getAccepted();
 
     /**
      * Get a list of all the issues that can be raised by this network.
@@ -78,31 +71,28 @@ public interface NetworkFactory<C extends Classification<C>, I extends Inference
      *
      * @return The observables list
      */
-    @NonNull
-    public List<Term> getAllIssues();
+    @NonNull List<Term> getAllIssues();
 
     /**
      * Create a new, empty classification
      *
      * @return The classification
      */
-    @NonNull
-    public C createClassification();
+    @NonNull C createClassification();
 
     /**
      * Create a new inferencer for the network
      *
      * @return The inferencer
      */
-    @NonNull
-    public I createInferencer();
+    @NonNull I createInferencer();
 
     /**
      * Create an optional evidence analyser for this network.
      *
      * @return The analyser, or null for no analyser
      */
-    public Analyser<C> createAnalyser();
+    Analyser<C> createAnalyser();
 
     /**
      * Create a matcher for the network.
@@ -112,6 +102,5 @@ public interface NetworkFactory<C extends Classification<C>, I extends Inference
      *
      * @return The new matcher
      */
-    @NonNull
-    public <M extends MatchMeasurement> ClassificationMatcher<C, I, F, M> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config);
+    @NonNull <M extends MatchMeasurement> ClassificationMatcher<C, I, F, M> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config);
 }

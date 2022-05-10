@@ -34,11 +34,11 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     public static final int DEFAULT_BATCH_SIZE = 256;
 
     /** The query utilities */
-    private QueryUtils queryUtils;
+    private final QueryUtils queryUtils;
     /** The temporary directory for the loading index */
-    private Path dir;
+    private final Path dir;
     /** The load writer */
-    private IndexWriter writer;
+    private final IndexWriter writer;
     /** The load reader */
     private IndexReader reader;
     /** The load searcher */
@@ -49,9 +49,9 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     private int batchSize;
     /** Delete this store on closing */
     @Getter
-    private boolean temporary;
+    private final boolean temporary;
     /** The annotation observable */
-    private Observable annotationObservable;
+    private final Observable annotationObservable;
 
 
     /**
@@ -80,7 +80,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
             } else {
                 this.dir = dir == null ? Files.createTempDirectory("Load") : dir.toPath();
             }
-            directory = memory ? MMapDirectory.open(this.dir) : FSDirectory.open(this.dir);
+            directory = MMapDirectory.open(this.dir);
         } catch (IOException ex) {
             throw new StoreException("Unable to get store directory", ex);
         }
@@ -355,7 +355,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
 
     protected class LuceneIterator implements Iterable<LuceneClassifier>, Iterator<LuceneClassifier> {
         /** The query to iterate over */
-        private Query query;
+        private final Query query;
          /** The current index into the results */
         private int resultIndex;
         /** The running count of results returned */

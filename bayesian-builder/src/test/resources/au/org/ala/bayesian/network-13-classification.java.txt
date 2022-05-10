@@ -8,6 +8,7 @@ import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.Hints;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
+import au.org.ala.bayesian.MatchOptions;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
@@ -21,6 +22,7 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -103,7 +105,7 @@ public class Network13Classification implements Classification<Network13Classifi
 
   @Override
   @SneakyThrows
-  public Network13Classification clone() {
+  public @NonNull Network13Classification clone() {
       Network13Classification clone = (Network13Classification) super.clone();
       clone.issues = new Issues(this.issues);
       return clone;
@@ -125,13 +127,13 @@ public class Network13Classification implements Classification<Network13Classifi
   }
 
   @Override
-  public <T> void addHint(Observable observable, T value) {
+  public <T> void addHint(Observable<T> observable, T value) {
         this.hints.addHint(observable, value);
   }
 
   @Override
   @JsonIgnore
-  public Term getType() {
+  public @NonNull Term getType() {
     return Network13Factory.CONCEPT;
   }
 
@@ -176,8 +178,8 @@ public class Network13Classification implements Classification<Network13Classifi
   }
 
   @Override
-  public Collection<Observation> toObservations() {
-    Collection<Observation> obs = new ArrayList(3);
+  public Collection<Observation<?>> toObservations() {
+    Collection<Observation<?>> obs = new ArrayList(3);
 
     if (this.v1 != null)
       obs.add(new Observation(true, Network13Factory.v1, this.v1));
@@ -189,11 +191,11 @@ public class Network13Classification implements Classification<Network13Classifi
   }
 
   @Override
-  public void inferForSearch(Analyser<Network13Classification> analyser) throws BayesianException {
+  public void inferForSearch(@NonNull Analyser<Network13Classification> analyser, @NonNull MatchOptions options) throws BayesianException {
     this.v1 = Network13Factory.v1.analyse(this.v1);
     this.v2 = Network13Factory.v2.analyse(this.v2);
     this.v3 = Network13Factory.v3.analyse(this.v3);
-    analyser.analyseForSearch(this);
+    analyser.analyseForSearch(this, options);
   }
 
   @Override

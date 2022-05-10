@@ -16,11 +16,11 @@ import java.io.*;
 import java.util.List;
 
 public class ALAMatchTool extends MatchTool<AlaLinnaeanClassification, AlaLinnaeanInferencer, AlaLinnaeanFactory, MatchMeasurement> {
-    private CSVReader source;
-    private CSVWriter report;
+    private final CSVReader source;
+    private final CSVWriter report;
 
-    public ALAMatchTool(ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, Reader input, Writer output) {
-        super(AlaLinnaeanFactory.instance(), searcher, config);
+    public ALAMatchTool(ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, boolean instrument, Reader input, Writer output) {
+        super(AlaLinnaeanFactory.instance(), searcher, config, instrument);
         this.source = new CSVReader(input);
         this.report = new CSVWriter(output);
     }
@@ -93,9 +93,8 @@ public class ALAMatchTool extends MatchTool<AlaLinnaeanClassification, AlaLinnae
             output = new FileWriter(args.files.get(1));
         ClassificationMatcherConfiguration cConfig = ClassificationMatcherConfiguration.builder()
                 .statistics(args.statistics)
-                .instrument(args.measure)
                 .build();
-        ALAMatchTool tool = new ALAMatchTool(searcher, cConfig, input, output);
+        ALAMatchTool tool = new ALAMatchTool(searcher, cConfig, args.measure, input, output);
         tool.run();
     }
 

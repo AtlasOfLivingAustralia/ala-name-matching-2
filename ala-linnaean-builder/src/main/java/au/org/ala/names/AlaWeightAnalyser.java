@@ -58,9 +58,9 @@ public class AlaWeightAnalyser implements WeightAnalyser, Annotator {
      */
     public static final String TAXON_WEIGHTS_FILE = "taxon-weights.csv";
 
-    private Map<Rank, Double> rankWeights;
-    private Map<TaxonomicStatus, Double> taxonomicStatusWeights;
-    private Map<NomenclaturalStatus, Double> nomenclauturalStatusWeights;
+    private final Map<Rank, Double> rankWeights;
+    private final Map<TaxonomicStatus, Double> taxonomicStatusWeights;
+    private final Map<NomenclaturalStatus, Double> nomenclauturalStatusWeights;
     private LoadStore<LuceneClassifier> weightStore;
 
     /**

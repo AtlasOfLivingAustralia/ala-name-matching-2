@@ -38,17 +38,17 @@ public class ALANameSearcher implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(ALANameSearcher.class);
 
     @Getter
-    private LuceneClassifierSearcher searcher;
+    private final LuceneClassifierSearcher searcher;
     @Getter
-    private ALAClassificationMatcher matcher;
+    private final ALAClassificationMatcher matcher;
     @Getter
-    private LuceneClassifierSearcher vernacularSearcher;
+    private final LuceneClassifierSearcher vernacularSearcher;
     @Getter
-    private ALAVernacularClassificationMatcher vernacularMatcher;
-    private File suggesterDir;
+    private final ALAVernacularClassificationMatcher vernacularMatcher;
+    private final File suggesterDir;
     @Getter(lazy = true)
     private final LuceneClassifierSuggester suggester = buildSuggester();
-    private RankAnalysis rankAnalysis;
+    private final RankAnalysis rankAnalysis;
 
     public ALANameSearcher(File index, File vernacular, File suggesterDir, LuceneClassifierSearcherConfiguration sConfig, ClassificationMatcherConfiguration cConfig) throws StoreException {
         this.searcher = new LuceneClassifierSearcher(index, sConfig);
@@ -82,7 +82,7 @@ public class ALANameSearcher implements AutoCloseable {
      * @throws BayesianException if unable to compuete match charactersics
       */
     public Match<AlaLinnaeanClassification, MatchMeasurement> search(AlaLinnaeanClassification template) throws BayesianException {
-        return this.matcher.findMatch(template);
+        return this.matcher.findMatch(template, MatchOptions.ALL);
     }
 
     /**
@@ -145,7 +145,7 @@ public class ALANameSearcher implements AutoCloseable {
      * @throws BayesianException if unable to compuete match charactersics
       */
     public Match<AlaVernacularClassification, MatchMeasurement> search(AlaVernacularClassification template) throws BayesianException {
-        return this.vernacularMatcher.findMatch(template);
+        return this.vernacularMatcher.findMatch(template, MatchOptions.ALL);
     }
 
     /**

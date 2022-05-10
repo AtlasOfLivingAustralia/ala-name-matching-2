@@ -52,7 +52,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     };
 
     /** Hints for kingdoms */
-    private Cache<KingdomKey, AlaLinnaeanClassification> kingdomCache;
+    private final Cache<KingdomKey, AlaLinnaeanClassification> kingdomCache;
 
     /**
      * Create with a searcher and inferencer.
@@ -405,8 +405,8 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
             AlaLinnaeanClassification finder = new AlaLinnaeanClassification();
             finder.scientificName = key.getScientificName();
             finder.taxonRank = key.getTaxonRank();
-            finder.inferForSearch(this.getAnalyser());
-            Match<AlaLinnaeanClassification, MatchMeasurement> match = this.findSource(finder, false, null);
+            finder.inferForSearch(this.getAnalyser(), MatchOptions.NONE);
+            Match<AlaLinnaeanClassification, MatchMeasurement> match = this.findSource(finder, MatchOptions.NONE, null);
             if (match != null && match.isValid())
                 return match.getAccepted();
             return null;
@@ -448,7 +448,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     @Override
     protected boolean isValidCandidate(AlaLinnaeanClassification classification, Classifier candidate) throws StoreException {
         if (classification.soundexScientificName == null)
-            return false;
+            return true;
         final String soundexScientificName = classification.soundexScientificName;
         final int minLength = Math.min(soundexScientificName.length(), MIN_VALID_LENGTH);
         for (Object possible: candidate.getAll(AlaLinnaeanFactory.soundexScientificName)) {

@@ -116,9 +116,7 @@ public class TaxonomicStatusAnalysis extends EnumAnalysis<TaxonomicStatus> {
             return null;
         if  (value1 == value2)
             return true;
-        if (EQUIVALENCES.computeIfAbsent(value1, k -> new HashSet<>()).contains(value2))
-            return true;
-        return false;
+        return EQUIVALENCES.computeIfAbsent(value1, k -> new HashSet<>()).contains(value2);
     }
 
 }

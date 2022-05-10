@@ -1,15 +1,16 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
-import au.org.ala.util.BasicNormaliser;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
-import org.gbif.dwc.terms.TermFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 
 public class TestClassification implements Classification<TestClassification> {
@@ -20,8 +21,6 @@ public class TestClassification implements Classification<TestClassification> {
     public Integer rankID;
     public Integer rankRange;
     public TestEnum testEnum;
-    @Getter
-    private TestAnalyser analyser = new TestAnalyser();
     @Getter
     private Issues issues = new Issues();
 
@@ -37,6 +36,7 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
+    @NonNull
     public Term getType() {
         return DwcTerm.Taxon;
     }
@@ -62,23 +62,23 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public Collection<Observation> toObservations() {
-        Collection<Observation> obs = new ArrayList<>(12);
+    public Collection<Observation<?>> toObservations() {
+        Collection<Observation<?>> obs = new ArrayList<>(12);
 
         if (this.taxonID != null)
-            obs.add(new Observation(true, TestFactory.TAXON_ID, this.taxonID));
+            obs.add(new Observation<String>(true, TestFactory.TAXON_ID, this.taxonID));
         if (this.class_ != null)
-            obs.add(new Observation(true, TestFactory.CLASS_, this.class_));
+            obs.add(new Observation<String>(true, TestFactory.CLASS_, this.class_));
         if (this.scientificName != null)
-            obs.add(new Observation(true, TestFactory.SCIENTIFIC_NAME, this.scientificName));
+            obs.add(new Observation<String>(true, TestFactory.SCIENTIFIC_NAME, this.scientificName));
         if (this.vernacularName != null)
-            obs.add(new Observation(true, TestFactory.VERNACULAR_NAME, this.vernacularName));
+            obs.add(new Observation<String>(true, TestFactory.VERNACULAR_NAME, this.vernacularName));
         if (this.rankID != null)
-            obs.add(new Observation(true, TestFactory.RANK_ID, this.rankID));
+            obs.add(new Observation<Integer>(true, TestFactory.RANK_ID, this.rankID));
         if (this.rankRange != null)
-            obs.add(new Observation(true, TestFactory.RANK_RANGE, this.rankRange));
+            obs.add(new Observation<Integer>(true, TestFactory.RANK_RANGE, this.rankRange));
         if (this.testEnum != null)
-            obs.add(new Observation(true, TestFactory.TEST_ENUM, this.testEnum));
+            obs.add(new Observation<TestEnum>(true, TestFactory.TEST_ENUM, this.testEnum));
         return obs;
     }
 
@@ -98,11 +98,11 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public <T> void addHint(Observable observable, T value) {
+    public <T> void addHint(Observable<T> observable, T value) {
     }
 
     @Override
-    public void inferForSearch(Analyser<TestClassification> analyser) {
+    public void inferForSearch(@NonNull Analyser<TestClassification> analyser, @NonNull MatchOptions options) {
     }
 
     @Override

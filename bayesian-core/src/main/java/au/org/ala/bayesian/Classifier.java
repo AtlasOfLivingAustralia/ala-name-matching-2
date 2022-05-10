@@ -29,7 +29,7 @@ public interface Classifier {
      *
      * @return The retrieved value or the default if not found
      */
-    public <T> T get(Observable<T> observable);
+    <T> T get(Observable<T> observable);
 
     /**
      * Get a vavlue with a default if not found.
@@ -41,7 +41,7 @@ public interface Classifier {
      *
      * @return The retrieved value or the default if not found
      */
-    default public <T> T getOrDefault(Observable<T> observable, T dflt) {
+    default <T> T getOrDefault(Observable<T> observable, T dflt) {
         T result = this.get(observable);
         return result == null ? dflt : result;
     }
@@ -57,7 +57,7 @@ public interface Classifier {
      *
      * @return The a set of all present values
      */
-    public <T> LinkedHashSet<T> getAll(Observable<T>... observables);
+    <T> LinkedHashSet<T> getAll(Observable<T>... observables);
 
     /**
      * Does this classifier contain any (non-variant) information about this observable?
@@ -66,7 +66,7 @@ public interface Classifier {
      *
      * @return True if there are (not variant only) values in the classifier
      */
-    public boolean has(Observable observable);
+    boolean has(Observable observable);
 
     /**
      * Does this classifier contain any (variant or non-variant) information about this observable?
@@ -75,7 +75,7 @@ public interface Classifier {
      *
      * @return True if there are (not variant only) values in the classifier
      */
-    public boolean hasAny(Observable observable);
+    boolean hasAny(Observable observable);
 
     /**
      * Does this classifier have a matching term for an observable?
@@ -94,7 +94,7 @@ public interface Classifier {
      *
      * @throws StoreException if there was a problem retrieving a value from the classifier or matching the result
      */
-    public <T> Boolean match(T value, Observable<T>... observables) throws StoreException;
+    <T> Boolean match(T value, Observable<T>... observables) throws StoreException;
 
 
     /**
@@ -110,7 +110,7 @@ public interface Classifier {
      *
      * @see #match(Object, Observable...)
      */
-    public default <T> boolean matchClean(T value, Observable<T>... observables) {
+    default <T> boolean matchClean(T value, Observable<T>... observables) {
         try {
             Boolean match = this.match(value, observables);
             if (match == null)
@@ -142,7 +142,7 @@ public interface Classifier {
      *
      * @throws StoreException if the value is already present or unable to add this variable to the classifier
      */
-    public <T> void add(Observable<T> observable, T value, boolean variant, boolean replace) throws StoreException;
+    <T> void add(Observable<T> observable, T value, boolean variant, boolean replace) throws StoreException;
 
     /**
      * Copy all values from another classifier
@@ -158,7 +158,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    public <T> void addAll(Observable<T> observable, Classifier classifier) throws StoreException;
+    <T> void addAll(Observable<T> observable, Classifier classifier) throws StoreException;
 
     /**
      * Clear any values in the classifier
@@ -170,14 +170,14 @@ public interface Classifier {
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    public void clear(Observable observable) throws StoreException;
+    void clear(Observable observable) throws StoreException;
 
     /**
      * Get the identifier for a classifier.
      *
      * @return The identifier, or null for no identifier found.
      */
-    public String getIdentifier();
+    String getIdentifier();
 
     /**
      * Label a classifier with a unique identifier.
@@ -190,7 +190,7 @@ public interface Classifier {
      *
      * @throws StoreException If unable to create an identifier for some reason.
      */
-    public String identify() throws StoreException;
+    String identify() throws StoreException;
 
     /**
      * Get the classifier's type
@@ -199,7 +199,7 @@ public interface Classifier {
      *
      * @throws StoreException If unable to create a type for some reason.
      */
-    public Term getType() throws StoreException;
+    Term getType() throws StoreException;
 
     /**
      * Set the classifier's type
@@ -208,7 +208,7 @@ public interface Classifier {
      *
      * @throws StoreException If unable to create a type for some reason.
      */
-    public void setType(Term type) throws StoreException;
+    void setType(Term type) throws StoreException;
 
 
     /**
@@ -220,7 +220,7 @@ public interface Classifier {
      *
      * @return The annotation value
      */
-    public static String getAnnotationValue(Term term) {
+    static String getAnnotationValue(Term term) {
         return term.qualifiedName();
     }
 
@@ -236,7 +236,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to test for the annotation
      */
-    public boolean hasAnnotation(Term annotation) throws StoreException;
+    boolean hasAnnotation(Term annotation) throws StoreException;
 
     /**
      * Add an annotation to a classifier.
@@ -245,7 +245,7 @@ public interface Classifier {
      *
      * @throws StoreException If unable to annotate for some reason.
      */
-    public void annotate(Term annotation) throws StoreException;
+    void annotate(Term annotation) throws StoreException;
 
     /**
      * Get the parameters associated with this classifier
@@ -254,7 +254,7 @@ public interface Classifier {
      *
      * @see #loadParameters(Parameters)
      */
-    public Parameters getCachedParameters();
+    Parameters getCachedParameters();
 
     /**
      * Load the inference parameters in a classifier.
@@ -264,7 +264,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to retrieve the parameters
      */
-    public void loadParameters(Parameters parameters) throws StoreException;
+    void loadParameters(Parameters parameters) throws StoreException;
 
     /**
      * Store the inference parameters in a classifier.
@@ -273,7 +273,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to store the parameters in the document
      */
-    public void storeParameters(Parameters parameters) throws StoreException;
+    void storeParameters(Parameters parameters) throws StoreException;
 
 
     /**
@@ -283,7 +283,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to retrieve the index
      */
-    public int[] getIndex() throws StoreException;
+    int[] getIndex() throws StoreException;
 
     /**
      * Set the index values for a classifier.
@@ -296,7 +296,7 @@ public interface Classifier {
      *
      * @throws StoreException If unable to store the index
      */
-    public void setIndex(int left, int right) throws StoreException;
+    void setIndex(int left, int right) throws StoreException;
 
     /**
      * Get the names for the classifier.
@@ -308,7 +308,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to get the names list
      */
-    public Collection<String> getNames() throws StoreException;
+    Collection<String> getNames() throws StoreException;
 
     /**
      * Set the names for a classifier.
@@ -320,7 +320,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to store the names in the classifier
      */
-    public void setNames(Collection<String> names) throws StoreException;
+    void setNames(Collection<String> names) throws StoreException;
 
     /**
      * Get the signature of the classifier, indicating which erasure groups are in and which are out.
@@ -329,7 +329,7 @@ public interface Classifier {
      *
      * @see Inferencer#getSignature()
      */
-    public String getSignature();
+    String getSignature();
 
     /**
      * Set the signature for tha classifier.
@@ -338,7 +338,7 @@ public interface Classifier {
      *
      * @see Inferencer#getSignature()
      */
-    public void setSignature(String signature);
+    void setSignature(String signature);
 
     /**
      * Get the trail of identifiers used in hierarchical classifiers.
@@ -348,14 +348,14 @@ public interface Classifier {
      *
      * @return The trail
      */
-    public List<String> getTrail();
+    List<String> getTrail();
 
     /**
      * Set the trail of identifiers used in the classifier hierarchy.
      *
      * @param trail The new trail
      */
-    public void setTrail(List<String> trail);
+    void setTrail(List<String> trail);
 
     /**
      * Get a list of all the values set in the classifier.
@@ -365,6 +365,6 @@ public interface Classifier {
      *
      * @return The values in the form of key -> value pairs, with the keys a useful internal representation
      */
-    public Collection<String[]> getAllValues();
+    Collection<String[]> getAllValues();
 
 }

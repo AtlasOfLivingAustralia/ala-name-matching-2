@@ -11,7 +11,7 @@ public interface Annotator {
     /**
      * A generic, null annotator.
      */
-    public static Annotator NULL = new Annotator() {
+    Annotator NULL = new Annotator() {
         @Override
         public void annotate(Classifier classifier) throws BayesianException {
         }
@@ -28,6 +28,5 @@ public interface Annotator {
      *
      * @throws BayesianException If unable to analyse this classifier properly
       */
-    public void annotate(Classifier classifier) throws BayesianException;
-    ;
+    void annotate(Classifier classifier) throws BayesianException;
 }

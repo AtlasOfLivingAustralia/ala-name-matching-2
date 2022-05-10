@@ -59,9 +59,10 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
      * as required for searching.
      *
      * @param classification The classification
-      */
+     * @param options The match options to use
+     */
     @Override
-    public void analyseForSearch(AlaVernacularClassification classification)  {
+    public void analyseForSearch(AlaVernacularClassification classification, MatchOptions options)  {
     }
 
     /**

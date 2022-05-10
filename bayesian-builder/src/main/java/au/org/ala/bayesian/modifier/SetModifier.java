@@ -45,12 +45,12 @@ public class SetModifier extends BaseModifier {
         if (val == null) {
             statements.add(setter + " = null;");
         } else if (Number.class.isAssignableFrom(observable.getType())) {
-            statements.add(setter + " = " + val.toString() + ";");
+            statements.add(setter + " = " + val + ";");
         } else if (Enum.class.isAssignableFrom(observable.getType())) {
             Enum<?> en = (Enum) val;
             statements.add(setter + " = " + en.getClass().getName() + "." + en.name() + ";");
         } else if (String.class.isAssignableFrom(observable.getType())) {
-            statements.add(setter + " = \"" + val.toString() + "\";");
+            statements.add(setter + " = \"" + val + "\";");
         } else {
             throw new BuilderException("Unable to set " + this.observable.getId() + " to " + this.value + " of class " + this.value.getClass());
         }

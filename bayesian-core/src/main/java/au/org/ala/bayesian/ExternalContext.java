@@ -19,7 +19,7 @@ public enum ExternalContext {
 
     /** How to convert whatever identifier into something acceptable to the external system */
     @Getter
-    private IdentifierConverter converter;
+    private final IdentifierConverter converter;
 
     /**
      * Construct with a converter.

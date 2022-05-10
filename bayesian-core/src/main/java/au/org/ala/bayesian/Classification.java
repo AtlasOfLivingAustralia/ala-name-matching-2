@@ -12,6 +12,8 @@ import java.util.function.Function;
  * <p>
  * Classifications hold the vector of evidence that make up a individual piece of data.
  * </p>
+ *
+ * @param <C> The type of classification in use
  */
 public interface Classification<C extends Classification<C>> extends Cloneable {
     /**
@@ -58,7 +60,7 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
     /**
      * Get any issues recorded with this classification.
      * <p>
-     * The analyser in {@link #inferForIndex(Analyser)} and {@link #inferForSearch(Analyser)} may add issues as required.
+     * The analyser in {@link #inferForSearch(Analyser, MatchOptions)} may add issues as required.
      * </p>
      *
      * @return Any issues associated with the classification/
@@ -69,7 +71,7 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * Add an issue to the issues list.
      * <p>
      * Adding an issue should apply to the classification itself.
-     * Shared issues lists need to be disambigauted before being modified.
+     * Shared issues lists need to be disambiguated before being modified.
      * </p>
      *
      * @param issue The issue to add
@@ -119,7 +121,7 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      *
      * @see #hintModificationOrder()
      */
-    <T> void addHint(Observable observable, T value);
+    <T> void addHint(Observable<T> observable, T value);
 
     /**
      * Get a list of observations that match this classification.
@@ -129,7 +131,7 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      *
      * @return This classification as a list of observations
      */
-    Collection<Observation> toObservations();
+    Collection<Observation<?>> toObservations();
 
     /**
      * Infer empty elements of the classification from the network definition
@@ -141,10 +143,11 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * </p>
      *
      * @param analyser The analser to use
+     * @param options The options for matching
      *
      * @throws BayesianException if unable to calculate an inferred value or retrieve a source value
      */
-    void inferForSearch(@NonNull Analyser<C> analyser) throws BayesianException;
+    void inferForSearch(@NonNull Analyser<C> analyser, @NonNull MatchOptions options) throws BayesianException;
 
     /**
      * Build a fidelity model for this (original) classification against an actual classification.
@@ -192,9 +195,9 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * Returned is a list of functions that will take a classification and return
      * a modified classification
      * </p>
-     * @return
+     * @return The list of lists of search modifications to try
      */
-    public List<List<Function<C, C>>> searchModificationOrder();
+    List<List<Function<C, C>>> searchModificationOrder();
 
     /**
      * The order in which to modify this classification when attempting matches.
@@ -206,7 +209,7 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
      * Returned is a list of functions that will take a classification and return
      * a modified classification
      * </p>
-     * @return
+     * @return The list of lists of match modifications to try
      */
-    public List<List<Function<C, C>>> matchModificationOrder();
+    List<List<Function<C, C>>> matchModificationOrder();
 }

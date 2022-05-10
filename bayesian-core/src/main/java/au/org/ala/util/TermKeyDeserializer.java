@@ -10,7 +10,7 @@ import java.io.IOException;
  * Deserializer for GBIF terms.
  */
 public class TermKeyDeserializer extends KeyDeserializer {
-    private TermFactory factory;
+    private final TermFactory factory;
 
     public TermKeyDeserializer() {
         this.factory = TermFactory.instance();

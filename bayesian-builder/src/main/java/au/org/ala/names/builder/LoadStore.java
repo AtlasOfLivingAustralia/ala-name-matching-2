@@ -17,19 +17,19 @@ import java.util.stream.StreamSupport;
 abstract public class LoadStore<C extends Classifier> implements LoadStoreMXBean {
     /** The name of the store */
     @Getter
-    private String name;
+    private final String name;
     /** The number of classifiers that have been created */
-    private AtomicInteger created = new AtomicInteger();
+    private final AtomicInteger created = new AtomicInteger();
     /** The number of classifiers that have been written to the store */
-    private AtomicInteger written = new AtomicInteger();
+    private final AtomicInteger written = new AtomicInteger();
     /** The number of new classifiers that have been added to the store */
-    private AtomicInteger added = new AtomicInteger();
+    private final AtomicInteger added = new AtomicInteger();
     /** The number of classifiers that have been updated */
-    private AtomicInteger updated = new AtomicInteger();
+    private final AtomicInteger updated = new AtomicInteger();
     /** The number of gets from the store */
-    private AtomicInteger gets = new AtomicInteger();
+    private final AtomicInteger gets = new AtomicInteger();
     /** The number of queries from the store */
-    private AtomicInteger queries = new AtomicInteger();
+    private final AtomicInteger queries = new AtomicInteger();
 
     /**
      * Create a store for a network.

@@ -8,6 +8,7 @@ import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.Hints;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
+import au.org.ala.bayesian.MatchOptions;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
@@ -21,6 +22,7 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -50,7 +52,7 @@ public class GrassClassification implements Classification<GrassClassification> 
 
   @Override
   @SneakyThrows
-  public GrassClassification clone() {
+  public @NonNull GrassClassification clone() {
       GrassClassification clone = (GrassClassification) super.clone();
       clone.issues = new Issues(this.issues);
       return clone;
@@ -72,13 +74,13 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
-  public <T> void addHint(Observable observable, T value) {
+  public <T> void addHint(Observable<T> observable, T value) {
         this.hints.addHint(observable, value);
   }
 
   @Override
   @JsonIgnore
-  public Term getType() {
+  public @NonNull Term getType() {
     return GrassFactory.CONCEPT;
   }
 
@@ -123,8 +125,8 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
-  public Collection<Observation> toObservations() {
-    Collection<Observation> obs = new ArrayList(3);
+  public Collection<Observation<?>> toObservations() {
+    Collection<Observation<?>> obs = new ArrayList(3);
 
     if (this.rain != null)
       obs.add(new Observation(true, GrassFactory.rain, this.rain));
@@ -136,11 +138,11 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
-  public void inferForSearch(Analyser<GrassClassification> analyser) throws BayesianException {
+  public void inferForSearch(@NonNull Analyser<GrassClassification> analyser, @NonNull MatchOptions options) throws BayesianException {
     this.rain = GrassFactory.rain.analyse(this.rain);
     this.sprinkler = GrassFactory.sprinkler.analyse(this.sprinkler);
     this.wet = GrassFactory.wet.analyse(this.wet);
-    analyser.analyseForSearch(this);
+    analyser.analyseForSearch(this, options);
   }
 
   @Override

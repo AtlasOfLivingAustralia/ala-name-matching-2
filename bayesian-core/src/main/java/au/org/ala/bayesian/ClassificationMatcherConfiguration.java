@@ -17,10 +17,6 @@ public class ClassificationMatcherConfiguration {
     /** Instrument the classification matcher and collect statistics */
     @JsonProperty
     @Builder.Default
-    private boolean instrument = false;
-    /** Collect detailed statistics on each classification */
-    @JsonProperty
-    @Builder.Default
     private boolean statistics = false;
     /** The size of secondary caches, sych as a quick kingdom lookup. Defaults to 100000 */
     @JsonProperty

@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  *
  * @param <C> The classification
  */
-abstract public class ScientificNameAnalyser<C extends Classification> implements Analyser<C> {
+abstract public class ScientificNameAnalyser<C extends Classification<C>> implements Analyser<C> {
     protected static final ThreadLocal<NameParser> PARSER = ThreadLocal.withInitial(NameParserGBIF::new);
 
     /**
@@ -34,7 +34,7 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      */
     public static final String RANK_MARKERS = Arrays.stream(org.gbif.nameparser.api.Rank.values())
             .filter(r -> !r.isInfrasubspecific()) // Allow var. and the like through
-            .map(r -> r.getMarker())
+            .map(Rank::getMarker)
             .filter(Objects::nonNull)
             .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
             .collect(Collectors.joining("|"))
@@ -43,8 +43,8 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * A string giving a regular expression for the Linnaean rank markers
      */
     public static final String LINNAEAN_RANK_MARKERS = Arrays.stream(org.gbif.nameparser.api.Rank.values())
-            .filter(r -> r.isLinnean()) // Allow var. and the like through
-            .map(r -> r.getMarker())
+            .filter(Rank::isLinnean) // Allow var. and the like through
+            .map(Rank::getMarker)
             .filter(Objects::nonNull)
             .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
             .collect(Collectors.joining("|"));
@@ -53,7 +53,7 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      */
     public static final String INFRA_RANK_MARKERS = Arrays.stream(org.gbif.nameparser.api.Rank.values())
             .filter(r -> !r.isLinnean() && !r.isInfraspecific())
-            .map(r -> r.getMarker())
+            .map(Rank::getMarker)
             .filter(Objects::nonNull)
             .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
             .collect(Collectors.joining("|"));
@@ -61,7 +61,7 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * A string giving a regular expression for rank markers with capitalised first letter
      */
     public static final String CAPITALISED_RANK_MARKERS = Arrays.stream(org.gbif.nameparser.api.Rank.values())
-            .map(r -> r.getMarker())
+            .map(Rank::getMarker)
             .filter(Objects::nonNull)
             .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
             .map(m -> m.substring(0, 1).toUpperCase() + m.substring(1))
@@ -181,10 +181,10 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
     protected final RankAnalysis rankAnalysis = new RankAnalysis();
 
     /**
-     * Normalse runs of spaces into a single spacv
+     * Normalse runs of spaces into a single space
      *
-     * @param s
-     * @return
+     * @param s The unnormalised string
+     * @return The normalised string
      */
     protected String normaliseSpaces(String s) {
         return MUTLI_SPACES.matcher(s).replaceAll(" ").trim();
@@ -205,10 +205,11 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * Renmove stray surrpunding quotes on the name as a whole.
      *
      * @param analysis The name analysus
-     * @param issues   Issues to add
+     * @param detectedIssues   Issues to add if surrounding quotes are detected
+     * @param modifiedIssues Issues ot add if the quotes are removed
      * @return True if surrounding quotes were detected
      */
-    protected boolean removeSurroundingQuotes(@NonNull Analysis analysis, @Nullable Issues issues) {
+    protected boolean removeSurroundingQuotes(@NonNull Analysis analysis, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         boolean detected = false;
         boolean found = true;
         String scientificName = analysis.getScientificName().trim();
@@ -226,8 +227,11 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
             }
         }
         if (detected) {
-            analysis.setScientificName(scientificName);
-            analysis.addIssues(issues);
+            analysis.addIssues(detectedIssues);
+            if (analysis.isNormaliseTemplate()) {
+                analysis.setScientificName(scientificName);
+                analysis.addIssues(modifiedIssues);
+            }
         }
         return detected;
     }
@@ -238,27 +242,35 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      *
      * @param analysis An analysis to strip
      * @param replace  The character to replace non-determinate characters with
-     * @param issues   Issues to indivate a problem with the name
+     * @param detectedIssues   Issues to indicate a problem with the name
+     * @param modifiedIssues   Issues to indicate fix has been performed
      * @return True if any unprintable characters were deteced
      */
-    protected boolean replaceUnprintable(@NonNull Analysis analysis, char replace, @Nullable Issues issues) {
+    protected boolean replaceUnprintable(@NonNull Analysis analysis, char replace, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         boolean detected = false;
         String scientificName = analysis.getScientificName();
         if (scientificName != null) {
             scientificName = scientificName.replace('\ufffd', replace);
             if (!scientificName.equals(analysis.getScientificName())) {
-                analysis.setScientificName(scientificName);
+                analysis.addIssues(detectedIssues);
+                if (analysis.isNormaliseTemplate()) {
+                    analysis.setScientificName(scientificName);
+                    analysis.addIssues(modifiedIssues);
+                }
                 detected = true;
-                analysis.addIssues(issues);
             }
         }
         String scientificNameAuthorship = analysis.getScientificNameAuthorship();
         if (scientificNameAuthorship != null) {
             scientificNameAuthorship = scientificNameAuthorship.replace('\ufffd', replace);
             if (!scientificNameAuthorship.equals(analysis.getScientificNameAuthorship())) {
-                analysis.setScientificNameAuthorship(scientificNameAuthorship);
+                analysis.addIssues(detectedIssues);
+                if (analysis.isNormaliseTemplate()) {
+                    analysis.setScientificName(scientificName);
+                    analysis.setScientificNameAuthorship(scientificNameAuthorship);
+                    analysis.addIssues(modifiedIssues);
+                }
                 detected = true;
-                analysis.addIssues(issues);
             }
         }
         return detected;
@@ -269,9 +281,11 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      *
      * @param analysis The anlaysis to use
      * @param issues   ANy issues to add if this is detected
-     * @return True if the name is indeterminate
+     * @return The map of names or null if not found
      */
     protected Map<Rank, String> detectAlternatingRankName(@NonNull Analysis analysis, @Nullable Issues issues) {
+        if (!analysis.isCanonicalDerivations())
+            return null;
         Matcher matcher;
         String scientificName = analysis.getScientificName();
 
@@ -300,17 +314,20 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      *
      * @param analysis The analysis to strip
      * @param replace  If not null, the string to replace the indeterminate flag
+     * @param detectedIssues The issues to add if the name is indeterminate
+     * @param modifiedIssues The issues to add if the name is fixed
      * @return True if the name is indeterminate
-     * @pqram issues The issues to add if the name is indeterminate
      */
-    protected boolean processIndeterminate(@NonNull Analysis analysis, @Nullable String replace, @Nullable Issues issues) {
+    protected boolean processIndeterminate(@NonNull Analysis analysis, @Nullable String replace, @Nullable Issues detectedIssues, Issues modifiedIssues) {
         Matcher matcher;
 
         matcher = INDETERMINATE_MARKER.matcher(analysis.getScientificName());
         if (matcher.find()) {
-            if (replace != null)
+            if (replace != null && analysis.isCanonicalDerivations()) {
                 analysis.setScientificName(this.replaceAll(matcher, replace));
-            analysis.addIssues(issues);
+                analysis.addIssues(modifiedIssues);
+            }
+            analysis.addIssues(detectedIssues);
             analysis.flagIndeterminate();
         }
         return analysis.isIndeterminate();
@@ -321,17 +338,23 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      *
      * @param analysis The analysis to flag
      * @param replace  Replace the marker with this value, null for no replacement
-     * @param issues   Flag the analysis with these issues
+     * @param detectedIssues The issues to add if the name is an affinity species
+     * @param modifiedIssues The issues to add if the name is fixed
      * @return True if an affinity species has been flagged (not necessarily by this method)
      */
-    protected boolean processAffinitySpecies(@NonNull Analysis analysis, @Nullable String replace, @Nullable Issues issues) {
+    protected boolean processAffinitySpecies(@NonNull Analysis analysis, @Nullable String replace, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         Matcher matcher;
 
         matcher = AFFINITY_SPECIES_MARKER.matcher(analysis.getScientificName());
         if (matcher.find()) {
-            analysis.addIssues(issues);
-            if (replace != null)
-                analysis.setScientificName(matcher.replaceAll(replace).trim());
+            analysis.addIssues(detectedIssues);
+            if (replace != null && analysis.isCanonicalDerivations()) {
+                String replaced = matcher.replaceAll(replace).trim();
+                if (!replaced.equals(analysis.getScientificName())) {
+                    analysis.setScientificName(replaced);
+                    analysis.addIssues(modifiedIssues);
+                }
+            }
             analysis.flagAffinitySpecies();
         }
         return analysis.isAffinitySpecies();
@@ -342,17 +365,23 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      *
      * @param analysis The analysis to flag
      * @param replace  Replace the marker with this value, null for no replacement
-     * @param issues   Flag the analysis with these issues
+     * @param detectedIssues The issues to add if the name is a confer species name
+     * @param modifiedIssues The issues to add if the name is fixed
      * @return True if a confer species has been flagged (not necessarily by this method)
      */
-    protected boolean processConferSpecies(@NonNull Analysis analysis, @Nullable String replace, @Nullable Issues issues) {
+    protected boolean processConferSpecies(@NonNull Analysis analysis, @Nullable String replace, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         Matcher matcher;
 
         matcher = CONFER_SPECIES_MARKER.matcher(analysis.getScientificName());
         if (matcher.find()) {
-            analysis.addIssues(issues);
-            if (replace != null)
-                analysis.setScientificName(matcher.replaceAll(replace).trim());
+            analysis.addIssues(detectedIssues);
+            if (replace != null && analysis.isCanonicalDerivations()) {
+                String replaced = matcher.replaceAll(replace).trim();
+                if (!replaced.equals(analysis.getScientificName())) {
+                    analysis.setScientificName(replaced);
+                    analysis.addIssues(modifiedIssues);
+                }
+            }
             analysis.flagConferSpecies();
         }
         return analysis.isConferSpecies();
@@ -363,17 +392,18 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      *
      * @param analysis  The analysis to flag
      * @param normalise Convert into standard form
-     * @param issues    Flag the analysis with these issues
+     * @param detectedIssues The issues to add if the name is species novum
+     * @param modifiedIssues The issues to add if the name is fixed
      * @return True if an species novum has been flagged (not necessarily by this method)
      */
-    protected boolean processSpeciesNovum(@NonNull Analysis analysis, boolean normalise, @Nullable Issues issues) {
+    protected boolean processSpeciesNovum(@NonNull Analysis analysis, boolean normalise, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         Matcher matcher;
         String scientificName = analysis.getScientificName();
 
         matcher = SP_NOV_MARKER.matcher(scientificName);
         if (matcher.find()) {
-            analysis.addIssues(issues);
-            if (normalise) {
+            analysis.addIssues(detectedIssues);
+            if (normalise && analysis.isCanonicalDerivations()) {
                 Rank rank = RankUtils.inferRank(matcher.group(1));
                 if (rank != null) {
                     scientificName = scientificName.substring(0, matcher.start())
@@ -381,7 +411,10 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
                             + " nov. "
                             + scientificName.substring(matcher.end());
                     scientificName = this.normaliseSpaces(scientificName);
-                    analysis.setScientificName(scientificName);
+                    if (!scientificName.equals(analysis.getScientificName())) {
+                        analysis.setScientificName(scientificName);
+                        analysis.addIssues(modifiedIssues);
+                    }
                 }
             }
             analysis.flagSpeciesNovum();
@@ -396,15 +429,15 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * </p>
      *
      * @param analysis The analysis object to use
-     * @param issues   If non-null, flag these issues
+     * @param detectedIssues   If non-null, flag these issues
      * @return True if a phrase name (not necessarily from this process)
      */
-    protected boolean processPhraseName(@NonNull Analysis analysis, @Nullable Issues issues) {
+    protected boolean processPhraseName(@NonNull Analysis analysis, @Nullable Issues detectedIssues) {
         Matcher matcher;
 
         matcher = AuthorshipParsingJob.PHRASE_NAME.matcher(analysis.getScientificName());
         if (matcher.matches()) {
-            analysis.addIssues(issues);
+            analysis.addIssues(detectedIssues);
             analysis.flagPhraseName();
         }
         return analysis.isPhraseName();
@@ -419,23 +452,27 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * </p>
      *
      * @param analysis The analysis object to use
-     * @param issues   If non-null, flag these issues
+     * @param detectedIssues The issues to add if the name has an embedded author
+     * @param modifiedIssues The issues to add if the name is fixed
      * @return True if the authorship is repeated in the name
      */
-    protected boolean processEmbeddedAuthor(@NonNull Analysis analysis, @Nullable Issues issues) {
+    protected boolean processEmbeddedAuthor(@NonNull Analysis analysis, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         String scientificName = analysis.getScientificName();
         String scientificNameAuthorship = analysis.getScientificNameAuthorship();
 
         if (scientificNameAuthorship != null && !scientificNameAuthorship.isEmpty()) {
             int p = scientificName.indexOf(scientificNameAuthorship);
             if (p >= 0) {
-                scientificNameAuthorship = scientificNameAuthorship.replaceAll("[\\[\\]\\(\\)\\.\\+\\*\\?\\{\\}]", "\\\\$0");
-                scientificNameAuthorship = "\\(\\s*" + scientificNameAuthorship + "(?:\\s*,\\s*\\d{4}\\s*)?\\)" +
-                        "|" + scientificNameAuthorship + "(?:\\s*,\\s*\\d{4}\\s*)?";
-                scientificName = scientificName.replaceFirst(scientificNameAuthorship, " ");
-                scientificName = this.normaliseSpaces(scientificName);
-                analysis.setScientificName(scientificName);
-                analysis.addIssues(issues);
+                analysis.addIssues(detectedIssues);
+                if (analysis.isCanonicalDerivations()) {
+                    scientificNameAuthorship = scientificNameAuthorship.replaceAll("[\\[\\]().+*?{}]", "\\\\$0");
+                    scientificNameAuthorship = "\\(\\s*" + scientificNameAuthorship + "(?:\\s*,\\s*\\d{4}\\s*)?\\)" +
+                            "|" + scientificNameAuthorship + "(?:\\s*,\\s*\\d{4}\\s*)?";
+                    scientificName = scientificName.replaceFirst(scientificNameAuthorship, " ");
+                    scientificName = this.normaliseSpaces(scientificName);
+                    analysis.setScientificName(scientificName);
+                    analysis.addIssues(modifiedIssues);
+                }
                 return true;
             }
         }
@@ -447,20 +484,24 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * Look for daft comments in the supplied name and remove them.
      *
      * @param analysis The analysis object to use
-     * @param issues   If non-null, flag these issues
+     * @param detectedIssues The issues to add if the name has commentary
+     * @param modifiedIssues The issues to add if the name is fixed
      * @return True if comments were found
      */
-    protected boolean processCommentary(@NonNull Analysis analysis, @Nullable Issues issues) {
+    protected boolean processCommentary(@NonNull Analysis analysis, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         String scientificName = analysis.getScientificName();
         if (scientificName == null)
             return false;
         Matcher matcher = COMMENTARY.matcher(scientificName);
 
         if (matcher.find()) {
-            scientificName = this.normaliseSpaces(matcher.replaceAll(" "));
-            analysis.setScientificName(scientificName);
-            analysis.addIssues(issues);
-            return true;
+            analysis.addIssues(detectedIssues);
+            if (analysis.isCanonicalDerivations()) {
+                scientificName = this.normaliseSpaces(matcher.replaceAll(" "));
+                analysis.setScientificName(scientificName);
+                analysis.addIssues(modifiedIssues);
+            }
+             return true;
         }
         return false;
     }
@@ -473,17 +514,20 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      *
      * @param analysis The anlaysis to use
      * @param remove   Remove the rank ending if detected
-     * @param issues   ANy issues to add if this is detected
+     * @param detectedIssues The issues to add if the name has a rank ending
+     * @param modifiedIssues The issues to add if the name is fixed
      * @return True if the name is indeterminate
      */
-    protected boolean processRankEnding(@NonNull Analysis analysis, boolean remove, @Nullable Issues issues) {
+    protected boolean processRankEnding(@NonNull Analysis analysis, boolean remove, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         Matcher matcher;
 
         matcher = MARKER_ENDING.matcher(analysis.getScientificName());
         if (matcher.find()) {
-            analysis.addIssues(issues);
-            if (remove)
+            analysis.addIssues(detectedIssues);
+            if (remove && analysis.isCanonicalDerivations()) {
                 analysis.setScientificName(analysis.scientificName.substring(0, matcher.start()).trim());
+                analysis.addIssues(modifiedIssues);
+            }
             analysis.flagIndeterminate();
             analysis.estimateRank(Rank.UNRANKED);
         }
@@ -495,16 +539,17 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * Process names with an internal rank marker. Eg. Acacia sp. delabata
      * <p>
      * Don't process phrase names or names with a "Linnaean rank Infrarank" pattern.
-     * The {@link #processPhraseName(Analysis, Issues)} and {@link #processSpeciesNovum(Analysis, boolean, Issues)}
+     * The {@link #processPhraseName(Analysis, Issues)} and {@link #processSpeciesNovum(Analysis, boolean, Issues, Issues)}
      * methods should be run before this method.
      * </p>
      *
      * @param analysis The anlaysis to use
      * @param remove   Remove the rank marker
-     * @param issues   ANy issues to add if this is detected
+     * @param detectedIssues The issues to add if the name has a name marker
+     * @param modifiedIssues The issues to add if the name is fixed
      * @return True if the name has a rank marker
      */
-    protected boolean processRankMarker(@NonNull Analysis analysis, boolean remove, @Nullable Issues issues) {
+    protected boolean processRankMarker(@NonNull Analysis analysis, boolean remove, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         Matcher matcher;
 
         if (analysis.isPhraseName())
@@ -514,19 +559,23 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
         matcher = CODE_PLACEHOLDER.matcher(analysis.getScientificName());
         if (matcher.matches()) {
             analysis.estimateRank(this.rankAnalysis.fromString(matcher.group(1)));
+            analysis.addIssues(detectedIssues);
             return false;
         }
         matcher = INFRA_RANK_PATTERN.matcher(analysis.getScientificName());
         if (matcher.matches()) {
             analysis.estimateRank(this.rankAnalysis.fromString(matcher.group(1)));
+            analysis.addIssues(detectedIssues);
             return false;
         }
         matcher = MARKER_INTERNAL.matcher(analysis.getScientificName());
         if (matcher.find()) {
             analysis.estimateRank(this.rankAnalysis.fromString(matcher.group()));
-            if (remove)
+            analysis.addIssues(detectedIssues);
+            if (remove && analysis.isCanonicalDerivations()) {
                 analysis.setScientificName(matcher.replaceAll(" ").trim());
-            analysis.addIssues(issues);
+                analysis.addIssues(modifiedIssues);
+            }
             return true;
         }
         return false;
@@ -589,10 +638,11 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * </p>
      *
      * @param analysis  The analysis to use
-     * @param canonical The issues to add if the name was canonicalised
+     * @param detectedIssues The issues to add if the name should be canonicalised
+     * @param modifiedIssues The issues to add if the name was canonicalised
      * @return True if processing took place
      */
-    protected boolean processParsedScientificName(@NonNull Analysis analysis, @Nullable Issues canonical) {
+    protected boolean processParsedScientificName(@NonNull Analysis analysis, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         ParsedName name = analysis.getParsedName();
         if (name == null)
             return false;
@@ -607,15 +657,25 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
         analysis.setNameType(nameType);
         if (nameType == NameType.SCIENTIFIC) {
             if (name.hasAuthorship() && analysis.getScientificNameAuthorship() == null && !DUD_AUTHORS.contains(name.authorshipComplete())) {
-                analysis.setScientificName(NameFormatter.canonicalWithoutAuthorship(name));
-                analysis.setScientificNameAuthorship(name.authorshipComplete());
-                analysis.addIssues(canonical);
+                analysis.addIssues(detectedIssues);
+                if (analysis.isCanonicalDerivations()) {
+                    analysis.setScientificName(NameFormatter.canonicalWithoutAuthorship(name));
+                    analysis.setScientificNameAuthorship(name.authorshipComplete());
+                    analysis.addIssues(modifiedIssues);
+                }
             }
             analysis.estimateNomCode(name.getCode());
             if (analysis.getScientificNameAuthorship() != null && ZOOLOGICAL_AUTHOR.matcher(analysis.getScientificNameAuthorship()).matches())
                 analysis.estimateNomCode(NomCode.ZOOLOGICAL);
         } else if (analysis.isPhraseName()) {
-            analysis.setScientificName(this.reducedName(name));
+            String reducedName = this.reducedName(name);
+            if (!reducedName.equals(analysis.getScientificName())) {
+                analysis.addIssues(detectedIssues);
+                if (analysis.isCanonicalDerivations()) {
+                    analysis.addIssues(modifiedIssues);
+                    analysis.setScientificName(this.reducedName(name));
+                }
+            }
             analysis.estimateNomCode(NomCode.BOTANICAL);
         }
         return true;
@@ -634,6 +694,8 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * @return True if processing has taken place
      */
     protected boolean processAdditionalScientificNames(@NonNull Analysis analysis) {
+        if (!analysis.isCanonicalDerivations())
+            return false;
         ParsedName name = analysis.getParsedName();
         if (!analysis.hasFullyParsedName())
             return false;
@@ -664,16 +726,20 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * Test to ensure that we have a valid kingdom.
      *
      * @param analysis The analysis
-     * @param issues Any issues to add if the kingdom is invalid
+     * @param detectedIssues Any issues to add if the kingdom is invalid
+     * @param modifiedIssues Any issues to add if the kingdom is imodified
      *
      * @return True if the kingdom is null or passes, false if there is a problem
      */
-    protected boolean checkKingdom(@NonNull Analysis analysis, @Nullable Issues issues) {
+    protected boolean checkKingdom(@NonNull Analysis analysis, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         if (analysis.getKingdom() == null)
             return true;
         if (!KingdomAnalysis.testKingdom(analysis.getKingdom())) {
-            analysis.setKingdom(null);
-            analysis.addIssues(issues);
+            analysis.addIssues(detectedIssues);
+            if (analysis.isCanonicalDerivations()) {
+                analysis.setKingdom(null);
+                analysis.addIssues(modifiedIssues);
+            }
             return false;
         }
         return true;
@@ -685,7 +751,7 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      * By default, accept a synonym.
      * </p>
      *
-     * @param classification The classification the synonym is for
+     * @param base The classification the synonym is for
      * @param candidate      The classifier for the synonym
      * @return True if this is an acceptable synonym.
      */
@@ -699,21 +765,27 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
      *
      * @param name The name
      * @param analysis The current analysis
-     * @param issues Any issues to add if an invalid name is detected
+     * @param detectedIssues The issues to add if the name is invalid
+     * @param modifiedIssues The issues to add if the name is fixed
      *
      * @return The name or null if the name is invalid
      */
-    protected String checkInvalid(@Nullable String name, @NonNull Analysis analysis, @Nullable Issues issues) {
+    protected String checkInvalid(@Nullable String name, @NonNull Analysis analysis, @Nullable Issues detectedIssues, @Nullable Issues modifiedIssues) {
         if (name == null)
             return null;
         if (INVALID_PATTERN.matcher(name).matches()) {
-            analysis.addIssues(issues);
-            return null;
+            analysis.addIssues(detectedIssues);
+            if (analysis.isNormaliseTemplate()) {
+                analysis.addIssues(modifiedIssues);
+                return null;
+            }
         }
         return name;
     }
 
     protected static class Analysis implements Cloneable {
+        @Getter
+        private final MatchOptions options;
         @Getter
         @Setter
         private NomCode nomCode;
@@ -734,7 +806,7 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
         @Setter
         private ParsedName parsedName;
         @Getter
-        private Set<String> names;
+        private final Set<String> names;
         @Getter
         private boolean indeterminate;
         @Getter
@@ -754,7 +826,8 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
             return (Analysis) super.clone();
         }
 
-        public Analysis(String scientificName, String scientificNameAuthorship, Rank rank, NomenclaturalCode nomenclaturalCode) {
+        public Analysis(String scientificName, String scientificNameAuthorship, Rank rank, NomenclaturalCode nomenclaturalCode, MatchOptions options) {
+            this.options = options;
             this.scientificName = scientificName;
             this.scientificNameAuthorship = scientificNameAuthorship;
             this.rank = rank != null ? rank : Rank.UNRANKED;
@@ -830,6 +903,14 @@ abstract public class ScientificNameAnalyser<C extends Classification> implement
 
         public boolean isUncertain() {
             return this.isIndeterminate() || this.isConferSpecies() || this.isAffinitySpecies();
+        }
+
+        public boolean isNormaliseTemplate() {
+            return getOptions().isNormaliseTemplate();
+        }
+
+        public boolean isCanonicalDerivations() {
+            return getOptions().isCanonicalDerivations();
         }
 
         public void addIssue(Term issue) {

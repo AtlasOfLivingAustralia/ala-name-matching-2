@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 abstract public class MatchTool<C extends Classification<C>, I extends Inferencer<C>, F extends NetworkFactory<C, I, F>, M extends MatchMeasurement> implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(MatchTool.class);
-    
+
     protected F factory;
     protected ClassificationMatcher<C, I, F, M> matcher;
     protected List<BiConsumer<String[], Check>> inputs;
@@ -41,17 +41,20 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
     protected BiFunction<Check, Match<C, M>, Object> matchName;
     protected BiFunction<Check, Match<C, M>, Object> matchProbability;
     protected BiFunction<Check, Match<C, M>, Object> matchFidelity;
+    protected boolean instrument;
 
     /**
      * Construct for a searchable store.
      *
-     * @param factory The factory
-     * @param searcher The classifier searcher
-     * @param config The configuration to use
+     * @param factory    The factory
+     * @param searcher   The classifier searcher
+     * @param config     The configuration to use
+     * @param instrument Record instrumentation
      */
-    public MatchTool(F factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config) {
+    public MatchTool(F factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, boolean instrument) {
         this.factory = factory;
         this.matcher = this.factory.createMatcher(searcher, config);
+        this.instrument = instrument;
     }
 
     /**
@@ -68,15 +71,15 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
     /**
      * Run the match.
      *
-     * @throws Exception
+     * @throws Exception on error
      */
     public void run() throws Exception {
         String[] inputHeaders = this.readInputs();
         this.buildTranslator(inputHeaders);
         this.writeHeader();
         Check check;
-        while ((check = this.nextCheck()) != null){
-            Match<C, M> match = this.matcher.findMatch(check.classification.clone());
+        while ((check = this.nextCheck()) != null) {
+            Match<C, M> match = this.matcher.findMatch(check.classification.clone(), MatchOptions.ALL);
             this.writeResult(check, match);
         }
         this.writeFooter();
@@ -85,14 +88,14 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
 
     /**
      * Build the functions needed to read/write the appropriate data for this
-     * 
+     *
      * @param inputHeader The input data
      */
     public void buildTranslator(String[] inputHeader) {
         C example = this.factory.createClassification();
         M exampleMeasurement = this.matcher.createMeasurement();
         Map<String, Observable<?>> mappings = new HashMap<>();
-        for (Observable observble: this.factory.getObservables()) {
+        for (Observable<?> observble : this.factory.getObservables()) {
             if (observble.getUri() != null) {
                 mappings.put(observble.getUri().toString(), observble);
                 String path = observble.getUri().getPath();
@@ -119,9 +122,7 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
             String header = name;
             final Observable<Object> observable = (Observable<Object>) mappings.get(name);
             if (observable == null) {
-                input = (s, c) -> {
-                    c.additional.put(name, StringUtils.trimToNull(s[index]));
-                };
+                input = (s, c) -> c.additional.put(name, StringUtils.trimToNull(s[index]));
                 output = (c, m) -> c.additional.get(name);
             } else {
                 try {
@@ -175,13 +176,13 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
         this.headers.add("matchedName");
 
         // Process outputs
-        for (Observable<?> observable: this.factory.getObservables()) {
+        for (Observable<?> observable : this.factory.getObservables()) {
             final String name = observable.getId();
             try {
-             final Observable<Object> obs = (Observable<Object>) observable;
-            BiFunction<Check, Match<C, M>, Object> output;
-            String header = name;
-                 final Field field = example.getClass().getField(obs.getJavaVariable());
+                final Observable<Object> obs = (Observable<Object>) observable;
+                BiFunction<Check, Match<C, M>, Object> output;
+                String header = name;
+                final Field field = example.getClass().getField(obs.getJavaVariable());
                 output = (c, m) -> {
                     try {
                         Object v = m.isValid() ? obs.getAnalysis().toStore(field.get(m.getAccepted())) : null;
@@ -195,17 +196,17 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
                 this.headers.add(header);
             } catch (NoSuchFieldException ex) {
                 logger.info("Unable to access field for " + name);
-             }
+            }
         }
 
         // Process issues
-        for (Term issue: this.factory.getAllIssues()) {
+        for (Term issue : this.factory.getAllIssues()) {
             this.outputs.add((c, m) -> m.getIssues().contains(issue) ? true : null);
             this.headers.add(issue.prefix() != null ? issue.prefixedName() : issue.simpleName());
         }
 
         // Process measurements
-        if (this.matcher.getConfig().isInstrument()) {
+        if (this.instrument) {
             try {
                 BeanInfo info = Introspector.getBeanInfo(exampleMeasurement.getClass());
                 for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
@@ -251,17 +252,17 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
      * </p>
      */
     public void writeFooter() {
-       logger.info(this.matcher.getTimeStatistics());
-       logger.info(this.matcher.getSearchStatistics());
-       logger.info(this.matcher.getSearchModificationStatistics());
-       logger.info(this.matcher.getCandidateStatistics());
-       logger.info(this.matcher.getHintModificationStatistics());
-       logger.info(this.matcher.getMatchStatistics());
-       logger.info(this.matcher.getMaxCandidateStatistics());
-       logger.info(this.matcher.getMatchableStatistics());
+        logger.info(this.matcher.getTimeStatistics());
+        logger.info(this.matcher.getSearchStatistics());
+        logger.info(this.matcher.getSearchModificationStatistics());
+        logger.info(this.matcher.getCandidateStatistics());
+        logger.info(this.matcher.getHintModificationStatistics());
+        logger.info(this.matcher.getMatchStatistics());
+        logger.info(this.matcher.getMaxCandidateStatistics());
+        logger.info(this.matcher.getMatchableStatistics());
     }
 
-    protected void writeResult(Check check, Match<C, M> match) throws Exception {
+    protected void writeResult(Check check, Match<C, M> match) {
         List<Object> values = this.outputs.stream().map(o -> o.apply(check, match)).collect(Collectors.toList());
         this.writeValues(values);
     }
@@ -272,27 +273,26 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
      * By default, this writes to the logger.
      * Subclasses should so something sensible with this.
      * </p>
-     * 
+     *
      * @param values The log values
      */
     protected void writeValues(List<Object> values) {
         logger.info(values.toString());
     }
-    
+
 
     /**
      * Get the next check to match.
      *
      * @return The next check, or null for no more data
-     *
-     * @throws Exception
+     * @throws Exception when untable to aquire a check value
      */
     protected Check nextCheck() throws Exception {
         final String[] row = nextRow();
         if (row == null)
             return null;
         final Check check = new Check(this.factory.createClassification());
-        this.inputs.stream().forEach(i -> i.accept(row, check));
+        this.inputs.forEach(i -> i.accept(row, check));
         return check;
     }
 
@@ -303,11 +303,10 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
      * Clever implementations can alter this.
      * </p>
      *
-     * @throws Exception if unable to read the headers
-     *
      * @return The input headers
+     * @throws Exception if unable to read the headers
      */
-    protected String[] readInputs() throws Exception{
+    protected String[] readInputs() throws Exception {
         return this.nextRow();
     }
 
@@ -315,7 +314,6 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
      * Read the next row of input values.
      *
      * @return The next row or null for none
-     *
      * @throws Exception if unable to read the row
      */
     abstract protected String[] nextRow() throws Exception;
@@ -327,9 +325,13 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
      * </p>
      */
     class Check {
-        /** The requested classification */
+        /**
+         * The requested classification
+         */
         public C classification;
-        /** Additional information */
+        /**
+         * Additional information
+         */
         public Map<String, String> additional = new HashMap<>();
 
         public Check(C classification) {

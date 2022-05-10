@@ -8,6 +8,7 @@ import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.Hints;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
+import au.org.ala.bayesian.MatchOptions;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
@@ -21,6 +22,7 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -104,7 +106,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
 
   @Override
   @SneakyThrows
-  public SimpleLinnaeanClassification clone() {
+  public @NonNull SimpleLinnaeanClassification clone() {
       SimpleLinnaeanClassification clone = (SimpleLinnaeanClassification) super.clone();
       clone.issues = new Issues(this.issues);
       return clone;
@@ -126,13 +128,13 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
-  public <T> void addHint(Observable observable, T value) {
+  public <T> void addHint(Observable<T> observable, T value) {
         this.hints.addHint(observable, value);
   }
 
   @Override
   @JsonIgnore
-  public Term getType() {
+  public @NonNull Term getType() {
     return SimpleLinnaeanFactory.CONCEPT;
   }
 
@@ -177,8 +179,8 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
-  public Collection<Observation> toObservations() {
-    Collection<Observation> obs = new ArrayList(12);
+  public Collection<Observation<?>> toObservations() {
+    Collection<Observation<?>> obs = new ArrayList(12);
 
     if (this.taxonId != null)
       obs.add(new Observation(true, SimpleLinnaeanFactory.taxonId, this.taxonId));
@@ -208,7 +210,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
-  public void inferForSearch(Analyser<SimpleLinnaeanClassification> analyser) throws BayesianException {
+  public void inferForSearch(@NonNull Analyser<SimpleLinnaeanClassification> analyser, @NonNull MatchOptions options) throws BayesianException {
     this.taxonId = SimpleLinnaeanFactory.taxonId.analyse(this.taxonId);
     this.taxonRank = SimpleLinnaeanFactory.taxonRank.analyse(this.taxonRank);
     this.specificEpithet = SimpleLinnaeanFactory.specificEpithet.analyse(this.specificEpithet);
@@ -224,8 +226,8 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     this.acceptedNameUsageId = SimpleLinnaeanFactory.acceptedNameUsageId.analyse(this.acceptedNameUsageId);
     this.parentNameUsageId = SimpleLinnaeanFactory.parentNameUsageId.analyse(this.parentNameUsageId);
     this.taxonomicStatus = SimpleLinnaeanFactory.taxonomicStatus.analyse(this.taxonomicStatus);
-    analyser.analyseForSearch(this);
-    if (this.soundexScientificName == null) {
+    analyser.analyseForSearch(this, options);
+    if (this.soundexScientificName == null && options.isFuzzyDerivations()) {
       this.soundexScientificName = this.soundex.soundex(this.scientificName);
     }
   }

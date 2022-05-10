@@ -33,7 +33,7 @@ public class QueryUtils {
     /** The amount to boost results from a matching name */
     public static final float NAME_BOOST = 2.0f;
 
-    private Analyzer analyzer;
+    private final Analyzer analyzer;
 
     /**
      * Default constructor

@@ -2,9 +2,11 @@ package au.org.ala.bayesian.derivation;
 
 import au.org.ala.bayesian.Condition;
 import au.org.ala.bayesian.Observable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 /**
@@ -25,8 +27,30 @@ public class SoundexDerivation extends CopyDerivation {
      *
      * @param source The source
      */
-    public SoundexDerivation(Condition condition, Observable source) {
+    public SoundexDerivation(Condition condition, Observable<?> source) {
         super(condition, source);
+    }
+
+    /**
+     * Is this dervivation optional
+     *
+     * @return True if there is a match option that can be applied
+     */
+    @JsonIgnore
+    @Override
+    public boolean isOptional() {
+        return true;
+    }
+
+    /**
+     * Only perform this derivation if fuzzy matching is allowed
+     *
+     * @param optionsVar The variable holding the match options
+     * @return A condition to use or null for no condition
+     */
+    @Override
+    public String buildOptionCondition(String optionsVar) {
+        return optionsVar + ".isFuzzyDerivations()";
     }
 
     /**
@@ -42,12 +66,12 @@ public class SoundexDerivation extends CopyDerivation {
 
     @Override
     public Collection<CompiledDerivation.Variable> getBuilderVariables() {
-        return Arrays.asList(new CompiledDerivation.Variable(SoundexGenerator.class, INSTANCE_VAR));
+        return Collections.singletonList(new Variable(SoundexGenerator.class, INSTANCE_VAR));
     }
 
     @Override
     public Collection<CompiledDerivation.Variable> getClassificationVariables() {
-        return Arrays.asList(new CompiledDerivation.Variable(SoundexGenerator.class, INSTANCE_VAR));
+        return Collections.singletonList(new Variable(SoundexGenerator.class, INSTANCE_VAR));
     }
 
     @Override

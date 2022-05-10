@@ -32,7 +32,7 @@ public class KingdomAnalysis extends StringAnalysis {
         try {
             CSVReader reader = CSVReaderFactory.build(KingdomAnalysis.class.getResourceAsStream("kingdoms.csv"), "UTF-8", ",", '"', 1);
             while (reader.hasNext()) {
-                String row[] = reader.next();
+                String[] row = reader.next();
                 if (row.length < 3)
                     continue;
                 if (row[0].startsWith("#"))
@@ -59,7 +59,7 @@ public class KingdomAnalysis extends StringAnalysis {
         try {
             CSVReader reader = CSVReaderFactory.build(KingdomAnalysis.class.getResourceAsStream("kingdoms.csv"), "UTF-8", ",", '"', 1);
             while (reader.hasNext()) {
-                String row[] = reader.next();
+                String[] row = reader.next();
                 if (row.length < 3)
                     continue;
                 if (row[0].startsWith("#"))

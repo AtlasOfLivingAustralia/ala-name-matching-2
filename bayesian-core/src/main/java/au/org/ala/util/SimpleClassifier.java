@@ -17,12 +17,12 @@ public class SimpleClassifier implements Classifier {
     private String identifier;
     private String signature;
     private Term type;
-    private Set<Term> annotations;
+    private final Set<Term> annotations;
     private double[] parameters;
     private int left;
     private int right;
     private Set<String> names;
-    private Map<Observable, Object> values;
+    private final Map<Observable, Object> values;
     private List<String> trail;
     @Getter
     private Parameters cachedParameters;

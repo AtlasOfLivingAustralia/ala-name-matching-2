@@ -59,9 +59,9 @@ public class ValueCondition extends Condition {
         if (value == null)
             return var + " == null";
         if (value instanceof Number)
-            return var + " == " + value.toString();
+            return var + " == " + value;
         if (value instanceof Enum)
             return var + " == " + value.getClass().getName() + "." + ((Enum<?>) value).name();
-        return "\"" + value.toString() + "\".equals(" + var + ")";
+        return "\"" + value + "\".equals(" + var + ")";
     }
 }

@@ -8,6 +8,7 @@ import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.Hints;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
+import au.org.ala.bayesian.MatchOptions;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
@@ -21,6 +22,7 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -53,7 +55,7 @@ public class Network9Classification implements Classification<Network9Classifica
 
   @Override
   @SneakyThrows
-  public Network9Classification clone() {
+  public @NonNull Network9Classification clone() {
       Network9Classification clone = (Network9Classification) super.clone();
       clone.issues = new Issues(this.issues);
       return clone;
@@ -75,13 +77,13 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
   @Override
-  public <T> void addHint(Observable observable, T value) {
+  public <T> void addHint(Observable<T> observable, T value) {
         this.hints.addHint(observable, value);
   }
 
   @Override
   @JsonIgnore
-  public Term getType() {
+  public @NonNull Term getType() {
     return Network9Factory.CONCEPT;
   }
 
@@ -126,8 +128,8 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
   @Override
-  public Collection<Observation> toObservations() {
-    Collection<Observation> obs = new ArrayList(3);
+  public Collection<Observation<?>> toObservations() {
+    Collection<Observation<?>> obs = new ArrayList(3);
 
     if (this.v1 != null)
       obs.add(new Observation(true, Network9Factory.v1, this.v1));
@@ -139,12 +141,12 @@ public class Network9Classification implements Classification<Network9Classifica
   }
 
   @Override
-  public void inferForSearch(Analyser<Network9Classification> analyser) throws BayesianException {
+  public void inferForSearch(@NonNull Analyser<Network9Classification> analyser, @NonNull MatchOptions options) throws BayesianException {
     this.v1 = Network9Factory.v1.analyse(this.v1);
     this.v2 = Network9Factory.v2.analyse(this.v2);
     this.v3 = Network9Factory.v3.analyse(this.v3);
-    analyser.analyseForSearch(this);
-    if (this.v2 == null) {
+    analyser.analyseForSearch(this, options);
+    if (this.v2 == null && options.isFuzzyDerivations()) {
       this.v2 = this.soundex.soundex(this.v1);
     }
   }

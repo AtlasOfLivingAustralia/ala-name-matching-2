@@ -65,9 +65,9 @@ public class JavaGenerator extends Generator {
     private static Configuration CONFIG =null;
 
     /** The java code target directory */
-    private File javaTargetDir;
+    private final File javaTargetDir;
     /** The resources target directory */
-    private File resourceTargetDir;
+    private final File resourceTargetDir;
     /** The package to use */
     @Getter
     @Setter
@@ -77,47 +77,47 @@ public class JavaGenerator extends Generator {
     @Setter
     private String artifactName;
     /** The freemarker configuration */
-    private Configuration freemarkerConfig;
+    private final Configuration freemarkerConfig;
     /** The object wrapper to use */
-    private BeansWrapper wrapper;
+    private final BeansWrapper wrapper;
     /** The identifier converter for creating class names */
-    private IdentifierConverter classConverter;
+    private final IdentifierConverter classConverter;
     /** Builder class specification */
     @Getter
-    private JavaGeneratorSpecification<Builder> builderSpec;
+    private final JavaGeneratorSpecification<Builder> builderSpec;
     /** Builder specific class specification */
     @Getter
-    private JavaGeneratorSpecification<Builder> builderSpecificSpec;
+    private final JavaGeneratorSpecification<Builder> builderSpecificSpec;
     /** Parameter class specification */
     @Getter
-    private JavaGeneratorSpecification<Parameters> parametersSpec;
+    private final JavaGeneratorSpecification<Parameters> parametersSpec;
     /** Parameter specific class specification */
     @Getter
-    private JavaGeneratorSpecification<Parameters> parametersSpecificSpec;
+    private final JavaGeneratorSpecification<Parameters> parametersSpecificSpec;
     /** Classification class specification */
     @Getter
-    private JavaGeneratorSpecification<Classification> classificationSpec;
+    private final JavaGeneratorSpecification<Classification> classificationSpec;
     /** Inferencer class specification */
     @Getter
-    private JavaGeneratorSpecification<Inferencer> inferencerSpec;
+    private final JavaGeneratorSpecification<Inferencer> inferencerSpec;
     /** Inferencer specific class specification */
     @Getter
-    private JavaGeneratorSpecification<Inferencer> inferencerSpecificSpec;
+    private final JavaGeneratorSpecification<Inferencer> inferencerSpecificSpec;
     /** Analysis class specification */
     @Getter
-    private JavaGeneratorSpecification<Analyser> analyserSpec;
+    private final JavaGeneratorSpecification<Analyser> analyserSpec;
     /** Weight analysis class specification */
     @Getter
-    private JavaGeneratorSpecification<WeightAnalyser> weightAnalyserSpec;
+    private final JavaGeneratorSpecification<WeightAnalyser> weightAnalyserSpec;
     /** Generator class specification */
     @Getter
-    private JavaGeneratorSpecification<ClassificationMatcher> matcherSpec;
+    private final JavaGeneratorSpecification<ClassificationMatcher> matcherSpec;
     /** Parameter class specification */
     @Getter
-    private JavaGeneratorSpecification<NetworkFactory> factorySpec;
+    private final JavaGeneratorSpecification<NetworkFactory> factorySpec;
     /** Parameter class specification */
     @Getter
-    private JavaGeneratorSpecification<Cli> cliSpec;
+    private final JavaGeneratorSpecification<Cli> cliSpec;
 
     /**
      * Construct a generator

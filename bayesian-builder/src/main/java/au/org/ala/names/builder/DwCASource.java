@@ -36,7 +36,7 @@ import java.util.stream.Stream;
  */
 @Slf4j
 public class DwCASource extends Source {
-    private List<Path> cleanup;
+    private final List<Path> cleanup;
     @Getter
     private Archive archive;
 

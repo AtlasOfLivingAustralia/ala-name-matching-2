@@ -11,13 +11,13 @@ public interface CounterMXBean {
      *
      * @retyrn The time the counter started
      */
-    public Date getStartTime();
+    Date getStartTime();
     /**
      * Get the stop time for the counter.
      *
      * @retyrn The time the counter stapped
      */
-    public Date getStopTime();
+    Date getStopTime();
     /**
      * Get the current rate for the counter.
      * <p>
@@ -26,12 +26,12 @@ public interface CounterMXBean {
      *
      * @return The number of counts per second in the current segment
      */
-    public double getCurrentRate();
+    double getCurrentRate();
     /**
      * Get the total count.
      *
      * @return The count
      */
-    public int getCount();
+    int getCount();
 
 }

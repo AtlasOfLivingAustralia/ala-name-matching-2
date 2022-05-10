@@ -33,13 +33,13 @@ public class SimpleIdentifierConverter implements IdentifierConverter {
     ));
 
     /** The style to use when converting */
-    private Style style;
+    private final Style style;
     /** Should the first letter be captialised */
-    private boolean firstLetterUpperCase;
+    private final boolean firstLetterUpperCase;
     /** Sould all letters be capitalised? */
-    private boolean allUpperCase;
+    private final boolean allUpperCase;
     /** Should java keywords be avoided */
-    private boolean noKeywords;
+    private final boolean noKeywords;
 
     /**
      * Identifier converter

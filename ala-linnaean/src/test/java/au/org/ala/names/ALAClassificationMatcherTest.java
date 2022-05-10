@@ -53,7 +53,6 @@ public class ALAClassificationMatcherTest {
         assertFalse(match); // Bare homonym
     }
 
-
     @Test
     public void testFindKingdom3() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();

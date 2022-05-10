@@ -22,7 +22,7 @@ public class CopyDerivation extends CompiledDerivation {
     /** The source observables for this derivation */
     @JsonProperty
     @Getter
-    private List<Observable> sources;
+    private List<Observable<?>> sources;
 
     /**
      * Empty constructor
@@ -35,7 +35,7 @@ public class CopyDerivation extends CompiledDerivation {
      *
      * @param source The source to copy from
      */
-    public CopyDerivation(Condition condition, Observable source) {
+    public CopyDerivation(Condition condition, Observable<?> source) {
         this(condition, Arrays.asList(source));
     }
 
@@ -44,7 +44,7 @@ public class CopyDerivation extends CompiledDerivation {
      *
      * @param sources The sources to copy from
      */
-    public CopyDerivation(Condition condition, List<Observable> sources) {
+    public CopyDerivation(Condition condition, List<Observable<?>> sources) {
         super(condition);
         this.sources = sources;
     }

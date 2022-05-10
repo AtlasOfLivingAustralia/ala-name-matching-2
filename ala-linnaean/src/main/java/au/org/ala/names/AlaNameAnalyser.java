@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassification> {
-    private Logger logger = LoggerFactory.getLogger(AlaNameAnalyser.class);
+    private final Logger logger = LoggerFactory.getLogger(AlaNameAnalyser.class);
 
     /** Invalid authorship */
     public static final Pattern INVALID_AUTHORSHIP = Pattern.compile("\\d+");
@@ -28,9 +28,10 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
     private static final Issues AFFINTIY_ISSUES = Issues.of(AlaLinnaeanFactory.AFFINITY_SPECIES_NAME);
     private static final Issues CONFER_ISSUES = Issues.of(AlaLinnaeanFactory.CONFER_SPECIES_NAME);
     private static final Issues UNPARSABLE_ISSUES = Issues.of(AlaLinnaeanFactory.UNPARSABLE_NAME);
-    private static final Issues CANONICAL_ISSUES = Issues.of(AlaLinnaeanFactory.CANONICAL_NAME);
+    private static final Issues CANONICAL_MODIFICATION = Issues.of(AlaLinnaeanFactory.CANONICAL_NAME);
     private static final Issues DATA_ISSUES = Issues.of(BayesianTerm.illformedData);
-    private static final Issues KINGDOM_ISSUES = Issues.of(AlaLinnaeanFactory.INVALID_KINGDOM, AlaLinnaeanFactory.REMOVED_KINGDOM);
+    private static final Issues KINGDOM_ISSUES = Issues.of(AlaLinnaeanFactory.INVALID_KINGDOM);
+    private static final Issues KINGDOM_MODIFICATION = Issues.of(AlaLinnaeanFactory.REMOVED_KINGDOM);
 
     /**
      * A numeric or single letter placeholder name. We can extract the genus from this if we haven't already
@@ -44,15 +45,15 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
      * @param classification The classification
      */
     protected void removeInvalid(Analysis analysis, AlaLinnaeanClassification classification) {
-        classification.kingdom = this.checkInvalid(classification.kingdom, analysis, DATA_ISSUES);
-        classification.phylum = this.checkInvalid(classification.phylum, analysis, DATA_ISSUES);
-        classification.class_ = this.checkInvalid(classification.class_, analysis, DATA_ISSUES);
-        classification.order = this.checkInvalid(classification.order, analysis, DATA_ISSUES);
-        classification.family = this.checkInvalid(classification.family, analysis, DATA_ISSUES);
-        classification.genus = this.checkInvalid(classification.genus, analysis, DATA_ISSUES);
-        classification.specificEpithet = this.checkInvalid(classification.specificEpithet, analysis, DATA_ISSUES);
-        classification.scientificName = this.checkInvalid(classification.scientificName, analysis, DATA_ISSUES);
-        analysis.setScientificName(this.checkInvalid(analysis.getScientificName(), analysis, DATA_ISSUES));
+        classification.kingdom = this.checkInvalid(classification.kingdom, analysis, DATA_ISSUES, CANONICAL_MODIFICATION);
+        classification.phylum = this.checkInvalid(classification.phylum, analysis, DATA_ISSUES, CANONICAL_MODIFICATION);
+        classification.class_ = this.checkInvalid(classification.class_, analysis, DATA_ISSUES, CANONICAL_MODIFICATION);
+        classification.order = this.checkInvalid(classification.order, analysis, DATA_ISSUES, CANONICAL_MODIFICATION);
+        classification.family = this.checkInvalid(classification.family, analysis, DATA_ISSUES, CANONICAL_MODIFICATION);
+        classification.genus = this.checkInvalid(classification.genus, analysis, DATA_ISSUES, CANONICAL_MODIFICATION);
+        classification.specificEpithet = this.checkInvalid(classification.specificEpithet, analysis, DATA_ISSUES, CANONICAL_MODIFICATION);
+        classification.scientificName = this.checkInvalid(classification.scientificName, analysis, DATA_ISSUES, CANONICAL_MODIFICATION);
+        analysis.setScientificName(this.checkInvalid(analysis.getScientificName(), analysis, DATA_ISSUES, CANONICAL_MODIFICATION));
     }
     /**
      * This is a really, really annoyting thiung where we split apart names of
@@ -65,7 +66,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
      * @return True if detected
      */
     protected boolean inferClassification(Analysis analysis, AlaLinnaeanClassification classification) {
-        Map<Rank, String> map = this.detectAlternatingRankName(analysis, CANONICAL_ISSUES);
+        Map<Rank, String> map = this.detectAlternatingRankName(analysis, CANONICAL_MODIFICATION);
         if (map == null)
             return false;
         classification.scientificName = null;
@@ -153,7 +154,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
      * @param name       The name observable
      * @return A set of base names
      */
-    protected Set<String> generateBaseNames(Analysis analysis, Classifier classifier, Observable name) {
+    protected Set<String> generateBaseNames(Analysis analysis, Classifier classifier, Observable<String> name) {
         Set<String> names = new LinkedHashSet<>(classifier.getAll(name));
 
         if (names.isEmpty() && classifier.has(AlaLinnaeanFactory.genus) && classifier.has(AlaLinnaeanFactory.specificEpithet)) {
@@ -196,10 +197,10 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
                 classification.nominatingParty = name.getNominatingParty();
             }
             if (classification.voucher == null && name.getVoucher() != null) {
-                classification.voucher = (String) AlaLinnaeanFactory.voucher.getAnalysis().analyse(name.getVoucher());
+                classification.voucher = AlaLinnaeanFactory.voucher.getAnalysis().analyse(name.getVoucher());
             }
             if (classification.phraseName == null && name.getStrain() != null) {
-                classification.phraseName = (String) AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getStrain());
+                classification.phraseName = AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getStrain());
             }
         }
         if (name.getType() == NameType.SCIENTIFIC || name.getType() == NameType.INFORMAL || name.getType() == NameType.PLACEHOLDER) {
@@ -208,9 +209,9 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
                 classification.specificEpithet = name.getSpecificEpithet();
 
         }
-        if (classification.acceptedNameUsageId == null && classification.genus == null && !analysis.isUnranked() && !analysis.getRank().higherThan(Rank.GENUS) && name.getGenus() != null)
+        if (classification.acceptedNameUsageId == null && classification.genus == null && !analysis.isUnranked() && !analysis.getRank().higherThan(Rank.GENUS) && name.getGenus() != null && !name.getGenus().equals("?"))
             classification.genus = name.getGenus();
-        if (classification.cultivarEpithet == null && name.getCultivarEpithet() != null)
+        if (classification.cultivarEpithet == null && name.getCultivarEpithet() != null && !name.getCultivarEpithet().equals("?"))
             classification.cultivarEpithet = name.getCultivarEpithet();
     }
 
@@ -287,21 +288,22 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
                 classifier.get(AlaLinnaeanFactory.scientificName),
                 classifier.get(AlaLinnaeanFactory.scientificNameAuthorship),
                 classifier.get(AlaLinnaeanFactory.taxonRank),
-                classifier.get(AlaLinnaeanFactory.nomenclaturalCode)
-                );
+                classifier.get(AlaLinnaeanFactory.nomenclaturalCode),
+                MatchOptions.ALL
+        );
         analysis.setKingdom(classifier.get(AlaLinnaeanFactory.kingdom));
-        if (!this.checkKingdom(analysis, KINGDOM_ISSUES))
+        if (!this.checkKingdom(analysis, KINGDOM_ISSUES, null))
             logger.warn("Unrecognised kingdom " + analysis.getKingdom() + " on " + id);
-        if (this.replaceUnprintable(analysis, 'x', DATA_ISSUES))
+        if (this.replaceUnprintable(analysis, 'x', DATA_ISSUES, null))
             throw new InferenceException("Replacement character in name while indexing for " + id + ": " + classifier.get(AlaLinnaeanFactory.scientificName) + " " + classifier.get(AlaLinnaeanFactory.scientificNameAuthorship));
-        this.processIndeterminate(analysis, null, INDETERMINATE_ISSUES);
-        this.processAffinitySpecies(analysis, " aff. ", AFFINTIY_ISSUES);
-        this.processConferSpecies(analysis, " cf. ", CONFER_ISSUES);
-        this.processSpeciesNovum(analysis, true, null);
+        this.processIndeterminate(analysis, null, INDETERMINATE_ISSUES, null);
+        this.processAffinitySpecies(analysis, " aff. ", AFFINTIY_ISSUES, null);
+        this.processConferSpecies(analysis, " cf. ", CONFER_ISSUES, null);
+        this.processSpeciesNovum(analysis, true, null, null);
         this.processPhraseName(analysis, null);
-        this.processEmbeddedAuthor(analysis, CANONICAL_ISSUES);
+        this.processEmbeddedAuthor(analysis, CANONICAL_MODIFICATION, null);
         this.parseName(analysis, UNPARSABLE_ISSUES);
-        this.processParsedScientificName(analysis, CANONICAL_ISSUES);
+        this.processParsedScientificName(analysis, CANONICAL_MODIFICATION, null);
         this.fillOutClassifier(analysis, classifier);
         this.detectNumericPlaceholder(analysis, classifier);
         classifier.add(AlaLinnaeanFactory.scientificName, analysis.getScientificName(), false, true);
@@ -316,7 +318,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             Matcher matcher = SUSPECTED_CULTIVAR_IN_SPECIFIC_EPITHET.matcher(specificEpithet);
             if (matcher.find() && matcher.group(1).equals(cultivarEpithet)) {
                 classifier.add(AlaLinnaeanFactory.specificEpithet, specificEpithet.substring(0, matcher.start()).trim(), false, true);
-                analysis.addIssues(CANONICAL_ISSUES);
+                analysis.addIssues(CANONICAL_MODIFICATION);
             }
         }
 
@@ -334,18 +336,25 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
      * as required for searching.
      *
      * @param classification The classification
+     * @param options The match options
      * @throws StoreException if an error occurs updating the classification
      */
     @Override
-    public void analyseForSearch(AlaLinnaeanClassification classification) throws InferenceException {
-        Analysis analysis = new Analysis(classification.scientificName, classification.scientificNameAuthorship, classification.taxonRank, classification.nomenclaturalCode);
+    public void analyseForSearch(AlaLinnaeanClassification classification, MatchOptions options) throws InferenceException {
+        Analysis analysis = new Analysis(
+                classification.scientificName,
+                classification.scientificNameAuthorship,
+                classification.taxonRank,
+                classification.nomenclaturalCode,
+                options
+        );
 
         this.removeInvalid(analysis, classification);
         analysis.setKingdom(classification.kingdom);
-        this.checkKingdom(analysis, KINGDOM_ISSUES);
+        this.checkKingdom(analysis, KINGDOM_ISSUES, KINGDOM_MODIFICATION);
         this.inferClassification(analysis, classification);
         this.inferRank(analysis, classification);
-        if (this.processCommentary(analysis, CANONICAL_ISSUES)) {
+        if (this.processCommentary(analysis, DATA_ISSUES, CANONICAL_MODIFICATION)) {
             if (analysis.getScientificName() == null || analysis.getScientificName().isEmpty()) {
                 analysis.setScientificName(null);
                 this.inferRank(analysis, classification);
@@ -355,18 +364,18 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             return;
         if (MARKER_ONLY.matcher(analysis.getScientificName()).matches())
             throw new InferenceException("Supplied scientific name is a rank marker.");
-        this.removeSurroundingQuotes(analysis, CANONICAL_ISSUES);
-        this.replaceUnprintable(analysis, 'x', DATA_ISSUES);
-        this.processIndeterminate(analysis, " ", INDETERMINATE_ISSUES);
-        this.processAffinitySpecies(analysis, " aff. ", AFFINTIY_ISSUES);
-        this.processConferSpecies(analysis, " cf. ", CONFER_ISSUES);
-        this.processSpeciesNovum(analysis, true, null);
+        this.removeSurroundingQuotes(analysis, DATA_ISSUES, CANONICAL_MODIFICATION);
+        this.replaceUnprintable(analysis, 'x', DATA_ISSUES, CANONICAL_MODIFICATION);
+        this.processIndeterminate(analysis, " ", INDETERMINATE_ISSUES, CANONICAL_MODIFICATION);
+        this.processAffinitySpecies(analysis, " aff. ", AFFINTIY_ISSUES, CANONICAL_MODIFICATION);
+        this.processConferSpecies(analysis, " cf. ", CONFER_ISSUES, CANONICAL_MODIFICATION);
+        this.processSpeciesNovum(analysis, true, null, CANONICAL_MODIFICATION);
         this.processPhraseName(analysis, null);
-        this.processRankEnding(analysis, true, INDETERMINATE_ISSUES);
-        this.processRankMarker(analysis, true, CANONICAL_ISSUES);
-        this.processEmbeddedAuthor(analysis, CANONICAL_ISSUES);
+        this.processRankEnding(analysis, true, INDETERMINATE_ISSUES, CANONICAL_MODIFICATION);
+        this.processRankMarker(analysis, true, null, CANONICAL_MODIFICATION);
+        this.processEmbeddedAuthor(analysis, null, CANONICAL_MODIFICATION);
         this.parseName(analysis, UNPARSABLE_ISSUES);
-        this.processParsedScientificName(analysis, CANONICAL_ISSUES);
+        this.processParsedScientificName(analysis, null, CANONICAL_MODIFICATION);
         this.fillOutClassification(analysis, classification);
         this.detectNumericPlaceholder(analysis, classification);
         classification.scientificName = analysis.getScientificName();
@@ -377,7 +386,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         classification.addIssues(analysis.getIssues());
         if (classification.scientificNameAuthorship != null && INVALID_AUTHORSHIP.matcher(classification.scientificNameAuthorship).matches()) {
             classification.scientificNameAuthorship = null;
-            classification.addIssues(CANONICAL_ISSUES);
+            classification.addIssues(CANONICAL_MODIFICATION);
         }
         if (classification.nomenclaturalCode == null && analysis.getNomCode() != null) {
             NomenclaturalCode code = Enums.getIfPresent(NomenclaturalCode.class, analysis.getNomCode().name()).orNull();
@@ -407,7 +416,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         String scientificName = classifier.get(name);
         String scientificNameAuthorship = classifier.get(AlaLinnaeanFactory.scientificNameAuthorship);
 
-        Analysis analysis = new Analysis(scientificName, scientificNameAuthorship, rank, code);
+        Analysis analysis = new Analysis(scientificName, scientificNameAuthorship, rank, code, MatchOptions.ALL);
 
         Set<String> allScientificNameAuthorship = !canonical && additional.isPresent() ? classifier.getAll(additional.get()) : Collections.emptySet();
         Set<String> allCompleteNames = !canonical && complete.isPresent() ? classifier.getAll(complete.get()) : Collections.emptySet();
@@ -425,19 +434,19 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             // From now on, only use the normalised version
             Analysis sub = analysis.with(nm);
 
-            this.processIndeterminate(sub, " ", null);
-            this.processAffinitySpecies(sub, " aff. ", null);
-            this.processConferSpecies(sub, " cf. ", null);
-            this.processSpeciesNovum(sub, true, null);
+            this.processIndeterminate(sub, " ", null, null);
+            this.processAffinitySpecies(sub, " aff. ", null, null);
+            this.processConferSpecies(sub, " cf. ", null, null);
+            this.processSpeciesNovum(sub, true, null, null);
             this.processPhraseName(sub, null);
-            this.processEmbeddedAuthor(analysis, null);
+            this.processEmbeddedAuthor(analysis, null, null);
             this.parseName(sub, null);
             if (sub.getParsedName() != null) {
-                this.processParsedScientificName(sub, null);
+                this.processParsedScientificName(sub, null, null);
                 this.processAdditionalScientificNames(sub);
-                if (this.processRankMarker(sub, true, null)) {
+                if (this.processRankMarker(sub, true, null, null)) {
                     this.parseName(sub, null);
-                    this.processParsedScientificName(sub, null);
+                    this.processParsedScientificName(sub, null, null);
                     this.processAdditionalScientificNames(sub);
                 }
             }

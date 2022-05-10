@@ -257,13 +257,13 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
     public void testMatch1() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia congesta wonganensis";
-        Match<AlaLinnaeanClassification, MatchMeasurement> match = matcher.findMatch(classification);
+        Match<AlaLinnaeanClassification, MatchMeasurement> match = matcher.findMatch(classification, MatchOptions.ALL);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2888346", match.getMatch().taxonId);
         assertEquals(0.0000121, match.getProbability().getEvidence(), 0.0000001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         classification.scientificName = "Acacia congesta subsp. wonganensis";
-        match = matcher.findMatch(classification);
+        match = matcher.findMatch(classification, MatchOptions.ALL);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2888346", match.getMatch().taxonId);
         assertEquals(0.0000121, match.getProbability().getEvidence(), 0.0000001);

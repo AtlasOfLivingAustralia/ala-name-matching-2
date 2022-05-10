@@ -261,8 +261,6 @@ public abstract class Modifier extends Identifiable {
         List<String> checks = this.buildChecks(compiler, var, positive);
         if (checks == null || checks.isEmpty())
             return precondition;
-         if (checks == null || checks.isEmpty())
-            return null;
         String check = checks.stream().collect(Collectors.joining(any ? " || " : " && "));
         if (precondition != null)
             check = precondition + (positive ? " && " : " || ") + "(" + check + ")";

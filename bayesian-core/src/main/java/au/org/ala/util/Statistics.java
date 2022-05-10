@@ -13,7 +13,7 @@ public class Statistics {
     private static final String[] KEYS = new String[] { "name", "n", "total", "mean", "stddev", "min", "max" };
 
     @Getter
-    private String name;
+    private final String name;
     @Getter
     private long count = 0;
     @Getter

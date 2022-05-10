@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class CompositeFidelity<T> extends Fidelity<T> {
     @Getter
-    private List<Fidelity<?>> components;
+    private final List<Fidelity<?>> components;
 
     /**
      * Construct with a list of components.

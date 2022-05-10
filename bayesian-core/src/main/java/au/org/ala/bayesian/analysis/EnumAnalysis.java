@@ -8,7 +8,7 @@ import au.org.ala.bayesian.fidelity.SimpleFidelity;
 import java.util.Objects;
 
 public class EnumAnalysis<E extends Enum<E>> extends Analysis<E, String, String> {
-    private Class<E> clazz;
+    private final Class<E> clazz;
 
     /**
      * Construct for an enumeration

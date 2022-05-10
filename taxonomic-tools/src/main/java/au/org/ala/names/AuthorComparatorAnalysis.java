@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 @Deprecated
 public class AuthorComparatorAnalysis extends StringAnalysis {
     /** The author comparator to use when checking authorship equality */
-    private AuthorComparator comparator = AuthorComparator.createWithAuthormap();
+    private final AuthorComparator comparator = AuthorComparator.createWithAuthormap();
 
     private static final String YEAR_GROUP = "(\\d\\d|\\d\\d\\d\\d)[.?]?";
     /** Detect a ", year" ending and extract the year */

@@ -2,7 +2,7 @@ package au.org.ala.bayesian;
 
 public class ResultVariable extends Variable {
     /** The observable this result is associated with */
-    private Observable observable;
+    private final Observable observable;
 
 
     public ResultVariable(String id) {

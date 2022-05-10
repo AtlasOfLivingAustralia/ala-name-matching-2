@@ -6,11 +6,11 @@ public interface LuceneClassifierSearcherMXBean {
      *
      * @return The get count
      */
-    public long getGets();
+    long getGets();
     /**
      * Get the number of queries
      *
      * @return The query count
      */
-    public long getQueries();
+    long getQueries();
 }

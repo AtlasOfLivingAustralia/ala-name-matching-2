@@ -41,21 +41,21 @@ public enum TaxonomicStatus implements Term, AlternativeNames {
     }
 
     @Getter
-    private boolean acceptedFlag;
+    private final boolean acceptedFlag;
     @Getter
-    private boolean synonymFlag;
+    private final boolean synonymFlag;
     @Getter
-    private boolean misappliedFlag;
+    private final boolean misappliedFlag;
     @Getter
-    private boolean excludedFlag;
+    private final boolean excludedFlag;
     @Getter
-    private boolean doubtfulFlag;
+    private final boolean doubtfulFlag;
     @Getter
-    private boolean inferredFlag;
+    private final boolean inferredFlag;
     @Getter
-    private String[] alternatives;
+    private final String[] alternatives;
 
-    private TaxonomicStatus(boolean accepted, boolean synonym, boolean misapplied, boolean excluded, boolean doubtful, boolean inferrred,  String... alternatives) {
+    TaxonomicStatus(boolean accepted, boolean synonym, boolean misapplied, boolean excluded, boolean doubtful, boolean inferrred, String... alternatives) {
         this.acceptedFlag = accepted;
         this.synonymFlag = synonym;
         this.misappliedFlag = misapplied;

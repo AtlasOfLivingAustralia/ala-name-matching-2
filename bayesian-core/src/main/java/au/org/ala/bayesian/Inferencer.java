@@ -1,6 +1,6 @@
 package au.org.ala.bayesian;
 
-abstract public interface Inferencer<C extends Classification> {
+public interface Inferencer<C extends Classification> {
     /**
      * Get the signature of the inference, indicating which erasure groups are in and which are out.
      * <p>
@@ -11,7 +11,7 @@ abstract public interface Inferencer<C extends Classification> {
      *
      * @return The signature.
      */
-    public String getSignature();
+    String getSignature();
 
     /**
      * Calculate the probability of a match between a classification and a classifier.
@@ -23,5 +23,5 @@ abstract public interface Inferencer<C extends Classification> {
      *
      * @throws BayesianException if unable to calculate the probability
       */
-    public Inference probability(C classification, Classifier classifier) throws BayesianException;
+    Inference probability(C classification, Classifier classifier) throws BayesianException;
 }

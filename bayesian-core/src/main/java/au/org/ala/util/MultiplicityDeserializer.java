@@ -24,7 +24,7 @@ public class MultiplicityDeserializer extends StdDeserializer<Multiplicity> {
      }
 
     @Override
-    public Multiplicity deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+    public Multiplicity deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         String value = jsonParser.getText();
 
         if (value == null || value.isEmpty())

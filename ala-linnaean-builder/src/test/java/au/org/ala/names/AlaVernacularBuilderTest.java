@@ -21,8 +21,8 @@ import static org.junit.Assert.*;
 public class AlaVernacularBuilderTest extends TestUtils {
     private static File work;
     private static File output;
-    private static IndexBuilder builder;
-    private static LoadStore parameterised;
+    private static IndexBuilder<AlaVernacularClassification, AlaVernacularInferencer, AlaVernacularFactory, LuceneClassifier> builder;
+    private static LoadStore<LuceneClassifier> parameterised;
 
     private AlaVernacularFactory factory;
     private LuceneClassifierSearcher searcher;
@@ -38,7 +38,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
         config.setNetwork(AlaVernacularBuilder.class.getResource("/ala-vernacular.json"));
         config.setWork(work);
         config.setFactoryClass(AlaVernacularFactory.class);
-        builder = new IndexBuilder(config);
+        builder = new IndexBuilder<AlaVernacularClassification, AlaVernacularInferencer, AlaVernacularFactory, LuceneClassifier>(config);
         Source source = Source.create(AlaVernacularBuilderTest.class.getResource("/sample-1.zip"), AlaVernacularFactory.instance(), AlaVernacularFactory.instance().getObservables(), config.getTypes());
         builder.load(source);
         parameterised = builder.build();
@@ -58,7 +58,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
     @Before
     public void setUp() throws Exception {
         this.factory = AlaVernacularFactory.instance();
-        this.searcher = new LuceneClassifierSearcher(this.output, null);
+        this.searcher = new LuceneClassifierSearcher(output, null);
         this.matcher = this.factory.createMatcher(this.searcher, null);
     }
 
@@ -94,7 +94,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
 
     @Test
     public void testLoadBuild2() throws Exception {
-        List<Classifier> docs = parameterised.getAllClassifiers(GbifTerm.VernacularName, new Observation(true, AlaVernacularFactory.nameId, "urn:lsid:biodiversity.org.au:afd.name:247359"));
+        List<LuceneClassifier> docs = parameterised.getAllClassifiers(GbifTerm.VernacularName, new Observation<String>(true, AlaVernacularFactory.nameId, "urn:lsid:biodiversity.org.au:afd.name:247359"));
         assertNotNull(docs);
         assertEquals(2, docs.size());
         Classifier doc = docs.get(0);
@@ -123,13 +123,13 @@ public class AlaVernacularBuilderTest extends TestUtils {
     public void testMatch1() throws Exception {
         AlaVernacularClassification classification = new AlaVernacularClassification();
         classification.vernacularName = "Flood Mallow";
-        Match<AlaVernacularClassification, MatchMeasurement> match = matcher.findMatch(classification);
+        Match<AlaVernacularClassification, MatchMeasurement> match = matcher.findMatch(classification, MatchOptions.ALL);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2902835", match.getMatch().taxonId);
         assertEquals(0.07299, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         classification.vernacularName = "flood mallow";
-        match = matcher.findMatch(classification);
+        match = matcher.findMatch(classification, MatchOptions.ALL);
         assertTrue(match.isValid());
         assertEquals("https://id.biodiversity.org.au/node/apni/2902835", match.getMatch().taxonId);
         assertEquals(0.07299, match.getProbability().getEvidence(), 0.00001);

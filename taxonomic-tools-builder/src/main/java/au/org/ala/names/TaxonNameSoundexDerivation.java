@@ -11,6 +11,7 @@ import org.gbif.nameparser.api.Rank;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,8 +51,30 @@ public class TaxonNameSoundexDerivation extends CopyDerivation {
      * @param condition Any condition
      * @param sources The source
      */
-    public TaxonNameSoundexDerivation(Condition condition, List<Observable> sources) {
+    public TaxonNameSoundexDerivation(Condition condition, List<Observable<?>> sources) {
         super(condition, sources);
+    }
+
+    /**
+     * Is this dervivation optional
+     *
+     * @return True if there is a match option that can be applied
+     */
+    @JsonIgnore
+    @Override
+    public boolean isOptional() {
+        return true;
+    }
+
+    /**
+     * Only perform this derivation if fuzzy matching is allowed
+     *
+     * @param optionsVar The variable holding the match options
+     * @return A condition to use or null for no condition
+     */
+    @Override
+    public String buildOptionCondition(String optionsVar) {
+        return optionsVar + ".isFuzzyDerivations()";
     }
 
     /**
@@ -60,7 +83,7 @@ public class TaxonNameSoundexDerivation extends CopyDerivation {
      * @return The name type observable, if it exists
      */
     @JsonIgnore
-    public Observable getExtra() {
+    public Observable<NameType> getExtra() {
         return this.nameType;
     }
 
@@ -77,12 +100,12 @@ public class TaxonNameSoundexDerivation extends CopyDerivation {
 
     @Override
     public Collection<Variable> getBuilderVariables() {
-        return Arrays.asList(new Variable(TaxonNameSoundEx.class, INSTANCE_VAR));
+        return Collections.singletonList(new Variable(TaxonNameSoundEx.class, INSTANCE_VAR));
     }
 
     @Override
     public Collection<Variable> getClassificationVariables() {
-        return Arrays.asList(new Variable(TaxonNameSoundEx.class, INSTANCE_VAR));
+        return Collections.singletonList(new Variable(TaxonNameSoundEx.class, INSTANCE_VAR));
     }
 
     @Override

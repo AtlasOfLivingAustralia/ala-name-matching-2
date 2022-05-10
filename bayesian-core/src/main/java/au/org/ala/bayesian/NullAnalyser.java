@@ -13,13 +13,13 @@ import java.util.Set;
  *
  * @param <C> The classification type.
  */
-public class NullAnalyser<C extends Classification> implements Analyser<C> {
+public class NullAnalyser<C extends Classification<C>> implements Analyser<C> {
     @Override
     public void analyseForIndex(Classifier classifier) {
     }
 
     @Override
-    public void analyseForSearch(C classification) {
+    public void analyseForSearch(C classification, MatchOptions options) {
     }
 
     @Override

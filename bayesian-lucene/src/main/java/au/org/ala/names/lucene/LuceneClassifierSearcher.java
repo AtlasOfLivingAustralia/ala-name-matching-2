@@ -44,7 +44,7 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
     private static final int BATCH_SIZE = 20;
 
     /** The searcher configuration */
-    private LuceneClassifierSearcherConfiguration config;
+    private final LuceneClassifierSearcherConfiguration config;
     /** The location of the lucene index */
     @Getter(AccessLevel.PACKAGE)
     private Directory directory;
@@ -56,15 +56,15 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
     /** The suggester for auto-lookup */
     private Lookup suggester;
     /** Query utiltities */
-    private QueryUtils queryUtils;
+    private final QueryUtils queryUtils;
     /** The classifier cache */
-    private Cache<Integer, LuceneClassifier> classifierCache;
+    private final Cache<Integer, LuceneClassifier> classifierCache;
     /** JMX registration */
     private ObjectInstance mbean;
     /** The get count */
-    private AtomicLong gets = new AtomicLong();
+    private final AtomicLong gets = new AtomicLong();
     /** The query count */
-    private AtomicLong queries = new AtomicLong();
+    private final AtomicLong queries = new AtomicLong();
 
     /**
      * Construct for a path to the lucene index.
@@ -253,7 +253,7 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
                     float boost = bv != null && bv instanceof Number ? ((Number) bv).floatValue() : 1.0f;
                     builder.add(this.queryUtils.asClause(observation, false, boost));
                 } catch (Exception ex) {
-                    this.logger.error("Unable to add claause for " + observation, ex);
+                    logger.error("Unable to add claause for " + observation, ex);
                     throw new StoreException("Unable to add claause for " + observation, ex);
                 }
             }

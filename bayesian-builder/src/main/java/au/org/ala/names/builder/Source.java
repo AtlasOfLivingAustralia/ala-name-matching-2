@@ -34,7 +34,7 @@ abstract public class Source {
     private final Map<Term, Observable<?>> observables;
     private final Set<Term> types;
     @Getter
-    private Counter counter;
+    private final Counter counter;
 
 
     /**

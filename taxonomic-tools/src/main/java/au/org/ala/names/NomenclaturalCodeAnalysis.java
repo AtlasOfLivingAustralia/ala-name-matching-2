@@ -27,7 +27,7 @@ public class NomenclaturalCodeAnalysis extends EnumAnalysis<NomenclaturalCode> {
         try {
             CSVReader reader = CSVReaderFactory.build(KingdomAnalysis.class.getResourceAsStream("kingdoms.csv"), "UTF-8", ",", '"', 1);
             while (reader.hasNext()) {
-                String row[] = reader.next();
+                String[] row = reader.next();
                 if (row.length < 3)
                     continue;
                 if (row[0].startsWith("#"))
@@ -45,7 +45,7 @@ public class NomenclaturalCodeAnalysis extends EnumAnalysis<NomenclaturalCode> {
         return codeMap;
     }
 
-    private NomCodeParser parser = NomCodeParser.getInstance();
+    private final NomCodeParser parser = NomCodeParser.getInstance();
 
     public NomenclaturalCodeAnalysis() {
         super(NomenclaturalCode.class);

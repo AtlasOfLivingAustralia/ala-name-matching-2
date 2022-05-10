@@ -99,7 +99,7 @@ abstract public class AbstractCli<C extends Classification<C>, B extends Builder
      */
     public void run() throws Exception {
         IndexBuilderConfiguration configuration = this.buildIndexBuilderConfiguration();
-        IndexBuilder builder = new IndexBuilder(configuration);
+        IndexBuilder<C, I, F, ?> builder = new IndexBuilder<>(configuration);
         for (URL input: this.sources) {
             Source source = null;
             source = Source.create(input, builder.getFactory(), builder.getNetwork().getObservables(), configuration.getTypes());

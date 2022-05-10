@@ -115,9 +115,9 @@ public enum ALATerm implements Term, AlternativeNames {
     public static final String PREFIX = "ala:";
 
     @Getter
-    private String[] alternatives;
+    private final String[] alternatives;
 
-    private ALATerm(String... alternatives) {
+    ALATerm(String... alternatives) {
         this.alternatives = alternatives;
     }
 

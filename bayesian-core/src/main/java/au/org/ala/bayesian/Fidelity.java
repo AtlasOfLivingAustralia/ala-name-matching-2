@@ -14,10 +14,10 @@ import lombok.Getter;
 abstract public class Fidelity<T> {
     /** The original value */
     @Getter
-    private T original;
+    private final T original;
     /** The actual value */
     @Getter
-    private T actual;
+    private final T actual;
 
     /**
      * Construct a base fidelity measure.

@@ -20,7 +20,7 @@ import java.util.Set;
  *
  */
 @Service
-public interface Analyser<C extends Classification> {
+public interface Analyser<C extends Classification<C>> {
     /**
      * Analyse the information in a classifier and extend the classifier
      * as required in preparation for building an index.
@@ -33,17 +33,18 @@ public interface Analyser<C extends Classification> {
      *
      * @throws InferenceException if an error occurs during inference
      */
-    public void analyseForIndex(Classifier classifier) throws InferenceException, StoreException;
+    void analyseForIndex(Classifier classifier) throws InferenceException, StoreException;
 
     /**
      * Analyse the information in a classification and extend the classification
      * as required in preparation for search/inference.
      *
      * @param classification The classification
+     * @param options Options on what analysis to perform
      *
      * @throws InferenceException if an error occurs during inference
      */
-    public void analyseForSearch(C classification) throws InferenceException;
+    void analyseForSearch(C classification, MatchOptions options) throws InferenceException;
 
     /**
      * Build a collection of base names for the classification.
@@ -53,7 +54,7 @@ public interface Analyser<C extends Classification> {
      * </p>
      * <p>
      * As a general principle, if {@link #analyseForIndex(Classifier)} and
-     * {@link #analyseForSearch(Classification)} would produce different results,
+     * {@link #analyseForSearch(Classification, MatchOptions)} would produce different results,
      * this method should ensure that whatever is in the search is included in the
      * set of names.
      * </p>
@@ -68,7 +69,7 @@ public interface Analyser<C extends Classification> {
      *
      * @throws InferenceException if unable to analyuse the names
      */
-    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) throws InferenceException;
+    Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) throws InferenceException;
 
     /**
      * Decide whether to accept a synonym or not.
@@ -82,5 +83,5 @@ public interface Analyser<C extends Classification> {
      *
      * @return True if this is an acceptable synonym.
      */
-    public boolean acceptSynonym(Classifier base, Classifier candidate);
+    boolean acceptSynonym(Classifier base, Classifier candidate);
 }

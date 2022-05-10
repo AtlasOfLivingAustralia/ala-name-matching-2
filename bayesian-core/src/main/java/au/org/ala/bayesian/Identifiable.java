@@ -26,9 +26,9 @@ abstract public class Identifiable {
     /** The pattern for removing any unusable identifer part */
     public static final Pattern INVALID_SEQUENCE = Pattern.compile("[^" + VALID_IDENTIFIER_PART + "]+");
 
-    private static AtomicInteger ID_SEQUENCE = new AtomicInteger();
+    private static final AtomicInteger ID_SEQUENCE = new AtomicInteger();
 
-    private static Comparator<Term> PROPERTY_ORDER = (t1, t2) -> t1.qualifiedName().compareTo(t2.qualifiedName());
+    private static final Comparator<Term> PROPERTY_ORDER = (t1, t2) -> t1.qualifiedName().compareTo(t2.qualifiedName());
 
     /** The identifier */
     @JsonProperty

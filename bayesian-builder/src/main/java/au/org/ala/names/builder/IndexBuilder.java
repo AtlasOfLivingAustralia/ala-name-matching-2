@@ -92,10 +92,10 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     protected Set<Observable> stored;
     /** The list of stores that have been generated. */
     @Getter
-    private List<LoadStore<Cl>> stores;
+    private final List<LoadStore<Cl>> stores;
     /** The store used to load sources */
     @Getter
-    private LoadStore<Cl> loader;
+    private final LoadStore<Cl> loader;
     /** The analyser. Used to add extra information to loaded classifiers. Accessed via the annotation interface */
     protected Analyser<C> analyser;
     /** The wight analyser, used to compute the weight of a classifier */
@@ -906,12 +906,12 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         @Override
         public void run() {
             this.error = null;
-            IndexBuilder.this.logger.debug("Starting worker " + Thread.currentThread().getName());
+            logger.debug("Starting worker " + Thread.currentThread().getName());
             try {
                 while (true) {
                     Cl classifier = this.queue.take();
                     if (classifier == this.poisonPill) {
-                        IndexBuilder.this.logger.debug("Terminating worker " + Thread.currentThread().getName());
+                        logger.debug("Terminating worker " + Thread.currentThread().getName());
                         return;
                     }
                     Cl result = this.transform.apply(classifier);

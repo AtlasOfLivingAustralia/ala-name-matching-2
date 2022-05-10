@@ -51,7 +51,7 @@ public class AuthorCanonicaliser {
         try {
             CSVReader reader = CSVReaderFactory.buildUtf8TabReader(AuthorCanonicaliser.class.getResourceAsStream("/authorship/authormap.txt"));
             while (reader.hasNext()) {
-                String row[] = reader.next();
+                String[] row = reader.next();
                 if (row.length < 1)
                     continue;
                 String canonical = canonicaliseAuthorString(row[row.length - 1]);
@@ -146,7 +146,7 @@ public class AuthorCanonicaliser {
         if (authorship == null || authorship.equals("-"))
             return null;
         try {
-            ParsedAuthorship parsed = this.PARSER.get().parseAuthorship(authorship);
+            ParsedAuthorship parsed = PARSER.get().parseAuthorship(authorship);
             StringBuilder sb = new StringBuilder(authorship.length());
             if (parsed.hasCombinationAuthorship()) {
                 this.appendAuthorship(sb, parsed.getCombinationAuthorship(), true);

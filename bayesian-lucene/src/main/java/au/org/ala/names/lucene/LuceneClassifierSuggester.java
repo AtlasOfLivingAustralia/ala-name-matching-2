@@ -55,23 +55,23 @@ public class LuceneClassifierSuggester extends ClassifierSuggester<LuceneClassif
     public static final String TYPE_FIELD = "type";
 
     /** The source of actual classifications */
-    private LuceneClassifierSearcher base;
+    private final LuceneClassifierSearcher base;
     /** The factory for the base classifications */
-    private NetworkFactory baseFactory;
+    private final NetworkFactory baseFactory;
     /** The suggester analyser */
-    private Analyzer analyzer;
+    private final Analyzer analyzer;
     /** The suggester */
-    private AnalyzingInfixSuggester suggester;
+    private final AnalyzingInfixSuggester suggester;
     /** The suggester store directory */
-    private FSDirectory directory;
+    private final FSDirectory directory;
     /** How to measure distance from the query */
-    private EditDistance<Integer> distance;
+    private final EditDistance<Integer> distance;
     /** The work directory */
     private File workDirectory = null;
     /** The index writer for building the temporary index */
     private IndexWriter workWriter = null;
     /** The lucene utilities */
-    private QueryUtils utils;
+    private final QueryUtils utils;
 
     /**
      * Construct an empty suggester with a source of truth.

@@ -1,6 +1,7 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.MatchOptions;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.vocab.TaxonomicStatus;
 import au.org.ala.vocab.VernacularStatus;
@@ -66,7 +67,7 @@ public class AlaVernacularAnalyserTest {
     public void testAnalyseForSearch1() throws Exception {
         AlaVernacularClassification classification = new AlaVernacularClassification();
         classification.vernacularName = "Dingo";
-        this.analyser.analyseForSearch(classification);
+        this.analyser.analyseForSearch(classification, MatchOptions.ALL);
         assertEquals("Dingo", classification.vernacularName);
         assertTrue(classification.getIssues().isEmpty());
     }

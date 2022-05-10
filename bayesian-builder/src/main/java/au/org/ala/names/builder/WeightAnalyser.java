@@ -24,7 +24,7 @@ public interface WeightAnalyser {
      *
      * @throws BayesianException if unable to compute the weight
      */
-    public double weight(Classifier classifier) throws BayesianException;
+    double weight(Classifier classifier) throws BayesianException;
 
     /**
      * Modify the base weight in the classifier
@@ -36,5 +36,5 @@ public interface WeightAnalyser {
      *
      * @throws BayesianException if unable to compute the weight
      */
-    public double modify(Classifier classifier, double weight) throws BayesianException;
+    double modify(Classifier classifier, double weight) throws BayesianException;
 }

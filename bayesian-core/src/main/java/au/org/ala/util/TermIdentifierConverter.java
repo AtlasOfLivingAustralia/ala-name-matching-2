@@ -16,21 +16,21 @@ import java.util.regex.Pattern;
 
 public class TermIdentifierConverter implements IdentifierConverter {
     /** A bit set of allowed characters */
-    private BitSet characterCheck;
+    private final BitSet characterCheck;
     /** The maximum character seen */
     private int maxCh;
     /** The allowed character set */
-    private Predicate<String> allowedCharacter;
+    private final Predicate<String> allowedCharacter;
     /** The replacement for invalid characters */
-    private String invalidReplacement;
+    private final String invalidReplacement;
     /** Append an index to avoid collisions */
-    private boolean avoidCollisions;
+    private final boolean avoidCollisions;
     /** The prefix to add */
-    private String prefix;
+    private final String prefix;
     /** The suffix to add */
-    private String suffix;
+    private final String suffix;
     /** The map of existing conversions */
-    private Map<Term, String> conversions;
+    private final Map<Term, String> conversions;
 
     public TermIdentifierConverter(String allowedCharactersRegex, String invalidReplacement, boolean avoidCollisions, String prefix, String suffix) {
         this.characterCheck = new BitSet(127);

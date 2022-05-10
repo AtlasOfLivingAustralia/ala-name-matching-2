@@ -67,19 +67,19 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * The configuration associated with this matcher
      */
     @Getter
-    private ClassificationMatcherConfiguration config;
+    private final ClassificationMatcherConfiguration config;
     @Getter
-    private F factory;
+    private final F factory;
     @Getter
-    private ClassifierSearcher<?> searcher;
+    private final ClassifierSearcher<?> searcher;
     @Getter
-    private I inferencer;
+    private final I inferencer;
     @Getter
-    private Analyser<C> analyser;
+    private final Analyser<C> analyser;
     @Getter
-    private Optional<Observable<String>> identifier;
+    private final Optional<Observable<String>> identifier;
     @Getter
-    private Optional<Observable<String>> accepted;
+    private final Optional<Observable<String>> accepted;
     /**
      * The management bean if this is available for monitoring
      */
@@ -87,48 +87,39 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     /**
      * The timing statistics
      */
-    @Getter
-    private Statistics timeStatistics = new Statistics("elapsed time");
+    private final Statistics timeStatistics = new Statistics("elapsed time");
     /**
      * The search statistics
      */
-    @Getter
-    private Statistics searchStatistics = new Statistics("searches");
+    private final Statistics searchStatistics = new Statistics("searches");
     /**
      * The search modification statistics
      */
-    @Getter
-    private Statistics searchModificationStatistics = new Statistics("search modifications");
+    private final Statistics searchModificationStatistics = new Statistics("search modifications");
     /**
      * The retrieval statistics
      */
-    @Getter
-    private Statistics candidateStatistics = new Statistics("candidates retrieved");
+    private final Statistics candidateStatistics = new Statistics("candidates retrieved");
     /**
      * The maximum acceptable candidiate statistics
      */
-    @Getter
-    private Statistics maxCandidateStatistics = new Statistics("maximum acceptable candidate");
+    private final Statistics maxCandidateStatistics = new Statistics("maximum acceptable candidate");
     /**
      * The hint modification statistics
      */
-    @Getter
-    private Statistics hintModificationStatistics = new Statistics("hint modifications");
+    private final Statistics hintModificationStatistics = new Statistics("hint modifications");
     /**
      * The hint modification statistics
      */
-    @Getter
-    private Statistics matchStatistics = new Statistics("matches");
+    private final Statistics matchStatistics = new Statistics("matches");
     /**
      * The hint modification statistics
      */
-    @Getter
-    private Statistics matchModificationStatistics = new Statistics("match modifications");
+    private final Statistics matchModificationStatistics = new Statistics("match modifications");
     /**
      * The hint modification statistics
      */
-    @Getter
-    private Statistics matchableStatistics = new Statistics("matchable");
+    private final Statistics matchableStatistics = new Statistics("matchable");
 
     /**
      * Create with a searcher and inferencer.
@@ -178,38 +169,41 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * Find a match for a classification
      *
      * @param classification The classification to match
+     * @param options The match options
      * @return A match, {@link Match#invalidMatch()} is returned if no match is found
      * @throws BayesianException if there is a failure during inference
      */
     @NonNull
-    public Match<C, M> findMatch(@NonNull C classification) throws BayesianException {
+    public Match<C, M> findMatch(@NonNull C classification, MatchOptions options) throws BayesianException {
         M measurement = null;
-        if (this.config.isStatistics() || this.config.isInstrument()) {
+        if (this.config.isStatistics() || options.isMeasure()) {
             measurement = this.createMeasurement();
             measurement.start();
         }
-        Match<C, M> match = this.findMatch(classification, measurement);
+        Match<C, M> match = this.findMatch(classification, options, measurement);
         if (measurement != null)
             measurement.stop();
         this.recordMeasurement(measurement);
         match = match.getActual() == null ? match : match.with(classification.buildFidelity(match.getActual()));
-        return this.config.isInstrument() ? match.with(measurement) : match;
+        return options.isMeasure() ? match.with(measurement) : match;
     }
 
     /**
      * Find a match for a classification
      *
      * @param classification The classification to match
+     * @param options The options for matching
+     * @param measurement The measurements to gather
      * @return A match, {@link Match#invalidMatch()} is returned if no match is found
      * @throws BayesianException if there is a failure during inference
      */
     @NonNull
-    protected Match<C, M> findMatch(@NonNull C classification, M measurement) throws BayesianException {
-        classification.inferForSearch(this.analyser);
+    protected Match<C, M> findMatch(@NonNull C classification, MatchOptions options, M measurement) throws BayesianException {
+        classification.inferForSearch(this.analyser, options);
         classification = this.prepareForMatching(classification);
 
         // Immediate search
-        Match<C, M> match = this.findSource(classification, true, measurement);
+        Match<C, M> match = this.findSource(classification, options, measurement);
         Match<C, M> bad = Match.invalidMatch();
         if (match != null && match.isValid())
             return match;
@@ -217,6 +211,8 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             bad = match;
 
         // Search for modified version
+        if (!options.isModifyTemplate())
+            return bad;
         C base = this.prepareForSourceModification(classification);
         C modified = null;
         C previous = base;
@@ -227,8 +223,8 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
                 continue;
             if (measurement != null)
                 measurement.searchModification();
-            modified.inferForSearch(this.analyser);
-            match = this.findSource(modified, true, measurement);
+            modified.inferForSearch(this.analyser, options);
+            match = this.findSource(modified, options, measurement);
             if (match != null && match.isValid())
                 return match;
             previous = modified;
@@ -240,13 +236,12 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * Find a match based on a source document.
      *
      * @param classification The (pre-inferred) classification
-     * @param modify         Allow evidence modifications
+     * @param options         The match options
      * @param measurement    The performance measurement (null for no measurement)
      * @return A match or null for no match
      * @throws BayesianException if there is an error in search or inference
      */
-    @NonNull
-    protected Match<C, M> findSource(@NonNull C classification, boolean modify, M measurement) throws BayesianException {
+    protected Match<C, M> findSource(@NonNull C classification, MatchOptions options, M measurement) throws BayesianException {
         if (measurement != null)
             measurement.search();
         List<? extends Classifier> candidates = this.getSearcher().search(classification);
@@ -256,7 +251,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             return null;
 
         // First do a basic match and see if we have something easily matchable
-        Match<C, M> match = this.findMatch(classification, candidates, modify, measurement);
+        Match<C, M> match = this.findMatch(classification, candidates, options, measurement);
         Match<C, M> bad = null;
         if (match != null && match.isValid())
             return match;
@@ -264,22 +259,22 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             bad = match;
 
         // Try with hints
-        if (modify) {
-            C base = this.prepareForHintModification(classification);
-            C modified = null;
-            C previous = base;
-            Iterator<C> subClassifications = new BacktrackingIterator<C>(base, base.hintModificationOrder());
-            while (subClassifications.hasNext()) {
-                modified = subClassifications.next();
-                if (modified == classification || modified == previous) // Skip null case
-                    continue;
-                if (measurement != null)
-                    measurement.hintModification();
-                match = this.findMatch(modified, candidates, modify, measurement);
-                if (match != null && match.isValid())
-                    return match;
-                previous = modified;
-            }
+        if (!options.isUseHints())
+            return bad;
+        C base = this.prepareForHintModification(classification);
+        C modified = null;
+        C previous = base;
+        Iterator<C> subClassifications = new BacktrackingIterator<>(base, base.hintModificationOrder());
+        while (subClassifications.hasNext()) {
+            modified = subClassifications.next();
+            if (modified == classification || modified == previous) // Skip null case
+                continue;
+            if (measurement != null)
+                measurement.hintModification();
+            match = this.findMatch(modified, candidates, options, measurement);
+            if (match != null && match.isValid())
+                return match;
+            previous = modified;
         }
         return bad;
     }
@@ -292,12 +287,12 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      *
      * @param classification The (pre-inferred) classification
      * @param candidates     The list of possible candidiates
-     * @param modify         Allow evidence modifications
+     * @param options         The match options
      * @param measurement    The measurement for the searcg, null for no collection
      * @return A match or null for no match
      * @throws BayesianException if there is an error in search or inference
      */
-    protected Match<C, M> findMatch(@NonNull C classification, List<? extends Classifier> candidates, boolean modify, MatchMeasurement measurement) throws BayesianException {
+    protected Match<C, M> findMatch(@NonNull C classification, List<? extends Classifier> candidates, MatchOptions options, MatchMeasurement measurement) throws BayesianException {
         if (measurement != null)
             measurement.match();
         // First do a basic match and see if we have something easily matchable
@@ -312,23 +307,25 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             bad = match;
 
         // Now try modifictions in order
-        if (modify && results.stream().allMatch(r -> this.isBadEvidence(r))) {
-            C base = this.prepareForMatchModification(classification);
-            C modified = null;
-            C previous = base;
-            Iterator<C> subClassifications = new BacktrackingIterator<C>(base, base.matchModificationOrder());
-            while (subClassifications.hasNext()) {
-                modified = subClassifications.next();
-                if (modified == classification || modified == previous) // Skip null case
-                    continue;
-                if (measurement != null)
-                    measurement.matchModification();
-                results = this.doMatch(modified, candidates, measurement);
-                match = this.findSingle(modified, results, measurement);
-                if (match != null && match.isValid())
-                    return match;
-                previous = modified;
-            }
+        if (!options.isModifyConsistency())
+            return bad;
+    if (!results.stream().allMatch(this::isBadEvidence))
+        return bad;
+        C base = this.prepareForMatchModification(classification);
+        C modified = null;
+        C previous = base;
+        Iterator<C> subClassifications = new BacktrackingIterator<>(base, base.matchModificationOrder());
+        while (subClassifications.hasNext()) {
+            modified = subClassifications.next();
+            if (modified == classification || modified == previous) // Skip null case
+                continue;
+            if (measurement != null)
+                measurement.matchModification();
+            results = this.doMatch(modified, candidates, measurement);
+            match = this.findSingle(modified, results, measurement);
+            if (match != null && match.isValid())
+                return match;
+            previous = modified;
         }
         return bad;
     }
@@ -505,7 +502,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         String id = null;
         List<List<String>> trails = sources.stream().map(m -> m.getAcceptedCandidate().getTrail()).collect(Collectors.toList());
         int level = 0;
-        int limit = trails.stream().mapToInt(t -> t.size()).min().orElse(0);
+        int limit = trails.stream().mapToInt(List::size).min().orElse(0);
         boolean same = true;
 
         while (level < limit && same) {

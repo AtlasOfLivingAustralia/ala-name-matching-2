@@ -262,28 +262,28 @@ public class IndexBuilderConfiguration {
         if (this.weightAnalyserClass == null)
             throw new StoreException("Weight analyser class not defined");
         try {
-            c = (Constructor<WeightAnalyser>) this.weightAnalyserClass.getConstructor(Network.class, IndexBuilderConfiguration.class);
+            c = this.weightAnalyserClass.getConstructor(Network.class, IndexBuilderConfiguration.class);
             return c.newInstance(network, this);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct weight analyser for " + this.weightAnalyserClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends WeightAnalyser>) this.weightAnalyserClass.getConstructor(IndexBuilderConfiguration.class);
+            c = this.weightAnalyserClass.getConstructor(IndexBuilderConfiguration.class);
             return c.newInstance(this);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct weight analyser for " + this.weightAnalyserClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends WeightAnalyser>) this.weightAnalyserClass.getConstructor(Network.class);
+            c = this.weightAnalyserClass.getConstructor(Network.class);
             return c.newInstance(network);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct weight analyser for " + this.weightAnalyserClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends WeightAnalyser>) this.weightAnalyserClass.getConstructor();
+            c = this.weightAnalyserClass.getConstructor();
             return c.newInstance();
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct weight analyser for " + this.weightAnalyserClass, ex.getCause());

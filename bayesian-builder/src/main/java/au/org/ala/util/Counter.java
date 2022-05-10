@@ -14,15 +14,15 @@ import java.util.Date;
  * </p>
  */
 public class Counter implements CounterMXBean {
-    private String message;
-    private Logger logger;
+    private final String message;
+    private final Logger logger;
     private int counter;
     private int current;
-    private int size;
+    private final int size;
     private long start;
     private long stop;
     private long segment;
-    private int interval;
+    private final int interval;
 
     /**
      * Construct with a defined identifier and a logger to report to.

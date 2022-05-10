@@ -56,7 +56,7 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
             CSVReader reader = CSVReaderFactory.build(RankAnalysis.class.getResourceAsStream("ranks.csv"), "UTF-8", ",", '"', 1);
             while (reader.hasNext()) {
                 String val;
-                String row[] = reader.next();
+                String[] row = reader.next();
                 if (row.length < 6)
                     continue;
                 if (row[0].startsWith("#"))
@@ -192,9 +192,7 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
         Range<Integer> range2 = RankIDAnalysis.RANGE_MAP.get(value2);
         if (range1 != null && range1.contains(id2))
             return true;
-        if (range2 != null && range2.contains(id1))
-            return true;
-        return false;
+        return range2 != null && range2.contains(id1);
     }
 
     /**
@@ -225,7 +223,7 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
         }
 
         @Override
-        public Rank deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+        public Rank deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
             String value = jsonParser.getText();
 
             if (value == null || value.isEmpty())

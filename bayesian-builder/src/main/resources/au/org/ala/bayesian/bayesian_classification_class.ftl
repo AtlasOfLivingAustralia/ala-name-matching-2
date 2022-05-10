@@ -9,6 +9,7 @@ import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.Hints;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Issues;
+import au.org.ala.bayesian.MatchOptions;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observation;
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
@@ -22,6 +23,7 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -79,7 +81,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
   @Override
   @SneakyThrows
-  public ${className} clone() {
+  public @NonNull ${className} clone() {
       ${className} clone = (${className}) super.clone();
       clone.issues = new Issues(this.issues);
       return clone;
@@ -101,13 +103,13 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public <T> void addHint(Observable observable, T value) {
+  public <T> void addHint(Observable<T> observable, T value) {
         this.hints.addHint(observable, value);
   }
 
   @Override
   @JsonIgnore
-  public Term getType() {
+  public @NonNull Term getType() {
     return ${factoryClassName}.CONCEPT;
   }
 
@@ -152,8 +154,8 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public Collection<Observation> toObservations() {
-    Collection<Observation> obs = new ArrayList(${orderedNodes?size});
+  public Collection<Observation<?>> toObservations() {
+    Collection<Observation<?>> obs = new ArrayList(${orderedNodes?size});
 
 <#list orderedNodes as node>
     if (this.${node.observable.javaVariable} != null)
@@ -163,7 +165,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public void inferForSearch(Analyser<${className}> analyser) throws BayesianException {
+  public void inferForSearch(@NonNull Analyser<${className}> analyser, @NonNull MatchOptions options) throws BayesianException {
 <#list orderedNodes + additionalNodes as node>
   <#assign observable = node.observable >
   <#if observable?? && observable.analysis??>
@@ -174,18 +176,18 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   <#assign derivation = observable.derivation>
   <#if derivation.preAnalysis>
     <#if derivation.hasTransform()>
-    if (this.${observable.javaVariable} == null) {
+    if (this.${observable.javaVariable} == null<#if derivation.optional> && ${derivation.buildOptionCondition("options")}</#if>) {
       this.${observable.javaVariable} = ${derivation.generateClassificationTransform()};
     }
     </#if>
   </#if>
 </#list>
-    analyser.analyseForSearch(this);
+    analyser.analyseForSearch(this, options);
 <#list derivationOrder as observable>
   <#assign derivation = observable.derivation>
   <#if derivation.postAnalysis>
     <#if derivation.hasTransform()>
-    if (this.${observable.javaVariable} == null) {
+    if (this.${observable.javaVariable} == null<#if derivation.optional> && ${derivation.buildOptionCondition("options")}</#if>) {
       this.${observable.javaVariable} = ${derivation.generateClassificationTransform()};
     }
     </#if>
