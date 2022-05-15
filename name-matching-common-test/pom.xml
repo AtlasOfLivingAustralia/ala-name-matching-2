@@ -15,4 +15,11 @@
         Useful testing data that can be used by other modules
     </description>
 
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+        </dependency>
+    </dependencies>
 </project>
