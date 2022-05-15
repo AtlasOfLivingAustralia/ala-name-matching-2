@@ -1,4 +1,4 @@
-package au.org.ala.util;
+package util;
 
 import org.junit.Assert;
 import org.junit.ComparisonFailure;
