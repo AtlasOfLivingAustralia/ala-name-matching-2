@@ -18,10 +18,11 @@ public interface Inferencer<C extends Classification> {
      *
      * @param classification The classification
      * @param classifier The classifier to match
+     * @param trace Any trace required to record inference calculations. Null if not required
      *
      * @return The probability of a match
      *
      * @throws BayesianException if unable to calculate the probability
       */
-    Inference probability(C classification, Classifier classifier) throws BayesianException;
+    Inference probability(C classification, Classifier classifier, Trace trace) throws BayesianException;
 }

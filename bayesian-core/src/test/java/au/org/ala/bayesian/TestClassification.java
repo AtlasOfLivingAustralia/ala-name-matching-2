@@ -1,6 +1,9 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;

@@ -103,4 +103,25 @@ public interface NetworkFactory<C extends Classification<C>, I extends Inference
      * @return The new matcher
      */
     @NonNull <M extends MatchMeasurement> ClassificationMatcher<C, I, F, M> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config);
+
+    /**
+     * Build a label for a classifier.
+     * @param classifier
+     * @return
+     */
+    default String buildLabel(Classifier classifier) {
+        final StringBuilder builder = new StringBuilder(64);
+        final String identifier = this.getIdentifier().map(i -> classifier.get(i)).orElse(null);
+        final String name = this.getName().map(n -> classifier.get(n)).orElse(null);
+        if (identifier != null) {
+            builder.append(identifier);
+        }
+        if (name != null) {
+            if (identifier != null) {
+                builder.append(", ");
+            }
+            builder.append(name);
+        }
+        return builder.toString();
+    }
 }

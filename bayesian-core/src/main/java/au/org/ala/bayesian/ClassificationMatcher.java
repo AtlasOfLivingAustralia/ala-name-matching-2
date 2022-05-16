@@ -176,16 +176,25 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     @NonNull
     public Match<C, M> findMatch(@NonNull C classification, MatchOptions options) throws BayesianException {
         M measurement = null;
+        Optional<Trace> trace = Optional.empty();
         if (this.config.isStatistics() || options.isMeasure()) {
             measurement = this.createMeasurement();
             measurement.start();
         }
-        Match<C, M> match = this.findMatch(classification, options, measurement);
+        if (options.isTrace())
+            trace = Optional.of(new Trace());
+        trace.ifPresent(t -> t.add("template", classification.clone()));
+        trace.ifPresent(t -> t.add("options", options));
+        final Match<C, M> match = this.findMatch(classification, options, measurement, trace);
         if (measurement != null)
             measurement.stop();
         this.recordMeasurement(measurement);
-        match = match.getActual() == null ? match : match.with(classification.buildFidelity(match.getActual()));
-        return options.isMeasure() ? match.with(measurement) : match;
+        trace.ifPresent(t -> t.value(match));
+        Match<C, M> annotated = match;
+        annotated = annotated.getActual() == null ? annotated : annotated.with(classification.buildFidelity(annotated.getActual()));
+        annotated = options.isMeasure() ? annotated.with(measurement) :annotated;
+        annotated = trace.isPresent() ? annotated.with(trace.get()) : annotated;
+        return annotated;
     }
 
     /**
@@ -194,42 +203,52 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * @param classification The classification to match
      * @param options The options for matching
      * @param measurement The measurements to gather
+     * @param trace Any trace to gather
      * @return A match, {@link Match#invalidMatch()} is returned if no match is found
      * @throws BayesianException if there is a failure during inference
      */
     @NonNull
-    protected Match<C, M> findMatch(@NonNull C classification, MatchOptions options, M measurement) throws BayesianException {
-        classification.inferForSearch(this.analyser, options);
-        classification = this.prepareForMatching(classification);
+    protected Match<C, M> findMatch(@NonNull C classification, MatchOptions options, M measurement, Optional<Trace> trace) throws BayesianException {
+        trace.ifPresent(t -> t.push("match"));
+        try {
+            classification.inferForSearch(this.analyser, options);
+            classification = this.prepareForMatching(classification);
 
-        // Immediate search
-        Match<C, M> match = this.findSource(classification, options, measurement);
-        Match<C, M> bad = Match.invalidMatch();
-        if (match != null && match.isValid())
-            return match;
-        if (match != null && !match.isValid())
-            bad = match;
-
-        // Search for modified version
-        if (!options.isModifyTemplate())
-            return bad;
-        C base = this.prepareForSourceModification(classification);
-        C modified = null;
-        C previous = base;
-        Iterator<C> sourceClassifications = new BacktrackingIterator<>(base, base.searchModificationOrder());
-        while (sourceClassifications.hasNext()) {
-            modified = sourceClassifications.next();
-            if (modified == previous)
-                continue;
-            if (measurement != null)
-                measurement.searchModification();
-            modified.inferForSearch(this.analyser, options);
-            match = this.findSource(modified, options, measurement);
-            if (match != null && match.isValid())
+            // Immediate search
+            final Match<C, M> match = this.findSource(classification, options, measurement, trace);
+            Match<C, M> bad = Match.invalidMatch();
+            if (match != null && match.isValid()) {
+                trace.ifPresent(t -> t.value(match));
                 return match;
-            previous = modified;
+            }
+            if (match != null && !match.isValid())
+                bad = match;
+
+            // Search for modified version
+            if (!options.isModifyTemplate())
+                return bad;
+            C base = this.prepareForSourceModification(classification);
+            C modified = null;
+            C previous = base;
+            Iterator<C> sourceClassifications = new BacktrackingIterator<>(base, base.searchModificationOrder());
+            while (sourceClassifications.hasNext()) {
+                modified = sourceClassifications.next();
+                if (modified == previous)
+                    continue;
+                if (measurement != null)
+                    measurement.searchModification();
+                modified.inferForSearch(this.analyser, options);
+                final Match<C, M> modifiedMatch = this.findSource(modified, options, measurement, trace);
+                if (modifiedMatch != null && modifiedMatch.isValid()) {
+                    trace.ifPresent(t -> t.value(modifiedMatch));
+                    return modifiedMatch;
+                }
+                previous = modified;
+            }
+            return bad;
+        } finally {
+            trace.ifPresent(Trace::pop);
         }
-        return bad;
     }
 
     /**
@@ -238,45 +257,56 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * @param classification The (pre-inferred) classification
      * @param options         The match options
      * @param measurement    The performance measurement (null for no measurement)
+     * @param trace Any trace to gather
      * @return A match or null for no match
      * @throws BayesianException if there is an error in search or inference
      */
-    protected Match<C, M> findSource(@NonNull C classification, MatchOptions options, M measurement) throws BayesianException {
-        if (measurement != null)
-            measurement.search();
-        List<? extends Classifier> candidates = this.getSearcher().search(classification);
-        if (measurement != null)
-            measurement.addCandidates(candidates.size());
-        if (candidates.isEmpty())
-            return null;
-
-        // First do a basic match and see if we have something easily matchable
-        Match<C, M> match = this.findMatch(classification, candidates, options, measurement);
-        Match<C, M> bad = null;
-        if (match != null && match.isValid())
-            return match;
-        if (match != null && !match.isValid())
-            bad = match;
-
-        // Try with hints
-        if (!options.isUseHints())
-            return bad;
-        C base = this.prepareForHintModification(classification);
-        C modified = null;
-        C previous = base;
-        Iterator<C> subClassifications = new BacktrackingIterator<>(base, base.hintModificationOrder());
-        while (subClassifications.hasNext()) {
-            modified = subClassifications.next();
-            if (modified == classification || modified == previous) // Skip null case
-                continue;
+    protected Match<C, M> findSource(@NonNull C classification, MatchOptions options, M measurement, Optional<Trace> trace) throws BayesianException {
+        trace.ifPresent(t -> t.push("source"));
+        trace.ifPresent(t -> t.add("classification", classification.clone()));
+        try {
             if (measurement != null)
-                measurement.hintModification();
-            match = this.findMatch(modified, candidates, options, measurement);
-            if (match != null && match.isValid())
+                measurement.search();
+            List<? extends Classifier> candidates = this.getSearcher().search(classification);
+            if (measurement != null)
+                measurement.addCandidates(candidates.size());
+            if (candidates.isEmpty())
+                return null;
+            trace.ifPresent(t -> t.add("candidates", candidates.size()));
+            // First do a basic match and see if we have something easily matchable
+            final Match<C, M> match = this.findMatch(classification, candidates, options, measurement, trace);
+            Match<C, M> bad = null;
+            if (match != null && match.isValid()) {
+                trace.ifPresent(t -> t.value(match));
                 return match;
-            previous = modified;
+            }
+            if (match != null && !match.isValid())
+                bad = match;
+
+            // Try with hints
+            if (!options.isUseHints())
+                return bad;
+            C base = this.prepareForHintModification(classification);
+            C modified = null;
+            C previous = base;
+            Iterator<C> subClassifications = new BacktrackingIterator<>(base, base.hintModificationOrder());
+            while (subClassifications.hasNext()) {
+                modified = subClassifications.next();
+                if (modified == classification || modified == previous) // Skip null case
+                    continue;
+                if (measurement != null)
+                    measurement.hintModification();
+                final Match<C, M> modifiedMatch = this.findMatch(modified, candidates, options, measurement, trace);
+                if (modifiedMatch != null && modifiedMatch.isValid()) {
+                    trace.ifPresent(t -> t.value(modifiedMatch));
+                    return modifiedMatch;
+                }
+                previous = modified;
+            }
+            return bad;
+        } finally {
+            trace.ifPresent(Trace::pop);
         }
-        return bad;
     }
 
     /**
@@ -289,45 +319,56 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * @param candidates     The list of possible candidiates
      * @param options         The match options
      * @param measurement    The measurement for the searcg, null for no collection
+     * @param trace Any trace, null for no trace
      * @return A match or null for no match
      * @throws BayesianException if there is an error in search or inference
      */
-    protected Match<C, M> findMatch(@NonNull C classification, List<? extends Classifier> candidates, MatchOptions options, MatchMeasurement measurement) throws BayesianException {
-        if (measurement != null)
-            measurement.match();
-        // First do a basic match and see if we have something easily matchable
-        List<Match<C, M>> results = this.doMatch(classification, candidates, measurement);
-        if (measurement != null)
-            measurement.addMatchable(results.size());
-        Match<C, M> match = this.findSingle(classification, results, measurement);
-        Match<C, M> bad = null;
-        if (match != null && match.isValid())
-            return match;
-        if (match != null && !match.isValid())
-            bad = match;
-
-        // Now try modifictions in order
-        if (!options.isModifyConsistency())
-            return bad;
-    if (!results.stream().allMatch(this::isBadEvidence))
-        return bad;
-        C base = this.prepareForMatchModification(classification);
-        C modified = null;
-        C previous = base;
-        Iterator<C> subClassifications = new BacktrackingIterator<>(base, base.matchModificationOrder());
-        while (subClassifications.hasNext()) {
-            modified = subClassifications.next();
-            if (modified == classification || modified == previous) // Skip null case
-                continue;
+    protected Match<C, M> findMatch(@NonNull C classification, List<? extends Classifier> candidates, MatchOptions options, MatchMeasurement measurement, Optional<Trace> trace) throws BayesianException {
+        trace.ifPresent(t -> t.push("match"));
+        trace.ifPresent(t -> t.add("classification", classification.clone()));
+        try {
             if (measurement != null)
-                measurement.matchModification();
-            results = this.doMatch(modified, candidates, measurement);
-            match = this.findSingle(modified, results, measurement);
-            if (match != null && match.isValid())
+                measurement.match();
+            // First do a basic match and see if we have something easily matchable
+            List<Match<C, M>> results = this.doMatch(classification, candidates, measurement, trace);
+            if (measurement != null)
+                measurement.addMatchable(results.size());
+            final Match<C, M> match = this.findSingle(classification, results, measurement);
+            Match<C, M> bad = null;
+            if (match != null && match.isValid()) {
+                trace.ifPresent(t -> t.value(match));
                 return match;
-            previous = modified;
+            }
+            if (match != null && !match.isValid())
+                bad = match;
+
+            // Now try modifictions in order
+            if (!options.isModifyConsistency())
+                return bad;
+            if (!results.stream().allMatch(this::isBadEvidence))
+                return bad;
+            C base = this.prepareForMatchModification(classification);
+            C modified = null;
+            C previous = base;
+            Iterator<C> subClassifications = new BacktrackingIterator<>(base, base.matchModificationOrder());
+            while (subClassifications.hasNext()) {
+                modified = subClassifications.next();
+                if (modified == classification || modified == previous) // Skip null case
+                    continue;
+                if (measurement != null)
+                    measurement.matchModification();
+                results = this.doMatch(modified, candidates, measurement, trace);
+                final Match<C, M> modifiedMatch = this.findSingle(modified, results, measurement);
+                if (modifiedMatch != null && modifiedMatch.isValid()) {
+                    trace.ifPresent(t -> t.value(modifiedMatch));
+                     return modifiedMatch;
+                }
+                previous = modified;
+            }
+            return bad;
+        } finally {
+            trace.ifPresent(Trace::pop);
         }
-        return bad;
     }
 
     /**
@@ -391,22 +432,45 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         return classification;
     }
 
-    protected List<Match<C, M>> doMatch(C classification, List<? extends Classifier> candidates, MatchMeasurement measurement) throws BayesianException {
+    /**
+     * Build matches for candidates
+     *
+     * @param classification The classification to match
+     * @param candidates The candidates
+     * @param measurement Any measurements
+     * @param trace Any tracing
+     *
+     * @return A list of matches
+     *
+     * @throws BayesianException if something goes wrong with a match
+     */
+    protected List<Match<C, M>> doMatch(C classification, List<? extends Classifier> candidates, MatchMeasurement measurement, Optional<Trace> trace) throws BayesianException {
         int index = 0;
         int maxCandidate = 0;
         List<Match<C, M>> results = new ArrayList<>(candidates.size());
         for (Classifier candidate : candidates) {
             index++;
-            if (!this.isValidCandidate(classification, candidate))
+            String label = trace.isPresent() ? this.factory.buildLabel(candidate) : null;
+            if (!this.isValidCandidate(classification, candidate)) {
+                trace.ifPresent(t -> t.add("invalid", label));
                 continue;
-            Inference inference = this.inferencer.probability(classification, candidate);
-            if (!this.isPossible(classification, candidate, inference))
-                continue;
-            C candidateClassification = this.factory.createClassification();
-            candidateClassification.read(candidate, true);
-            Match<C, M> match = new Match<>(classification, candidate, candidateClassification, inference);
-            results.add(match);
-            maxCandidate = index;
+            }
+            trace.ifPresent(t -> t.push(label));
+            try {
+                Inference inference = this.inferencer.probability(classification, candidate, trace.orElse(null));
+                trace.ifPresent(t -> t.value(inference));
+                if (!this.isPossible(classification, candidate, inference)) {
+                    trace.ifPresent(t -> t.add("discarded", null));
+                    continue;
+                }
+                C candidateClassification = this.factory.createClassification();
+                candidateClassification.read(candidate, true);
+                Match<C, M> match = new Match<>(classification, candidate, candidateClassification, inference);
+                results.add(match);
+                maxCandidate = index;
+            } finally {
+                trace.ifPresent(Trace::pop);
+            }
         }
         results.sort(this.getMatchSorter());
         results = this.resolve(results);

@@ -3,6 +3,8 @@ package au.org.ala.names.lucene;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.vocab.BayesianTerm;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.document.*;
@@ -30,6 +32,7 @@ import static au.org.ala.bayesian.ExternalContext.LUCENE_VARIANT;
  * </p>
  */
 @Slf4j
+@JsonPropertyOrder({ "identifier", "type", "names", "index" })
 public class LuceneClassifier implements Classifier {
     /** The default field name for identifiers */
     public static final String ID_FIELD = "_id";
@@ -54,12 +57,15 @@ public class LuceneClassifier implements Classifier {
 
     /** The underlying lucene document */
     @Getter
+    @JsonIgnore
     private final Document document;
     /** Has this document been retrieved from a store (in which case it is hard ti store again */
     @Getter
+    @JsonIgnore
     private final boolean retrieved;
     /** The cached parameters */
     @Getter
+    @JsonIgnore
     private Parameters cachedParameters;
 
     /**
@@ -567,6 +573,7 @@ public class LuceneClassifier implements Classifier {
      * @return The signature, or null for no identifier found.
      */
     @Override
+    @JsonIgnore
     public String getSignature() {
         return this.document.get(SIGNATURE_FIELD);
     }
@@ -595,6 +602,7 @@ public class LuceneClassifier implements Classifier {
      * @return The trail
      */
     @Override
+    @JsonIgnore
     public List<String> getTrail() {
         String trails = this.document.get(TRAIL_FIELD);
         if (trails == null)
@@ -714,6 +722,7 @@ public class LuceneClassifier implements Classifier {
      * @return The values in the form of key -> value pairs, with the keys a useful internal representation
      */
     @Override
+    @JsonIgnore
     public Collection<String[]> getAllValues() {
         return this.document.getFields().stream().map(f -> new String[] {f.name(), f.stringValue() }).collect(Collectors.toList());
     }

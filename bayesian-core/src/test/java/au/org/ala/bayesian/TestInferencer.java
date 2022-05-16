@@ -21,11 +21,12 @@ public class TestInferencer implements Inferencer<TestClassification> {
      *
      * @param classification The classification
      * @param classifier     The classifier to match
+     * @param trace The trace, if any
      * @return The probability of a match
      * @throws BayesianException if unable to calculate the probability
      */
     @Override
-    public Inference probability(TestClassification classification, Classifier classifier) throws BayesianException {
+    public Inference probability(TestClassification classification, Classifier classifier, Trace trace) throws BayesianException {
         return Inference.one();
     }
 }

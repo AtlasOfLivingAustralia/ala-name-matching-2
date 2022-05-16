@@ -5,6 +5,7 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
 import au.org.ala.bayesian.Inferencer;
+import au.org.ala.bayesian.Trace;
 
 public class Network3Inferencer_ implements Inferencer<Network3Classification> {
   public final static String SIGNATURE = "";
@@ -17,14 +18,22 @@ public class Network3Inferencer_ implements Inferencer<Network3Classification> {
     return SIGNATURE;
   }
 
-  public double infer_t(Network3Inferencer.Evidence evidence, Network3Parameters_ parameters) {
+  public double infer_t(Network3Inferencer.Evidence evidence, Network3Parameters_ parameters, Trace trace) {
     double c$v1 = 1.0;
     double nc$v1 = 0.0;
     double c$v2 = evidence.isT$e$v2() ? 1.0 : 0.0;
     double nc$v2 = evidence.isF$e$v2() ? 1.0 : 0.0;
     double c$v3 = 0.0;
     double nc$v3 = 0.0;
+    if (trace != null) {
+        trace.add("v_1", c$v1);
+        trace.add("!v_1", nc$v1);
+    }
     // Ignoring non-base v_2
+    if (trace != null) {
+        trace.add("v_2", c$v2);
+        trace.add("!v_2", nc$v2);
+    }
     if (evidence.isT$e$v3()) {
       c$v3 += parameters.derived_v3_t$t_t * c$v1 * c$v2;
       c$v3 += parameters.derived_v3_t$t_f * c$v1 * nc$v2;
@@ -33,17 +42,29 @@ public class Network3Inferencer_ implements Inferencer<Network3Classification> {
       nc$v3 += parameters.derived_v3_f$t_t * c$v1 * c$v2;
       nc$v3 += parameters.derived_v3_f$t_f * c$v1 * nc$v2;
     }
+    if (trace != null) {
+        trace.add("v_3", c$v3);
+        trace.add("!v_3", nc$v3);
+    }
     return (c$v3 + nc$v3);
   }
 
-  public double infer_f(Network3Inferencer.Evidence evidence, Network3Parameters_ parameters) {
+  public double infer_f(Network3Inferencer.Evidence evidence, Network3Parameters_ parameters, Trace trace) {
     double c$v1 = 0.0;
     double nc$v1 = 1.0;
     double c$v2 = evidence.isT$e$v2() ? 1.0 : 0.0;
     double nc$v2 = evidence.isF$e$v2() ? 1.0 : 0.0;
     double c$v3 = 0.0;
     double nc$v3 = 0.0;
+    if (trace != null) {
+        trace.add("v_1", c$v1);
+        trace.add("!v_1", nc$v1);
+    }
     // Ignoring non-base v_2
+    if (trace != null) {
+        trace.add("v_2", c$v2);
+        trace.add("!v_2", nc$v2);
+    }
     if (evidence.isT$e$v3()) {
       c$v3 += parameters.derived_v3_t$f_t * nc$v1 * c$v2;
       c$v3 += parameters.derived_v3_t$f_f * nc$v1 * nc$v2;
@@ -52,37 +73,63 @@ public class Network3Inferencer_ implements Inferencer<Network3Classification> {
       nc$v3 += parameters.derived_v3_f$f_t * nc$v1 * c$v2;
       nc$v3 += parameters.derived_v3_f$f_f * nc$v1 * nc$v2;
     }
+    if (trace != null) {
+        trace.add("v_3", c$v3);
+        trace.add("!v_3", nc$v3);
+    }
     return (c$v3 + nc$v3);
   }
 
 
-  public Inference probability(Network3Inferencer.Evidence evidence, Network3Parameters_ parameters) {
+  public Inference probability(Network3Inferencer.Evidence evidence, Network3Parameters_ parameters, Trace trace) {
     double p;
     double prior = parameters.prior_v1_t;
     double ph = 0.0;
     double pe = 0.0;
 
-    if (evidence.isT$e$v1()) {
-      p = this.infer_t(evidence, parameters) * parameters.prior_v1_t;
-      ph += p;
-      pe += p;
+    if (trace != null)
+        trace.push("t");
+    try {
+        if (evidence.isT$e$v1()) {
+          p = this.infer_t(evidence, parameters, trace) * parameters.prior_v1_t;
+          ph += p;
+          pe += p;
+        }
+    } finally {
+        if (trace != null)
+            trace.pop();
     }
-    if (evidence.isF$e$v1()) {
-      p = this.infer_f(evidence, parameters) * parameters.prior_v1_f;
-      pe += p;
+    if (trace != null)
+        trace.push("f");
+    try {
+        if (evidence.isF$e$v1()) {
+          p = this.infer_f(evidence, parameters, trace) * parameters.prior_v1_f;
+          pe += p;
+        }
+    } finally {
+        if (trace != null)
+            trace.pop();
     }
     return Inference.forPEH(prior, pe, ph);
   }
 
   @Override
-  public Inference probability(Network3Classification classification, Classifier classifier) throws BayesianException {
-    Network3Inferencer.Evidence evidence = classification.match(classifier);
-    Network3Parameters_ params = (Network3Parameters_) classifier.getCachedParameters();
-    if (params == null) {
-      params = new Network3Parameters_();
-      classifier.loadParameters(params);
+  public Inference probability(Network3Classification classification, Classifier classifier, Trace trace) throws BayesianException {
+    if (trace != null)
+        trace.push("inference");
+    try {
+        Network3Inferencer.Evidence evidence = classification.match(classifier);
+        if (trace != null)
+            trace.add("evidence", evidence);
+        Network3Parameters_ params = (Network3Parameters_) classifier.getCachedParameters();
+        if (params == null) {
+          params = new Network3Parameters_();
+          classifier.loadParameters(params);
+        }
+        return this.probability(evidence, params, trace);
+    } finally {
+        if (trace != null)
+            trace.pop();
     }
-    return this.probability(evidence, params);
   }
-
 }

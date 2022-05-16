@@ -1,7 +1,10 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.Hints;
+import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
+import au.org.ala.util.JsonUtils;
+import au.org.ala.util.TestUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gbif.nameparser.api.Rank;
 import org.junit.After;
 import org.junit.Before;
@@ -62,6 +65,37 @@ public class ALAClassificationMatcherTest {
         assertNotNull(hints);
         Set<String> values = hints.getHints(AlaLinnaeanFactory.kingdom);
         assertEquals(Collections.singleton("Animalia"), values);
+    }
+
+    @Test
+    public void testTrace1() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Acacia dealbata";
+        MatchOptions options = MatchOptions.ALL.withTrace(true);
+        Match<AlaLinnaeanClassification, MatchMeasurement> match = this.matcher.findMatch(classification, options);
+        assertNotNull(match);
+        assertTrue(match.isValid());
+        assertEquals("Acacia dealbata", match.getAccepted().scientificName);
+        Trace trace = match.getTrace();
+        assertNotNull(trace);
+        ObjectMapper mapper = JsonUtils.createMapper();
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "trace-1.json"), mapper.writeValueAsString(trace));
+    }
+
+    @Test
+    public void testTrace2() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Acacia dealbata";
+        classification.family = "Rando";
+        MatchOptions options = MatchOptions.ALL.withTrace(true);
+        Match<AlaLinnaeanClassification, MatchMeasurement> match = this.matcher.findMatch(classification, options);
+        assertNotNull(match);
+        assertTrue(match.isValid());
+        assertEquals("Acacia dealbata", match.getAccepted().scientificName);
+        Trace trace = match.getTrace();
+        assertNotNull(trace);
+        ObjectMapper mapper = JsonUtils.createMapper();
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "trace-2.json"), mapper.writeValueAsString(trace));
     }
 
 }

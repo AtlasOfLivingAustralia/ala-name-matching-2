@@ -3,7 +3,9 @@ package au.org.ala.bayesian.generated;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonPropertyOrder(alphabetic = true)
 public class Network3Parameters_ implements Parameters {
 
   public final static String SIGNATURE = "";

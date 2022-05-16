@@ -83,11 +83,11 @@ public class AlaVernacularBuilderTest extends TestUtils {
         AlaVernacularInferencer_ inference = new AlaVernacularInferencer_();
         AlaVernacularInferencer.Evidence evidence = new AlaVernacularInferencer.Evidence();
         evidence.e$vernacularName = true;
-        Inference prob = inference.probability(evidence, params);
+        Inference prob = inference.probability(evidence, params, null);
         assertEquals(1.0, prob.getPosterior(), 0.00001);
         evidence.e$vernacularName = null;
         evidence.e$soundexVernacularName = true;
-        prob = inference.probability(evidence, params);
+        prob = inference.probability(evidence, params, null);
         assertEquals(0.00730, prob.getEvidence(), 0.00001);
         assertEquals(1.0, prob.getPosterior(), 0.00001);
     }
@@ -104,7 +104,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
         AlaVernacularInferencer_ inference = new AlaVernacularInferencer_();
         AlaVernacularInferencer.Evidence evidence = new AlaVernacularInferencer.Evidence();
         evidence.e$vernacularName = true;
-        Inference prob = inference.probability(evidence, params);
+        Inference prob = inference.probability(evidence, params, null);
         assertEquals(0.5, prob.getPosterior(), 0.00001);
     }
 

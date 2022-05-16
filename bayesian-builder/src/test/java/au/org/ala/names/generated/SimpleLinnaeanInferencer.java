@@ -5,6 +5,11 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
 import au.org.ala.bayesian.Inferencer;
+import au.org.ala.bayesian.Trace;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,13 +38,15 @@ public class SimpleLinnaeanInferencer implements Inferencer<SimpleLinnaeanClassi
   }
 
   @Override
-  public Inference probability(SimpleLinnaeanClassification classification, Classifier classifier) throws BayesianException {
+  public Inference probability(SimpleLinnaeanClassification classification, Classifier classifier, Trace trace) throws BayesianException {
     Inferencer<SimpleLinnaeanClassification> sub = this.subInferencers.get(classifier.getSignature());
     if (sub == null)
       throw new IllegalArgumentException("Signature '" + classifier.getSignature() + "' is not recognised");
-    return sub.probability(classification, classifier);
+    return sub.probability(classification, classifier, trace);
   }
 
+  @JsonPropertyOrder(alphabetic = true)
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public static class Evidence {
     public Boolean e$taxonId;
     public Boolean e$taxonRank;
@@ -54,98 +61,122 @@ public class SimpleLinnaeanInferencer implements Inferencer<SimpleLinnaeanClassi
     public Boolean e$phylum;
     public Boolean e$kingdom;
 
+    @JsonIgnore
     public boolean isT$e$taxonId() {
       return this.e$taxonId == null || this.e$taxonId;
     }
 
+    @JsonIgnore
     public boolean isF$e$taxonId() {
       return this.e$taxonId == null || !this.e$taxonId;
     }
 
+    @JsonIgnore
     public boolean isT$e$taxonRank() {
       return this.e$taxonRank == null || this.e$taxonRank;
     }
 
+    @JsonIgnore
     public boolean isF$e$taxonRank() {
       return this.e$taxonRank == null || !this.e$taxonRank;
     }
 
+    @JsonIgnore
     public boolean isT$e$specificEpithet() {
       return this.e$specificEpithet == null || this.e$specificEpithet;
     }
 
+    @JsonIgnore
     public boolean isF$e$specificEpithet() {
       return this.e$specificEpithet == null || !this.e$specificEpithet;
     }
 
+    @JsonIgnore
     public boolean isT$e$scientificNameAuthorship() {
       return this.e$scientificNameAuthorship == null || this.e$scientificNameAuthorship;
     }
 
+    @JsonIgnore
     public boolean isF$e$scientificNameAuthorship() {
       return this.e$scientificNameAuthorship == null || !this.e$scientificNameAuthorship;
     }
 
+    @JsonIgnore
     public boolean isT$e$scientificName() {
       return this.e$scientificName == null || this.e$scientificName;
     }
 
+    @JsonIgnore
     public boolean isF$e$scientificName() {
       return this.e$scientificName == null || !this.e$scientificName;
     }
 
+    @JsonIgnore
     public boolean isT$e$soundexScientificName() {
       return this.e$soundexScientificName == null || this.e$soundexScientificName;
     }
 
+    @JsonIgnore
     public boolean isF$e$soundexScientificName() {
       return this.e$soundexScientificName == null || !this.e$soundexScientificName;
     }
 
+    @JsonIgnore
     public boolean isT$e$genus() {
       return this.e$genus == null || this.e$genus;
     }
 
+    @JsonIgnore
     public boolean isF$e$genus() {
       return this.e$genus == null || !this.e$genus;
     }
 
+    @JsonIgnore
     public boolean isT$e$family() {
       return this.e$family == null || this.e$family;
     }
 
+    @JsonIgnore
     public boolean isF$e$family() {
       return this.e$family == null || !this.e$family;
     }
 
+    @JsonIgnore
     public boolean isT$e$order() {
       return this.e$order == null || this.e$order;
     }
 
+    @JsonIgnore
     public boolean isF$e$order() {
       return this.e$order == null || !this.e$order;
     }
 
+    @JsonIgnore
     public boolean isT$e$class_() {
       return this.e$class_ == null || this.e$class_;
     }
 
+    @JsonIgnore
     public boolean isF$e$class_() {
       return this.e$class_ == null || !this.e$class_;
     }
 
+    @JsonIgnore
     public boolean isT$e$phylum() {
       return this.e$phylum == null || this.e$phylum;
     }
 
+    @JsonIgnore
     public boolean isF$e$phylum() {
       return this.e$phylum == null || !this.e$phylum;
     }
 
+    @JsonIgnore
     public boolean isT$e$kingdom() {
       return this.e$kingdom == null || this.e$kingdom;
     }
 
+    @JsonIgnore
     public boolean isF$e$kingdom() {
       return this.e$kingdom == null || !this.e$kingdom;
     }
