@@ -437,6 +437,45 @@ public class ScientificNameAnalyserTest {
     }
 
     @Test
+    public void processPhraseName6() {
+        Analysis analysis = new Analysis("Acacia sp. Mulga Holey Trunk", null, null, null, MatchOptions.ALL);
+        this.analyser.processPhraseName(analysis, DEFAULT_DETECTED_ISSUES);
+        assertEquals("Acacia sp. Mulga Holey Trunk", analysis.getScientificName());
+        assertFalse(analysis.isPhraseName());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+    @Test
+    public void processPhraseLikeName1() {
+        Analysis analysis = new Analysis("Acacia sp. Mulga Holey Trunk", null, null, null, MatchOptions.ALL);
+        assertTrue(this.analyser.processPhraseLikeName(analysis, DEFAULT_DETECTED_ISSUES));
+        assertEquals("Acacia sp. Mulga Holey Trunk", analysis.getScientificName());
+        assertTrue(analysis.isPhraseName());
+        assertEquals(NameType.PLACEHOLDER, analysis.getNameType());
+        assertEquals(DEFAULT_DETECTED_ISSUES, analysis.getIssues());
+    }
+
+    @Test
+    public void processPhraseLikeName2() {
+        Analysis analysis = new Analysis("Poa sect. Atropis", null, null, null, MatchOptions.ALL);
+        assertFalse(this.analyser.processPhraseLikeName(analysis, DEFAULT_DETECTED_ISSUES));
+        assertEquals("Poa sect. Atropis", analysis.getScientificName());
+        assertFalse(analysis.isPhraseName());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+
+    @Test
+    public void processPhraseLikeName3() {
+        Analysis analysis = new Analysis("Acacia var. Dawson", null, null, null, MatchOptions.ALL);
+        assertTrue(this.analyser.processPhraseLikeName(analysis, DEFAULT_DETECTED_ISSUES));
+        assertEquals("Acacia var. Dawson", analysis.getScientificName());
+        assertTrue(analysis.isPhraseName());
+        assertEquals(NameType.PLACEHOLDER, analysis.getNameType());
+        assertEquals(DEFAULT_DETECTED_ISSUES, analysis.getIssues());
+    }
+
+    @Test
     public void processRankEnding1() {
         Analysis analysis = new Analysis("Dendrochirus zebra", null, null, null, MatchOptions.ALL);
         this.analyser.processRankEnding(analysis, false, DEFAULT_DETECTED_ISSUES, DEFAULT_MODIFIED_ISSUES);

@@ -258,6 +258,14 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         // Add all possible names something could be seen as
         names.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
         classifier.setNames(names);
+
+        // Add alternative names
+        if (this.altName.isPresent()) {
+            altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName,false).stream()
+                    .filter(n -> !names.contains(n))
+                    .collect(Collectors.toSet()));
+        }
+
         if (!this.name.getMultiplicity().isMany() && names.size() > 1) {
             logger.warn("Classifier " + id + " with single value name " + this.name.getId() + " has multiple names " + names);
         } else {
@@ -268,11 +276,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
             }
         }
 
-        // Add alternative names
         if (this.altName.isPresent()) {
-            altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName,false).stream()
-                    .filter(n -> !names.contains(n))
-                    .collect(Collectors.toSet()));
             if (!this.altName.get().getMultiplicity().isMany() && altNames.size() > 1) {
                 logger.warn("Classifier " + id + " with single value alternate name " + this.altName.get().getId() + " has multiple names " + altNames);
             } else {
@@ -464,11 +468,6 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * @throws BayesianException if unable to write the updated document
      */
     public void expandSynonym(Cl classifier, Optional<Cl> accepted) throws BayesianException {
-        Set<String> allNames = new LinkedHashSet<>();
-        allNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
-        classifier.setNames(allNames);
-        for (String nm: allNames)
-            classifier.add(this.name, nm, true, false);
         if (accepted.isPresent()){
             Classifier acc = accepted.get();
             for (Observable obs: this.copy) {

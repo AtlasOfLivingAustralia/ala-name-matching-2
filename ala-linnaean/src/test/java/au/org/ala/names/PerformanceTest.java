@@ -34,9 +34,9 @@ public class PerformanceTest {
 
     public static final int SEARCH_QUERY_LIMIT = 15;
     public static final int SEARCH_CACHE_SIZE = 10000;
-    public static final String INDEX = "/data/lucene/index-20210811-2" ;
-    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-2" ;
-    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-2";
+    public static final String INDEX = "/data/lucene/index-20210811-3" ;
+    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-3" ;
+    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-3";
 
 
     private ALANameSearcher searcher;

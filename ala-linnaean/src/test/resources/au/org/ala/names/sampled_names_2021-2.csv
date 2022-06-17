@@ -1395,7 +1395,7 @@ true,"Boehmeria australis Endl.",,,,,"URTICACEAE","Boehmeria","species",,
 true,"Boerhavia burbidgeana Hewson","Hewson",,,,"Nyctaginaceae","Boerhavia","species",,
 true,"Boerhavia schomburgkiana",,,,,"NYCTAGINACEAE",,,,
 true,"Bohadschia",,"Animalia",,,,,"genus",,
-true,"Boidae sp.",,"Animalia","Reptilia",,"Boidae","Boidae",,Reptilia,repeated genus/family
+true,"Boidae sp.",,"Animalia","Reptilia",,"Boidae","Boidae",,Boidae,repeated genus/family
 true,"Bolbe nigra Giglio-Tos, 1915",,,,,,,,,
 true,"Bolbitis taylorii (F.M.Bailey) Ching","(F.M.Bailey) Ching",,,,"Lomariopsidaceae","Bolbitis",,,
 true,"Bolbitius reticulatus",,"Fungi","Agaricomycetes","Agaricales","Bolbitiaceae","Bolbitius","species",,
@@ -1697,7 +1697,7 @@ true,"Calosoma schayeri Erichson, 1842",,,,,,,,,
 true,"Calosphenisca ndomae","Hancock & Drew, 2003","Animalia","Insecta","Diptera","Tephritidae","Calosphenisca",,,
 true,"Calostemma purpureum",,,,,,,,,
 true,"Calostemma spp.","R. Br.",,,,,,,,
-true,"Calotes Cuvier, 1816",,,,,,,,Cholotis,Name not in index
+true,"Calotes Cuvier, 1816",,,,,,,,,
 true,"Calothamnus Labill.",,,,,,,,,
 true,"Calothamnus chrysanthereus","F.Muell.",,,,"Myrtaceae",,,,
 true,"Calothamnus chrysantherus F.Muell.","F.Muell.",,,,"Myrtaceae","Calothamnus",,,
@@ -1768,7 +1768,7 @@ true,"Candonocypris incosta De Deckker, 1981","De Deckker, 1981",,"Ostracoda",,"
 true,"Canna L.",,"Plantae","Magnoliopsida","Zingiberales","Cannaceae","Canna","genus",,
 true,"Canscora andrographioides","Griff. ex C.B.Clarke","Plantae","Equisetopsida","Gentianales","Gentianaceae","Canscora","species",,
 true,"Cantharellus tubaeformis",,,,,"Cantharellaceae","Cantharellus",,,
-true,"Canthidermis maculatus",,,,,"Balistidae","Canthidermis","Species",Canthidermis maculata,
+true,"Canthidermis maculatus",,,,,"Balistidae","Canthidermis","Species",,
 true,"Canthium mundianum Cham. & Schltdl.","Cham. & Schltdl.",,,,"Rubiaceae","Canthium","species",,
 true,"Canthium sordida Schum.","Schum.",,,,"Rubiaceae","Canthium","species",,
 true,"Caperrala",,"Animalia","Insecta","Orthoptera","Acrididae","Caperrala","genus",Capperala,
@@ -4490,7 +4490,7 @@ true,"Haliclona tenella (Topsent, 1916)",,,"Demospongiae","Haplosclerida","Chali
 true,"Halicornopsis sp.",,,"Hydrozoa","Thecata","Plumulariidae","Halicornopsis",,,
 true,"Halieutaea indica",,"Animalia",,"Lophiiformes","Ogcocephalidae","Halieutaea",,,
 true,"Halimeda distorta","(Yamada) Hillis-Colinvaux","Plantae","Bryopsidophyceae","Bryopsidales","Udoteaceae","Halimeda",,,
-false,"Halimeda sp.",,,,,"Halimedaceae","Halimeda",,,family not in index
+true,"Halimeda sp.",,,,,"Halimedaceae","Halimeda",,,
 true,"Halimeda",,,,"Bryopsidales","Halimedaceae","Halimeda","genus",,
 false,"Haliophyle connexa",,,,,,,,,Genus not in index
 true,"Haliotis roei",,"Animalia","Gastropoda","Vetigastropoda","Haliotidae","Haliotis",,,
@@ -7069,7 +7069,7 @@ true,"Pemphis acidula","J.R.Forst. & G.Forst.","Plantae","Equisetopsida","Myrtal
 true,"Penaeus plebejus",,"Animalia","Malacostraca","Decapoda","Penaeidae",,,,
 true,"Penalva flavocalceata",,"Animalia","Insecta","Orthoptera","Anostostomatidae","Penalva","species",Penalva (Penalva) flavocalceatus,
 true,"Penares mastoidea",,"Animalia",,"Astrophorida","Ancorinidae","Penares",,,
-true,"Peneoenanthe pulverulenta",,"Animalia","Aves",,"Petroicidae",,,,
+true,"Peneoenanthe pulverulenta",,"Animalia","Aves",,,,,Peneoenanthe,Now Peneothello (Peneoenanthe) pulverulenta
 true,"Peniagone spp.",,"Animalia","Holothuroidea","Elasipodida","Elpidiidae",,"Genus",,
 true,"Penicillus pyriformis A.Gepp & E.Gepp","A.Gepp & E.Gepp",,,,"Udoteaceae","Penicillus",,,
 true,"Peniocereus serpentinus (Lag. & Rodr.) N.P.Taylor","(Lag. & Rodr.) N.P.Taylor",,,,"Cactaceae","Peniocereus","species",,
@@ -8237,7 +8237,7 @@ true,"Rhynchobunus arrogans Hickman, 1958",,,"Arachnida","Opiliones","Triaenonyc
 true,"Rhynchocinetes Milne Edwards, 1837","Milne Edwards, 1837",,"Malacostraca","Decapoda","Rhynchocinetidae","Rhynchocinetes","Genus",,
 true,"Rhynchosia acuminatissima Miq.","Miq.",,,,"Fabaceae","Rhynchosia","species",,
 true,"Rhynchospora stolonifera (Nees) Boeckeler","(Nees) Boeckeler",,,,"Cyperaceae","Rhynchospora",,,
-true,"Rhynchostracion rhinorhynchus (Bleeker, 1852)",,"Animalia",,,"Ostraciidae","Rhynchostracion",,Rhynchostracion rhinorhynchus,
+true,"Rhynchostracion rhinorhynchus (Bleeker, 1852)",,"Animalia",,,"Ostraciidae","Rhynchostracion",,Rhynchostracion,Synonym to genus in CAAB
 true,"Rhyothemis resplendens","Selys, 1878","Animalia","Insecta","Odonata","Libellulidae","Rhyothemis",,,
 true,"Rhytidiadelphus squarrosus (Hedw.) Warnst.",,"Plantae","Bryopsida","Hypnales","Hylocomiaceae","Rhytidiadelphus","species",,
 true,"Rhytidoponera cristata (Mayr, 1876)","(Mayr, 1876)","Animalia","Insecta","Hymenoptera","Formicidae","Rhytidoponera","Species",,
@@ -8338,7 +8338,7 @@ true,"Rytidosperma laeve (Vickery) Connor & Edgar","(Vickery) Connor & Edgar",,,
 true,"Rytidosperma pallidum","(R.Br.) A.M.Humphreys & H.P.Linder","Plantae",,,"Poaceae","Rytidosperma","Species",,
 true,"Rytidosperma pauciflorum","(R.Br.) Connor & Edgar","Plantae","Equisetopsida","Poales","Poaceae","Rytidosperma","species",,
 true,"Rytidosperma tenuius","(Steud.) A.Hansen & Sunding","Plantae","Equisetopsida","Poales","Poaceae","Rytidosperma","Species",,
-true,"SEDIS Oedocephalum adherens E.M.Davison & R.G.Shivas","E.M.Davison & R.G.Shivas",,,,"Incertae sedis","Oedocephalum",,,
+true,"SEDIS Oedocephalum adherens E.M.Davison & R.G.Shivas","E.M.Davison & R.G.Shivas",,,,"Incertae sedis","Oedocephalum",,Oedocephalum adhaerens,
 true,"SPHINGIDAE",,,,,,,,,
 true,"Sabellariid sp 7",,"Animalia","Polychaeta","Sabellida","Sabellariidae",,"Species",,
 true,"Sabiaceae",,"Plantae","Equisetopsida","[Sabiales]","Sabiaceae",,"family",,
@@ -9544,7 +9544,7 @@ true,"Tularia bractea",,"Animalia","Gastropoda","Nudibranchia","Apataidae","Tula
 true,"Tulasnellaceae",,"Fungi","Agaricomycetes","Cantharellales","Tulasnellaceae",,"family",,
 true,"Tulostoma australianum","Lloyd","Fungi","Basidiomycetes","Agaricales","Tulostomataceae","Tulostoma","species",,
 true,"Tulostoma cf.australianum Lloyd",,,,,"Tulostomataceae","Tulostoma",,,
-true,"Tulostoma macowani Bres.",,,,,"Tulostomataceae","Tulostoma",,Tulostoma macowanii,
+true,"Tulostoma macowani Bres.",,,,,"Tulostomataceae","Tulostoma",,Tulostoma,Invalid family and misspelled name
 true,"Turbinaria ornata (Turner) J.Agardh",,,,,"SARGASSACEAE","Turbinaria","species",,
 true,"Turbinaria patula",,"Animalia","Anthozoa","Scleractinia","Dendrophylliidae","Turbinaria","species",,
 false,"Turbinaria retiformis",,,,,,,"species",,Genus homonym in index probably a misspelling of reniformis

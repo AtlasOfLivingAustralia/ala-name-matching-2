@@ -1131,6 +1131,11 @@
       "id": "vernacular_match",
       "uri": "http://ala.org.au/issues/1.0/vernacularMatch",
       "description": "A match on vernacular name."
+    },
+    {
+      "id": "bare_phrase_name",
+      "uri": "http://ala.org.au/issues/1.0/barePhraseName",
+      "description": "The name is probably a phrase name but is without a voucher."
     }
   ],
   "modifications": [

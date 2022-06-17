@@ -35,11 +35,17 @@ public class TaxonNameSoundExTest {
         assertEquals("MUNIDA LEAGORA", TaxonNameSoundEx.normalize("   Munida\tleagora  ", NameType.SCIENTIFIC));
     }
 
-
     @Test
     public void testNormalize5() throws Exception {
         assertEquals("LIOTES SP. 3", TaxonNameSoundEx.normalize("Liotes sp. 3", NameType.INFORMAL));
         assertEquals("CANARIUM ACUTIFOLIUM ACUTIFOLIUM", TaxonNameSoundEx.normalize("Canarium acutifolium var. acutifolium", NameType.SCIENTIFIC));
+    }
+
+    @Test
+    public void testNormalize6() throws Exception {
+        assertEquals("ELAEOCARPUS ROCKY CREEK", TaxonNameSoundEx.normalize("Elaeocarpus sp. Rocky Creek", NameType.SCIENTIFIC));
+        assertEquals("ELAEOCARPUS SP. ROCKY CREEK", TaxonNameSoundEx.normalize("Elaeocarpus sp. Rocky Creek", NameType.PLACEHOLDER));
+        assertEquals("ELAEOCARPUS SP. ROCKY CREEK", TaxonNameSoundEx.normalize("Elaeocarpus sp. Rocky Creek", NameType.INFORMAL));
     }
 
     @Test

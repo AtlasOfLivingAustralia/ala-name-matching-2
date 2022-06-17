@@ -148,7 +148,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @throws StoreException if unable to write the document
      */
     @Override
-    protected void doStore(LuceneClassifier classifier) throws StoreException {
+    synchronized protected void doStore(LuceneClassifier classifier) throws StoreException {
         try {
             this.writer.addDocument(classifier.isRetrieved() ? classifier.makeDocumentCopy() : classifier.getDocument());
         } catch (IOException ex) {
@@ -169,7 +169,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @throws BayesianException if unable to annotate or store the classifier
      */
     @Override
-    protected void doStore(LuceneClassifier classifier, @NonNull Term type) throws BayesianException {
+    synchronized protected void doStore(LuceneClassifier classifier, @NonNull Term type) throws BayesianException {
          try {
             classifier.identify();
             classifier.setType(type);
@@ -189,7 +189,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @param classifier The collection of information that makes up the entry
      */
     @Override
-    protected void doUpdate(LuceneClassifier classifier) throws StoreException {
+    synchronized protected void doUpdate(LuceneClassifier classifier) throws StoreException {
         try {
             String id = classifier.getIdentifier();
             if (id == null || id.isEmpty())
@@ -300,7 +300,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @throws StoreException if unable to commit the underlying lucene index
      */
     @Override
-    public void commit() throws StoreException {
+    synchronized public void commit() throws StoreException {
         try {
             this.writer.commit();
             if (this.reader != null) {
@@ -323,7 +323,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @throws StoreException if unable to close the underlying lucene index
      */
     @Override
-    public void close() throws StoreException {
+    synchronized public void close() throws StoreException {
         try {
             if (this.writer != null)
                 this.writer.close();

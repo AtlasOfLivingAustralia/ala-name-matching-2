@@ -27,9 +27,9 @@ import static org.junit.Assert.assertEquals;
 public class IconicSpeciesTest {
     private static final Logger logger = LoggerFactory.getLogger(IconicSpeciesTest.class);
 
-    public static final String INDEX = "/data/lucene/index-20210811-2";
-    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-2";
-    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-2";
+    public static final String INDEX = "/data/lucene/index-20210811-3";
+    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-3";
+    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-3";
 
     private ALANameSearcher searcher;
     private AlaNameAnalyser analyser;

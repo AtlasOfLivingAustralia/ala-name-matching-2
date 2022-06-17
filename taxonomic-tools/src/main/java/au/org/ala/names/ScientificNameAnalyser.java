@@ -58,6 +58,15 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
             .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
             .collect(Collectors.joining("|"));
     /**
+     * A string giving a regular expression for non-Linnaean, above species rank markers
+     */
+    public static final String SUBSPECIES_RANK_MARKERS = Arrays.stream(org.gbif.nameparser.api.Rank.values())
+            .filter(r -> !r.isLinnean() && r.isInfraspecific())
+            .map(Rank::getMarker)
+            .filter(Objects::nonNull)
+            .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
+            .collect(Collectors.joining("|"));
+    /**
      * A string giving a regular expression for rank markers with capitalised first letter
      */
     public static final String CAPITALISED_RANK_MARKERS = Arrays.stream(org.gbif.nameparser.api.Rank.values())
@@ -70,6 +79,12 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
      * A sequence of rank markers and names, Eg. fam. Corbiculidae gen. Corbiculina
      */
     public static final Pattern ALTERNATING_RANK_NAME = Pattern.compile("^\\s*(" + RANK_MARKERS + ")\\.?\\s+([A-Za-z][a-z]+)(?:\\s|$)");
+    /**
+     * A phrase-like name. Ie. a phrase name without the voucher etc.
+     *
+     * Avoids names like Acaia sect. Poelia
+     */
+    public static final Pattern PHRASE_LIKE_NAME = Pattern.compile("^[A-Z][a-z]+\\s+(" + LINNAEAN_RANK_MARKERS + "|" + SUBSPECIES_RANK_MARKERS + ")\\.?\\s+(?:[A-Z][a-z]+(?:\\s+|$))+");
     /**
      * A name with a rank marker at the end of the name. Eg. Acacia sp.
      */
@@ -442,6 +457,32 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
         }
         return analysis.isPhraseName();
     }
+
+
+    /**
+     * Process an partial phrase-like name.
+     * <p>
+     * Phrase-like names are of the form "Elaeocarpus sp. Rocky Creek" They should have a voucher at
+     * the end but don't.
+     * </p>
+     *
+     * @param analysis The analysis object to use
+     * @param detectedIssues   If non-null, flag these issues
+     * @return True if a phrase-like name
+     */
+    protected boolean processPhraseLikeName(@NonNull Analysis analysis, @Nullable Issues detectedIssues) {
+        Matcher matcher;
+
+        matcher = PHRASE_LIKE_NAME.matcher(analysis.getScientificName());
+        if (!matcher.matches()) {
+            return false;
+        }
+        analysis.addIssues(detectedIssues);
+        analysis.flagPhraseName();
+        analysis.setNameType(NameType.PLACEHOLDER);
+        analysis.estimateRank(this.rankAnalysis.fromString(matcher.group(1)));
+        return true;
+     }
 
 
     /**

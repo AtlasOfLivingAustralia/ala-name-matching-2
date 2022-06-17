@@ -32,6 +32,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
     private static final Issues DATA_ISSUES = Issues.of(BayesianTerm.illformedData);
     private static final Issues KINGDOM_ISSUES = Issues.of(AlaLinnaeanFactory.INVALID_KINGDOM);
     private static final Issues KINGDOM_MODIFICATION = Issues.of(AlaLinnaeanFactory.REMOVED_KINGDOM);
+    private static final Issues BARE_PHRASE_NAME_ISSUES = Issues.of(AlaLinnaeanFactory.BARE_PHRASE_NAME);
 
     /**
      * A numeric or single letter placeholder name. We can extract the genus from this if we haven't already
@@ -348,6 +349,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
                 classification.nomenclaturalCode,
                 options
         );
+        boolean phraseLike = false;
 
         this.removeInvalid(analysis, classification);
         analysis.setKingdom(classification.kingdom);
@@ -370,12 +372,16 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         this.processAffinitySpecies(analysis, " aff. ", AFFINTIY_ISSUES, CANONICAL_MODIFICATION);
         this.processConferSpecies(analysis, " cf. ", CONFER_ISSUES, CANONICAL_MODIFICATION);
         this.processSpeciesNovum(analysis, true, null, CANONICAL_MODIFICATION);
-        this.processPhraseName(analysis, null);
+        if (!this.processPhraseName(analysis, null)) {
+            phraseLike = this.processPhraseLikeName(analysis, BARE_PHRASE_NAME_ISSUES);
+        };
         this.processRankEnding(analysis, true, INDETERMINATE_ISSUES, CANONICAL_MODIFICATION);
         this.processRankMarker(analysis, true, null, CANONICAL_MODIFICATION);
         this.processEmbeddedAuthor(analysis, null, CANONICAL_MODIFICATION);
-        this.parseName(analysis, UNPARSABLE_ISSUES);
-        this.processParsedScientificName(analysis, null, CANONICAL_MODIFICATION);
+        if (!phraseLike) {
+            this.parseName(analysis, UNPARSABLE_ISSUES);
+            this.processParsedScientificName(analysis, null, CANONICAL_MODIFICATION);
+        }
         this.fillOutClassification(analysis, classification);
         this.detectNumericPlaceholder(analysis, classification);
         classification.scientificName = analysis.getScientificName();
