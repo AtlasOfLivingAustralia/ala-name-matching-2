@@ -95,6 +95,7 @@ public class ALAClassificationMatcherTest {
         Trace trace = match.getTrace();
         assertNotNull(trace);
         ObjectMapper mapper = JsonUtils.createMapper();
+        // mapper.writeValue(new File("trace-2.json"), trace);
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "trace-2.json"), mapper.writeValueAsString(trace));
     }
 

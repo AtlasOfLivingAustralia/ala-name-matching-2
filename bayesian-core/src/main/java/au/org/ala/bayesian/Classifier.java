@@ -2,9 +2,8 @@ package au.org.ala.bayesian;
 
 import org.gbif.dwc.terms.Term;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * An object that holds information that would allow classification of a particular case.
@@ -366,5 +365,58 @@ public interface Classifier {
      * @return The values in the form of key -> value pairs, with the keys a useful internal representation
      */
     Collection<String[]> getAllValues();
+
+    /**
+     * Get a summary of the classifier for use when recording traces and the like.
+     *
+     * @param factory The network factory to produce the summary for.
+     *
+     * @return A summary map for the classifier
+     */
+    default String getLabel(NetworkFactory<?, ?, ?> factory) {
+        return factory.getIdentifier().map(i -> this.get(i)).filter(Objects::nonNull).orElse(this.getIdentifier());
+    }
+
+    /**
+     * Get a summary of the classifier for use when recording traces and the like.
+     *
+     * @param factory The network factory to produce the summary for.
+     *
+     * @return A summary map for the classifier
+     */
+    default Map<String, Object> getSummaryDescription(NetworkFactory<?, ?, ?> factory) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        String id = factory.getIdentifier().map(i -> this.get(i)).filter(Objects::nonNull).orElse(this.getIdentifier());
+        String name = factory.getName().map(n -> this.get(n)).orElse(null);
+        String type = null;
+        try {
+            type = this.getType().prefixedName();
+        } catch (StoreException ex) {
+        }
+        result.put("type", type);
+        result.put("id", id);
+        result.put("name", name);
+        return result;
+    }
+
+    /**
+     * Get a full description of the classifier for use when recording traces and the like.
+     *
+     * @param factory The network factory to produce the summary for.
+     *
+     * @return A full map for the classifier
+     */
+    default Map<String, Object> getFullDescription(NetworkFactory<?, ?, ?> factory) {
+        Map<String, Object> result = this.getSummaryDescription(factory);
+        for (Observable<?> observable: factory.getObservables()) {
+            List<String> values = this.getAll(observable).stream()
+                    .filter(Objects::nonNull)
+                    .map(v -> v.toString())
+                    .collect(Collectors.toList());
+            if (!values.isEmpty())
+                result.put(observable.getId(), values.size() == 1 ? values.get(0) : values);
+        }
+        return result;
+    }
 
 }

@@ -23,21 +23,26 @@ public class Network2Inferencer_ implements Inferencer<Network2Classification> {
     double nc$v1 = 0.0;
     double c$v2 = 0.0;
     double nc$v2 = 0.0;
-    if (trace != null) {
-        trace.add("v_1", c$v1);
-        trace.add("!v_1", nc$v1);
-    }
     if (evidence.isT$e$v2()) {
       c$v2 += parameters.inf_v2_t$t * c$v1;
+      if (trace != null) {
+        String val_ = this.formatDouble(parameters.inf_v2_t$t) + " \u00b7 " + this.formatDouble(c$v1);
+        trace.add("p(v_2) - v_2", "p(v_2 | v_1)·v_1", val_, c$v2);
+      }
     }
     if (evidence.isF$e$v2()) {
       nc$v2 += parameters.inf_v2_f$t * c$v1;
+      if (trace != null) {
+        String val_ = this.formatDouble(parameters.inf_v2_f$t) + " \u00b7 " + this.formatDouble(c$v1);
+        trace.add("p(¬v_2) - v_2", "p(¬v_2 | v_1)·v_1", val_, nc$v2);
+      }
     }
+    double result_ = (c$v2 + nc$v2);
     if (trace != null) {
-        trace.add("v_2", c$v2);
-        trace.add("!v_2", nc$v2);
+      String val_ = "(" + this.formatDouble(c$v2) + " + " + this.formatDouble(nc$v2) + ")";
+      trace.add("c(E | v_1)", "(p(v_2) + p(¬v_2))", val_, result_);
     }
-    return (c$v2 + nc$v2);
+    return result_;
   }
 
   public double infer_f(Network2Inferencer.Evidence evidence, Network2Parameters_ parameters, Trace trace) {
@@ -45,35 +50,44 @@ public class Network2Inferencer_ implements Inferencer<Network2Classification> {
     double nc$v1 = 1.0;
     double c$v2 = 0.0;
     double nc$v2 = 0.0;
-    if (trace != null) {
-        trace.add("v_1", c$v1);
-        trace.add("!v_1", nc$v1);
-    }
     if (evidence.isT$e$v2()) {
       c$v2 += parameters.inf_v2_t$f * nc$v1;
+      if (trace != null) {
+        String val_ = this.formatDouble(parameters.inf_v2_t$f) + " \u00b7 " + this.formatDouble(nc$v1);
+        trace.add("p(v_2) - v_2", "p(v_2 | ¬v_1)·¬v_1", val_, c$v2);
+      }
     }
     if (evidence.isF$e$v2()) {
       nc$v2 += parameters.inf_v2_f$f * nc$v1;
+      if (trace != null) {
+        String val_ = this.formatDouble(parameters.inf_v2_f$f) + " \u00b7 " + this.formatDouble(nc$v1);
+        trace.add("p(¬v_2) - v_2", "p(¬v_2 | ¬v_1)·¬v_1", val_, nc$v2);
+      }
     }
+    double result_ = (c$v2 + nc$v2);
     if (trace != null) {
-        trace.add("v_2", c$v2);
-        trace.add("!v_2", nc$v2);
+      String val_ = "(" + this.formatDouble(c$v2) + " + " + this.formatDouble(nc$v2) + ")";
+      trace.add("c(E | ¬v_1)", "(p(v_2) + p(¬v_2))", val_, result_);
     }
-    return (c$v2 + nc$v2);
+    return result_;
   }
 
 
   public Inference probability(Network2Inferencer.Evidence evidence, Network2Parameters_ parameters, Trace trace) {
-    double p;
+    double c, p;
     double prior = parameters.prior_v1_t;
     double ph = 0.0;
     double pe = 0.0;
 
     if (trace != null)
-        trace.push("t");
+        trace.push("p(v_1)");
     try {
         if (evidence.isT$e$v1()) {
-          p = this.infer_t(evidence, parameters, trace) * parameters.prior_v1_t;
+          c = this.infer_t(evidence, parameters, trace);
+          p = c  * parameters.prior_v1_t;
+          if (trace != null) {
+            trace.value("c(E | v_1)\u00b7p(v_1)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_v1_t), p);
+          }
           ph += p;
           pe += p;
         }
@@ -82,10 +96,14 @@ public class Network2Inferencer_ implements Inferencer<Network2Classification> {
             trace.pop();
     }
     if (trace != null)
-        trace.push("f");
+        trace.push("p(¬v_1)");
     try {
         if (evidence.isF$e$v1()) {
-          p = this.infer_f(evidence, parameters, trace) * parameters.prior_v1_f;
+          c = this.infer_f(evidence, parameters, trace);
+          p = c  * parameters.prior_v1_f;
+          if (trace != null) {
+            trace.value("c(E | ¬v_1)\u00b7p(¬v_1)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_v1_f), p);
+          }
           pe += p;
         }
     } finally {

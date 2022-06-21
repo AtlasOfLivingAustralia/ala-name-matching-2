@@ -1,9 +1,7 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -16,6 +14,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+@TraceDescriptor(identify = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonPropertyOrder(alphabetic = true)
 public class TestClassification implements Classification<TestClassification> {
     public String taxonID;
     public String class_;
@@ -96,6 +97,7 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
+    @JsonIgnore
     public Hints<TestClassification> getHints() {
         return new Hints<>();
     }

@@ -1,27 +1,36 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.vocab.BayesianTerm;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.SneakyThrows;
 import lombok.Value;
 import org.gbif.dwc.terms.Term;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * A classification match.
  */
 @Value
 @JsonPropertyOrder({"actual", "valid", "candidate", "match", "acceptedCandidate", "accepted", "probability", "left", "right", "fidelity", "issues", "measurement", "trace"})
+@TraceDescriptor(identify = true, description = "getFullDescription")
 public class Match<C extends Classification<C>, M extends MatchMeasurement> {
     private static final Match<?, ?> INVALID_MATCH = new Match<>(null, null, null, null, null, null, null, Issues.of(BayesianTerm.invalidMatch), null, null);
 
     /** The classification that was actually searched for */
     private C actual;
     /** The candidate match */
+    @JsonIgnore
     private Classifier candidate;
     /** The match classification */
     private C match;
     /** The synonym de-referenced accepted candidate match */
+    @JsonIgnore
     private Classifier acceptedCandidate;
     /** The accepted classification */
     private C accepted;
@@ -206,6 +215,24 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
         if (trace == null && this.trace == null)
             return this;
         return new Match<>(this.actual, this.candidate, this.match, this.acceptedCandidate, this.accepted, this.probability, fidelity, this.issues, this.measurement, trace);
+    }
+
+    @SneakyThrows
+    public Map<String, Object> getFullDescription(NetworkFactory<?, ?, ?> factory) {
+        Map<String, Object> desc = new LinkedHashMap<>();
+        desc.put("actual", this.actual);
+        desc.put("candidate", this.candidate.getSummaryDescription(factory));
+        desc.put("match", this.match);
+        if (this.accepted != this.match) {
+            desc.put("accepted", this.accepted);
+            desc.put("acceptedCandidate", this.acceptedCandidate.getSummaryDescription(factory));
+        }
+        desc.put("probability", this.getProbability());
+        desc.put("fidelity", this.getFidelity());
+        desc.put("left", this.getLeft());
+        desc.put("right", this.getRight());
+        desc.put("issues", this.getIssues());
+        return desc;
     }
 
     /**

@@ -147,7 +147,47 @@ The resulting match returns a number of interesting bits of information:
 * `getMeasurement()` If configured, this will return performance information
   about the match: time taken, number of searches, etc.
   This may be null if measurement is not configured.
+* `getTrace()` If requested, a detailed trace of the search and inference is returned.
+  The trace can be used to debug odd-looking results.
+  Beware. Traces are very large - 30k or more of JSON for a simple search and slow
+  the search down considerably.
 
+### Options
+
+Match options can be used to control the search, turning on or off aspects of  the search.
+The standard match options are:
+
+* `normaliseTemplate` Clean up the template, canoncialise names and generally
+  make the search template consistent with what is expected by the index.
+  (default: true)
+* `canoncialDervications` Include dervations that are directly inferreable
+  from the source data. (default: true)
+  For example, a scientific name of *Acacia dealbata* imples a rank of species,
+  a genus of *Acacia* and a specificEpithet of *dealbata*.
+* `fuzzyDerivations` Include derivations that provide a fuzzy or soundexed way
+  of matching. (default: true)
+* `modifyTemplate` Allow large-scale modifications to the template classification.
+  For example, higher-order matches where a genus search is used if a species search
+  does not find a match. (default: true)
+* `modifyConsistency` Allow the removal of potentially inconsistent information
+  from a template classification.
+  For example, if the scientific name is *Acacia dealbata* and the family is
+  *Poaecae* try removing the family. (default: true)
+* `useHints` Use hints, such as an inferred kingdom or nomenclatural code to
+  disambiguate searches. (default: true)
+* `measure` Measure matching performance - see `getMeasurement()` above. (default: false)
+* `trace` Trace the match - see `getTrace()` above. (default: false)
+
+The `MatchOptions.ALL` and `MatchOptions.NONE` provide default and minimal templates.
+These can be modified by using the `withXXX()` methods.
+
+Match options can be included as a search argument.
+For example:
+
+```java
+MatchOptions options = MatchOptions.ALL.withFuzzyDerivations(false).withTrace(true);
+Match<AlaLinnaeanClassification, MatchMeasurement> match = this.searcher.search(classification. options);
+```
 ### Issues
 
 There are a number of issues that can be appended to a match.

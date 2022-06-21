@@ -1,16 +1,6 @@
 package au.org.ala.names.generated;
 
-import au.org.ala.bayesian.Analyser;
-import au.org.ala.bayesian.BayesianException;
-import au.org.ala.bayesian.Classification;
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Fidelity;
-import au.org.ala.bayesian.Hints;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.Issues;
-import au.org.ala.bayesian.MatchOptions;
-import au.org.ala.bayesian.Observable;
-import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
 
 import java.util.ArrayList;
@@ -31,6 +21,7 @@ import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.Analyser;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@TraceDescriptor(identify = true, identifier = "getIdentifier")
 public class GrassClassification implements Classification<GrassClassification> {
   private Issues issues;
   private Hints<GrassClassification> hints;

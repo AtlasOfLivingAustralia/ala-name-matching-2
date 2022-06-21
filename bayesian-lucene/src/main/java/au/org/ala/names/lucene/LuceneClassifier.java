@@ -3,8 +3,10 @@ package au.org.ala.names.lucene;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.vocab.BayesianTerm;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.document.*;
@@ -32,7 +34,7 @@ import static au.org.ala.bayesian.ExternalContext.LUCENE_VARIANT;
  * </p>
  */
 @Slf4j
-@JsonPropertyOrder({ "identifier", "type", "names", "index" })
+@TraceDescriptor(identify = true, identifier = "getLabel", description = "getFullDescription", summary = "getSummaryDescription")
 public class LuceneClassifier implements Classifier {
     /** The default field name for identifiers */
     public static final String ID_FIELD = "_id";

@@ -72,17 +72,35 @@ public class ALANameSearcher implements AutoCloseable {
         this.vernacularSearcher.close();
     }
 
+
     /**
      * Search for a classification, based on template classification data.
+     *
+     * @param template The template classification with various amounts of information filled in.
+     * @param options The match options to use.
+     *
+     * @return The closest possible match.
+     *
+     * @throws BayesianException if unable to compuete match charactersics
+     */
+    public Match<AlaLinnaeanClassification, MatchMeasurement> search(AlaLinnaeanClassification template, MatchOptions options) throws BayesianException {
+        return this.matcher.findMatch(template, options);
+    }
+
+    /**
+     * Search for a classification, based on template classification data and with default options.
      *
      * @param template The template classification with various amounts of information filled in.
      *
      * @return The closest possible match.
      *
      * @throws BayesianException if unable to compuete match charactersics
-      */
+     *
+     * @see #search(AlaLinnaeanClassification, MatchOptions)
+     * @see MatchOptions#ALL
+     */
     public Match<AlaLinnaeanClassification, MatchMeasurement> search(AlaLinnaeanClassification template) throws BayesianException {
-        return this.matcher.findMatch(template, MatchOptions.ALL);
+        return this.search(template, MatchOptions.ALL);
     }
 
     /**
@@ -134,18 +152,34 @@ public class ALANameSearcher implements AutoCloseable {
         return match;
     }
 
-
     /**
      * Search for a classification, based on template vernacular data.
+     *
+     * @param template The template classification with various amounts of information filled in.
+     * @param options The search options
+     *
+     * @return The closest possible match.
+     *
+     * @throws BayesianException if unable to compuete match charactersics
+     */
+    public Match<AlaVernacularClassification, MatchMeasurement> search(AlaVernacularClassification template, MatchOptions options) throws BayesianException {
+        return this.vernacularMatcher.findMatch(template, options);
+    }
+
+    /**
+     * Search for a classification, based on template vernacular data and with default match options.
      *
      * @param template The template classification with various amounts of information filled in.
      *
      * @return The closest possible match.
      *
      * @throws BayesianException if unable to compuete match charactersics
-      */
+     *
+     * @see #search(AlaVernacularClassification, MatchOptions)
+     * @see MatchOptions#ALL
+     */
     public Match<AlaVernacularClassification, MatchMeasurement> search(AlaVernacularClassification template) throws BayesianException {
-        return this.vernacularMatcher.findMatch(template, MatchOptions.ALL);
+        return this.search(template, MatchOptions.ALL);
     }
 
     /**

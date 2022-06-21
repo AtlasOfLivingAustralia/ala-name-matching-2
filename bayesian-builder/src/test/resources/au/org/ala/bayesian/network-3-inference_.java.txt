@@ -25,28 +25,29 @@ public class Network3Inferencer_ implements Inferencer<Network3Classification> {
     double nc$v2 = evidence.isF$e$v2() ? 1.0 : 0.0;
     double c$v3 = 0.0;
     double nc$v3 = 0.0;
-    if (trace != null) {
-        trace.add("v_1", c$v1);
-        trace.add("!v_1", nc$v1);
-    }
     // Ignoring non-base v_2
-    if (trace != null) {
-        trace.add("v_2", c$v2);
-        trace.add("!v_2", nc$v2);
-    }
     if (evidence.isT$e$v3()) {
-      c$v3 += parameters.derived_v3_t$t_t * c$v1 * c$v2;
-      c$v3 += parameters.derived_v3_t$t_f * c$v1 * nc$v2;
+       c$v3 += parameters.derived_v3_t$t_t * c$v1 * c$v2;
+       c$v3 += parameters.derived_v3_t$t_f * c$v1 * nc$v2;
+      if (trace != null) {
+        String val_ = this.formatDouble(parameters.derived_v3_t$t_t) + " \u00b7 " + this.formatDouble(c$v1) + " \u00b7 " + this.formatDouble(c$v2) + " + " + this.formatDouble(parameters.derived_v3_t$t_f) + " \u00b7 " + this.formatDouble(c$v1) + " \u00b7 " + this.formatDouble(nc$v2);
+        trace.add("p(v_3) - v_3", "p(v_3 | v_1, v_2)·v_1·v_2 + p(v_3 | v_1, ¬v_2)·v_1·¬v_2", val_, c$v3);
+      }
     }
     if (evidence.isF$e$v3()) {
       nc$v3 += parameters.derived_v3_f$t_t * c$v1 * c$v2;
       nc$v3 += parameters.derived_v3_f$t_f * c$v1 * nc$v2;
+      if (trace != null) {
+        String val_ = this.formatDouble(parameters.derived_v3_f$t_t) + " \u00b7 " + this.formatDouble(c$v1) + " \u00b7 " + this.formatDouble(c$v2) + " + " + this.formatDouble(parameters.derived_v3_f$t_f) + " \u00b7 " + this.formatDouble(c$v1) + " \u00b7 " + this.formatDouble(nc$v2);
+        trace.add("p(¬v_3) - !v_3", "p(¬v_3 | v_1, v_2)·v_1·v_2 + p(¬v_3 | v_1, ¬v_2)·v_1·¬v_2", val_, nc$v3);
+      }
     }
+    double result_ = (c$v3 + nc$v3);
     if (trace != null) {
-        trace.add("v_3", c$v3);
-        trace.add("!v_3", nc$v3);
+      String val_ = "(" + this.formatDouble(c$v3) + " + " + this.formatDouble(nc$v3) + ")";
+      trace.add("c(E | v_1)", "(p(v_3) + p(¬v_3))", val_, result_);
     }
-    return (c$v3 + nc$v3);
+    return result_;
   }
 
   public double infer_f(Network3Inferencer.Evidence evidence, Network3Parameters_ parameters, Trace trace) {
@@ -56,42 +57,47 @@ public class Network3Inferencer_ implements Inferencer<Network3Classification> {
     double nc$v2 = evidence.isF$e$v2() ? 1.0 : 0.0;
     double c$v3 = 0.0;
     double nc$v3 = 0.0;
-    if (trace != null) {
-        trace.add("v_1", c$v1);
-        trace.add("!v_1", nc$v1);
-    }
     // Ignoring non-base v_2
-    if (trace != null) {
-        trace.add("v_2", c$v2);
-        trace.add("!v_2", nc$v2);
-    }
     if (evidence.isT$e$v3()) {
-      c$v3 += parameters.derived_v3_t$f_t * nc$v1 * c$v2;
-      c$v3 += parameters.derived_v3_t$f_f * nc$v1 * nc$v2;
+       c$v3 += parameters.derived_v3_t$f_t * nc$v1 * c$v2;
+       c$v3 += parameters.derived_v3_t$f_f * nc$v1 * nc$v2;
+      if (trace != null) {
+        String val_ = this.formatDouble(parameters.derived_v3_t$f_t) + " \u00b7 " + this.formatDouble(nc$v1) + " \u00b7 " + this.formatDouble(c$v2) + " + " + this.formatDouble(parameters.derived_v3_t$f_f) + " \u00b7 " + this.formatDouble(nc$v1) + " \u00b7 " + this.formatDouble(nc$v2);
+        trace.add("p(v_3) - v_3", "p(v_3 | ¬v_1, v_2)·¬v_1·v_2 + p(v_3 | ¬v_1, ¬v_2)·¬v_1·¬v_2", val_, c$v3);
+      }
     }
     if (evidence.isF$e$v3()) {
       nc$v3 += parameters.derived_v3_f$f_t * nc$v1 * c$v2;
       nc$v3 += parameters.derived_v3_f$f_f * nc$v1 * nc$v2;
+      if (trace != null) {
+        String val_ = this.formatDouble(parameters.derived_v3_f$f_t) + " \u00b7 " + this.formatDouble(nc$v1) + " \u00b7 " + this.formatDouble(c$v2) + " + " + this.formatDouble(parameters.derived_v3_f$f_f) + " \u00b7 " + this.formatDouble(nc$v1) + " \u00b7 " + this.formatDouble(nc$v2);
+        trace.add("p(¬v_3) - !v_3", "p(¬v_3 | ¬v_1, v_2)·¬v_1·v_2 + p(¬v_3 | ¬v_1, ¬v_2)·¬v_1·¬v_2", val_, nc$v3);
+      }
     }
+    double result_ = (c$v3 + nc$v3);
     if (trace != null) {
-        trace.add("v_3", c$v3);
-        trace.add("!v_3", nc$v3);
+      String val_ = "(" + this.formatDouble(c$v3) + " + " + this.formatDouble(nc$v3) + ")";
+      trace.add("c(E | ¬v_1)", "(p(v_3) + p(¬v_3))", val_, result_);
     }
-    return (c$v3 + nc$v3);
+    return result_;
   }
 
 
   public Inference probability(Network3Inferencer.Evidence evidence, Network3Parameters_ parameters, Trace trace) {
-    double p;
+    double c, p;
     double prior = parameters.prior_v1_t;
     double ph = 0.0;
     double pe = 0.0;
 
     if (trace != null)
-        trace.push("t");
+        trace.push("p(v_1)");
     try {
         if (evidence.isT$e$v1()) {
-          p = this.infer_t(evidence, parameters, trace) * parameters.prior_v1_t;
+          c = this.infer_t(evidence, parameters, trace);
+          p = c  * parameters.prior_v1_t;
+          if (trace != null) {
+            trace.value("c(E | v_1)\u00b7p(v_1)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_v1_t), p);
+          }
           ph += p;
           pe += p;
         }
@@ -100,10 +106,14 @@ public class Network3Inferencer_ implements Inferencer<Network3Classification> {
             trace.pop();
     }
     if (trace != null)
-        trace.push("f");
+        trace.push("p(¬v_1)");
     try {
         if (evidence.isF$e$v1()) {
-          p = this.infer_f(evidence, parameters, trace) * parameters.prior_v1_f;
+          c = this.infer_f(evidence, parameters, trace);
+          p = c  * parameters.prior_v1_f;
+          if (trace != null) {
+            trace.value("c(E | ¬v_1)\u00b7p(¬v_1)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_v1_f), p);
+          }
           pe += p;
         }
     } finally {

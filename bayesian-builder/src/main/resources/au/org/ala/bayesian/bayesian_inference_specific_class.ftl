@@ -41,47 +41,56 @@ public class ${className} implements Inferencer<${classificationClassName}> {
     // Ignoring non-base ${node.observable.id}
   <#elseif node.interior?size gt 0>
     if (evidence.isT$${node.evidence.id}()) {
-        <#list node.matchingInterior(signature) as inf>
-            <#if inf.outcome.match>
-      ${node.CE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
-            </#if>
+        <#list node.matchingInterior(signature, true) as inf>
+       ${node.CE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
         </#list>
+      if (trace != null) {
+        String val_ = <#list node.matchingInterior(signature, true) as inf>this.formatDouble(parameters.${inf.id})<#list inf.contributors as c><#assign base = nodes[c.observable.id]> + " \u00b7 " + this.formatDouble(<#if c.match>${base.CE}<#else>${base.CNotE}</#if>)</#list><#if inf?has_next> + " + " + </#if></#list>;
+        trace.add("${node.formula} - ${node.observable.id}", "${node.formulaExpression(signature, true, true)}", val_, ${node.CE});
+      }
     }
     if (evidence.isF$${node.evidence.id}()) {
-      <#list node.matchingInterior(signature) as inf>
-            <#if !inf.outcome.match>
+      <#list node.matchingInterior(signature, false) as inf>
       ${node.CNotE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
-            </#if>
       </#list>
+      if (trace != null) {
+        String val_ = <#list node.matchingInterior(signature, false) as inf>this.formatDouble(parameters.${inf.id})<#list inf.contributors as c><#assign base = nodes[c.observable.id]> + " \u00b7 " + this.formatDouble(<#if c.match>${base.CE}<#else>${base.CNotE}</#if>)</#list><#if inf?has_next> + " + " + </#if></#list>;
+        trace.add("${node.notFormula} - !${node.observable.id}", "${node.formulaExpression(signature, false, true)}", val_, ${node.CNotE});
+      }
     }
   <#elseif node.inference?size gt 0>
     if (evidence.isT$${node.evidence.id}()) {
-      <#list node.matchingInference(signature) as inf>
-          <#if inf.outcome.match>
+      <#list node.matchingInference(signature, true) as inf>
       ${node.CE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
-          </#if>
       </#list>
+      if (trace != null) {
+        String val_ = <#list node.matchingInference(signature, true) as inf>this.formatDouble(parameters.${inf.id})<#list inf.contributors as c><#assign base = nodes[c.observable.id]> + " \u00b7 " + this.formatDouble(<#if c.match>${base.CE}<#else>${base.CNotE}</#if>)</#list><#if inf?has_next> + " + " + </#if></#list>;
+        trace.add("${node.formula} - ${node.observable.id}", "${node.formulaExpression(signature, true, false)}", val_, ${node.CE});
+      }
     }
     if (evidence.isF$${node.evidence.id}()) {
-      <#list node.matchingInference(signature) as inf>
-          <#if !inf.outcome.match>
+      <#list node.matchingInference(signature, false) as inf>
       ${node.CNotE} += parameters.${inf.id}<#list inf.contributors as c><#assign base = nodes[c.observable.id]> * <#if c.match>${base.CE}<#else>${base.CNotE}</#if></#list>;
-          </#if>
       </#list>
+      if (trace != null) {
+        String val_ = <#list node.matchingInference(signature, false) as inf>this.formatDouble(parameters.${inf.id})<#list inf.contributors as c><#assign base = nodes[c.observable.id]> + " \u00b7 " + this.formatDouble(<#if c.match>${base.CE}<#else>${base.CNotE}</#if>)</#list><#if inf?has_next> + " + " + </#if></#list>;
+        trace.add("${node.notFormula} - ${node.observable.id}", "${node.formulaExpression(signature, false, false)}", val_, ${node.CNotE});
+      }
     }
   </#if>
-    if (trace != null) {
-        trace.add("${node.observable.id}", ${node.CE});
-        trace.add("!${node.observable.id}", ${node.CNotE});
-    }
 </#list>
-    return <#list outputs as node>(${node.CE.id} + ${node.CNotE.id})<#if node?has_next> * </#if></#list>;
+    double result_ = <#list outputs as node>(${node.CE.id} + ${node.CNotE.id})<#if node?has_next> * </#if></#list>;
+    if (trace != null) {
+      String val_ = <#list outputs as node>"(" + this.formatDouble(${node.CE}) + " + " + this.formatDouble(${node.CNotE}) + ")"<#if node?has_next> + " \u00b7 " + </#if></#list>;
+      trace.add("c(E | ${formulaForSignature(sig)})", "<#list outputs as node>(${node.formula} + ${node.notFormula})<#if node?has_next> \u00b7 </#if></#list>", val_, result_);
+    }
+    return result_;
   }
 
 </#list>
 
   public Inference probability(${parentClassName}.Evidence evidence, ${parametersClassName} parameters, Trace trace) {
-    double p;
+    double c, p;
     double prior = <#list inputs as node><#if node?index gt 0> * </#if>parameters.${node.prior.id}</#list>;
     double ph = 0.0;
     double pe = 0.0;
@@ -89,10 +98,14 @@ public class ${className} implements Inferencer<${classificationClassName}> {
 <#list inputSignatures as sig>
     <#assign signature><#list sig as s><#if s>t<#else>f</#if></#list></#assign>
     if (trace != null)
-        trace.push("${signature}");
+        trace.push("p(${formulaForSignature(sig)})");
     try {
         if (<#list sig as s><#assign node = inputs[s?index]>evidence.is<#if s>T<#else>F</#if>$${node.evidence.id}()<#if s?has_next> && </#if></#list>) {
-          p = this.infer_${signature}(evidence, parameters, trace)<#list inputs as node> * <#if sig[node?index]>parameters.${node.prior.id}<#else>parameters.${node.invertedPrior.id}</#if></#list>;
+          c = this.infer_${signature}(evidence, parameters, trace);
+          p = c <#list inputs as node> * <#if sig[node?index]>parameters.${node.prior.id}<#else>parameters.${node.invertedPrior.id}</#if></#list>;
+          if (trace != null) {
+            trace.value("c(E | ${formulaForSignature(sig)})\u00b7p(${formulaForSignature(sig)})", this.formatDouble(c) + <#list inputs as node> " \u00b7 " + this.formatDouble(<#if sig[node?index]>parameters.${node.prior.id}<#else>parameters.${node.invertedPrior.id}</#if>)</#list>, p);
+          }
     <#if sig?is_first>
           ph += p;
     </#if>

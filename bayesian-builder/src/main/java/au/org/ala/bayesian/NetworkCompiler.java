@@ -336,6 +336,21 @@ public class NetworkCompiler {
         }
     }
 
+    public String formulaForSignature(boolean[] signature) {
+        StringBuilder builder = new StringBuilder();
+         int si = 0;
+        for (Node input: this.getInputs()) {
+            if (si > 0) {
+                builder.append(", ");
+            }
+            if (!signature[si]) {
+                builder.append('\u00ac');
+            }
+            builder.append(input.getObservable().getLabel());
+        }
+        return builder.toString();
+    }
+
     public class Node {
         /** The associated observable */
         @Getter
@@ -386,12 +401,34 @@ public class NetworkCompiler {
             return "p(\u00ac" + this.observable.getLabel() + ")";
         }
 
-        public List<InferenceParameter> matchingInference(final String signature) {
-            return this.inference.stream().filter(p -> signature.equals(p.getPostulateSignature())).collect(Collectors.toList());
+        public String formulaExpression(String signature, boolean match, boolean interior) {
+            StringBuilder builder = new StringBuilder();
+            List<InferenceParameter> parameters = interior ? this.matchingInterior(signature, match) : this.matchingInference(signature, match);
+            for (InferenceParameter parameter: parameters) {
+                if (builder.length() > 0) {
+                    builder.append(" + ");
+                }
+                builder.append(parameter.getFormula());
+                for (Contributor c: parameter.getContributors()) {
+                    builder.append("\u00b7");
+                    builder.append(c.getFormula());
+                }
+            }
+            return builder.toString();
         }
 
-        public List<InferenceParameter> matchingInterior(final String signature) {
-            return this.interior.stream().filter(p -> signature.equals(p.getPostulateSignature())).collect(Collectors.toList());
+        public List<InferenceParameter> matchingInference(final String signature, boolean match) {
+            return this.inference.stream()
+                    .filter(p -> signature.equals(p.getPostulateSignature()))
+                    .filter(p -> p.getOutcome().isMatch() == match)
+                    .collect(Collectors.toList());
+        }
+
+        public List<InferenceParameter> matchingInterior(final String signature, boolean match) {
+            return this.interior.stream()
+                    .filter(p -> signature.equals(p.getPostulateSignature()))
+                    .filter(p -> p.getOutcome().isMatch() == match)
+                    .collect(Collectors.toList());
         }
 
         /**

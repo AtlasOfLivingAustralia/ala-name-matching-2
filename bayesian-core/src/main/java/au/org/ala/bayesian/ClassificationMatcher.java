@@ -182,7 +182,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             measurement.start();
         }
         if (options.isTrace())
-            trace = Optional.of(new Trace());
+            trace = Optional.of(new Trace(this.getFactory(), "match"));
         trace.ifPresent(t -> t.add("template", classification.clone()));
         trace.ifPresent(t -> t.add("options", options));
         final Match<C, M> match = this.findMatch(classification, options, measurement, trace);
@@ -449,13 +449,14 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
         int maxCandidate = 0;
         List<Match<C, M>> results = new ArrayList<>(candidates.size());
         for (Classifier candidate : candidates) {
+            final String label = Integer.toString(index);
             index++;
-            String label = trace.isPresent() ? this.factory.buildLabel(candidate) : null;
             if (!this.isValidCandidate(classification, candidate)) {
-                trace.ifPresent(t -> t.add("invalid", label));
+                trace.ifPresent(t -> t.addSummary("invalid", candidate));
                 continue;
             }
             trace.ifPresent(t -> t.push(label));
+            trace.ifPresent(t -> t.add("classifier", candidate));
             try {
                 Inference inference = this.inferencer.probability(classification, candidate, trace.orElse(null));
                 trace.ifPresent(t -> t.value(inference));

@@ -11,3 +11,8 @@
 /ala-namematching/target/
 /taxonomic-tools-builder/target/
 /ala-distribution/target/
+/name-matching-common-test/src/main/resources/sample-2/identifier.txt-sorted
+/name-matching-common-test/src/main/resources/sample-2/rightsholder.txt-sorted
+/name-matching-common-test/src/main/resources/sample-2/taxon.txt-sorted
+/name-matching-common-test/src/main/resources/sample-2/taxonvariant.txt-sorted
+/name-matching-common-test/src/main/resources/sample-2/vernacularname.txt-sorted

@@ -1,17 +1,7 @@
 <#assign analyserType><#if analyserImplementationClassName??>${analyserImplementationClassName}<#else>Analyser<${className}></#if></#assign>
 package ${packageName};
 
-import au.org.ala.bayesian.Analyser;
-import au.org.ala.bayesian.BayesianException;
-import au.org.ala.bayesian.Classification;
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Fidelity;
-import au.org.ala.bayesian.Hints;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.Issues;
-import au.org.ala.bayesian.MatchOptions;
-import au.org.ala.bayesian.Observable;
-import au.org.ala.bayesian.Observation;
+import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.fidelity.CompositeFidelity;
 
 import java.util.ArrayList;
@@ -33,6 +23,7 @@ import ${import};
 </#list>
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@TraceDescriptor(identify = true, identifier = "getIdentifier")
 public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements Classification<${className}> {
   private Issues issues;
   private Hints<${className}> hints;

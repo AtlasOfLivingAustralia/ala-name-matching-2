@@ -1,0 +1,16 @@
+{
+  "label" : "top",
+  "value" : {
+    "id" : "XX",
+    "value1" : "Hello",
+    "value2" : "There"
+  },
+  "children" : [ {
+    "label" : "repeated",
+    "value" : {
+      "id" : "XX",
+      "value1" : "Hello",
+      "value2" : "There"
+    }
+  } ]
+}
