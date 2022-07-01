@@ -1,5 +1,6 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.util.Metadata;
 import au.org.ala.util.Service;
 import org.gbif.dwc.terms.Term;
 
@@ -15,6 +16,12 @@ import java.util.List;
  */
 @Service
 abstract public class ClassifierSearcher<C extends Classifier> implements AutoCloseable {
+    /**
+     * Get the observable that is the key marker for the classifier
+     *
+     * @return The key observable
+     */
+    abstract public Observable<String> getKey();
     /**
      * Search for a classifier by identifier.
      *
@@ -51,4 +58,11 @@ abstract public class ClassifierSearcher<C extends Classifier> implements AutoCl
      * @throws BayesianException if unable to correctly match the classifiers
      */
     abstract public List<C> search(Classification classification) throws BayesianException;
+
+    /**
+     * Get the classifier metadata.
+     *
+     * @return The metadata
+     */
+    abstract public Metadata getMetadata();
 }

@@ -1,11 +1,15 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Network;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.names.generated.SimpleLinnaeanBuilder;
 import au.org.ala.names.generated.SimpleLinnaeanFactory;
 import au.org.ala.names.generated.SimpleLinnaeanParameters_FT;
+import au.org.ala.names.lucene.LuceneClassifier;
+import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.names.lucene.LuceneLoadStore;
+import au.org.ala.util.Metadata;
 import org.gbif.dwc.terms.DwcTerm;
 import org.junit.After;
 import org.junit.Before;
@@ -14,9 +18,9 @@ import org.junit.Test;
 import java.io.File;
 import java.net.URL;
 import java.util.Collections;
+import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class IndexBuilderTest {
     private IndexBuilderConfiguration config;
@@ -171,6 +175,48 @@ public class IndexBuilderTest {
         assertEquals(0.0, parameters.inf_kingdom_f$t_t, 0.0001);
         assertEquals(0.0, parameters.inf_genus_t$t_ff, 0.0001);
         assertEquals(0.0, parameters.inf_genus_t$f_ft, 0.0001);
+    }
+
+    @Test
+    public void testMetadata1() throws Exception {
+        Observable taxonID = this.builder.network.getObservable(DwcTerm.taxonID);
+        Observable taxonomicStatus = this.builder.network.getObservable(DwcTerm.taxonomicStatus);
+        URL surl = this.getClass().getResource("source-1.csv");
+        CSVSource source = new CSVSource(surl, this.builder.getFactory(), this.builder.getNetwork().getObservables());
+        this.builder.load(source);
+        Metadata metadata = this.builder.createMetadata();
+        assertNotNull(metadata);
+        assertTrue(!metadata.getIdentifier().isEmpty());
+        assertEquals(this.builder.network.getId(), metadata.getTitle());
+        assertNotNull(metadata.getSources());
+        assertEquals(2, metadata.getSources().size());
+        assertFalse(metadata.getCreated().after(new Date()));
+    }
+
+    public void testBuild1() throws Exception {
+        URL surl = this.getClass().getResource("source-1.csv");
+        CSVSource source = new CSVSource(surl, this.builder.getFactory(), this.builder.getNetwork().getObservables());
+        this.builder.load(source);
+        LoadStore parameterised = this.builder.build();
+        File output = new File(this.config.getWork(), "output");
+        this.builder.buildIndex(output, parameterised);
+        try (LuceneClassifierSearcher searcher = new LuceneClassifierSearcher(output, null, this.builder.getNetwork().getIdentifierObservable())) {
+            Metadata metadata = searcher.getMetadata();
+            assertNotNull(metadata);
+            assertTrue(!metadata.getIdentifier().isEmpty());
+            assertEquals(this.builder.network.getId(), metadata.getTitle());
+            assertNotNull(metadata.getSources());
+            assertEquals(2, metadata.getSources().size());
+            assertFalse(metadata.getCreated().after(new Date()));
+            File nw = new File(output, "network.json");
+            assertTrue(nw.exists());
+            Network saved = Network.read(nw.toURI().toURL());
+            assertNotNull(saved);
+            assertEquals(this.builder.network.getId(), saved.getId());
+            LuceneClassifier classifier = searcher.get(SimpleLinnaeanFactory.CONCEPT, SimpleLinnaeanFactory.taxonId, "S-1");
+            assertNotNull(classifier);
+            assertEquals("Artemia franciscana", classifier.get(SimpleLinnaeanFactory.scientificName));
+        }
     }
 
 }

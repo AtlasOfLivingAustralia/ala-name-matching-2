@@ -3,6 +3,7 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Network;
 import au.org.ala.names.generated.SimpleLinnaeanFactory;
 import au.org.ala.names.lucene.LuceneClassifier;
+import au.org.ala.util.Metadata;
 import au.org.ala.util.TestUtils;
 import org.gbif.dwc.terms.DwcTerm;
 import org.junit.After;
@@ -62,6 +63,9 @@ public class CSVSourceTest {
         assertEquals("Artemia franciscana", value.get(SimpleLinnaeanFactory.scientificName));
         assertNull(value.get(SimpleLinnaeanFactory.taxonRank));
         assertNull(value.get(SimpleLinnaeanFactory.taxonomicStatus));
+        Metadata metadata = source.getMetadata();
+        assertNotNull(metadata);
+        assertEquals(this.getClass().getResource("source-1.csv").toURI(), metadata.getAbout());
         source.close();
     }
 
@@ -79,6 +83,9 @@ public class CSVSourceTest {
         assertEquals("species", value.get(SimpleLinnaeanFactory.taxonRank));
         assertEquals("accepted", value.get(SimpleLinnaeanFactory.taxonomicStatus));
         assertNull(value.get(SimpleLinnaeanFactory.genus));
+        Metadata metadata = source.getMetadata();
+        assertNotNull(metadata);
+        assertEquals(this.getClass().getResource("source-2.csv").toURI(), metadata.getAbout());
         source.close();
     }
 

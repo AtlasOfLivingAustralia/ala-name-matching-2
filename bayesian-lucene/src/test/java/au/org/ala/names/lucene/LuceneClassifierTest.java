@@ -317,4 +317,10 @@ public class LuceneClassifierTest {
         classifier.setTrail(trail);
         assertEquals(trail, classifier.getTrail());
     }
+
+    @Test
+    public void testLuceneMetadata1() throws Exception {
+        assertNotNull(LuceneClassifier.LUCENE_METADATA);
+        assertEquals("Lucene", LuceneClassifier.LUCENE_METADATA.getFormat());
+    }
 }

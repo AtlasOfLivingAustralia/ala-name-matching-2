@@ -3,6 +3,7 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.names.generated.SimpleLinnaeanFactory;
+import au.org.ala.util.Metadata;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.junit.After;
@@ -51,6 +52,9 @@ public class DwCASourceTest {
         value = this.store.get(GbifTerm.VernacularName, SimpleLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2913682");
         assertNotNull(value);
         assertEquals("Mallow", value.get(VERNACULAR_NAME_OBS));
+        Metadata metadata = source.getMetadata();
+        assertNotNull(metadata);
+        assertEquals("ALA-Combined", metadata.getIdentifier());
         source.close();
     }
 
@@ -71,6 +75,9 @@ public class DwCASourceTest {
         value = this.store.get(GbifTerm.VernacularName, SimpleLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/node/apni/2913682");
         assertNotNull(value);
         assertNull(value.get(VERNACULAR_NAME_OBS));
+        Metadata metadata = source.getMetadata();
+        assertNotNull(metadata);
+        assertEquals("ALA-Combined", metadata.getIdentifier());
         source.close();
     }
 }

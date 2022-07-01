@@ -11,6 +11,7 @@ import lombok.Getter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,10 +46,13 @@ abstract public class AbstractCli<C extends Classification<C>, B extends Builder
     @Parameter(names = { "-o", "--output"}, description = "The directory that holds the output index", converter = FileConverter.class, required = true)
     @Getter
     private File output = null;
-    /** The output directory */
+    /** The number of parallel processing threads to run */
     @Parameter(names = { "-t", "--thread"}, description = "The number of threads to use for parallel processing")
     @Getter
     private int threads = 0;
+    @Parameter(names = { "-m", "--metadata"}, variableArity = true, description = "Additional metadata settings for the final index in term=value form")
+    @Getter
+    private List<String> metadata = new ArrayList<>();
     /** The input sources */
     @Parameter(description = "The source DwCAs", listConverter = URLConverter.class, required = true)
     @Getter
@@ -80,6 +84,12 @@ abstract public class AbstractCli<C extends Classification<C>, B extends Builder
             configuration.setData(this.data);
         if (this.threads > 0)
             configuration.setThreads(this.threads);
+        for (String md: this.metadata) {
+            String[] mdkv = md.split("=", 1);
+            if (mdkv.length < 2)
+                throw new IllegalStateException("Can't parse metadata value " + md);
+            configuration.addMetadata(mdkv[0], mdkv[1]);
+        }
         return configuration;
     }
 

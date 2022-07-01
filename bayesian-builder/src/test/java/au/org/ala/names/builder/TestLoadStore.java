@@ -3,6 +3,7 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneClassifier;
+import au.org.ala.util.Metadata;
 import org.gbif.dwc.terms.Term;
 
 import java.io.Closeable;
@@ -156,6 +157,14 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
                  test = test.and(classifier -> !Objects.equals(classifier.getDocument().get(ob.getObservable().getExternal(LUCENE)), ob.getValue()));
          }
          return (int) this.store.values().stream().filter(test).count();
+    }
+
+    @Override
+    public void store(Metadata metadata) throws StoreException {
+    }
+
+    @Override
+    public void store(Network network) throws StoreException {
     }
 
     @Override

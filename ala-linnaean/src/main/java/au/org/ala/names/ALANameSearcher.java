@@ -51,8 +51,8 @@ public class ALANameSearcher implements AutoCloseable {
     private final RankAnalysis rankAnalysis;
 
     public ALANameSearcher(File index, File vernacular, File suggesterDir, LuceneClassifierSearcherConfiguration sConfig, ClassificationMatcherConfiguration cConfig) throws StoreException {
-        this.searcher = new LuceneClassifierSearcher(index, sConfig);
-        this.vernacularSearcher = new LuceneClassifierSearcher(vernacular, sConfig);
+        this.searcher = new LuceneClassifierSearcher(index, sConfig, AlaLinnaeanFactory.taxonId);
+        this.vernacularSearcher = new LuceneClassifierSearcher(vernacular, sConfig, AlaVernacularFactory.taxonId);
         this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, cConfig);
         this.vernacularMatcher = new ALAVernacularClassificationMatcher(AlaVernacularFactory.instance(), this.vernacularSearcher, cConfig);
         this.suggesterDir = suggesterDir;
@@ -202,16 +202,12 @@ public class ALANameSearcher implements AutoCloseable {
     protected LuceneClassifierSuggester buildSuggester() {
         LuceneClassifierSuggester suggester = new LuceneClassifierSuggester(
                 FSDirectory.open(this.suggesterDir.toPath()),
+                this::suggestWeight,
                 this.searcher,
-                AlaLinnaeanFactory.instance()
+                AlaLinnaeanFactory.instance(),
+                this.vernacularSearcher
         );
-        if (!suggester.load()) {
-            suggester.start();
-            suggester.add(this.searcher, AlaLinnaeanFactory.taxonId, this::suggestWeight);
-            suggester.add(this.vernacularSearcher, AlaVernacularFactory.taxonId, this::suggestWeight);
-            suggester.create();
-            suggester.store();
-        }
+        suggester.load();
         return suggester;
     }
 

@@ -3,7 +3,10 @@ package au.org.ala.names.lucene;
 import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.util.FileUtils;
+import au.org.ala.util.JsonUtils;
+import au.org.ala.util.Metadata;
 import au.org.ala.vocab.BayesianTerm;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.text.similarity.CosineDistance;
 import org.apache.commons.text.similarity.EditDistance;
 import org.apache.commons.text.similarity.LongestCommonSubsequence;
@@ -40,8 +43,8 @@ import java.util.stream.Collectors;
 public class LuceneClassifierSuggester extends ClassifierSuggester<LuceneClassifier> {
     private static final Logger logger = LoggerFactory.getLogger(LuceneClassifierSuggester.class);
 
-    /** The name of the suggester store file */
-    protected static final String SUGGESTER_STORE = "suggester.bin";
+    /** The name of the suggester metadata file */
+    protected static final String SUGGESTER_METADATA = "suggester-metadata.json";
 
     /** The name field for the temporary index */
     public static final String NAME_FIELD = "name";
@@ -54,48 +57,52 @@ public class LuceneClassifierSuggester extends ClassifierSuggester<LuceneClassif
     /** The type field */
     public static final String TYPE_FIELD = "type";
 
-    /** The source of actual classifications */
+    /** The base searcher */
     private final LuceneClassifierSearcher base;
-    /** The factory for the base classifications */
+    /** The base network description */
     private final NetworkFactory baseFactory;
+    /** The sources of actual classifications */
+    private final List<LuceneClassifierSearcher> sources;
     /** The suggester analyser */
     private final Analyzer analyzer;
     /** The suggester */
-    private final AnalyzingInfixSuggester suggester;
+    private AnalyzingInfixSuggester suggester;
     /** The suggester store directory */
     private final FSDirectory directory;
     /** How to measure distance from the query */
     private final EditDistance<Integer> distance;
+    /** The suggester metadata */
+    private Metadata metadata;
     /** The work directory */
     private File workDirectory = null;
     /** The index writer for building the temporary index */
     private IndexWriter workWriter = null;
     /** The lucene utilities */
     private final QueryUtils utils;
+    /** The weighting function */
+    private Function<LuceneClassifier, Double> weighter;
 
     /**
      * Construct an empty suggester with a source of truth.
      *
      * @param directory The directory to store the suggestion index in
-     * @param base The searcher
-     * @param baseFactory The base description
+     * @param weighter The searcher
+     * @param base The base classifier
+     * @param baseFactory The base factory description
      *
      * @throws StoreException if unable to make the suggester
      */
-    public LuceneClassifierSuggester(FSDirectory directory, LuceneClassifierSearcher base, NetworkFactory baseFactory) throws StoreException {
+    public LuceneClassifierSuggester(FSDirectory directory, Function<LuceneClassifier, Double> weighter, LuceneClassifierSearcher base, NetworkFactory baseFactory, LuceneClassifierSearcher... additional) throws StoreException {
         try {
-            this.directory = directory;
             this.base = base;
             this.baseFactory = baseFactory;
-            if (!this.baseFactory.getIdentifier().isPresent())
-                throw new IllegalArgumentException("Network " + this.baseFactory.getNetworkId() + " must have an identifier");
+            this.sources = new ArrayList<>();
+            this.sources.add(base);
+            this.sources.addAll(Arrays.asList(additional));
+            this.directory = directory;
+            this.weighter = weighter;
             this.utils = new QueryUtils();
             this.analyzer = this.utils.createSuggesterAnalyzer();
-            this.suggester = new BlendedInfixSuggester(
-                    this.directory,
-                    this.analyzer
-            );
-            logger.info("Suggester " + this.suggester + " in " + this.directory + " has " + this.suggester.getCount() + " entries");
             this.distance = new LongestCommonSubsequenceDistance();
         } catch (Exception ex) {
             throw new StoreException("Unable to set up suggester", ex);
@@ -105,7 +112,7 @@ public class LuceneClassifierSuggester extends ClassifierSuggester<LuceneClassif
     /**
      * Start construction of a suggester.
      *
-     * @see #add(LuceneClassifierSearcher, Observable, Observable)
+     * @see #add(LuceneClassifierSearcher)
      *
      * @throws StoreException if unable to construct the work indexes
      */
@@ -126,16 +133,17 @@ public class LuceneClassifierSuggester extends ClassifierSuggester<LuceneClassif
      * <p>
      * This method allows the building of a suggester from multiple sources.
      * To use this, start with {@link #start()},
-     * add a number of sources with {@link #add(LuceneClassifierSearcher, Observable, Observable)}
+     * add a number of sources with {@link #add(LuceneClassifierSearcher
+     * )}
      * and then finish it off with {@link #create()}
      * </p>
      *
      * @param source The source searcher
-     * @param key The observable that generates the lookup key
      *
      * @throws IOException if unable to add the source
      */
-    public void add(LuceneClassifierSearcher source, Observable<String> key, Function<LuceneClassifier, Double> weighter) throws StoreException {
+    public void add(LuceneClassifierSearcher source) throws StoreException {
+        Observable<String> key = source.getKey();
         logger.info("Adding source " + source.getDirectory() + " with key " + key);
         IndexReader sr = source.getIndexReader();
         if (sr.hasDeletions())
@@ -154,10 +162,8 @@ public class LuceneClassifierSuggester extends ClassifierSuggester<LuceneClassif
                 for (String name: classifier.getNames()) {
                     suggest.add(new StringField(NAME_FIELD, name, Field.Store.YES));
                 }
-                if (weighter != null) {
-                    double weight = weighter.apply(classifier);
-                    suggest.add(new StoredField(WEIGHT_FIELD, weight));
-                }
+                double weight = this.weighter == null ? 1.0 : this.weighter.apply(classifier);
+                suggest.add(new StoredField(WEIGHT_FIELD, weight));
                 boolean synonym = false;
                 for (IndexableField f: doc.getFields(LuceneClassifier.ANNOTATION_FIELD)) {
                     synonym = synonym || synonymAnnotation.equals(f.stringValue());
@@ -175,7 +181,7 @@ public class LuceneClassifierSuggester extends ClassifierSuggester<LuceneClassif
     /**
      * Create the suggester form the work index
      *
-     * @see #add(LuceneClassifierSearcher, Observable, Observable)
+     * @see #add(LuceneClassifierSearcher)
      *
      * @throws StoreException
      */
@@ -209,18 +215,49 @@ public class LuceneClassifierSuggester extends ClassifierSuggester<LuceneClassif
     }
 
     /**
-     * Try to load a pre-built suggester
+     * Try to load a pre-built suggester.
+     * If not, then build it.
      *
      * @return True if loaded successfully
      *
      * @throws IOException if unable to read the suggester
      */
-    public boolean load() throws IOException {
-        File store = new File(this.directory.getDirectory().toFile(), SUGGESTER_STORE);
-        if (!store.exists())
-            return false;
-        logger.info("Found pre-existing " + store + " with " + this.suggester.getCount() + " entries");
-        return true;
+    public boolean load() throws IOException, StoreException {
+        boolean build = false;
+        try {
+            File metadataFile = new File(this.directory.getDirectory().toFile(), SUGGESTER_METADATA);
+            if (!metadataFile.exists()) {
+                build = true;
+            } else {
+                this.metadata = Metadata.read(metadataFile);
+                Date currency = this.metadata.getCurrency();
+                for (LuceneClassifierSearcher source : this.sources) {
+                    Date sc = source.getMetadata().getCurrency();
+                    if (sc != null && sc.after(currency)) {
+                        logger.warn("Suggestion index at " + this.directory + " is out of date source " + source.getIndexReader() + " has currency " + sc);
+                        build = true;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            logger.error("Unable to determine currency of suggester, rebuilding", ex);
+        }
+        this.suggester = new BlendedInfixSuggester(
+                this.directory,
+                this.analyzer
+        );
+        if (!build) {
+            logger.info("Suggester " + this.suggester + " in " + this.directory + " has " + this.suggester.getCount() + " entries");
+        } else {
+            logger.info("Building suggester at " + this.directory);
+            this.start();
+            for (LuceneClassifierSearcher source: this.sources) {
+                this.add(source);
+            }
+            this.create();
+            this.store();
+        }
+        return !build;
     }
 
     /**
@@ -229,9 +266,16 @@ public class LuceneClassifierSuggester extends ClassifierSuggester<LuceneClassif
      * @throws IOException if unable to write the suggester
      */
     public void store() throws IOException {
-        File store = new File(this.directory.getDirectory().toFile(), SUGGESTER_STORE);
-        logger.info("Creating store " + store);
-        store.createNewFile();
+        File store = new File(this.directory.getDirectory().toFile(), SUGGESTER_METADATA);
+        logger.info("Creating store metadata " + store);
+        this.metadata = Metadata.builder()
+                .identifier(this.baseFactory.getNetworkId() + "-suggester")
+                .title("Suggestion Index")
+                .created(new Date())
+                .sources(this.sources.stream().map(ClassifierSearcher::getMetadata).collect(Collectors.toList()))
+                .build();
+        ObjectMapper mapper = JsonUtils.createMapper();
+        mapper.writeValue(store, metadata);
      }
 
     /**

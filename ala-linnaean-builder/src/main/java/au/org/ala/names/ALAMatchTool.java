@@ -80,7 +80,7 @@ public class ALAMatchTool extends MatchTool<AlaLinnaeanClassification, AlaLinnae
         LuceneClassifierSearcherConfiguration sConfig = LuceneClassifierSearcherConfiguration.builder()
                 .build();
         File index = new File(args.index);
-        LuceneClassifierSearcher searcher = new LuceneClassifierSearcher(index, sConfig);
+        LuceneClassifierSearcher searcher = new LuceneClassifierSearcher(index, sConfig, AlaLinnaeanFactory.taxonId);
         Reader input;
         if (args.files.get(0).equals("-"))
             input = new InputStreamReader(System.in);

@@ -2,12 +2,14 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
+import au.org.ala.util.Metadata;
 import au.org.ala.vocab.BayesianTerm;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexOptions;
@@ -36,6 +38,8 @@ import static au.org.ala.bayesian.ExternalContext.LUCENE_VARIANT;
 @Slf4j
 @TraceDescriptor(identify = true, identifier = "getLabel", description = "getFullDescription", summary = "getSummaryDescription")
 public class LuceneClassifier implements Classifier {
+    public static Metadata LUCENE_METADATA;
+
     /** The default field name for identifiers */
     public static final String ID_FIELD = "_id";
     /** The default field name for types */
@@ -56,6 +60,14 @@ public class LuceneClassifier implements Classifier {
     public static final String TRAIL_SEPARATOR = "|";
     /** The trail separator regular expression */
     public static final Pattern TRAIL_SEPARATOR_REGEX = Pattern.compile("\\|");
+
+    {
+        try {
+            LUCENE_METADATA = Metadata.read(LuceneClassifier.class.getResource("lucene-metadata.json"));
+        } catch (Exception ex) {
+            throw new IllegalStateException("No metadata for lucene classifiers", ex);
+        }
+    }
 
     /** The underlying lucene document */
     @Getter

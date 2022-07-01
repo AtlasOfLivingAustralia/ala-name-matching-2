@@ -3,8 +3,11 @@ package au.org.ala.names.lucene;
 import au.org.ala.bayesian.ExternalContext;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.util.FileUtils;
+import au.org.ala.util.JsonUtils;
+import au.org.ala.util.Metadata;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.BayesianTerm;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.*;
 import lombok.Getter;
 import org.apache.lucene.document.Document;
@@ -19,6 +22,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.TermFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -69,6 +73,7 @@ public class LuceneUtils {
         this.buildIndexDir();
         this.openWriter();
         this.makeIndex(clazz, resource, namer, ignoreDuplicates);
+        this.createMetadata();
         this.openSearcher();
     }
 
@@ -229,6 +234,19 @@ public class LuceneUtils {
             this.indexWriter.addDocument(classifier.getDocument());
         }
         this.indexWriter.commit();
+    }
+
+    /**
+     * Create a temporary metadata file.
+     *
+     * @throws Exception
+     */
+    private void createMetadata() throws Exception {
+        Metadata metadata = Metadata.builder()
+                .identifier(UUID.randomUUID().toString())
+                .created(new Date()).build();
+        ObjectMapper mapper = JsonUtils.createMapper();
+        mapper.writeValue(new File(this.indexDir.toFile(), LuceneClassifierSearcher.METADATA_FILE), metadata);
     }
 
 }

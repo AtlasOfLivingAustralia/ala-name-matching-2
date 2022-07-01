@@ -1,0 +1,7 @@
+{
+  "type": "http://purl.org/dc/dcmitype/Dataset",
+  "format": "Lucene",
+  "properties": {
+    "luceneVersion": "${org.apache.lucene.version}"
+  }
+}

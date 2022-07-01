@@ -5,9 +5,11 @@ import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.util.Counter;
+import au.org.ala.util.Metadata;
 import au.org.ala.vocab.OptimisationTerm;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -16,10 +18,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +32,9 @@ abstract public class Source {
     private final NetworkFactory factory;
     private final Map<Term, Observable<?>> observables;
     private final Set<Term> types;
+    @Getter
+    @Setter
+    private Metadata metadata;
     @Getter
     private final Counter counter;
 
@@ -50,8 +52,8 @@ abstract public class Source {
         this.factory = factory;
         this.observables = observables.stream().collect(Collectors.toMap(o -> o.getTerm(), o -> o));
         this.types = new HashSet<>(types);
+        this.metadata = Metadata.builder().identifier(UUID.randomUUID().toString()).build();
         this.counter = new Counter("Loaded {0} records, {2,number,0.0}/s", log, 10000, -1);
-
     }
 
     /**

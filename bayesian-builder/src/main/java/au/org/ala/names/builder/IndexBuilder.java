@@ -5,6 +5,7 @@ import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.Counter;
+import au.org.ala.util.Metadata;
 import au.org.ala.vocab.BayesianTerm;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -105,6 +106,8 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     protected Set<Object> identifiers;
     /** The set of MBeans used */
     protected Set<ObjectInstance> mbeans;
+    /** Source information metadata */
+    protected List<Metadata> sources;
 
     /**
      * Construct with a configuration.
@@ -150,6 +153,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.mbeans = new HashSet<>();
         this.stores = new ArrayList<>();
         this.loader = this.createWorkStore("loader");
+        this.sources = new ArrayList<>();
     }
 
     /**
@@ -163,6 +167,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.registerJmx(source.getCounter(), "source");
         source.load(this.loader, this.stored);
         this.loader.commit();
+        this.addSourceMetadata(source.getMetadata());
     }
 
 
@@ -687,53 +692,63 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
             index.store(classifier);
         }
         // Insert metadata document
-        LuceneClassifier metadata = this.createMetadata(index);
-        index.store(metadata, BayesianTerm.Metadata);
-
+        Metadata metadata = this.createMetadata();
+        index.store(metadata);
+        index.store(this.network);
         index.commit();
         index.close();
+    }
+
+    /**
+     * Add metadata for a source of data.
+     * <p>
+     * Sources are included in the index metadata.
+     * </p>
+     *
+     * @param source The source metadata
+     */
+    public void addSourceMetadata(Metadata source) {
+        this.sources.add(source);
     }
 
     /**
      * Build a document describing the index
      *
      * @return The document metadata
-     *
-     * @throws BayesianException if unable to construct the document
      */
-    public LuceneClassifier createMetadata(LoadStore<LuceneClassifier> target) throws BayesianException {
-        LuceneClassifier metadata = target.newClassifier();
-        Observable<String> creator = Observable.string(DcTerm.creator);
-        creator.setProperty(BayesianTerm.index, false);
-        Observable<String> created = Observable.string(DcTerm.created);
-        created.setProperty(BayesianTerm.index, false);
-        Observable<String> description = Observable.string(DcTerm.description);
-        description.setProperty(BayesianTerm.index, false);
-        Observable<String> identifier = Observable.string(DcTerm.identifier);
-        Observable<String> title = Observable.string(DcTerm.title);
-        title.setProperty(BayesianTerm.index, false);
-        Observable<String> source = Observable.string(DcTerm.source);
-        source.setProperty(BayesianTerm.index, false);
-        Observable<String> builderClass = Observable.string(BayesianTerm.builderClass);
-        builderClass.setProperty(BayesianTerm.index, false);
-        Observable<String> version = Observable.string(DcTerm.hasVersion);
-        version.setProperty(BayesianTerm.index, false);
-        Date timestamp = new Date();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        metadata.add(identifier, UUID.randomUUID().toString(), false, true);
-        metadata.add(title, this.network.getId(), false, true);
-        metadata.add(description, this.network.getDescription(), false, true);
-        metadata.add(creator, System.getProperty("user.name", "unknown"), false, true);
-        metadata.add(created, TIMESTAMP.format(timestamp), false, true);
-        metadata.add(builderClass, this.config.getBuilderClass().getName(), false, true);
-        metadata.add(version, this.getClass().getPackage().getSpecificationVersion(), false, true);
-        try {
-            metadata.add(source, mapper.writeValueAsString(this.network), false, true);
-        } catch (JsonProcessingException ex) {
-            throw new StoreException("Unable to write network configuration", ex);
-        }
+    @SneakyThrows
+    public Metadata createMetadata() {
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("javaVersion", System.getProperty("java.version"));
+        properties.put("builderClass", this.builder.getClass().getName());
+        properties.put("factoryClass", this.factory.getClass().getName());
+        properties.put("accepted", this.accepted.map(Observable::getId).orElse(null));
+        properties.put("additionalName", this.additionalName.map(Observable::getId).orElse(null));
+        properties.put("altName", this.altName.map(Observable::getId).orElse(null));
+        properties.put("fullName", this.fullName.map(Observable::getId).orElse(null));
+        properties.put("parent", this.parent.map(Observable::getId).orElse(null));
+        properties.put("synonymName", this.synonymName.map(Observable::getId).orElse(null));
+        properties.put("concept", this.conceptTerm == null ? null : this.conceptTerm.qualifiedName());
+        properties.put("identifier", this.identifier.getId());
+        properties.put("name", this.name.getId());
+        properties.put("weight", this.weight.getId());
+        Metadata networkMetadata = Metadata.builder()
+                .about(this.config.getNetwork().toURI())
+                .identifier(this.network.getId())
+                .description(this.network.getDescription())
+                .build();
+        this.addSourceMetadata(networkMetadata);
+        Metadata metadata = Metadata.builder()
+                .identifier(UUID.randomUUID().toString())
+                .title(this.network.getId())
+                .description(this.network.getDescription())
+                .created(new Date())
+                .creator(System.getProperty("user.name", "unknown"))
+                .sources(this.sources)
+                .properties(properties)
+                .build();
+        metadata = LuceneClassifier.LUCENE_METADATA.with(metadata);
+        metadata = metadata.with(this.config.getMetadataTemplate());
         return metadata;
     }
 

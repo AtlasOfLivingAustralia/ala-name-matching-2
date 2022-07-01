@@ -8,6 +8,7 @@ import au.org.ala.names.builder.Source;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.util.FileUtils;
+import au.org.ala.util.Metadata;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.dwc.terms.DwcTerm;
@@ -15,6 +16,7 @@ import org.gbif.nameparser.api.Rank;
 import org.junit.*;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -59,7 +61,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
     @Before
     public void setUp() throws Exception {
         this.factory = AlaLinnaeanFactory.instance();
-        this.searcher = new LuceneClassifierSearcher(this.output, null);
+        this.searcher = new LuceneClassifierSearcher(this.output, null, this.factory.getIdentifier().get());
         this.matcher = this.factory.createMatcher(this.searcher, null);
     }
 
@@ -470,6 +472,30 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals(0.01649, match.getProbability().getEvidence(), 0.00001);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(), match.getIssues());
+    }
+
+    @Test
+    public void testMetadata1() throws Exception {
+        File metadataFile = new File(output, "metadata.json");
+        assertTrue(metadataFile.exists());
+        Metadata metadata = Metadata.read(metadataFile);
+        assertEquals("ALA:Linnaean", metadata.getTitle());
+        Calendar now = Calendar.getInstance();
+        now.add(Calendar.HOUR, -1);
+        assertNotNull(metadata.getCreated());
+        assertTrue(metadata.getCreated().after(now.getTime()));
+        assertNotNull(metadata.getSources());
+        assertEquals(2, metadata.getSources().size());
+        assertNotNull(metadata.getProperties());
+        assertEquals("8.3.0", metadata.getProperties().get("luceneVersion"));
+        assertEquals("1.8", metadata.getProperties().get("javaVersion").substring(0, 3));
+        assertEquals("au.org.ala.names.AlaLinnaeanBuilder", metadata.getProperties().get("builderClass"));
+        assertEquals("au.org.ala.names.AlaLinnaeanFactory", metadata.getProperties().get("factoryClass"));
+        assertEquals("taxonID", metadata.getProperties().get("identifier"));
+        File networkFile = new File(output, "network.json");
+        assertTrue(networkFile.exists());
+        Network network = Network.read(networkFile.toURI().toURL());
+        assertEquals("ALA:Linnaean", network.getId());
     }
 
 }

@@ -2,10 +2,14 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.analysis.TermAnalysis;
+import au.org.ala.util.JsonUtils;
+import au.org.ala.util.Metadata;
 import au.org.ala.vocab.BayesianTerm;
 import au.org.ala.vocab.OptimisationTerm;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -43,9 +47,18 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
     /** Batch size for retrieving all values */
     private static final int BATCH_SIZE = 20;
 
+    /** The name of the metadata file */
+    public static final String METADATA_FILE = "metadata.json";
+
     /** The searcher configuration */
     private final LuceneClassifierSearcherConfiguration config;
+    /** The key observable */
+    @Getter
+    private final Observable<String> key;
     /** The location of the lucene index */
+    @Getter(AccessLevel.PACKAGE)
+    private Path path;
+    /** The location of the lucene index in lucene form */
     @Getter(AccessLevel.PACKAGE)
     private Directory directory;
     /** The index reader */
@@ -53,8 +66,6 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
     private IndexReader indexReader;
     /** The index searcher */
     private IndexSearcher searcher;
-    /** The suggester for auto-lookup */
-    private Lookup suggester;
     /** Query utiltities */
     private final QueryUtils queryUtils;
     /** The classifier cache */
@@ -71,14 +82,17 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
      *
      * @param path The path
      * @param config The searcher configuration (null for a default value)
+     * @param key The key observable
      *
      * @throws StoreException if unable to open the index
      */
-    public LuceneClassifierSearcher(Path path, LuceneClassifierSearcherConfiguration config) throws StoreException {
+    public LuceneClassifierSearcher(Path path, LuceneClassifierSearcherConfiguration config, Observable<String> key) throws StoreException {
+        this.key = key;
         this.config = config == null ? LuceneClassifierSearcherConfiguration.builder().build() : config;
         String name = path.getFileName().toString();
         try {
-            this.directory = FSDirectory.open(path);
+            this.path = path;
+            this.directory = FSDirectory.open(this.path);
             this.indexReader = DirectoryReader.open(this.directory);
             this.searcher = new IndexSearcher(this.indexReader);
             this.queryUtils = new QueryUtils();
@@ -113,11 +127,12 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
      *
      * @param file The path
      * @param config The searcher configuration (null for a default value)
+     * @param key The key observable
      *
      * @throws StoreException if unable to open the index
      */
-    public LuceneClassifierSearcher(File file, LuceneClassifierSearcherConfiguration config) throws StoreException {
-        this(file.toPath(), config);
+    public LuceneClassifierSearcher(File file, LuceneClassifierSearcherConfiguration config, Observable<String> key) throws StoreException {
+        this(file.toPath(), config, key);
     }
 
     /**
@@ -273,6 +288,13 @@ public class LuceneClassifierSearcher extends ClassifierSearcher<LuceneClassifie
             throw new StoreException("Unable to retrive documents", ex);
         }
         return classifiers;
+    }
+
+    @Override
+    @SneakyThrows
+    public Metadata getMetadata() {
+        File source = new File(this.path.toFile(), METADATA_FILE);
+        return Metadata.read(source);
     }
 
     /**

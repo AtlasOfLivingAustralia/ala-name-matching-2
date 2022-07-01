@@ -2,9 +2,12 @@ package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
+import au.org.ala.util.EMLMetadataParser;
+import au.org.ala.util.Metadata;
 import au.org.ala.vocab.BayesianTerm;
 import au.org.ala.vocab.OptimisationTerm;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.gbif.dwc.Archive;
@@ -15,10 +18,17 @@ import org.gbif.dwc.record.Record;
 import org.gbif.dwc.record.StarRecord;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
+import org.w3c.dom.Document;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,6 +86,7 @@ public class DwCASource extends Source {
             this.cleanup.add(tmpDir);
             this.archive = DwcFiles.fromCompressed(download, tmpDir);
         }
+        this.setMetadata(this.buildMetadata(source));
     }
 
     /**
@@ -121,6 +132,17 @@ public class DwCASource extends Source {
                     file.delete();
             }
         }
+    }
+
+    @SneakyThrows
+    protected Metadata buildMetadata(URL source) {
+        File metadataFile = this.archive.getMetadataLocationFile();
+        Metadata metadata = this.getMetadata().withAbout(source.toURI());
+        if (metadataFile != null) {
+            EMLMetadataParser parser = new EMLMetadataParser();
+            metadata = parser.parse(metadataFile.toURI().toURL(), metadata);
+        }
+        return metadata;
     }
 
     /**

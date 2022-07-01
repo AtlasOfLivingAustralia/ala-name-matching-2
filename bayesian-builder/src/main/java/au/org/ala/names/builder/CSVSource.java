@@ -3,6 +3,7 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.util.Metadata;
 import au.org.ala.vocab.OptimisationTerm;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -14,6 +15,7 @@ import org.gbif.dwc.terms.TermFactory;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
@@ -67,8 +69,9 @@ public class CSVSource extends Source {
      *
      * @throws IOException if unable to get the data
      * @throws CsvValidationException If the file is invalid
+     * @throws URISyntaxException if unable to convert the source to a URI
      */
-    public CSVSource(Term type, URL source, NetworkFactory factory, Collection<Observable<?>> observables) throws IOException, CsvValidationException {
+    public CSVSource(Term type, URL source, NetworkFactory factory, Collection<Observable<?>> observables) throws IOException, CsvValidationException, URISyntaxException {
         super(factory, observables, Collections.singleton(type));
         this.type = type;
         URLConnection connection = source.openConnection();
@@ -76,6 +79,7 @@ public class CSVSource extends Source {
         Reader r = new InputStreamReader(connection.getInputStream(), encoding != null ? encoding : "UTF-8");
         this.reader = new CSVReaderBuilder(r).build();
         this.buildHeader();
+        this.setMetadata(this.getMetadata().withAbout(source.toURI()));
     }
 
     /**
@@ -87,10 +91,11 @@ public class CSVSource extends Source {
      *
      * @throws IOException if uable to get the data
      * @throws CsvValidationException if the data is not a CSV file
+     * @throws URISyntaxException if unable to convert the source to a URI
      *
      * @see #CSVSource(Term, URL, NetworkFactory, Collection)
      */
-    public CSVSource(URL source,NetworkFactory factory, Collection<Observable<?>> observables) throws IOException, CsvValidationException {
+    public CSVSource(URL source, NetworkFactory factory, Collection<Observable<?>> observables) throws IOException, CsvValidationException, URISyntaxException {
         this(DwcTerm.Taxon, source, factory, observables);
     }
 

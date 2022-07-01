@@ -2,6 +2,9 @@ package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.LoadStore;
+import au.org.ala.util.JsonUtils;
+import au.org.ala.util.Metadata;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -32,6 +35,8 @@ import java.util.stream.IntStream;
 public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     /** The default batch size for getting results. Assumes a smallish size */
     public static final int DEFAULT_BATCH_SIZE = 256;
+    /** The name of the network description file */
+    public static final String NETWORK_FILE = "network.json";
 
     /** The query utilities */
     private final QueryUtils queryUtils;
@@ -202,6 +207,28 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
                 log.info(vals[0] + ": " + IntStream.range(1, vals.length).mapToObj(i -> vals[i]).collect(Collectors.joining(", ")));
             }
             throw new StoreException("Unable to store " + classifier, ex);
+        }
+    }
+
+    @Override
+    public void store(Metadata metadata) throws StoreException {
+        try {
+            ObjectMapper mapper = JsonUtils.createMapper();
+            File store = new File(this.dir.toFile(), LuceneClassifierSearcher.METADATA_FILE);
+            mapper.writeValue(store, metadata);
+        } catch (Exception ex) {
+            throw new StoreException("Unable to write metadata", ex);
+        }
+    }
+
+    @Override
+    public void store(Network network) throws StoreException {
+        try {
+            ObjectMapper mapper = JsonUtils.createMapper();
+            File store = new File(this.dir.toFile(), NETWORK_FILE);
+            mapper.writeValue(store, network);
+        } catch (Exception ex) {
+            throw new StoreException("Unable to write network", ex);
         }
     }
 

@@ -26,10 +26,7 @@ public class LuceneClassifierSuggesterTest {
         this.dir = FileUtils.makeTmpDir("test");
         this.lucene = new LuceneUtils(LuceneClassifierSuggesterTest.class, "/sample-1/taxon.txt", TestFactory.OBSERVABLES, TestFactory.SCIENTIFIC_NAME);
         LuceneClassifierSearcherConfiguration config = LuceneClassifierSearcherConfiguration.builder().scoreCutoff(0.1f).build();
-        this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir(), config);
-        this.suggester = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), this.searcher, new TestFactory());
-        this.suggester.start();
-        this.suggester.add(this.searcher, TestFactory.TAXON_ID, null);
+        this.searcher = new LuceneClassifierSearcher(this.lucene.getIndexDir(), config, TestFactory.TAXON_ID);
     }
 
     @After
@@ -53,7 +50,8 @@ public class LuceneClassifierSuggesterTest {
 
     @Test
     public void testSuggest1() throws Exception {
-        this.suggester.create();
+        this.suggester = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), null, this.searcher, new TestFactory());
+        this.suggester.load();
         List<ClassifierSuggester.Suggestion<LuceneClassifier>> suggestions = this.suggester.suggest("fungi", 10, true);
         assertNotNull(suggestions);
         assertEquals(1, suggestions.size());
@@ -65,7 +63,8 @@ public class LuceneClassifierSuggesterTest {
 
     @Test
     public void testSuggest2() throws Exception {
-        this.suggester.create();
+        this.suggester = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), null, this.searcher, new TestFactory());
+        this.suggester.load();
         List<ClassifierSuggester.Suggestion<LuceneClassifier>> suggestions = this.suggester.suggest("preiss", 10, true);
         assertNotNull(suggestions);
         assertEquals(1, suggestions.size());
@@ -77,7 +76,8 @@ public class LuceneClassifierSuggesterTest {
 
     @Test
     public void testSuggest3() throws Exception {
-        this.suggester.create();
+        this.suggester = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), null, this.searcher, new TestFactory());
+        this.suggester.load();
         List<ClassifierSuggester.Suggestion<LuceneClassifier>> suggestions = this.suggester.suggest("Sphe", 10, true);
         assertNotNull(suggestions);
         assertEquals(4, suggestions.size());
@@ -90,25 +90,26 @@ public class LuceneClassifierSuggesterTest {
 
     @Test
     public void testSuggest4() throws Exception {
-        this.suggester.create();
+        this.suggester = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), null, this.searcher, new TestFactory());
+        this.suggester.load();
         List<ClassifierSuggester.Suggestion<LuceneClassifier>> suggestions = this.suggester.suggest("xxx", 4, true);
         assertNotNull(suggestions);
         assertEquals(0, suggestions.size());
     }
 
     @Test
-    public void testStore1() throws Exception {
-        this.suggester.create();
-        this.suggester.store();
-        File store = new File(this.dir, LuceneClassifierSuggester.SUGGESTER_STORE);
+    public void testMetadata1() throws Exception {
+        this.suggester = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), null, this.searcher, new TestFactory());
+        this.suggester.load();
+        File store = new File(this.dir, LuceneClassifierSuggester.SUGGESTER_METADATA);
         assertTrue(store.exists());
     }
 
     @Test
     public void testLoad1() throws Exception {
-        this.suggester.create();
-        this.suggester.store();
-        LuceneClassifierSuggester loaded = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), this.searcher, new TestFactory());
+        this.suggester = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), null, this.searcher, new TestFactory());
+        assertFalse(this.suggester.load());
+        LuceneClassifierSuggester loaded = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), null, this.searcher, new TestFactory());
         assertTrue(loaded.load());
         List<ClassifierSuggester.Suggestion<LuceneClassifier>> suggestions = loaded.suggest("sphe", 10, true);
         assertNotNull(suggestions);
@@ -120,11 +121,10 @@ public class LuceneClassifierSuggesterTest {
     public void testLoad2() throws Exception {
         LuceneUtils vernacular = new LuceneUtils(LuceneClassifierSuggesterTest.class, "/sample-1/vernacularname.txt", TestFactory.OBSERVABLES, TestFactory.VERNACULAR_NAME, true);
         LuceneClassifierSearcherConfiguration config = LuceneClassifierSearcherConfiguration.builder().scoreCutoff(0.1f).build();
-        LuceneClassifierSearcher vernacularSearcher = new LuceneClassifierSearcher(vernacular.getIndexDir(), config);
-        this.suggester.add(vernacularSearcher, TestFactory.TAXON_ID, null);
-        this.suggester.create();
-        this.suggester.store();
-        LuceneClassifierSuggester loaded = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), this.searcher, new TestFactory());
+        LuceneClassifierSearcher vernacularSearcher = new LuceneClassifierSearcher(vernacular.getIndexDir(), config, TestFactory.TAXON_ID);
+        this.suggester = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), null, this.searcher, new TestFactory(), vernacularSearcher);
+        assertFalse(this.suggester.load());
+        LuceneClassifierSuggester loaded = new LuceneClassifierSuggester(FSDirectory.open(this.dir.toPath()), null, this.searcher, new TestFactory(), vernacularSearcher);
         assertTrue(loaded.load());
         List<ClassifierSuggester.Suggestion<LuceneClassifier>> suggestions = loaded.suggest("Mallow", 10, true);
         assertNotNull(suggestions);

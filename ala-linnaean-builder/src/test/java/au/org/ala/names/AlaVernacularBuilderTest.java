@@ -58,7 +58,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
     @Before
     public void setUp() throws Exception {
         this.factory = AlaVernacularFactory.instance();
-        this.searcher = new LuceneClassifierSearcher(output, null);
+        this.searcher = new LuceneClassifierSearcher(output, null, this.factory.getIdentifier().get());
         this.matcher = this.factory.createMatcher(this.searcher, null);
     }
 

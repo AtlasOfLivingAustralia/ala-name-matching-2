@@ -3,6 +3,7 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.JsonUtils;
+import au.org.ala.util.Metadata;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.opencsv.CSVReader;
@@ -13,12 +14,14 @@ import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.lang.reflect.Modifier;
+import java.net.URI;
 import java.net.URL;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -88,6 +91,10 @@ public class IndexBuilderConfiguration {
     @Getter
     @Setter
     private boolean enableJmx;
+    /** The metadata template with default values */
+    @JsonProperty
+    @Getter
+    private Metadata metadataTemplate;
 
     public IndexBuilderConfiguration() {
         this.builderClass = EmptyBuilder.class;
@@ -98,6 +105,19 @@ public class IndexBuilderConfiguration {
         this.types = Arrays.asList(DwcTerm.Taxon);
         this.threads = Runtime.getRuntime().availableProcessors();
         this.enableJmx = true;
+        this.metadataTemplate = Metadata.builder().build();
+    }
+
+    /**
+     * Add a metadata term to the template.
+     *
+     * @param term The field name
+     * @param value The value as a string
+     *
+     * @see Metadata#with(String, Object)
+     */
+    public void addMetadata(String term, String value) {
+        this.metadataTemplate = metadataTemplate.with(term, value);
     }
 
     /**

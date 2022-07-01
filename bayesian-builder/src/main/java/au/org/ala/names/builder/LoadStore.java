@@ -1,6 +1,7 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.*;
+import au.org.ala.util.Metadata;
 import lombok.Getter;
 import org.gbif.dwc.terms.Term;
 
@@ -206,7 +207,21 @@ abstract public class LoadStore<C extends Classifier> implements LoadStoreMXBean
     abstract protected void doUpdate(C classifier) throws StoreException;
 
     /**
-     * Get a parameter analyser for this store.
+     * Store a metadata statement.
+     *
+     * @param metadata The metadata
+     */
+    abstract public void store(Metadata metadata) throws StoreException;
+
+    /**
+     * Store a network description.
+     *
+     * @param network The network
+     */
+    abstract public void store(Network network) throws StoreException;
+
+    /**
+     * Get a parameter analyser for  this store.
      *
      * @param network The underlying network
      * @param weight The weight observable
