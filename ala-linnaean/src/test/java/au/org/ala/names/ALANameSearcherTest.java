@@ -947,6 +947,25 @@ public class ALANameSearcherTest {
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.CANONICAL_NAME, AlaLinnaeanFactory.REMOVED_ORDER, AlaLinnaeanFactory.REMOVED_FAMILY), result.getIssues());
     }
 
+    // Incorrect rank with a strange synonym gumming up the works
+    @Test
+    public void testProblemSearch39() throws Exception {
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Eucalyptus";
+        template.family = "Myrtaceae";
+        template.genus = "Eucalyptus";
+        template.taxonRank = Rank.SPECIES;
+        Match<AlaLinnaeanClassification, MatchMeasurement> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/taxon/apni/51360942", result.getMatch().taxonId);
+        assertEquals("https://id.biodiversity.org.au/taxon/apni/51360942", result.getAccepted().taxonId);
+        assertEquals("Eucalyptus", result.getAccepted().scientificName);
+        assertEquals(Rank.GENUS, result.getAccepted().taxonRank);
+        assertEquals(0.99850, result.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.66667, result.getFidelity().getFidelity(), 0.00001);
+        assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.MULTIPLE_MATCHES), result.getIssues());
+    }
+
     @Test
     public void testMultipleMatches1() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();

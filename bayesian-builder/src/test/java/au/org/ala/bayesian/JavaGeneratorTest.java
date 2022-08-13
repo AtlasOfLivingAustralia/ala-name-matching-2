@@ -1,11 +1,21 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.util.TestUtils;
+import au.org.ala.vocab.BayesianTerm;
+import au.org.ala.vocab.OptimisationTerm;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.StringWriter;
 
 public class JavaGeneratorTest {
+    @Before
+    public void setUp() throws Exception {
+        // Ensure vocabularies load
+        BayesianTerm.values();
+        OptimisationTerm.values();
+    }
+
     @Test
     public void testGenerateInference1() throws Exception {
         StringWriter writer = new StringWriter();

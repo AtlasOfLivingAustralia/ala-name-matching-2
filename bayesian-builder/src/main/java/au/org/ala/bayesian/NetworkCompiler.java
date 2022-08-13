@@ -5,6 +5,7 @@ import au.org.ala.names.builder.BuilderException;
 import au.org.ala.util.IdentifierConverter;
 import au.org.ala.util.SimpleIdentifierConverter;
 import au.org.ala.vocab.BayesianTerm;
+import au.org.ala.vocab.OptimisationTerm;
 import lombok.Getter;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DirectedAcyclicGraph;
@@ -109,6 +110,7 @@ public class NetworkCompiler {
     public Set<Class> getAllVocabularies() {
         Set<Class> all = new LinkedHashSet<>(this.network.getVocabularies());
         all.add(BayesianTerm.class);
+        all.add(OptimisationTerm.class);
         return all;
     }
 

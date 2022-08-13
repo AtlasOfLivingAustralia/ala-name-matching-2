@@ -19,6 +19,7 @@ Linnaean and vernacular name indexes. You can get:
 
 * [index-20210811-3.zip](https://archives.ala.org.au/archives/nameindexes/20210811-3/index-20210811-3.zip)
 * [vernacular-20210811-3.zip](https://archives.ala.org.au/archives/nameindexes/20210811-3/vernacular-20210811-3.zip)
+* [location-2022.zip](https://archives.ala.org.au/archives/nameindexes/20210811-3/location-2022.zip)
 
 These need to be unzipped into `/data/lucene`
 
@@ -66,12 +67,14 @@ suite of tools and software.
 ### ALA-Specific Libraries
 
 Libraries that contain the ALA-specific implementation of taxonomy matching.
-There are two netorks:
+There are three netorks:
 
 * The [Linnaean](ala-linnaean/src/main/resources/ala-linnaean.json)
   network models scientific names based on the Linnaean hierarchy.
 * The [Vernacular](ala-linnaean/src/main/resources/ala-vernacular.json)
   network models vernacular (common) names.
+* The [Location](ala-linnaean/src/main/resources/ala-location.json)
+  network models localities.
 
 
 * [ALA Linnaean](ala-linnaean/README.md)

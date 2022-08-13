@@ -68,10 +68,6 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
 
   public static final TermFactory TERM_FACTORY = TermFactory.instance();
 
-  public static final List<Class> VOCABULARIES = Collections.unmodifiableList(Arrays.asList(
-    au.org.ala.vocab.BayesianTerm.class
-  ));
-
   public static final Term CONCEPT = TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/Concept");
 
 
@@ -82,6 +78,9 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
 
 
   static {
+    // Force vocabularies to load
+    au.org.ala.vocab.BayesianTerm.values();
+    au.org.ala.vocab.OptimisationTerm.values();
     rain.setExternal(LUCENE, "rain");
     sprinkler.setExternal(LUCENE, "sprinkler");
     wet.setExternal(LUCENE, "wet");

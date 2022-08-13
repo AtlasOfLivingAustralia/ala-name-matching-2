@@ -67,10 +67,6 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
 
   public static final TermFactory TERM_FACTORY = TermFactory.instance();
 
-  public static final List<Class> VOCABULARIES = Collections.unmodifiableList(Arrays.asList(
-    au.org.ala.vocab.BayesianTerm.class
-  ));
-
   public static final Term CONCEPT = TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/Concept");
 
 
@@ -81,8 +77,11 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
 
 
   static {
+    // Force vocabularies to load
+    au.org.ala.vocab.BayesianTerm.values();
+    au.org.ala.vocab.OptimisationTerm.values();
     v1.setExternal(LUCENE, "v_1");
-    v1.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/analysed"), true);
+    v1.setProperty(au.org.ala.vocab.OptimisationTerm.analysed, true);
     v2.setExternal(LUCENE, "v_2");
     v3.setExternal(LUCENE, "v_3");
   }

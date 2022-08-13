@@ -61,12 +61,6 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
   public static final TermFactory TERM_FACTORY = TermFactory.instance();
 
-  public static final List<Class> VOCABULARIES = Collections.unmodifiableList(Arrays.asList(
-<#list allVocabularies as vocab>
-    ${vocab.name}.class<#if vocab?has_next>,</#if>
-</#list>
-  ));
-
   public static final Term CONCEPT = TERM_FACTORY.findTerm("${network.concept!"http://ala.org.au/bayesian/1.0/Concept"}");
 
 <#list issues as issue>
@@ -86,6 +80,10 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
 
   static {
+    // Force vocabularies to load
+<#list allVocabularies as vocab>
+    ${vocab.name}.values();
+</#list>
 <#list network.observablesById as observable>
   <#list externalContexts as context>
     ${observable.javaVariable}.setExternal(${context.name()}, "${observable.getExternal(context)}");
@@ -97,7 +95,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   </#if>
   <#list observable.propertyKeys as key>
     <#list observable.getProperties(key, null) as param>
-    ${observable.javaVariable}.setProperty(TERM_FACTORY.findTerm("${key.qualifiedName()}"), <#if param?is_boolean>${param?c}<#elseif param?is_number>${param?c}<#else>"${param?j_string}"</#if>);
+    ${observable.javaVariable}.setProperty(<#if key.getClass().isEnum()>${key.getClass().name}.${key.name()}<#else>TERM_FACTORY.findTerm("${key.qualifiedName()}")</#if>, <#if param?is_boolean>${param?c}<#elseif param?is_number>${param?c}<#else>"${param?j_string}"</#if>);
     </#list>
   </#list>
 </#list>

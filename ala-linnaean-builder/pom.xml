@@ -93,8 +93,26 @@
                             <analyserClass>au.org.ala.names.AlaVernacularAnalyser</analyserClass>
                         </configuration>
                     </execution>
-                </executions>
-                <dependencies>
+                <execution>
+                    <id>ala-location-build</id>
+                    <goals>
+                        <goal>generate-network</goal>
+                    </goals>
+                    <configuration>
+                        <source>../ala-linnaean/src/main/resources/ala-location.json</source>
+                        <outputPackage>au.org.ala.location</outputPackage>
+                        <generateBuilder>true</generateBuilder>
+                        <generateCli>true</generateCli>
+                        <generateInferencer>false</generateInferencer>
+                        <generateParameters>false</generateParameters>
+                        <generateClassification>false</generateClassification>
+                        <generateFactory>false</generateFactory>
+                        <analyserClass>au.org.ala.location.AlaLocationAnalyser</analyserClass>
+                        <weightAnalyserClass>au.org.ala.location.AlaLocationWeightAnalyser</weightAnalyserClass>
+                    </configuration>
+                </execution>
+            </executions>
+            <dependencies>
                     <dependency>
                         <groupId>${project.parent.groupId}</groupId>
                         <artifactId>ala-linnaean</artifactId>

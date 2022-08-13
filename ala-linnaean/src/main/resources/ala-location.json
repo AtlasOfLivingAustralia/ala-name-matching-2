@@ -1,0 +1,582 @@
+{
+  "id": "ALA:Location",
+  "description": "A location taxonomy",
+  "concept": "http://rs.tdwg.org/dwc/terms/Location",
+  "vocabularies": [
+    "au.org.ala.vocab.ALATerm",
+    "org.gbif.dwc.terms.DwcTerm",
+    "org.gbif.dwc.terms.GbifTerm"
+  ],
+  "normalisers": [
+    {
+      "@class" : "au.org.ala.util.BasicNormaliser",
+      "id" : "basic_normaliser",
+      "normaliseSpaces" : true,
+      "normalisePunctuation" : true,
+      "normaliseSymbols" : false,
+      "normaliseAccents" : false,
+      "normaliseCase" : false
+    }
+  ],
+  "observables": [
+    {
+      "id": "locationID",
+      "label": "lID",
+      "uri": "http://rs.tdwg.org/dwc/terms/locationID",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/identifier": true
+      },
+      "style": "IDENTIFIER",
+      "multiplicity": "1"
+    },
+    {
+      "id": "parentLocationID",
+      "label": "pID",
+      "uri": "http://ala.org.au/terms/1.0/parentLocationID",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/parent": true,
+        "http://ala.org.au/bayesian/1.0/additional": true
+      },
+      "style": "IDENTIFIER",
+      "multiplicity": "?"
+    },
+    {
+      "id": "geographyType",
+      "label": "GT",
+      "type": "au.org.ala.vocab.GeographyType",
+      "uri": "http://ala.org.au/terms/1.0/geographyType",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/additional": true,
+        "http://ala.org.au/optimisation/1.0/analysed": true
+      },
+      "analysis": {
+        "@class": "au.org.ala.location.GeographyTypeAnalysis"
+      }
+    },
+   {
+      "id": "locality",
+      "label":"L",
+      "uri": "http://rs.tdwg.org/dwc/terms/locality",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/name": true,
+        "http://ala.org.au/optimisation/1.0/loadFromClass": [
+          "http://rs.tdwg.org/dwc/terms/Location",
+          "http://ala.org.au/terms/1.0/LocationName"
+        ]
+      },
+      "normaliser": "basic_normaliser",
+      "style": "PHRASE",
+      "multiplicity": "+"
+    },
+    {
+      "id": "soundexLocality",
+      "label": "xL",
+      "uri": "http://ala.org.au/terms/1.0/soundexLocality",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "sources": [ "locality" ]
+      },
+      "multiplicity": "+"
+    },
+    {
+      "id": "localityID",
+      "label": "lcID",
+      "uri": "http://ala.org.au/terms/1.0/localityID",
+      "style": "IDENTIFIER",
+      "multiplicity": "+",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.IdentifierGeneratorDerivation"
+      }
+    },
+    {
+      "id": "stateProvince",
+      "label": "SP",
+      "uri": "http://rs.tdwg.org/dwc/terms/stateProvince",
+      "normaliser": "basic_normaliser",
+      "group": "stateProvince",
+      "style": "PHRASE",
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "locality"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "stateProvince"
+        }
+      }
+    },
+    {
+      "id": "soundexStateProvince",
+      "label": "xSP",
+      "uri": "http://ala.org.au/terms/1.0/soundexStateProvince",
+      "group": "stateProvince",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "sources": [ "stateProvince" ]
+      },
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "soundexLocality"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "stateProvince"
+        }
+      }
+    },
+    {
+      "id": "stateProvinceID",
+      "label": "sID",
+      "uri": "http://ala.org.au/terms/1.0/stateProvinceID",
+      "group": "stateProvince",
+      "style": "IDENTIFIER",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "locationID"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "stateProvince"
+        }
+      }
+    },
+     {
+      "id": "country",
+      "label": "C",
+      "uri": "http://rs.tdwg.org/dwc/terms/country",
+      "normaliser": "basic_normaliser",
+      "group": "country",
+      "style": "PHRASE",
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "locality"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "country"
+        }
+      }
+    },
+    {
+      "id": "soundexCountry",
+      "label": "xC",
+      "uri": "http://ala.org.au/terms/1.0/soundexCountry",
+      "group": "country",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "sources": [ "country" ]
+      },
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "soundexLocality"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "country"
+        }
+      }
+    },
+    {
+      "id": "countryCode",
+      "label": "cC",
+      "uri": "http://rs.tdwg.org/dwc/terms/countryCode",
+      "group": "country",
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "countryCode"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "country"
+        }
+      }
+    },
+    {
+      "id": "countryID",
+      "label": "cID",
+      "uri": "http://ala.org.au/terms/1.0/countryID",
+      "group": "country",
+      "style": "IDENTIFIER",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "locationID"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "country"
+        }
+      }
+    },
+    {
+      "id": "continent",
+      "label": "CO",
+      "uri": "http://rs.tdwg.org/dwc/terms/continent",
+      "normaliser": "basic_normaliser",
+      "group": "continent",
+      "style": "PHRASE",
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "locality"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "continent"
+        }
+      }
+    },
+    {
+      "id": "soundexContinent",
+      "label": "xCO",
+      "uri": "http://ala.org.au/terms/1.0/soundexContinent",
+      "group": "continent",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "sources": [ "continent" ]
+      },
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "soundexLocality"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "continent"
+        }
+      }
+    },
+    {
+      "id": "continentID",
+      "label": "cID",
+      "uri": "http://ala.org.au/terms/1.0/continentID",
+      "group": "continent",
+      "style": "IDENTIFIER",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "locationID"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "continent"
+        }
+      }
+    },
+    {
+      "id": "islandGroup",
+      "label": "IG",
+      "uri": "http://rs.tdwg.org/dwc/terms/islandGroup",
+      "normaliser": "basic_normaliser",
+      "group": "islandGroup",
+      "style": "PHRASE",
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "locality"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "islandGroup"
+        }
+      }
+    },
+    {
+      "id": "soundexIslandGroup",
+      "label": "xIG",
+      "uri": "http://ala.org.au/terms/1.0/soundexIslandGroup",
+      "group": "islandGroup",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "sources": [ "islandGroup" ]
+      },
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "soundexLocality"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "islandGroup"
+        }
+      }
+    },
+    {
+      "id": "islandGroupID",
+      "label": "igID",
+      "uri": "http://ala.org.au/terms/1.0/islandGroupID",
+      "group": "islandGroup",
+      "style": "IDENTIFIER",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "locationID"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "islandGroup"
+        }
+      }
+    },
+    {
+      "id": "waterBody",
+      "label": "WB",
+      "uri": "http://rs.tdwg.org/dwc/terms/waterBody",
+      "normaliser": "basic_normaliser",
+      "group": "waterBody",
+      "style": "PHRASE",
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "locality"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "waterBody"
+        }
+      }
+    },
+    {
+      "id": "soundexWaterBody",
+      "label": "xWB",
+      "uri": "http://ala.org.au/terms/1.0/soundexWaterBody",
+      "group": "waterBody",
+      "derivation": {
+        "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
+        "sources": [ "waterBody" ]
+      },
+      "multiplicity": "*",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "soundexLocality"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "waterBody"
+        }
+      }
+    },
+    {
+      "id": "waterBodyID",
+      "label": "wbID",
+      "uri": "http://ala.org.au/terms/1.0/waterBodyID",
+      "group": "waterBody",
+      "style": "IDENTIFIER",
+      "base": {
+        "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
+        "sources": [
+          "locationID"
+        ],
+        "select": {
+          "@class": "au.org.ala.bayesian.condition.ValueCondition",
+          "source": "geographyType",
+          "value": "waterBody"
+        }
+      }
+    },
+    {
+      "id": "acceptedLocalityID",
+      "label": "aID",
+      "uri": "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
+      "properties": {
+         "http://ala.org.au/bayesian/1.0/additional": true
+      },
+      "style": "IDENTIFIER"
+    },
+    {
+      "id": "area",
+      "label": "a",
+      "type": "java.lang.Double",
+      "uri": "http://ala.org.au/terms/1.0/area",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/additional": true
+      }
+    },
+    {
+      "id": "weight",
+      "label": "w",
+      "type": "java.lang.Double",
+      "uri": "http://ala.org.au/bayesian/1.0/weight",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/weight": true,
+        "http://ala.org.au/bayesian/1.0/additional": true
+      }
+    }
+  ],
+  "vertices": [
+    "locationID",
+    "geographyType",
+    "locality",
+    "soundexLocality",
+    "localityID",
+    "stateProvince",
+    "soundexStateProvince",
+    "stateProvinceID",
+    "country",
+    "soundexCountry",
+    "countryCode",
+    "countryID",
+    "continent",
+    "soundexContinent",
+    "continentID",
+    "islandGroup",
+    "soundexIslandGroup",
+    "islandGroupID",
+    "waterBody",
+    "soundexWaterBody",
+    "waterBodyID"
+  ],
+  "edges": [
+    { "source": "locationID", "target": "geographyType",  "edge": { } },
+    { "source": "locationID", "target": "locality",  "edge": { } },
+    { "source": "locality", "target": "soundexLocality",  "edge": { } },
+    { "source": "locality", "target": "localityID",  "edge": { } },
+    { "source": "soundexLocality", "target": "localityID",  "edge": { } },
+    { "source": "localityID", "target": "islandGroup",  "edge": { } },
+    { "source": "islandGroup", "target": "soundexIslandGroup",  "edge": { } },
+    { "source": "islandGroup", "target": "islandGroupID",  "edge": { } },
+    { "source": "soundexIslandGroup", "target": "islandGroupID",  "edge": { } },
+     { "source": "islandGroupID", "target": "stateProvince",  "edge": { } },
+    { "source": "stateProvince", "target": "soundexStateProvince",  "edge": { } },
+    { "source": "stateProvince", "target": "stateProvinceID",  "edge": { } },
+    { "source": "soundexStateProvince", "target": "stateProvinceID",  "edge": { } },
+    { "source": "stateProvinceID", "target": "country",  "edge": { } },
+    { "source": "country", "target": "soundexCountry",  "edge": { } },
+    { "source": "country", "target": "countryCode",  "edge": { } },
+    { "source": "country", "target": "countryID",  "edge": { } },
+    { "source": "soundexCountry", "target": "countryID",  "edge": { } },
+    { "source": "countryCode", "target": "countryID",  "edge": { } },
+    { "source": "countryID", "target": "continent",  "edge": { } },
+    { "source": "continent", "target": "soundexContinent",  "edge": { } },
+    { "source": "continent", "target": "continentID",  "edge": { } },
+    { "source": "soundexContinent", "target": "continentID",  "edge": { } },
+    { "source": "continentID", "target": "waterBody",  "edge": { } },
+    { "source": "waterBody", "target": "soundexWaterBody",  "edge": { } },
+    { "source": "waterBody", "target": "waterBodyID",  "edge": { } },
+    { "source": "soundexWaterBody", "target": "waterBodyID",  "edge": { } }
+  ],
+  "issues": [
+    {
+      "id": "removed_state_province",
+      "uri": "http://ala.org.au/issues/1.0/removedStateProvince",
+      "description": "Ignored supplied state or province to find a match."
+    },
+    {
+      "id": "removed_country",
+      "uri": "http://ala.org.au/issues/1.0/removedCountry",
+      "description": "Ignored supplied country to find a match."
+    },
+    {
+      "id": "removed_continent",
+      "uri": "http://ala.org.au/issues/1.0/removedContinent",
+      "description": "Ignored supplied continent to find a match."
+    },
+    {
+      "id": "removed_island_group",
+      "uri": "http://ala.org.au/issues/1.0/removedIslandGroup",
+      "description": "Ignored supplied island group to find a match."
+    },
+    {
+      "id": "removed_water_body",
+      "uri": "http://ala.org.au/issues/1.0/removedWaterBody",
+      "description": "Ignored supplied water body to find a match."
+    },
+    {
+      "id": "misspelled_locality",
+      "uri": "http://ala.org.au/issues/1.0/misspelledLocality",
+      "description": "Possible misspelled locality."
+    }
+  ],
+  "modifications": [
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_state_province",
+      "issues" : [ "removed_state_province" ],
+      "observables" : [ "stateProvince", "soundexStateProvince" ]
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_country",
+      "issues" : [ "removed_country" ],
+      "observables" : [ "country", "soundexCountry", "countryCode" ]
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_continent",
+      "issues" : [ "removed_continent" ],
+      "observables" : [ "continent", "soundexContinent" ]
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_island_group",
+      "issues" : [ "removed_island_group" ],
+      "observables" : [ "islandGroup", "soundexIslandGroup" ]
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "remove_water_body",
+      "issues" : [ "removed_water_body" ],
+      "observables" : [ "waterBody", "soundexWaterBody" ]
+    },
+    {
+      "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id" : "misspelled_locality_base",
+      "issues" : [ "misspelled_locality" ],
+      "observables" : [ "locality", "stateProvince", "country", "continent", "islandGroup", "waterBody" ]
+    }
+  ],
+  "sourceModifiers": [
+  ],
+  "matchModifiers": [
+    [
+      "misspelled_locality_base"
+    ],
+    [
+      "remove_state_province"
+    ],
+    [
+      "remove_country"
+    ],
+    [
+      "remove_continent"
+    ],
+    [
+      "remove_island_group"
+    ],
+    [
+      "remove_water_body"
+    ]
+  ]
+}

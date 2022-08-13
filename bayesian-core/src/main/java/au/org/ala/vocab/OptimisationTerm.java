@@ -40,7 +40,7 @@ public enum OptimisationTerm implements Term {
      */
     loadFromClass,
     /**
-     * Use this termto load from a source.
+     * Use this term to load from a source.
      * Any terms used here will replace the default term so, if you intend to use that as well, you
      * will need to include it explicitly.
      */
@@ -72,7 +72,7 @@ public enum OptimisationTerm implements Term {
      */
     dwcaOrder,
     /**
-     * How to fiilter elements in a Darwin Core Archive whe looking for min/max.
+     * How to filter elements in a Darwin Core Archive whe looking for min/max.
      * <p>
      * This is the name of a class that implements the {@link java.util.function.Predicate} interface on a record.
      * </p>
