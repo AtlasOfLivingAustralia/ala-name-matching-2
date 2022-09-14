@@ -153,7 +153,7 @@ public class LuceneUtils {
 
     private void buildObservables(Collection<Observable<?>> observables) {
         this.observables = new HashMap<>();
-        Observable<Double> weight = new Observable<>(BayesianTerm.weight, Double.class, Observable.Style.IDENTIFIER, null, null, Observable.Multiplicity.OPTIONAL);
+        Observable<Double> weight = new Observable<>(BayesianTerm.weight, Double.class, Observable.Style.IDENTIFIER, null, null, Observable.Multiplicity.OPTIONAL, Observable.Multiplicity.OPTIONAL);
         this.observables.put("weight", weight);
         for (Observable o: observables) {
             this.observables.put(o.getId(), o);

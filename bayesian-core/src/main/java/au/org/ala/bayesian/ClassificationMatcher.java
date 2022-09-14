@@ -601,6 +601,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * Initial check to see if a candidate is anywhere near acceptable.
      * <p>
      * This can be used to winnow the results quickly before doing further inference.
+     * By default, it just calls {@link Classification#isValidCandidate(Classifier)} on the classification.
      * </p>
      *
      * @param classification The template classification
@@ -609,7 +610,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * @throws BayesianException if unable to determine whether this is a valid candidate
      */
     protected boolean isValidCandidate(C classification, Classifier candidate) throws BayesianException {
-        return true;
+        return classification.isValidCandidate(candidate);
     }
 
     /**

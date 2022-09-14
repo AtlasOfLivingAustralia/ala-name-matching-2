@@ -19,7 +19,7 @@ public enum GeographyType implements Term, AlternativeNames {
     continent(DwcTerm.continent),
     island(DwcTerm.island),
     islandGroup(DwcTerm.islandGroup),
-    waterBody(DwcTerm.waterBody, "sea", "ocean"),
+    waterBody(DwcTerm.waterBody, "sea", "ocean", "gulf", "bay"),
     other(null);
 
     private static final String PREFIX = "gt";

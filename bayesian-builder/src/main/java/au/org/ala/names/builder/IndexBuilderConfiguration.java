@@ -20,9 +20,7 @@ import java.net.URI;
 import java.net.URL;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class IndexBuilderConfiguration {
@@ -95,6 +93,10 @@ public class IndexBuilderConfiguration {
     @JsonProperty
     @Getter
     private Metadata metadataTemplate;
+    /** Additional parameters for initialising various elements */
+    @JsonProperty
+    @Getter
+    private Map<String, String> parameters;
 
     public IndexBuilderConfiguration() {
         this.builderClass = EmptyBuilder.class;
@@ -106,6 +108,7 @@ public class IndexBuilderConfiguration {
         this.threads = Runtime.getRuntime().availableProcessors();
         this.enableJmx = true;
         this.metadataTemplate = Metadata.builder().build();
+        this.parameters = new HashMap<>();
     }
 
     /**
@@ -118,6 +121,18 @@ public class IndexBuilderConfiguration {
      */
     public void addMetadata(String term, String value) {
         this.metadataTemplate = metadataTemplate.with(term, value);
+    }
+
+    /**
+     * Add a parameter to the template.
+     *
+     * @param term The field name
+     * @param value The value as a string
+     *
+     * @see Metadata#with(String, Object)
+     */
+    public void addParameter(String term, String value) {
+        this.parameters.put(term, value);
     }
 
     /**

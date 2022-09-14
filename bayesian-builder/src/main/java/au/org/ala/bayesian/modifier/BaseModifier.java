@@ -3,6 +3,7 @@ package au.org.ala.bayesian.modifier;
 import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Modifier;
 import au.org.ala.bayesian.NetworkCompiler;
+import au.org.ala.bayesian.Observable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
@@ -18,6 +19,11 @@ abstract public class BaseModifier extends Modifier {
     protected boolean clearDerived = false;
 
     protected BaseModifier() {
+    }
+
+    public BaseModifier(boolean clearDerived) {
+        super();
+        this.clearDerived = clearDerived;
     }
 
     public BaseModifier(String id, boolean clearDerived) {

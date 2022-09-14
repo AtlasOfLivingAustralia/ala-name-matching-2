@@ -6,7 +6,9 @@ import au.org.ala.bayesian.fidelity.CompositeFidelity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,6 +27,8 @@ import au.org.ala.bayesian.analysis.EnumAnalysis;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @TraceDescriptor(identify = true, identifier = "getIdentifier")
 public class Network13Classification implements Classification<Network13Classification> {
+  private static final int MAX_VALID_LENGTH = 4;
+
   private Issues issues;
   private Hints<Network13Classification> hints;
 
@@ -190,6 +194,11 @@ public class Network13Classification implements Classification<Network13Classifi
   }
 
   @Override
+  public boolean isValidCandidate(Classifier candidate) throws BayesianException {
+    return true;
+  }
+
+  @Override
   public Fidelity<Network13Classification> buildFidelity(Network13Classification actual) throws InferenceException {
     CompositeFidelity<Network13Classification> fidelity = new CompositeFidelity<>(this, actual);
     if (this.v1 != null)
@@ -261,7 +270,6 @@ public class Network13Classification implements Classification<Network13Classifi
     classifier.add(Network13Factory.v2, this.v2, false, false);
     classifier.add(Network13Factory.v3, this.v3, false, false);
   }
-
 
   public Network13Inferencer.Evidence match(Classifier classifier) throws BayesianException {
     Network13Inferencer.Evidence evidence = new Network13Inferencer.Evidence();

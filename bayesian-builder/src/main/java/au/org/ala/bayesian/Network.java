@@ -2,6 +2,7 @@ package au.org.ala.bayesian;
 
 import au.org.ala.util.JsonUtils;
 import au.org.ala.vocab.BayesianTerm;
+import au.org.ala.vocab.OptimisationTerm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -76,6 +77,11 @@ public class Network extends Identifiable {
     /** The inference links between vertices */
     @JsonIgnore
     private DirectedAcyclicGraph<Observable, Dependency> graph;
+
+    {
+        BayesianTerm.weight.toString(); // Ensure loaded
+        OptimisationTerm.load.toString(); // Ensure loaded
+    }
 
     /**
      * Construct an empty network
@@ -401,6 +407,10 @@ public class Network extends Identifiable {
     public void setEdges(Collection<FullEdge> edges) {
         this.graph.removeAllEdges(this.graph.edgeSet());
         for (FullEdge e: edges) {
+            if (e.source == null)
+                throw new IllegalArgumentException("Edge to " + e.target + " has invalid source");
+            if (e.target == null)
+                throw new IllegalArgumentException("Edge from " + e.source + " has invalid target");
             this.graph.addVertex(e.source);
             this.graph.addVertex(e.target);
             this.graph.addEdge(e.source, e.target, e.edge);

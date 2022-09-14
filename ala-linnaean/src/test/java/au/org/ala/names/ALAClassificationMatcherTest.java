@@ -17,7 +17,7 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 public class ALAClassificationMatcherTest {
-    public static final String INDEX = "/data/lucene/index-20210811-3";
+    public static final String INDEX = "/data/lucene/index-20210811-4";
 
     private LuceneClassifierSearcher searcher;
     private ALAClassificationMatcher matcher;

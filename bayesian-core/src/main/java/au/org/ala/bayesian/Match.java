@@ -9,9 +9,7 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import org.gbif.dwc.terms.Term;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A classification match.
@@ -234,6 +232,22 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
         desc.put("issues", this.getIssues());
         return desc;
     }
+
+
+    /**
+     * Get all the identifiers that could be used to match this concept, from the actual identifier
+     * through all the parents.
+     *
+     * @return The identifier set for the accepted candidate (empty for an invalid match)
+     */
+    public Set<String> getAllIdentifiers() {
+        if (!this.isValid())
+            return Collections.emptySet();
+        Set<String> hierarchy = new HashSet<>(this.acceptedCandidate.getTrail());
+        hierarchy.add(this.accepted.getIdentifier());
+        return hierarchy;
+    }
+
 
     /**
      * Create an invalid match

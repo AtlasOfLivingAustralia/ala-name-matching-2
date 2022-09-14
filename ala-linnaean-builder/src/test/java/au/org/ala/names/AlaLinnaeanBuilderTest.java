@@ -12,11 +12,14 @@ import au.org.ala.util.Metadata;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.TaxonomicStatus;
 import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.nameparser.api.Rank;
 import org.junit.*;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -186,6 +189,14 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         Classifier doc = parameterised.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/instance/apni/950071");
         assertEquals("Lavatera plebeia", doc.get(AlaLinnaeanFactory.scientificName));
         assertEquals("Australian Hollyhock", doc.get(AlaLinnaeanFactory.vernacularName));
+    }
+
+
+    @Test
+    public void testLoadBuild5() throws Exception {
+        Classifier doc = parameterised.get(DwcTerm.Taxon, AlaLinnaeanFactory.taxonId, "https://id.biodiversity.org.au/instance/apni/950051");
+        assertNotNull(doc);
+        assertEquals(Collections.singleton("http://vocab.getty.edu/tgn/7000490"), doc.getAll(AlaLinnaeanFactory.locationId));
     }
 
     @Test

@@ -65,7 +65,6 @@ public class NetworkCompiler {
         this.parent = parent;
         this.children = new ArrayList<>();
         this.variableConverter = SimpleIdentifierConverter.JAVA_VARIABLE;
-        BayesianTerm.weight.toString(); // Ensure loaded
     }
 
     /**
@@ -86,6 +85,20 @@ public class NetworkCompiler {
                 .map(g -> this.network.getObservables().stream()
                     .filter(o -> g.equals(o.getGroup()))
                     .collect(Collectors.toList()))
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Get the collections of erased observables
+     */
+    public List<List<Observable<?>>> getCheckedErasureStructure() {
+        List<String> erasureGroups = this.network.getGroups();
+        return erasureGroups.stream()
+                .map(g -> this.network.getObservables().stream()
+                        .filter(o -> o.hasProperty(OptimisationTerm.checkPresentInClassifier, true) && g.equals(o.getGroup()))
+                        .collect(Collectors.toList()))
+                .filter(g -> !g.isEmpty())
                 .collect(Collectors.toList());
     }
 
@@ -112,6 +125,15 @@ public class NetworkCompiler {
         all.add(BayesianTerm.class);
         all.add(OptimisationTerm.class);
         return all;
+    }
+
+    /**
+     * Get all the nodes that have approximate name properties
+     *
+     * @return The approximate nodes
+     */
+    public List<Node> getApproximateNameNodes() {
+        return this.getOrderedNodes().stream().filter(n -> n.getObservable().hasProperty(OptimisationTerm.approximateName, true)).collect(Collectors.toList());
     }
 
     public void analyse() throws InferenceException {

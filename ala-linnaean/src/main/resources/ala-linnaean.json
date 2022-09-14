@@ -12,6 +12,7 @@
       "@class": "au.org.ala.util.BasicNormaliser",
       "id": "simple_normaliser",
       "normaliseSpaces": true,
+      "removePunctuation": false,
       "normalisePunctuation": true,
       "normaliseSymbols": true,
       "normaliseAccents": true,
@@ -21,6 +22,7 @@
       "@class": "au.org.ala.util.BasicNormaliser",
       "id": "lower_case_normaliser",
       "normaliseSpaces": true,
+      "removePunctuation": false,
       "normalisePunctuation": true,
       "normaliseSymbols": true,
       "normaliseAccents": true,
@@ -113,7 +115,8 @@
       "uri": "http://ala.org.au/terms/1.0/soundexScientificName",
       "properties": {
         "http://ala.org.au/optimisation/1.0/load": false,
-        "http://ala.org.au/optimisation/1.0/luceneBoost": 5.0
+        "http://ala.org.au/optimisation/1.0/luceneBoost": 5.0,
+        "http://ala.org.au/optimisation/1.0/approximateName": true
       },
       "derivation": {
         "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
@@ -592,20 +595,15 @@
        }
     },
     {
-      "id": "stateOrProvince",
-      "label": "SP",
-      "uri": "http://rs.tdwg.org/dwc/terms/stateOrProvince",
-      "normaliser": "simple_normaliser",
-      "style": "PHRASE",
-      "multiplicity": "*"
-    },
-    {
-      "id": "country",
-      "label": "CO",
-      "uri": "http://rs.tdwg.org/dwc/terms/country",
-      "normaliser": "simple_normaliser",
-      "style": "PHRASE",
-      "multiplicity": "*"
+      "id": "locationID",
+      "label": "lID",
+      "uri": "http://rs.tdwg.org/dwc/terms/locationID",
+      "style": "IDENTIFIER",
+      "matchability": "*",
+      "multiplicity": "*",
+      "properties": {
+        "http://ala.org.au/optimisation/1.0/loadFromClass": "http://rs.gbif.org/terms/1.0/Distribution"
+      }
     },
     {
       "id": "cultivarEpithet",
@@ -780,8 +778,7 @@
     "phraseName",
     "voucher",
     "nominatingParty",
-    "stateOrProvince",
-    "country",
+    "locationID",
     "nomenclaturalCode"
   ],
   "edges": [
@@ -797,7 +794,7 @@
     },
     {
       "source": "taxonID",
-      "target": "stateOrProvince",
+      "target": "locationID",
       "edge": {}
     },
     {
@@ -979,11 +976,6 @@
       "source": "soundexKingdom",
       "target": "kingdomID",
       "edge": {}
-    },
-    {
-      "source": "stateOrProvince",
-      "target": "country",
-      "edge": {}
     }
   ],
   "issues": [
@@ -1006,6 +998,11 @@
       "id": "unparsable_name",
       "uri": "http://ala.org.au/issues/1.0/unparsableName",
       "description": "The supplied scientific name cannot be parsed."
+    },
+    {
+      "id": "removed_location",
+      "uri": "http://ala.org.au/issues/1.0/removedLocation",
+      "description": "Ignored supplied location information to find a match."
     },
     {
       "id": "removed_authorship",
@@ -1580,11 +1577,20 @@
           "value": "kingdom"
         }
       ]
+    },
+    {
+      "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id": "remove_location",
+      "issues": ["removed_location"],
+      "observables": [
+        "locationID"
+      ]
     }
   ],
   "sourceModifiers": [
     [
       "higher_species",
+      "remove_location",
       "higher_genus",
       "higher_family",
       "higher_order",

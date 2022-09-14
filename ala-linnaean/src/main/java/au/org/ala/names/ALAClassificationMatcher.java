@@ -434,29 +434,6 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     }
 
     /**
-     * Check to see if this has the faintest chance of being a match before doing more onerous matching.
-     *
-     * @param classification The template classification
-     * @param candidate The candidate classifier
-     *
-     * @return True if the first four alphabetic characters in the soundex name match.
-     *
-     * @throws StoreException if unable to retrieve the soundex
-     */
-    @Override
-    protected boolean isValidCandidate(AlaLinnaeanClassification classification, Classifier candidate) throws StoreException {
-        if (classification.soundexScientificName == null)
-            return true;
-        final String soundexScientificName = classification.soundexScientificName;
-        final int minLength = Math.min(soundexScientificName.length(), MIN_VALID_LENGTH);
-        for (Object possible: candidate.getAll(AlaLinnaeanFactory.soundexScientificName)) {
-            if (soundexScientificName.regionMatches(0, possible.toString(), 0, minLength))
-                return true;
-        }
-        return false;
-    }
-
-    /**
      * Close the matcher
      *
      * @throws StoreException if unable to close for some reason.

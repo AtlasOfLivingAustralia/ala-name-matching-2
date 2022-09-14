@@ -6,7 +6,9 @@ import au.org.ala.bayesian.fidelity.CompositeFidelity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,6 +25,8 @@ import au.org.ala.bayesian.Analyser;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @TraceDescriptor(identify = true, identifier = "getIdentifier")
 public class GrassClassification implements Classification<GrassClassification> {
+  private static final int MAX_VALID_LENGTH = 4;
+
   private Issues issues;
   private Hints<GrassClassification> hints;
 
@@ -137,6 +141,11 @@ public class GrassClassification implements Classification<GrassClassification> 
   }
 
   @Override
+  public boolean isValidCandidate(Classifier candidate) throws BayesianException {
+    return true;
+  }
+
+  @Override
   public Fidelity<GrassClassification> buildFidelity(GrassClassification actual) throws InferenceException {
     CompositeFidelity<GrassClassification> fidelity = new CompositeFidelity<>(this, actual);
     if (this.rain != null)
@@ -194,7 +203,6 @@ public class GrassClassification implements Classification<GrassClassification> 
     classifier.add(GrassFactory.sprinkler, this.sprinkler, false, false);
     classifier.add(GrassFactory.wet, this.wet, false, false);
   }
-
 
   public GrassInferencer.Evidence match(Classifier classifier) throws BayesianException {
     GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();

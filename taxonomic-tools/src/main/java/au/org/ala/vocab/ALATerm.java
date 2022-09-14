@@ -98,6 +98,8 @@ public enum ALATerm implements Term, AlternativeNames {
     // Terms associated with location determination
     /** The location identifier for a parent-child relationship */
     parentLocationID,
+    /** The location identifier for a synonym relationship */
+    acceptedLocationID,
     /** The geography type of a location. @see GeographyType */
     geographyType,
     /** The soundex locality */

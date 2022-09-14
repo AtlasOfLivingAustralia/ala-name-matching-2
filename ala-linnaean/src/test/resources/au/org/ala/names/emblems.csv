@@ -1,44 +1,44 @@
-Common name,Status of emblems,Kingdom,Phylum,Class,Order,Family,Genus,Species,Subspecies.match vernacular
+Common name,stateProvince,Kingdom,Phylum,Class,Order,Family,Genus,Species,Subspecies.match vernacular,test location
 #ACT
 #Animal,,No animal - remove Dingo,Animalia
-,Official - Plant,Plantae,Charophyta,Equisetopsida,Asterales,CAMPANULACEAE,Wahlenbergia,gloriosa,,true
-Gang-gang Cockatoo,Official - Bird,Animalia,CHORDATA,AVES,PSITTACIFORMES,CACATUIDAE,Callocephalon,fimbriatum,,true
+,ACT,Plantae,Charophyta,Equisetopsida,Asterales,CAMPANULACEAE,Wahlenbergia,gloriosa,,true,true
+Gang-gang Cockatoo,Australian Capital Territory,Animalia,CHORDATA,AVES,PSITTACIFORMES,CACATUIDAE,Callocephalon,fimbriatum,,true,true
 #Marine,No emblem
 #NSW
-Platypus,Official - Animal,Animalia,CHORDATA,MAMMALIA,MONOTREMATA,ORNITHORHYNCHIDAE,Ornithorhynchus,anatinus,,true
-Waratah,Official - Plant,Plantae,,,,,Telopea,speciosissima,,true
-Kookaburra,Official - Bird,Animalia,CHORDATA,AVES,CORACIIFORMES,ALCEDINIDAE,Dacelo,novaeguineae,,true
-Blue Groper,Official - Marine,Animalia,,,,,Achoerodus,viridis,,true
+Platypus,NSW,Animalia,CHORDATA,MAMMALIA,MONOTREMATA,ORNITHORHYNCHIDAE,Ornithorhynchus,anatinus,,true,true
+Waratah,New South Wales,Plantae,,,,,Telopea,speciosissima,,true,true
+Kookaburra,New South Wales,Animalia,CHORDATA,AVES,CORACIIFORMES,ALCEDINIDAE,Dacelo,novaeguineae,,true,true
+Blue Groper,New South Wales,Animalia,,,,,Achoerodus,viridis,,true,true
 #NT
-Red Kangaroo,Official - Animal,Animalia,CHORDATA,MAMMALIA,DIPROTODONTIA,MACROPODIDAE,Osphranter,rufus,,true
-Sturt's Desert Rose,official - Plant,Plantae,Charophyta,Equisetopsida,MALVALES,MALVACEAE,Gossypium,sturtianum,,true
-Wedge-tailed Eagle,Official - Bird,Animalia,CHORDATA,AVES,Accipitriformes,Accipitridae,Aquila,audax,,true
+Red Kangaroo,Northern Territory,Animalia,CHORDATA,MAMMALIA,DIPROTODONTIA,MACROPODIDAE,Osphranter,rufus,,true,true
+Sturt's Desert Rose,Northern Territory,Plantae,Charophyta,Equisetopsida,MALVALES,MALVACEAE,Gossypium,sturtianum,,true,true
+Wedge-tailed Eagle,NT,Animalia,CHORDATA,AVES,Accipitriformes,Accipitridae,Aquila,audax,,true,true
 #Marine,No emblem
 #QLD
-Koala,Official - Animal,ANIMALIA,CHORDATA,MAMMALIA,DIPROTODONTIA,PHASCOLARCTIDAE,Phascolarctos,cinereus,,true
-,Official - Plant,Plantae,Charophyta,Equisetopsida,Asparagales,Orchidaceae,Dendrobium,bigibbum,,true
-Brolga,Official - Bird,ANIMALIA,CHORDATA,AVES,GRUIFORMES,GRUIDAE,Antigone,rubicunda,,true
-Barrier Reef Anemonefish,Official - Marine,ANIMALIA,,,,,Amphiprion,akindynos,,true
+Koala,Queensland,ANIMALIA,CHORDATA,MAMMALIA,DIPROTODONTIA,PHASCOLARCTIDAE,Phascolarctos,cinereus,,true,true
+,QLD,Plantae,Charophyta,Equisetopsida,Asparagales,Orchidaceae,Dendrobium,bigibbum,,true,true
+Brolga,Queensland,ANIMALIA,CHORDATA,AVES,GRUIFORMES,GRUIDAE,Antigone,rubicunda,,true,true
+Barrier Reef Anemonefish,Qld,ANIMALIA,,,,,Amphiprion,akindynos,,true,true
 #SA
-Southern Hairy-nosed Wombat,Official - Animal,ANIMALIA,CHORDATA,MAMMALIA,DIPROTODONTIA,VOMBATIDAE,Lasiorhinus,latifrons,,true
-Sturt's Desert Pea,Official - Plant,PLANTAE,Charophyta,Equisetopsida,FABALES,FABACEAE,Swainsona,formosa,,true
-Piping Shrike,Unofficial - Bird,ANIMALIA,Chordata,Aves,Passeriformes,Artamidae,Gymnorhina,tibicen,telonocua,true
-Leafy Sea-Dragon,Official - Marine,ANIMALIA,Chordata,ACTINOPTERYGII,Syngnathiformes,SYNGNATHIDAE,Phycodurus,eques,,true
+Southern Hairy-nosed Wombat,South Australia,ANIMALIA,CHORDATA,MAMMALIA,DIPROTODONTIA,VOMBATIDAE,Lasiorhinus,latifrons,,true,true
+Sturt's Desert Pea,SA,PLANTAE,Charophyta,Equisetopsida,FABALES,FABACEAE,Swainsona,formosa,,true,true
+Piping Shrike,SA,ANIMALIA,Chordata,Aves,Passeriformes,Artamidae,Gymnorhina,tibicen,telonocua,true,true
+Leafy Sea-Dragon,South Australia,ANIMALIA,Chordata,ACTINOPTERYGII,Syngnathiformes,SYNGNATHIDAE,Phycodurus,eques,,true,true
 #TAS
-Tasmanian Devil,Unofficial - Animal,ANIMALIA,CHORDATA,MAMMALIA,DASYUROMORPHIA,DASYURIDAE,Sarcophilus,harrisii,,true
-Blue Gum,Official - Plant,PLANTAE,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Eucalyptus,globulus,,true
-Yellow Wattlebird,No emblem - remove - Bird,,,,,,Anthochaera,paradoxa,,true
+Tasmanian Devil,Tasmania,ANIMALIA,CHORDATA,MAMMALIA,DASYUROMORPHIA,DASYURIDAE,Sarcophilus,harrisii,,true,true
+Blue Gum,Tasmania,PLANTAE,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Eucalyptus,globulus,,true,true
+Yellow Wattlebird,TAS,,,,,,Anthochaera,paradoxa,,true,true
 #Marine,No emblem
 #WA
-Numbat,Animal,Animalia,,,,,Myrmecobius,fasciatus,fasciatus,true
-Mangles' Kangaroo Paw,Official - Plant,Plantae,Charophyta,Equisetopsida,COMMELINALES,HAEMODORACEAE,Anigozanthos,manglesii,,true
-Black Swan,Official - Bird,Animalia,CHORDATA,AVES,ANSERIFORMES,ANATIDAE,Cygnus,atratus,,true
+Numbat,Western Australia,Animalia,,,,,Myrmecobius,fasciatus,fasciatus,true,true
+Mangles' Kangaroo Paw,Western Australia,Plantae,Charophyta,Equisetopsida,COMMELINALES,HAEMODORACEAE,Anigozanthos,manglesii,,true,true
+Black Swan,WA,Animalia,CHORDATA,AVES,ANSERIFORMES,ANATIDAE,Cygnus,atratus,,true,true
 #Marine,No emblem
 #VIC
-Leadbeater's Possum,Official - Animal,Animalia,CHORDATA,MAMMALIA,DIPROTODONTIA,PETAURIDAE,Gymnobelideus,leadbeateri,,true
-Common Heath,Official - Plant,Plantae,,,,,Epacris,impressa,,true
-Helmeted Honeyeater,Official - Bird,Animalia,CHORDATA,AVES,PASSERIFORMES,MELIPHAGIDAE,Lichenostomus,melanops,cassidix,true
-Weedy Seadragon,Official - Marine,Animalia,Chordata,ACTINOPTERYGII,Syngnathiformes,SYNGNATHIDAE,Phyllopteryx,taeniolatus,,true
+Leadbeater's Possum,Victoria,Animalia,CHORDATA,MAMMALIA,DIPROTODONTIA,PETAURIDAE,Gymnobelideus,leadbeateri,,true,true
+Common Heath,Victoria,Plantae,,,,,Epacris,impressa,,true,true
+Helmeted Honeyeater,Vic,Animalia,CHORDATA,AVES,PASSERIFORMES,MELIPHAGIDAE,Lichenostomus,melanops,cassidix,true,true
+Weedy Seadragon,Victoria,Animalia,Chordata,ACTINOPTERYGII,Syngnathiformes,SYNGNATHIDAE,Phyllopteryx,taeniolatus,,true,true
 #Australian National Emblems
-Golden Wattle,Official,,,,,,Acacia,pycnantha,,true
+Golden Wattle,,,,,,,Acacia,pycnantha,,true,false
 #Coat of Arms,Emu and kangaroo

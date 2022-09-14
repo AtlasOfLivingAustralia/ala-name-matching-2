@@ -2,6 +2,9 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.fidelity.SimpleFidelity;
+import au.org.ala.location.ALALocationClassificationMatcher;
+import au.org.ala.location.AlaLocationClassification;
+import au.org.ala.location.AlaLocationFactory;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
@@ -45,16 +48,22 @@ public class ALANameSearcher implements AutoCloseable {
     private final LuceneClassifierSearcher vernacularSearcher;
     @Getter
     private final ALAVernacularClassificationMatcher vernacularMatcher;
+    @Getter
+    private final LuceneClassifierSearcher locationSearcher;
+    @Getter
+    private final ALALocationClassificationMatcher locationMatcher;
     private final File suggesterDir;
     @Getter(lazy = true)
     private final LuceneClassifierSuggester suggester = buildSuggester();
     private final RankAnalysis rankAnalysis;
 
-    public ALANameSearcher(File index, File vernacular, File suggesterDir, LuceneClassifierSearcherConfiguration sConfig, ClassificationMatcherConfiguration cConfig) throws StoreException {
+    public ALANameSearcher(File index, File vernacular, File location, File suggesterDir, LuceneClassifierSearcherConfiguration sConfig, ClassificationMatcherConfiguration cConfig) throws StoreException {
         this.searcher = new LuceneClassifierSearcher(index, sConfig, AlaLinnaeanFactory.taxonId);
         this.vernacularSearcher = new LuceneClassifierSearcher(vernacular, sConfig, AlaVernacularFactory.taxonId);
         this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, cConfig);
         this.vernacularMatcher = new ALAVernacularClassificationMatcher(AlaVernacularFactory.instance(), this.vernacularSearcher, cConfig);
+        this.locationSearcher = new LuceneClassifierSearcher(location, sConfig, AlaLocationFactory.locationId);
+        this.locationMatcher = new ALALocationClassificationMatcher(AlaLocationFactory.instance(), this.locationSearcher, cConfig);
         this.suggesterDir = suggesterDir;
         this.rankAnalysis = new RankAnalysis();
     }
@@ -68,8 +77,10 @@ public class ALANameSearcher implements AutoCloseable {
             this.getSuggester().close();
         this.matcher.close();
         this.vernacularMatcher.close();
+        this.locationMatcher.close();
         this.searcher.close();
         this.vernacularSearcher.close();
+        this.locationSearcher.close();
     }
 
 
@@ -197,6 +208,38 @@ public class ALANameSearcher implements AutoCloseable {
         results.sort((c1, c2) -> - c1.getOrDefault(AlaVernacularFactory.weight, 0.0).compareTo(c2.getOrDefault(AlaVernacularFactory.weight, 0.0)));
         return results.stream().map(c -> c.get(AlaVernacularFactory.vernacularName)).filter(Objects::nonNull).distinct().collect(Collectors.toList());
     }
+
+
+    /**
+     * Search for a classification, based on template location data.
+     *
+     * @param template The template classification with various amounts of information filled in.
+     * @param options The search options
+     *
+     * @return The closest possible match.
+     *
+     * @throws BayesianException if unable to compuete match charactersics
+     */
+    public Match<AlaLocationClassification, MatchMeasurement> search(AlaLocationClassification template, MatchOptions options) throws BayesianException {
+        return this.locationMatcher.findMatch(template, options);
+    }
+
+    /**
+     * Search for a classification, based on template location data and with default match options.
+     *
+     * @param template The template classification with various amounts of information filled in.
+     *
+     * @return The closest possible match.
+     *
+     * @throws BayesianException if unable to compuete match charactersics
+     *
+     * @see #search(AlaVernacularClassification, MatchOptions)
+     * @see MatchOptions#ALL
+     */
+    public Match<AlaLocationClassification, MatchMeasurement> search(AlaLocationClassification template) throws BayesianException {
+        return this.search(template, MatchOptions.ALL);
+    }
+
 
     @SneakyThrows
     protected LuceneClassifierSuggester buildSuggester() {

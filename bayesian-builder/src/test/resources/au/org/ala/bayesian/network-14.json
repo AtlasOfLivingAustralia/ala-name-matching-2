@@ -1,0 +1,35 @@
+{
+  "id": "network_14",
+  "observables": [
+    {
+      "id": "v_1",
+      "matchability": "*"
+    },
+    {
+      "id": "v_2"
+    },
+    {
+      "id": "v_3",
+      "properties": {
+        "http://ala.org.au/optimisation/1.0/load": false
+      }
+    }
+  ],
+  "vertices": [
+    "v_1",
+    "v_2",
+    "v_3"
+  ],
+  "edges": [
+    {
+      "source": "v_1",
+      "target": "v_2",
+      "edge": {}
+    },
+    {
+      "source": "v_2",
+      "target": "v_3",
+      "edge": {}
+    }
+  ]
+}

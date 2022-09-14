@@ -6,7 +6,9 @@ import au.org.ala.bayesian.fidelity.CompositeFidelity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,6 +28,8 @@ import au.org.ala.bayesian.analysis.DoubleAnalysis;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @TraceDescriptor(identify = true, identifier = "getIdentifier")
 public class SimpleLinnaeanClassification implements Classification<SimpleLinnaeanClassification> {
+  private static final int MAX_VALID_LENGTH = 4;
+
   private Issues issues;
   private Hints<SimpleLinnaeanClassification> hints;
 
@@ -224,6 +228,16 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   }
 
   @Override
+  public boolean isValidCandidate(Classifier candidate) throws BayesianException {
+    if (this.soundexScientificName != null) {
+        final int maxLength = Math.min(this.soundexScientificName.length(), MAX_VALID_LENGTH);
+        if (!candidate.getAll(SimpleLinnaeanFactory.soundexScientificName).stream().anyMatch(v -> this.soundexScientificName.regionMatches(0, v.toString(), 0, maxLength)))
+          return false;
+    }
+    return true;
+  }
+
+  @Override
   public Fidelity<SimpleLinnaeanClassification> buildFidelity(SimpleLinnaeanClassification actual) throws InferenceException {
     CompositeFidelity<SimpleLinnaeanClassification> fidelity = new CompositeFidelity<>(this, actual);
     if (this.taxonId != null)
@@ -391,7 +405,6 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     classifier.add(SimpleLinnaeanFactory.parentNameUsageId, this.parentNameUsageId, false, false);
     classifier.add(SimpleLinnaeanFactory.taxonomicStatus, this.taxonomicStatus, false, false);
   }
-
 
   public SimpleLinnaeanInferencer.Evidence match(Classifier classifier) throws BayesianException {
     SimpleLinnaeanInferencer.Evidence evidence = new SimpleLinnaeanInferencer.Evidence();

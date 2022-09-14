@@ -35,6 +35,9 @@ import java.util.stream.IntStream;
 public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     /** The default batch size for getting results. Assumes a smallish size */
     public static final int DEFAULT_BATCH_SIZE = 256;
+    /** The default cache size for storing imtermediate results */
+    public static final int DEFAULT_CACHE_SIZE = 2000000;
+
     /** The name of the network description file */
     public static final String NETWORK_FILE = "network.json";
 
@@ -51,7 +54,11 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     /** The batch size for gind all queries */
     @Getter
     @Setter
-    private int batchSize;
+    private int batchSize = DEFAULT_BATCH_SIZE;
+    /** The cache size for repeated queries */
+    @Getter
+    @Setter
+    private int cacheSize = DEFAULT_CACHE_SIZE;
     /** Delete this store on closing */
     @Getter
     private final boolean temporary;

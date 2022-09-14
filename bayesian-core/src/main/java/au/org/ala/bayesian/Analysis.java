@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * An analysis object for an observable.
@@ -109,6 +110,36 @@ abstract public class Analysis<C, S, Q> {
      * @throws InferenceException if unable to compute a fidelity
      */
     abstract public Fidelity<C> buildFidelity(C original, C actual) throws InferenceException;
+
+
+    /**
+     * Compute a fidelity measure for this type of object based on multiple values.
+     * <p>
+     * The overall maximum for each actual value is chosen
+     * </p>
+     *
+     * @param original The original value
+     * @param actual The actual value
+     *
+     * @return The computed fidelity. Null if there is no fidelity to compute
+     *
+     * @throws InferenceException if unable to compute a fidelity
+     * 
+     * @see #buildFidelity(Object, Object) 
+     */
+    public Fidelity<C> buildFidelity(Set<C> original, Set<C> actual) throws InferenceException {
+        if (actual == null || original == null || actual.isEmpty() || original.isEmpty())
+            return null;
+        Fidelity<C> fidelity = null;
+        for (C a: actual) {
+            for (C o: original) {
+                Fidelity<C> f = this.buildFidelity(o, a);
+                if (f != null && (fidelity == null || f.getFidelity() > fidelity.getFidelity()))
+                    fidelity = f;
+            }
+        }
+        return fidelity;
+    }
 
     /**
      * Test for equivalence.

@@ -9,13 +9,6 @@ import org.junit.Test;
 import java.io.StringWriter;
 
 public class JavaGeneratorTest {
-    @Before
-    public void setUp() throws Exception {
-        // Ensure vocabularies load
-        BayesianTerm.values();
-        OptimisationTerm.values();
-    }
-
     @Test
     public void testGenerateInference1() throws Exception {
         StringWriter writer = new StringWriter();
@@ -127,6 +120,19 @@ public class JavaGeneratorTest {
     }
 
     @Test
+    public void testGenerateClassification4() throws Exception {
+        StringWriter writer = new StringWriter();
+        Network network = Network.read(this.getClass().getResource("network-14.json"));
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
+        compiler.analyse();
+        JavaGenerator generator = new JavaGenerator();
+        generator.generateClass(compiler, generator.getClassificationSpec(), writer, compiler.getClassificationVariables());
+        // System.out.println(writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-14-classification.java.txt"), writer.toString());
+    }
+
+
+    @Test
     public void testGenerateFactory1() throws Exception {
         StringWriter writer = new StringWriter();
         Network network = Network.read(this.getClass().getResource("network-9.json"));
@@ -151,6 +157,21 @@ public class JavaGeneratorTest {
         // System.out.println(writer.toString());
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "simple-linnaean-factory.java.txt"), writer.toString());
     }
+
+    @Test
+    public void testGenerateFactory3() throws Exception {
+        StringWriter writer = new StringWriter();
+        Network network = Network.read(this.getClass().getResource("network-14.json"));
+        NetworkCompiler compiler = new NetworkCompiler(network, null);
+        compiler.analyse();
+        JavaGenerator generator = new JavaGenerator();
+        generator.getMatcherSpec().setImplementationClassName("au.org.ala.test.TestMatcher");
+        generator.getAnalyserSpec().setImplementationClassName("au.org.ala.bayesian.NullAnalyser");
+        generator.generateClass(compiler, generator.getFactorySpec(), writer, null);
+        // System.out.println(writer.toString());
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "network-14-factory.java.txt"), writer.toString());
+    }
+
 
     @Test
     public void testGenerateBuilder1() throws Exception {

@@ -27,8 +27,8 @@ import au.org.ala.bayesian.Analyser;
 import au.org.ala.test.TestMatcher;
 import au.org.ala.bayesian.ClassificationMatcher;
 
-public class Network9Factory implements NetworkFactory<Network9Classification, Network9Inferencer, Network9Factory> {
-    private static Network9Factory instance = null;
+public class Network14Factory implements NetworkFactory<Network14Classification, Network14Inferencer, Network14Factory> {
+    private static Network14Factory instance = null;
 
 
   public static final Observable<String> v1 = new Observable(
@@ -38,7 +38,7 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
-      Multiplicity.OPTIONAL,
+      Multiplicity.MANY,
       Multiplicity.OPTIONAL
     );
   public static final Observable<String> v2 = new Observable(
@@ -84,14 +84,14 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
     au.org.ala.vocab.BayesianTerm.values();
     au.org.ala.vocab.OptimisationTerm.values();
     v1.setExternal(LUCENE, "v_1");
-    v1.setProperty(au.org.ala.vocab.OptimisationTerm.analysed, true);
     v2.setExternal(LUCENE, "v_2");
     v3.setExternal(LUCENE, "v_3");
+    v3.setProperty(au.org.ala.vocab.OptimisationTerm.load, false);
   }
 
   @Override
   public String getNetworkId() {
-    return "network_9";
+    return "network_14";
   }
 
   @Override
@@ -130,13 +130,13 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
   }
 
   @Override
-  public Network9Classification createClassification() {
-      return new Network9Classification();
+  public Network14Classification createClassification() {
+      return new Network14Classification();
   }
 
   @Override
-  public Network9Inferencer createInferencer() {
-      return new Network9Inferencer();
+  public Network14Inferencer createInferencer() {
+      return new Network14Inferencer();
   }
 
   @Override
@@ -149,11 +149,11 @@ public class Network9Factory implements NetworkFactory<Network9Classification, N
         return new au.org.ala.test.TestMatcher(this, searcher, config);
   }
 
-  public static Network9Factory instance() {
+  public static Network14Factory instance() {
       if (instance == null) {
-          synchronized (Network9Factory.class) {
+          synchronized (Network14Factory.class) {
               if (instance == null) {
-                  instance = new Network9Factory();
+                  instance = new Network14Factory();
               }
           }
       }

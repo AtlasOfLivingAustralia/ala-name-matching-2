@@ -11,7 +11,7 @@ import lombok.With;
 @Builder
 @With
 public class MatchOptions {
-    /** Use all possible options while searching */
+    /** Use all possible options while searching (but do not measure or trace) */
     public static final MatchOptions ALL = MatchOptions.builder().build();
     /** Use no options while searching */
     public static final MatchOptions NONE = MatchOptions.builder()

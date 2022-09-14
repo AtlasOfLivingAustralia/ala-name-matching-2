@@ -37,6 +37,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   /** The sprinkler is on */
@@ -47,6 +48,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   /** The grass is wet */
@@ -57,6 +59,7 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
 

@@ -7,7 +7,9 @@ import au.org.ala.bayesian.fidelity.CompositeFidelity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,6 +27,8 @@ import ${import};
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @TraceDescriptor(identify = true, identifier = "getIdentifier")
 public class ${className}<#if superClassName??> extends ${superClassName}</#if> implements Classification<${className}> {
+  private static final int MAX_VALID_LENGTH = 4;
+
   private Issues issues;
   private Hints<${className}> hints;
 
@@ -48,7 +52,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 </#list>
 
 <#list orderedNodes as node>
-  public ${node.observable.type.name} ${node.observable.javaVariable};
+  public <#if node.observable.matchability.many>Set<${node.observable.type.name}><#else>${node.observable.type.name}</#if> ${node.observable.javaVariable};
 </#list>
 <#if additionalNodes?size gt 0>
   // Additional stored classification information not used in inference
@@ -187,6 +191,29 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
+  public boolean isValidCandidate(Classifier candidate) throws BayesianException {
+<#list checkedErasureStructure as erasure>
+  <#if erasure?is_first>
+    // Check signature includes groups present in the classifier
+    String signature = candidate.getSignature();
+    String name = this.getName();
+  </#if>
+    if (<#list erasure as observable>this.${observable.javaVariable} != null && !(this.${observable.javaVariable}).equalsIgnoreCase(name)<#if observable?has_next> || </#if></#list>) {
+      if (signature.charAt(${erasure?index}) == 'F')
+        return false;
+    }
+</#list>
+<#list approximateNameNodes as node>
+    if (this.${node.observable.javaVariable} != null) {
+        final int maxLength = Math.min(this.${node.observable.javaVariable}.length(), MAX_VALID_LENGTH);
+        if (!candidate.getAll(${factoryClassName}.${node.observable.javaVariable}).stream().anyMatch(v -> this.${node.observable.javaVariable}.regionMatches(0, v.toString(), 0, maxLength)))
+          return false;
+    }
+</#list>
+    return true;
+  }
+
+  @Override
   public Fidelity<${className}> buildFidelity(${className} actual) throws InferenceException {
     CompositeFidelity<${className}> fidelity = new CompositeFidelity<>(this, actual);
 <#list orderedNodes + additionalNodes as node>
@@ -251,7 +278,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   public List<List<Function<${className}, ${className}>>> hintModificationOrder() {
     List<List<Function<${className}, ${className}>>> modifications = new ArrayList();
 <#list orderedNodes as node>
-    this.hints.buildModifications(${factoryClassName}.${node.observable.javaVariable}, ${node.observable.type.name}.class, (c, v) -> { c.${node.observable.javaVariable} = v; }, modifications);
+    this.hints.buildModifications(${factoryClassName}.${node.observable.javaVariable}, ${node.observable.type.name}.class, (c, v) -> { c.${node.observable.javaVariable} = <#if node.observable.matchability.many>Collections.singleton(v)<#else>v</#if>; }, modifications);
 </#list>
     return modifications;
   }
@@ -259,9 +286,15 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   @Override
   public void read(Classifier classifier, boolean overwrite) throws BayesianException {
 <#list orderedNodes + additionalNodes as node>
+  <#if node.observable.matchability.many>
+    if (overwrite || this.${node.observable.javaVariable} == null || this.${node.observable.javaVariable}.isEmpty()) {
+      this.${node.observable.javaVariable} = classifier.getAll(${factoryClassName}.${node.observable.javaVariable});
+    }
+  <#else>
     if (overwrite || this.${node.observable.javaVariable} == null) {
       this.${node.observable.javaVariable} = classifier.get(${factoryClassName}.${node.observable.javaVariable});
     }
+  </#if>
 </#list>
   }
 
@@ -273,10 +306,13 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 </#list>
     }
 <#list orderedNodes + additionalNodes as node>
+  <#if node.observable.matchability.many>
+    classifier.addAll(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable}, false, false);
+  <#else>
     classifier.add(${factoryClassName}.${node.observable.javaVariable}, this.${node.observable.javaVariable}, false, false);
+  </#if>
 </#list>
   }
-
 
   public ${inferencerClassName}.Evidence match(Classifier classifier) throws BayesianException {
     ${inferencerClassName}.Evidence evidence = new ${inferencerClassName}.Evidence();

@@ -176,15 +176,15 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
     /**
      * Basic clean-up
      */
-    public static final Normaliser BASIC_NORMALISER = new BasicNormaliser("basic", true, false, false, false, false);
+    public static final Normaliser BASIC_NORMALISER = new BasicNormaliser("basic", true, false, false, false, false, false);
     /**
      * Remove non-ascii punctuation
      */
-    public static final Normaliser PUNCTUATION_NORMALISER = new BasicNormaliser("punctuation", true, true, true, false, false);
+    public static final Normaliser PUNCTUATION_NORMALISER = new BasicNormaliser("punctuation", true, false, true, true, false, false);
     /**
      * Replace non-ascii characters and accents
      */
-    public static final Normaliser FULL_NORMALISER = new BasicNormaliser("full", true, true, true, true, false);
+    public static final Normaliser FULL_NORMALISER = new BasicNormaliser("full", true, false, true, true, true, false);
     /**
      * "Authors" that are actually part of the scientific name
      */

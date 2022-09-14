@@ -43,6 +43,7 @@
     <junit.version>4.13.1</junit.version>
     <opencsv.version>5.0</opencsv.version>
     <jcommander.version>1.78</jcommander.version>
+    <jts.version>1.16.1</jts.version>
   </properties>
 
   <!-- Required because we use the GBIF Term system -->

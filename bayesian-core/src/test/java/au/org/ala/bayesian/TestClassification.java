@@ -111,6 +111,11 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
+    public boolean isValidCandidate(Classifier classifier) throws BayesianException {
+        return true;
+    }
+
+    @Override
     public Fidelity<TestClassification> buildFidelity(TestClassification actual) throws InferenceException {
         CompositeFidelity<TestClassification> fidelity = new CompositeFidelity<>(this, actual);
         if (this.taxonID != null)

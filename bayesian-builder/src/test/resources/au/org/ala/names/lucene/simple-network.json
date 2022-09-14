@@ -48,7 +48,7 @@
       "multiplicity" : "*",
       "properties": {
         "http://ala.org.au/bayesian/1.0/name": true,
-        "http://ala.org.au/optimisation/1.0/analyse": true,
+        "http://ala.org.au/optimisation/1.0/analysed": true,
         "http://ala.org.au/optimisation/1.0/loadFromClass": [
           "http://rs.tdwg.org/dwc/terms/Taxon",
           "http://ala.org.au/terms/1.0/TaxonVariant"
@@ -71,7 +71,8 @@
       "id": "soundexScientificName",
       "uri": "http://ala.org.au/terms/1.0/soundexScientificName",
       "properties": {
-        "http://ala.org.au/optimisation/1.0/load": false
+        "http://ala.org.au/optimisation/1.0/load": false,
+        "http://ala.org.au/optimisation/1.0/approximateName": true
       },
       "multiplicity" : "*",
       "derivation": {
@@ -83,7 +84,7 @@
       "id": "specificEpithet",
       "uri": "http://rs.tdwg.org/dwc/terms/specificEpithet",
       "properties": {
-        "http://ala.org.au/optimisation/1.0/analyse": true,
+        "http://ala.org.au/optimisation/1.0/analysed": true,
         "http://ala.org.au/optimisation/1.0/load": false
       },
       "normaliser": "simple_normaliser",
@@ -93,7 +94,7 @@
       "id": "genus",
       "uri": "http://rs.tdwg.org/dwc/terms/genus",
       "properties": {
-        "http://ala.org.au/optimisation/1.0/analyse": true,
+        "http://ala.org.au/optimisation/1.0/analysed": true,
         "http://ala.org.au/optimisation/1.0/load": false,
         "http://ala.org.au/bayesian/1.0/copy": true
       },

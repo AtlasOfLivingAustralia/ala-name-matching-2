@@ -1,10 +1,16 @@
-package au.org.ala.names;
+package au.org.ala.location;
 
 import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.MatchOptions;
+import au.org.ala.names.ALANameSearcher;
+import au.org.ala.names.AlaLinnaeanClassification;
+import au.org.ala.names.AlaLinnaeanFactory;
+import au.org.ala.names.RankAnalysis;
+import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
+import au.org.ala.vocab.GeographyType;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
 import org.gbif.nameparser.api.Rank;
@@ -20,6 +26,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,33 +34,25 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Ensure that well-known and common species are correctly found
+ * Test against a sample of locations drawn from ALA data
  */
 public class PerformanceTest {
     private static final Logger logger = LoggerFactory.getLogger(PerformanceTest.class);
 
     public static final int SEARCH_QUERY_LIMIT = 15;
     public static final int SEARCH_CACHE_SIZE = 10000;
-    public static final String INDEX = "/data/lucene/index-20210811-4" ;
-    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-4" ;
     public static final String LOCATION_INDEX = "/data/lucene/location-2022";
-    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-4";
 
 
-    private ALANameSearcher searcher;
-    private RankAnalysis rankAnalysis = new RankAnalysis();
+    private LuceneClassifierSearcher searcher;
+    private ALALocationClassificationMatcher matcher;
 
     @Before
     public void setUp() throws Exception {
-        File index = new File(INDEX);
-        File vernacular = new File(VERNACULAR_INDEX);
         File location = new File(LOCATION_INDEX);
-        File suggester = new File(SUGGESTER_INDEX);
-        if (!index.exists())
-            throw new IllegalStateException("Index " + index + " not present");
-        if (!vernacular.exists())
-            throw new IllegalStateException("Vernacular Index " + vernacular + " not present");
-        LuceneClassifierSearcherConfiguration sConfig = LuceneClassifierSearcherConfiguration.builder()
+         if (!location.exists())
+            throw new IllegalStateException("Index " + location + " not present");
+         LuceneClassifierSearcherConfiguration sConfig = LuceneClassifierSearcherConfiguration.builder()
                 .queryLimit(SEARCH_QUERY_LIMIT)
                 .cacheSize(SEARCH_CACHE_SIZE)
                 .build();
@@ -61,11 +60,13 @@ public class PerformanceTest {
                 .enableJmx(true)
                 .statistics(true)
                 .build();
-        this.searcher = new ALANameSearcher(index, vernacular, location, suggester, sConfig, cConfig);
+        this.searcher = new LuceneClassifierSearcher(location, sConfig, AlaLocationFactory.locationId);
+        this.matcher = new ALALocationClassificationMatcher(AlaLocationFactory.instance(), this.searcher, cConfig);
     }
 
     @After
     public void tearDown() throws Exception {
+        this.matcher.close();
         this.searcher.close();
     }
 
@@ -81,84 +82,94 @@ public class PerformanceTest {
         long startTime, endTime;
         try {
             s = this.getClass().getResourceAsStream(name);
-            CSVReader reader = CSVReaderFactory.build(s, StandardCharsets.UTF_8.name(), ",", '"', 1);
+            CSVReader reader = CSVReaderFactory.build(s, StandardCharsets.UTF_8.name(), ",", '"', 0);
+            String[] header = reader.next();
+            int validIndex = this.indexOf(header, "valid");
+            int stateProvinceIndex = this.indexOf(header, "stateProvince");
+            int countryIndex = this.indexOf(header, "country");
+            int countryCodeIndex = this.indexOf(header, "countryCode");
+            int continentIndex = this.indexOf(header, "continent");
+            int islandIndex = this.indexOf(header, "island");
+            int islandGroupIndex = this.indexOf(header, "islandGroup");
+            int waterBodyIndex = this.indexOf(header, "waterBody");
+            int matchIndex = this.indexOf(header, "match");
             int line = 1;
             startTime = System.currentTimeMillis();
             while (reader.hasNext()) {
                 String row[] = reader.next();
                 line++;
-                AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+                AlaLocationClassification classification = new AlaLocationClassification();
                 boolean expectValid = false;
                 boolean flag = false;
-                String expectedScientificName = null;
+                String expectedLocality = null;
                 try {
                     if (row[0].startsWith("#")) // Skip comment
                         continue;
-                    String valid = StringUtils.trimToNull(row[0]);
+                    String valid = validIndex < 0 ? "true" : StringUtils.trimToNull(row[validIndex]);
                     expectValid = !(valid == null || valid.equalsIgnoreCase("false"));
                     flag = valid != null && valid.equalsIgnoreCase("flag");
-                    classification.scientificName = StringUtils.trimToNull(row[1]);
-                    classification.scientificNameAuthorship = StringUtils.trim(row[2]);
-                    classification.kingdom = StringUtils.trimToNull(row[3]);
-                    classification.class_ = StringUtils.trimToNull(row[4]);
-                    classification.order = StringUtils.trimToNull(row[5]);
-                    classification.family = StringUtils.trimToNull(row[6]);
-                    classification.genus = StringUtils.trimToNull(row[7]);
-                    classification.taxonRank = this.rankAnalysis.fromString(StringUtils.trimToNull(row[8]));
-                    expectedScientificName = StringUtils.trimToNull(row[9]);
+                    classification.stateProvince = stateProvinceIndex < 0 ? null : StringUtils.trimToNull(row[stateProvinceIndex]);
+                    classification.country = countryIndex < 0 ? null : StringUtils.trim(row[countryIndex]);
+                    classification.countryCode = countryCodeIndex < 0 ? null : StringUtils.trimToNull(row[countryCodeIndex]);
+                    classification.continent = continentIndex < 0 ? null : StringUtils.trimToNull(row[continentIndex]);
+                    classification.island = islandIndex < 0 ? null : StringUtils.trimToNull(row[islandIndex]);
+                    classification.islandGroup = islandGroupIndex < 0 ? null : StringUtils.trimToNull(row[islandGroupIndex]);
+                    classification.waterBody = waterBodyIndex < 0 ? null : StringUtils.trimToNull(row[waterBodyIndex]);
+                    expectedLocality = matchIndex < 0 ? null : StringUtils.trimToNull(row[matchIndex]);
                 } catch (Exception ex) {
                     throw new IllegalStateException("Error on line " + line, ex);
                 }
                 matched++;
                 try {
-                    classification.inferForSearch(this.searcher.getMatcher().getAnalyser(), MatchOptions.ALL);
-                    Rank expectedRank = classification.taxonRank;
-                    Match<AlaLinnaeanClassification, MatchMeasurement> match = this.searcher.search(classification.clone());
+                    Match<AlaLocationClassification, MatchMeasurement> match = this.matcher.findMatch(classification.clone(), MatchOptions.ALL);
                     for (Term issue : match.getIssues()) {
                         int count = issueCount.getOrDefault(issue, 0);
                         issueCount.put(issue, count + 1);
                     }
                     if (match.isValid()) {
                         succcess++;
-                        String cleanName = classification.scientificName;
-                        if (cleanName.equalsIgnoreCase(match.getMatch().scientificName))
+                        classification.inferForSearch(this.matcher.getAnalyser(), MatchOptions.ALL);
+                        String cleanLocality = classification.locality;
+                        if (cleanLocality.equalsIgnoreCase(match.getMatch().locality))
                             clean++;
                         final String searchName;
-                        final Collection<String> names = match.getCandidate().getNames();
-                        if (expectedScientificName != null) {
-                            searchName = expectedScientificName;
+                        final Collection<String> names = match.getAcceptedCandidate().getNames();
+                        if (expectedLocality != null) {
+                            searchName = expectedLocality;
                         } else {
-                            if (match.getIssues().contains(AlaLinnaeanFactory.HIGHER_ORDER_MATCH)) {
-                                Rank matchRank = match.getAccepted().taxonRank;
-                                if (matchRank == Rank.SPECIES) {
-                                    searchName = classification.genus + " " + classification.specificEpithet;
-                                } else if (matchRank == Rank.GENUS) {
-                                    searchName = classification.genus;
-                                } else if (matchRank == Rank.FAMILY) {
-                                    searchName = classification.family;
-                                } else if (matchRank == Rank.ORDER) {
-                                    searchName = classification.order;
+                            if (match.getIssues().contains(AlaLocationFactory.HIGHER_LOCALITY)) {
+                                GeographyType geographyType = match.getAccepted().geographyType;
+                                if (geographyType == GeographyType.island) {
+                                    searchName = classification.island;
+                                } else if (geographyType == GeographyType.islandGroup) {
+                                    searchName = classification.islandGroup;
+                                } else if (geographyType == GeographyType.stateProvince) {
+                                    searchName = classification.stateProvince;
+                                } else if (geographyType == GeographyType.country) {
+                                    searchName = classification.country;
+                                } else if (geographyType == GeographyType.continent) {
+                                    searchName = classification.continent;
                                 } else {
-                                    searchName = classification.scientificName;
+                                    searchName = classification.locality;
                                 }
                             } else {
-                                searchName = classification.scientificName;
+                                searchName = classification.locality;
                             }
                         }
                         if (searchName != null && names.stream().anyMatch(n -> searchName.equalsIgnoreCase(n)))
                             accurate++;
                         else
-                            logger.warn("Unexpected match on line {}, got {} not {} on {}", line, match.getMatch().scientificName, searchName, row);
+                            logger.warn("Unexpected match on line {}, got {} {} not {} on {}", line, match.getAccepted().locality, match.getAccepted().locationId, searchName, row);
                     }
                     if (expectValid == match.isValid()) {
                         expected++;
                     } else {
                         logger.info("Unexpected validity line {}, values {}", line, row);
                         if (match.isValid())
-                            logger.warn("Matched line {} to {}: {}", line, match.getAccepted().taxonId, match.getAccepted().scientificName);
+                            logger.warn("Matched line {} to {}: {}", line, match.getAccepted().locationId, match.getAccepted().locality);
                     }
                     if (flag) {
-                        logger.info("Flag line {} as {}: {}", line, match.isValid() ? match.getMatch().scientificName : "invalid", row);
+                        logger.info("Flag line {} as {}: {}", line, match.isValid() ? match.getMatch().locality : "invalid", row);
                     }
                 } catch (Exception ex) {
                     logger.warn("Error on line " + line, ex);
@@ -181,7 +192,7 @@ public class PerformanceTest {
                 logger.info(entry.getKey().toString() + ": " + entry.getValue());
             }
             StringWriter sw = new StringWriter();
-            this.searcher.getMatcher().reportStatistics(sw);
+            this.matcher.reportStatistics(sw);
             logger.info(sw.toString());
         } finally {
             if (s != null)
@@ -192,14 +203,23 @@ public class PerformanceTest {
         assertEquals(succcess, accurate);
     }
 
-    @Test
-    public void testPerfomance1() throws Exception {
-        this.testFile("sampled_names_2021-1.csv");
+    protected int indexOf(String[] header, String column) {
+        for (int i = 0; i < header.length; i++)
+            if (column.equalsIgnoreCase(header[i]))
+                return i;
+        return -1;
     }
 
+    // Sample locations from 1.6 million ALA records
+    @Test
+    public void testPerfomance1() throws Exception {
+        this.testFile("sampled-locations-1.csv");
+    }
+
+    // Sample locations from 42 million ALA records
     @Test
     public void testPerfomance2() throws Exception {
-        this.testFile("sampled_names_2021-2.csv");
+        this.testFile("sampled-locations-2.csv");
     }
 
 }

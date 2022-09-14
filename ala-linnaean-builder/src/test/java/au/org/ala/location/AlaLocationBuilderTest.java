@@ -1,7 +1,9 @@
 package au.org.ala.location;
 
-import au.org.ala.bayesian.*;
-import au.org.ala.names.*;
+import au.org.ala.bayesian.ClassificationMatcher;
+import au.org.ala.bayesian.Classifier;
+import au.org.ala.bayesian.Inference;
+import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.names.builder.IndexBuilder;
 import au.org.ala.names.builder.IndexBuilderConfiguration;
 import au.org.ala.names.builder.LoadStore;
@@ -10,15 +12,14 @@ import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.util.FileUtils;
 import au.org.ala.util.TestUtils;
-import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.GbifTerm;
 import org.junit.*;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class AlaLocationBuilderTest extends TestUtils {
     private static File work;
@@ -81,12 +82,13 @@ public class AlaLocationBuilderTest extends TestUtils {
     public void testLoadBuild2() throws Exception {
         Classifier doc = parameterised.get(AlaLocationFactory.CONCEPT, AlaLocationFactory.locationId, "http://vocab.getty.edu/tgn/7024196");
         assertNotNull(doc);
+        assertEquals("FFFTTT", doc.getSignature());
         assertEquals("Banteay Meanchey", doc.get(AlaLocationFactory.locality));
         assertEquals("Cambodia", doc.get(AlaLocationFactory.country));
         assertEquals("KH", doc.get(AlaLocationFactory.countryCode));
-        AlaLocationParameters_FTTTF params = new AlaLocationParameters_FTTTF();
+        AlaLocationParameters_FFFTTT params = new AlaLocationParameters_FFFTTT();
         doc.loadParameters(params);
-        AlaLocationInferencer_FTTTF inference = new AlaLocationInferencer_FTTTF();
+        AlaLocationInferencer_FFFTTT inference = new AlaLocationInferencer_FFFTTT();
         AlaLocationInferencer.Evidence evidence = new AlaLocationInferencer.Evidence();
         evidence.e$locality = true;
         Inference prob = inference.probability(evidence, params, null);
@@ -103,12 +105,13 @@ public class AlaLocationBuilderTest extends TestUtils {
     public void testLoadBuild3() throws Exception {
         Classifier doc = parameterised.get(AlaLocationFactory.CONCEPT, AlaLocationFactory.locationId, "http://vocab.getty.edu/tgn/7003833");
         assertNotNull(doc);
+        assertEquals("FFFTTT", doc.getSignature());
         assertEquals("Azores", doc.get(AlaLocationFactory.locality));
         assertEquals("Portugal", doc.get(AlaLocationFactory.country));
         assertEquals("PT", doc.get(AlaLocationFactory.countryCode));
-        AlaLocationParameters_FTTTF params = new AlaLocationParameters_FTTTF();
+        AlaLocationParameters_FFFTTT params = new AlaLocationParameters_FFFTTT();
         doc.loadParameters(params);
-        AlaLocationInferencer_FTTTF inference = new AlaLocationInferencer_FTTTF();
+        AlaLocationInferencer_FFFTTT inference = new AlaLocationInferencer_FFFTTT();
         AlaLocationInferencer.Evidence evidence = new AlaLocationInferencer.Evidence();
         evidence.e$soundexLocality = true;
         Inference prob = inference.probability(evidence, params, null);
@@ -120,12 +123,13 @@ public class AlaLocationBuilderTest extends TestUtils {
     public void testLoadBuild4() throws Exception {
         Classifier doc = parameterised.get(AlaLocationFactory.CONCEPT, AlaLocationFactory.locationId, "http://vocab.getty.edu/tgn/1000074");
         assertNotNull(doc);
+        assertEquals("FFFFTT", doc.getSignature());
         assertEquals("Greece", doc.get(AlaLocationFactory.locality));
         assertEquals("Greece", doc.get(AlaLocationFactory.country));
         assertEquals("GR", doc.get(AlaLocationFactory.countryCode));
-        AlaLocationParameters_FFTTF params = new AlaLocationParameters_FFTTF();
+        AlaLocationParameters_FFFFTT params = new AlaLocationParameters_FFFFTT();
         doc.loadParameters(params);
-        AlaLocationInferencer_FFTTF inference = new AlaLocationInferencer_FFTTF();
+        AlaLocationInferencer_FFFFTT inference = new AlaLocationInferencer_FFFFTT();
         AlaLocationInferencer.Evidence evidence = new AlaLocationInferencer.Evidence();
         evidence.e$country = true;
         Inference prob = inference.probability(evidence, params, null);
@@ -139,12 +143,13 @@ public class AlaLocationBuilderTest extends TestUtils {
     public void testLoadBuild5() throws Exception {
         Classifier doc = parameterised.get(AlaLocationFactory.CONCEPT, AlaLocationFactory.locationId, "http://vocab.getty.edu/tgn/1000074");
         assertNotNull(doc);
+        assertEquals("FFFFTT", doc.getSignature());
         assertEquals("Greece", doc.get(AlaLocationFactory.locality));
         assertEquals("Greece", doc.get(AlaLocationFactory.country));
         assertEquals("GR", doc.get(AlaLocationFactory.countryCode));
-         AlaLocationParameters_FFTTF params = new AlaLocationParameters_FFTTF();
+        AlaLocationParameters_FFFFTT params = new AlaLocationParameters_FFFFTT();
         doc.loadParameters(params);
-        AlaLocationInferencer_FFTTF inference = new AlaLocationInferencer_FFTTF();
+        AlaLocationInferencer_FFFFTT inference = new AlaLocationInferencer_FFFFTT();
         AlaLocationInferencer.Evidence evidence = new AlaLocationInferencer.Evidence();
         evidence.e$continent = true;
         Inference prob = inference.probability(evidence, params, null);

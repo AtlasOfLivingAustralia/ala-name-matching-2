@@ -13,11 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Copy a value into a target.
- * <p>
- * Multiple sources are permitted.
- * If there is more than one source, the first non-null value will be used.
- * </p>
+ * Join multiple values together
  */
 public class JoinModifier extends BaseModifier {
     /** The source of the name. These need to be in order for building composites */

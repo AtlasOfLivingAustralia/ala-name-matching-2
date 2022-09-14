@@ -77,7 +77,20 @@ public enum OptimisationTerm implements Term {
      * This is the name of a class that implements the {@link java.util.function.Predicate} interface on a record.
      * </p>
      */
-    dwcaFilter;
+    dwcaFilter,
+    /**
+     * Check that if erasable variable is present, the candidiate classifier also models that variable.
+     * <p>
+     * This allows us to not get caught by extremely general classifiers.
+     * If the value is present in the name, then it is assumed that this is a repeat and the result is
+     * not checked.
+     * </p>
+     */
+    checkPresentInClassifier,
+    /**
+     * This is an approximate name (a soundex or similar) that can be used to rapidly filter candidates
+     */
+    approximateName;
 
     public static final String NS = "http://ala.org.au/optimisation/1.0/";
     public static final URI NAMESPACE = URI.create(NS);

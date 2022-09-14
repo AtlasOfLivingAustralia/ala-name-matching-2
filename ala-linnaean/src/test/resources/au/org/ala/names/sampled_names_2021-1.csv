@@ -2506,7 +2506,7 @@ true,Coscinaraea columna,,Animalia,,Scleractinia,Siderastreidae,Coscinaraea,,,
 true,Cosmaresta anarrecta,,Animalia,Insecta,Lepidoptera,Oecophoridae,Cosmaresta,,,
 true,Costatophora granifera,"(Brazier, 1894)",Animalia,Gastropoda,Littorinida,Triphoridae,Costatophora,species,,
 true,Cotesia spp.,,Animalia,Insecta,Hymenoptera,Braconidae,Cotesia,Species,,
-true,"Cotinis nitida (Linnaeus, 1764)",,,,,,,,Cotinis,
+true,"Cotinis nitida (Linnaeus, 1764)",,,,,,,,Cotinus,misspelling
 true,Cotoneaster glaucophyllus Franch. × Cotoneaster simonsii Baker,,,,Rosales,Rosaceae,Cotoneaster,,,
 true,Cotoneaster glaucophyllus,,,,,ROSACEAE,,,,
 true,Cotoneaster microphyllus Wall. ex Lindl.,,,,,Rosaceae,Cotoneaster,species,,
@@ -8008,7 +8008,7 @@ true,Senecio cunninghamii var. (NC),,,,,COMPOSITAE,,,,
 true,Senecio depressicola,,,,,COMPOSITAE,,,,
 true,Senecio glomeratus Poir.,,,,,ASTERACEAE,Senecio,species,,
 true,Senecio glossanthus,,Plantae,,,,,species,,
-true,Senecio hispidulus s.l.,sensu N.G. Walsh (1999),,,,,,,Senecio hispidulus sensu A.Cunn.,Should just be Senecio hispidulus
+true,Senecio hispidulus s.l.,sensu N.G. Walsh (1999),,,,,,,Senecio hispidulus,Should just be Senecio hispidulus
 true,Senecio hispidulus,A.Rich.,,,,Asteraceae,,,,
 true,Senecio hispidulus,A.Rich.,Plantae,Equisetopsida,Asterales,Asteraceae,Senecio,species,,
 true,Senecio lanibracteus,,,,,COMPOSITAE,,,,

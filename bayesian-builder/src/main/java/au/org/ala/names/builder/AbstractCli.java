@@ -5,6 +5,7 @@ import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.NetworkFactory;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.FileConverter;
+import com.beust.jcommander.converters.IParameterSplitter;
 import com.beust.jcommander.converters.URLConverter;
 import lombok.Getter;
 
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -50,9 +52,12 @@ abstract public class AbstractCli<C extends Classification<C>, B extends Builder
     @Parameter(names = { "-t", "--thread"}, description = "The number of threads to use for parallel processing")
     @Getter
     private int threads = 0;
-    @Parameter(names = { "-m", "--metadata"}, variableArity = true, description = "Additional metadata settings for the final index in term=value form")
+    @Parameter(names = { "-m", "--metadata"}, splitter=NoSplitter.class, description = "Additional metadata settings for the final index in term=value form")
     @Getter
     private List<String> metadata = new ArrayList<>();
+    @Parameter(names = { "-p", "--parameter"}, splitter=NoSplitter.class, description = "Additional parameter settings for objects such as the weight analyser in term=value form. See individual classes for more information.")
+    @Getter
+    private List<String> parameters = new ArrayList<>();
     /** The input sources */
     @Parameter(description = "The source DwCAs", listConverter = URLConverter.class, required = true)
     @Getter
@@ -85,10 +90,16 @@ abstract public class AbstractCli<C extends Classification<C>, B extends Builder
         if (this.threads > 0)
             configuration.setThreads(this.threads);
         for (String md: this.metadata) {
-            String[] mdkv = md.split("=", 1);
+            String[] mdkv = md.split("=", 2);
             if (mdkv.length < 2)
                 throw new IllegalStateException("Can't parse metadata value " + md);
             configuration.addMetadata(mdkv[0], mdkv[1]);
+        }
+        for (String p: this.parameters) {
+            String[] pkv = p.split("=", 2);
+            if (pkv.length < 2)
+                throw new IllegalStateException("Can't parse parameter value " + p);
+            configuration.addParameter(pkv[0], pkv[1]);
         }
         return configuration;
     }
@@ -120,4 +131,12 @@ abstract public class AbstractCli<C extends Classification<C>, B extends Builder
         builder.buildIndex(this.output, processed);
         builder.close();
     }
+
+    public static class NoSplitter implements IParameterSplitter {
+        @Override
+        public List<String> split(String value) {
+            return Arrays.asList(value);
+        }
+    }
+
 }

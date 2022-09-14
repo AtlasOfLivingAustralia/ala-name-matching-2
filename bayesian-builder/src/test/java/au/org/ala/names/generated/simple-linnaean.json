@@ -6,6 +6,7 @@
     "@class" : "au.org.ala.util.BasicNormaliser",
     "id" : "lower_case_normaliser",
     "normaliseSpaces" : true,
+    "removePunctuation" : false,
     "normalisePunctuation" : true,
     "normaliseSymbols" : true,
     "normaliseAccents" : true,
@@ -14,6 +15,7 @@
     "@class" : "au.org.ala.util.BasicNormaliser",
     "id" : "simple_normaliser",
     "normaliseSpaces" : true,
+    "removePunctuation" : false,
     "normalisePunctuation" : true,
     "normaliseSymbols" : true,
     "normaliseAccents" : true,
@@ -46,8 +48,8 @@
         "alternativeMatches" : [ "altScientificName" ],
         "properties" : {
           "bayesian:name" : true,
-          "http://ala.org.au/optimisation/1.0/analyse" : true,
-          "http://ala.org.au/optimisation/1.0/loadFromClass" : [ "http://ala.org.au/terms/1.0/TaxonVariant", "http://rs.tdwg.org/dwc/terms/Taxon" ]
+          "opt:analysed" : true,
+          "opt:loadFromClass" : [ "http://ala.org.au/terms/1.0/TaxonVariant", "http://rs.tdwg.org/dwc/terms/Taxon" ]
         }
       }, {
         "id" : "synonymScientificName",
@@ -72,7 +74,7 @@
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
-      "http://ala.org.au/optimisation/1.0/loadAsVariant" : true
+      "opt:loadAsVariant" : true
     }
   }, {
     "id" : "family",
@@ -92,7 +94,7 @@
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
-      "http://ala.org.au/optimisation/1.0/loadAsVariant" : true
+      "opt:loadAsVariant" : true
     }
   }, {
     "id" : "genus",
@@ -112,8 +114,8 @@
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
-      "http://ala.org.au/optimisation/1.0/analyse" : true,
-      "http://ala.org.au/optimisation/1.0/load" : false
+      "opt:analysed" : true,
+      "opt:load" : false
     }
   }, {
     "id" : "kingdom",
@@ -133,7 +135,7 @@
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
-      "http://ala.org.au/optimisation/1.0/load" : false
+      "opt:load" : false
     }
   }, {
     "id" : "order",
@@ -153,7 +155,7 @@
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
-      "http://ala.org.au/optimisation/1.0/loadAsVariant" : true
+      "opt:loadAsVariant" : true
     }
   }, {
     "id" : "parentNameUsageID",
@@ -180,7 +182,7 @@
     "normaliser" : "simple_normaliser",
     "properties" : {
       "bayesian:copy" : true,
-      "http://ala.org.au/optimisation/1.0/loadAsVariant" : true
+      "opt:loadAsVariant" : true
     }
   }, {
     "id" : "priority",
@@ -191,8 +193,8 @@
       "@class" : "au.org.ala.bayesian.analysis.IntegerAnalysis"
     },
     "properties" : {
-      "http://ala.org.au/optimisation/1.0/aggregate" : "max",
-      "http://ala.org.au/optimisation/1.0/loadFromClass" : "http://ala.org.au/terms/1.0/TaxonVariant"
+      "opt:aggregate" : "max",
+      "opt:loadFromClass" : "http://ala.org.au/terms/1.0/TaxonVariant"
     }
   }, "scientificName", {
     "id" : "scientificNameAuthorship",
@@ -208,7 +210,7 @@
     },
     "multiplicity" : "*",
     "properties" : {
-      "http://ala.org.au/optimisation/1.0/load" : false
+      "opt:load" : false
     }
   }, {
     "id" : "soundexScientificName",
@@ -220,7 +222,8 @@
     },
     "multiplicity" : "*",
     "properties" : {
-      "http://ala.org.au/optimisation/1.0/load" : false
+      "opt:approximateName" : true,
+      "opt:load" : false
     }
   }, {
     "id" : "specificEpithet",
@@ -228,8 +231,8 @@
     "group" : "species",
     "normaliser" : "simple_normaliser",
     "properties" : {
-      "http://ala.org.au/optimisation/1.0/analyse" : true,
-      "http://ala.org.au/optimisation/1.0/load" : false
+      "opt:analysed" : true,
+      "opt:load" : false
     }
   }, "synonymScientificName", {
     "id" : "taxonID",

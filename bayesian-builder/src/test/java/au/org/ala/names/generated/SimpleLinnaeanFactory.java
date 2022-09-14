@@ -30,8 +30,8 @@ import au.org.ala.bayesian.ClassificationMatcher;
 public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClassification, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> {
     private static SimpleLinnaeanFactory instance = null;
 
-  public static final Normaliser lowerCaseNormaliser = new au.org.ala.util.BasicNormaliser("lower_case_normaliser", true, true, true, true, true);
-  public static final Normaliser simpleNormaliser = new au.org.ala.util.BasicNormaliser("simple_normaliser", true, true, true, true, false);
+  public static final Normaliser lowerCaseNormaliser = new au.org.ala.util.BasicNormaliser("lower_case_normaliser", true, false, true, true, true, true);
+  public static final Normaliser simpleNormaliser = new au.org.ala.util.BasicNormaliser("simple_normaliser", true, false, true, true, true, false);
 
   public static final Observable<String> acceptedNameUsageId = new Observable(
       "acceptedNameUsageID",
@@ -40,6 +40,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   public static final Observable<String> altScientificName = new Observable(
@@ -49,6 +50,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   public static final Observable<String> class_ = new Observable(
@@ -58,6 +60,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.MANY
     );
   public static final Observable<String> family = new Observable(
@@ -67,6 +70,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.MANY
     );
   public static final Observable<String> genus = new Observable(
@@ -76,6 +80,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   public static final Observable<String> kingdom = new Observable(
@@ -85,6 +90,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.MANY
     );
   public static final Observable<String> order = new Observable(
@@ -94,6 +100,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.MANY
     );
   public static final Observable<String> parentNameUsageId = new Observable(
@@ -103,6 +110,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   public static final Observable<String> phylum = new Observable(
@@ -112,6 +120,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.MANY
     );
   public static final Observable<Integer> priority = new Observable(
@@ -121,6 +130,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new IntegerAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   public static final Observable<String> scientificName = new Observable(
@@ -130,6 +140,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.MANY
     );
   public static final Observable<String> scientificNameAuthorship = new Observable(
@@ -139,6 +150,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   public static final Observable<String> soundexGenus = new Observable(
@@ -148,6 +160,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.MANY
     );
   public static final Observable<String> soundexScientificName = new Observable(
@@ -157,6 +170,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.MANY
     );
   public static final Observable<String> specificEpithet = new Observable(
@@ -166,6 +180,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   public static final Observable<String> synonymScientificName = new Observable(
@@ -175,6 +190,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.MANY
     );
   public static final Observable<String> taxonId = new Observable(
@@ -184,6 +200,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   public static final Observable<String> taxonRank = new Observable(
@@ -193,6 +210,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       lowerCaseNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   public static final Observable<String> taxonomicStatus = new Observable(
@@ -202,6 +220,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       simpleNormaliser,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   public static final Observable<Double> weight = new Observable(
@@ -211,6 +230,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Observable.Style.CANONICAL,
       null,
       new DoubleAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
 
@@ -280,49 +300,50 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     class_.setExternal(LUCENE, "dwc_class");
     class_.setExternal(LUCENE_VARIANT, "dwc_class_variant");
     class_.setProperty(au.org.ala.vocab.BayesianTerm.copy, true);
-    class_.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/loadAsVariant"), true);
+    class_.setProperty(au.org.ala.vocab.OptimisationTerm.loadAsVariant, true);
     family.setExternal(LUCENE, "dwc_family");
     family.setExternal(LUCENE_VARIANT, "dwc_family_variant");
     family.setProperty(au.org.ala.vocab.BayesianTerm.copy, true);
-    family.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/loadAsVariant"), true);
+    family.setProperty(au.org.ala.vocab.OptimisationTerm.loadAsVariant, true);
     genus.setExternal(LUCENE, "dwc_genus");
     genus.setProperty(au.org.ala.vocab.BayesianTerm.copy, true);
-    genus.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/analyse"), true);
-    genus.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
+    genus.setProperty(au.org.ala.vocab.OptimisationTerm.analysed, true);
+    genus.setProperty(au.org.ala.vocab.OptimisationTerm.load, false);
     kingdom.setExternal(LUCENE, "dwc_kingdom");
     kingdom.setExternal(LUCENE_VARIANT, "dwc_kingdom_variant");
     kingdom.setProperty(au.org.ala.vocab.BayesianTerm.copy, true);
-    kingdom.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
+    kingdom.setProperty(au.org.ala.vocab.OptimisationTerm.load, false);
     order.setExternal(LUCENE, "dwc_order");
     order.setExternal(LUCENE_VARIANT, "dwc_order_variant");
     order.setProperty(au.org.ala.vocab.BayesianTerm.copy, true);
-    order.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/loadAsVariant"), true);
+    order.setProperty(au.org.ala.vocab.OptimisationTerm.loadAsVariant, true);
     parentNameUsageId.setExternal(LUCENE, "dwc_parentNameUsageID");
     parentNameUsageId.setProperty(au.org.ala.vocab.BayesianTerm.additional, true);
     parentNameUsageId.setProperty(au.org.ala.vocab.BayesianTerm.parent, true);
     phylum.setExternal(LUCENE, "dwc_phylum");
     phylum.setExternal(LUCENE_VARIANT, "dwc_phylum_variant");
     phylum.setProperty(au.org.ala.vocab.BayesianTerm.copy, true);
-    phylum.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/loadAsVariant"), true);
+    phylum.setProperty(au.org.ala.vocab.OptimisationTerm.loadAsVariant, true);
     priority.setExternal(LUCENE, "priority");
-    priority.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/aggregate"), "max");
-    priority.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/loadFromClass"), "http://ala.org.au/terms/1.0/TaxonVariant");
+    priority.setProperty(au.org.ala.vocab.OptimisationTerm.aggregate, "max");
+    priority.setProperty(au.org.ala.vocab.OptimisationTerm.loadFromClass, "http://ala.org.au/terms/1.0/TaxonVariant");
     scientificName.setExternal(LUCENE, "dwc_scientificName");
     scientificName.setExternal(LUCENE_VARIANT, "dwc_scientificName_variant");
     scientificName.setProperty(au.org.ala.vocab.BayesianTerm.name, true);
-    scientificName.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/analyse"), true);
-    scientificName.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/loadFromClass"), "http://ala.org.au/terms/1.0/TaxonVariant");
-    scientificName.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/loadFromClass"), "http://rs.tdwg.org/dwc/terms/Taxon");
+    scientificName.setProperty(au.org.ala.vocab.OptimisationTerm.analysed, true);
+    scientificName.setProperty(au.org.ala.vocab.OptimisationTerm.loadFromClass, "http://ala.org.au/terms/1.0/TaxonVariant");
+    scientificName.setProperty(au.org.ala.vocab.OptimisationTerm.loadFromClass, "http://rs.tdwg.org/dwc/terms/Taxon");
     scientificNameAuthorship.setExternal(LUCENE, "dwc_scientificNameAuthorship");
     soundexGenus.setExternal(LUCENE, "soundexGenus");
     soundexGenus.setExternal(LUCENE_VARIANT, "soundexGenus_variant");
-    soundexGenus.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
+    soundexGenus.setProperty(au.org.ala.vocab.OptimisationTerm.load, false);
     soundexScientificName.setExternal(LUCENE, "soundexScientificName");
     soundexScientificName.setExternal(LUCENE_VARIANT, "soundexScientificName_variant");
-    soundexScientificName.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
+    soundexScientificName.setProperty(au.org.ala.vocab.OptimisationTerm.approximateName, true);
+    soundexScientificName.setProperty(au.org.ala.vocab.OptimisationTerm.load, false);
     specificEpithet.setExternal(LUCENE, "dwc_specificEpithet");
-    specificEpithet.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/analyse"), true);
-    specificEpithet.setProperty(TERM_FACTORY.findTerm("http://ala.org.au/optimisation/1.0/load"), false);
+    specificEpithet.setProperty(au.org.ala.vocab.OptimisationTerm.analysed, true);
+    specificEpithet.setProperty(au.org.ala.vocab.OptimisationTerm.load, false);
     synonymScientificName.setExternal(LUCENE, "synonymScientificName");
     synonymScientificName.setExternal(LUCENE_VARIANT, "synonymScientificName_variant");
     synonymScientificName.setProperty(au.org.ala.vocab.BayesianTerm.synonymName, true);

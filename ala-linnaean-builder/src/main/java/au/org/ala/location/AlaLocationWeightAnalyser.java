@@ -14,15 +14,21 @@ import au.org.ala.util.Counter;
 import au.org.ala.vocab.GeographyType;
 import au.org.ala.vocab.TaxonomicStatus;
 import com.opencsv.CSVReader;
+import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.api.Rank;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.io.WKTReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * ALA-specific weight analyser.
@@ -30,11 +36,26 @@ import java.util.Map;
  * This contains several parts.
  * A default weight based on the score allocated by the merging process (or 1 by default).
  * A lookup weight based on tables of data in a DwCA.
- * A modifier that prefers Linnaean ranks over assorted mid-rank information.
+ * </p>
+ * <p>
+ * If <code>weightAnalyser.areasOfInterest</code> is passed to the index builder CLI
+ * (set via <code>-p weightAnalyser.areaOfInterest=URL</code> then a CSV file from that location,
+ * with locationIO,WKT,boost as the first three columns is read.
+ * This will apply the first matching boost for a location with the same locationID somewhere
+ * (ie. in islandID or countryID as well as locationID)
+ * or a decumalLatitude/Longitude within the WKT.
  * </p>
  */
 public class AlaLocationWeightAnalyser implements WeightAnalyser, Annotator {
     private static final Logger logger = LoggerFactory.getLogger(AlaLocationWeightAnalyser.class);
+
+    // WGS84 SRID
+    private static final int SRID = 4326;
+    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory(new PrecisionModel(), SRID);
+    /**
+     * Optional area of interest
+     */
+    private List<AreaOfInterest> areasOfInterest;
 
     /**
      * Construct a weight analyser for a configuration
@@ -43,6 +64,21 @@ public class AlaLocationWeightAnalyser implements WeightAnalyser, Annotator {
      * @throws Exception If unable to build the analyser
      */
     public AlaLocationWeightAnalyser(IndexBuilderConfiguration configuration) throws Exception {
+        this.areasOfInterest = new ArrayList<>();
+        String aoi = configuration.getParameters().get("weightAnalyser.areasOfInterest");
+        if (aoi != null) {
+            CSVReader reader = new CSVReader(new InputStreamReader(new URL(aoi).openStream()));
+            WKTReader wktRreader = new WKTReader(GEOMETRY_FACTORY);
+            reader.readNext();
+            String[] line;
+            while ((line = reader.readNext()) != null) {
+                String locationID = StringUtils.stripToNull(line[0]);
+                String wkt = StringUtils.stripToNull(line[1]);
+                Geometry geometry = wkt == null ? null : wktRreader.read(wkt);
+                double boost = Double.parseDouble(line[2]);
+                this.areasOfInterest.add(new AreaOfInterest(locationID, geometry, boost));
+            }
+        }
     }
 
     /**
@@ -113,6 +149,18 @@ public class AlaLocationWeightAnalyser implements WeightAnalyser, Annotator {
      */
     @Override
     public double modify(Classifier classifier, double weight) throws BayesianException {
+        Double lat = classifier.get(AlaLocationFactory.decimalLatitude);
+        Double lon = classifier.get(AlaLocationFactory.decimalLongitude);
+        Point point = null;
+        if (lat != null && lon != null) {
+            point = GEOMETRY_FACTORY.createPoint(new Coordinate(lon, lat));
+        }
+        for (AreaOfInterest aoi: this.areasOfInterest) {
+            if (aoi.match(classifier, point)) {
+                weight *= aoi.getBoost();
+                break;
+            }
+        }
         return Math.max(1.0, weight);
     }
 
@@ -123,5 +171,44 @@ public class AlaLocationWeightAnalyser implements WeightAnalyser, Annotator {
      */
     @Override
     public void annotate(Classifier classifier) {
+    }
+
+    @Value
+    class AreaOfInterest {
+        private String locationID;
+        private Geometry geometry;
+        private double boost;
+
+        /**
+         * Check to see if the classifier matches the area of interest
+         *
+         * @param classifier The classifier
+         * @param point The location point (if present)
+         *
+         * @return True if inside the area of interest
+         */
+        public boolean match(Classifier classifier, Point point) {
+            if (this.locationID != null) {
+                if (this.locationID.equals(classifier.get(AlaLocationFactory.locationId)))
+                    return true;
+                if (this.locationID.equals(classifier.get(AlaLocationFactory.islandId)))
+                    return true;
+                if (this.locationID.equals(classifier.get(AlaLocationFactory.islandGroupId)))
+                    return true;
+                if (this.locationID.equals(classifier.get(AlaLocationFactory.stateProvinceId)))
+                    return true;
+                if (this.locationID.equals(classifier.get(AlaLocationFactory.countryId)))
+                    return true;
+                if (this.locationID.equals(classifier.get(AlaLocationFactory.continentId)))
+                    return true;
+                if (this.locationID.equals(classifier.get(AlaLocationFactory.waterBodyId)))
+                    return true;
+            }
+            if (this.geometry != null && point != null) {
+                if (this.geometry.contains(point))
+                    return true;
+            }
+            return false;
+        }
     }
 }

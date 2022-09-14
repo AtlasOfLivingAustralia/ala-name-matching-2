@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class TestFactory implements NetworkFactory<TestClassification, TestInferencer, TestFactory> {
-    public static final Normaliser NORMALISER = new BasicNormaliser("basic", true, true, true, true, false);
+    public static final Normaliser NORMALISER = new BasicNormaliser("basic", true, false, true, true, true, false);
 
     public static final Term RANK_ID_TERM = TermFactory.instance().findTerm("rankID");
     public static final Term RANK_RANGE_TERM = TermFactory.instance().findTerm("rankRange");

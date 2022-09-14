@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
 public class BasicNormaliser extends Normaliser {
     /** The multiple space pattern */
     private static final Pattern SPACES = Pattern.compile("\\s+", Pattern.UNICODE_CHARACTER_CLASS);
+    /** The punctuation pattern */
+    private static final Pattern PUNCTUATION = Pattern.compile("\\p{Punct}", Pattern.UNICODE_CHARACTER_CLASS);
     /** The diacritic pattern */
     private static final Pattern DIACRITICS = Pattern.compile("\\p{InCombiningDiacriticalMarks}+", Pattern.UNICODE_CHARACTER_CLASS);
     /** The punctuation translation table */
@@ -153,6 +155,8 @@ public class BasicNormaliser extends Normaliser {
     private boolean normaliseSpaces;
     /** Turn things like open/close quotes into single direction quotes */
     @JsonProperty
+    private boolean removePunctuation;
+    @JsonProperty
     private boolean normalisePunctuation;
     /** Spell out unusual symbols */
     @JsonProperty
@@ -169,14 +173,18 @@ public class BasicNormaliser extends Normaliser {
      *
      * @param id The normaliser id
      * @param normaliseSpaces Normalise spaces into a single space
+     * @param removePunctuation Remove all punctuation
      * @param normalisePunctuation Normalise open/close punctuation characters
      * @param normaliseSymbols Normalise symbols such as \beta
      * @param normaliseAccents Convert accented characters into unaccented characters
      * @param normaliseCase Ensure all lower-case
      */
-    public BasicNormaliser(String id, boolean normaliseSpaces, boolean normalisePunctuation, boolean normaliseSymbols, boolean normaliseAccents, boolean normaliseCase) {
+    public BasicNormaliser(String id, boolean normaliseSpaces, boolean removePunctuation, boolean normalisePunctuation, boolean normaliseSymbols, boolean normaliseAccents, boolean normaliseCase) {
         super(id);
+        if (removePunctuation && normalisePunctuation)
+            throw new IllegalArgumentException("Cannot have both remove punctuation and normalise punctuation set to true");
         this.normaliseSpaces = normaliseSpaces;
+        this.removePunctuation = removePunctuation;
         this.normalisePunctuation = normalisePunctuation;
         this.normaliseSymbols = normaliseSymbols;
         this.normaliseAccents = normaliseAccents;
@@ -184,11 +192,12 @@ public class BasicNormaliser extends Normaliser {
     }
 
     /**
-     * Construct a default normaliser that performs all normalisations
+     * Construct a default normaliser that performs all normalisations except removing punctuation
      */
     public BasicNormaliser() {
         super();
         this.normaliseSpaces = true;
+        this.removePunctuation = false;
         this.normalisePunctuation = true;
         this.normaliseSymbols = true;
         this.normaliseAccents = true;
@@ -209,6 +218,23 @@ public class BasicNormaliser extends Normaliser {
     protected String normaliseSpaces(String s) {
         Matcher matcher = SPACES.matcher(s);
         return matcher.replaceAll(" ").trim();
+    }
+
+
+
+    /**
+     * Strip punctuation.
+     * <p>
+     * Decompose any accented characters into diacritics and base characters and then remove the diacritics.
+     * </p>
+     *
+     * @param s The string to translate
+     *
+     * @return The de-punctuated string
+     */
+    protected String removePunctuation(String s) {
+        Matcher matcher = PUNCTUATION.matcher(s);
+        return matcher.replaceAll("").trim();
     }
 
 
@@ -245,6 +271,8 @@ public class BasicNormaliser extends Normaliser {
         if (s == null)
             return null;
         s = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFKC); // Get into canonical form
+        if (this.removePunctuation)
+            s = this.removePunctuation(s);
         if (this.normalisePunctuation)
             s = this.translate(s, PUNCT_TRANSLATE);
         if (this.normaliseSymbols)
@@ -273,6 +301,8 @@ public class BasicNormaliser extends Normaliser {
         builder.append(this.getId());
         builder.append("\", ");
         builder.append(this.normaliseSpaces);
+        builder.append(", ");
+        builder.append(this.removePunctuation);
         builder.append(", ");
         builder.append(this.normalisePunctuation);
         builder.append(", ");

@@ -35,7 +35,7 @@ public class AuthorCanonicaliser {
 
     protected static final ThreadLocal<NameParser> PARSER = ThreadLocal.withInitial(NameParserGBIF::new);
 
-    protected static final Normaliser NORMALISER = new BasicNormaliser("author", true, true, true, true, false);
+    protected static final Normaliser NORMALISER = new BasicNormaliser("author", true, false, true, true, true, false);
     protected static final Pattern NON_LETTER = Pattern.compile("\\W");
     protected static final Pattern INITIAL_ABBREV = Pattern.compile("(?<=^|\\s|[A-Z]\\.)([A-Z])(?:\\.|\\.\\s+|\\s+)");
     protected static final Pattern QUESTION_MARKS = Pattern.compile("\\?");

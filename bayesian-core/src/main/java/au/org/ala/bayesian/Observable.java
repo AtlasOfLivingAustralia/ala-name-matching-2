@@ -14,7 +14,10 @@ import org.gbif.dwc.terms.Term;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A node of a bayseian network, representing some sort of observable element that can be reasoned about.
@@ -22,7 +25,7 @@ import java.util.List;
  * @param <T> The type of object that the observable handles.
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Observable<T> extends Identifiable implements Comparable<Observable> {
+public class Observable<T> extends Identifiable implements Comparable<Observable<?>> {
 
     /** The derivation of this observable, if this is a derived value */
     @JsonProperty
@@ -44,6 +47,13 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
     @Getter
     @Setter
     private Style style = Style.CANONICAL;
+    /** The number of possible values that this observable can have for a single classification */
+    @JsonProperty
+    @JsonSerialize(using = MulitplicitySerializer.class)
+    @JsonDeserialize(using = MultiplicityDeserializer.class)
+    @Getter
+    @Setter
+    private Multiplicity matchability = Multiplicity.OPTIONAL;
     /** The number of possible values that this observable can have for a single classifier */
     @JsonProperty
     @JsonSerialize(using = MulitplicitySerializer.class)
@@ -94,13 +104,16 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
      * @param style The style of value (how to search for the value)
      * @param normaliser Any normaliser
      * @param analysis The analysis object
+     * @param matchability The classification multiplicity
+     * @param multiplicity The classifier multiplicity
      */
-    public Observable(String id, URI uri, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?> analysis, Multiplicity multiplicity) {
+    public Observable(String id, URI uri, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?> analysis, Multiplicity matchability, Multiplicity multiplicity) {
         super(id, uri);
         this.type = type;
         this.style = style;
         this.normaliser = normaliser;
         this.analysis = analysis;
+        this.matchability = matchability;
         this.multiplicity = multiplicity;
     }
 
@@ -112,9 +125,11 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
      * @param style The style to usse
      * @param normaliser Any normaliser
      * @param analysis The analysis object
+     * @param matchability The classification multiplicity
+     * @param multiplicity The classifier multiplicity
      */
-    public Observable(Term term, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?> analysis, Multiplicity multiplicity) {
-        this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, analysis, multiplicity);
+    public Observable(Term term, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?> analysis, Multiplicity matchability, Multiplicity multiplicity) {
+        this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, analysis, matchability, multiplicity);
     }
 
     /**
@@ -174,6 +189,24 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
         if (normaliser != null && o instanceof String)
             o = (T) normaliser.normalise((String) o);
         return this.getAnalysis().analyse(o);
+    }
+
+    /**
+     * Analyse a set of objects into the correct form.
+     *
+     * @param o The object
+     *
+     * @return The normalised, analysed object
+     *
+     * @throws InferenceException If unable to analyse correctly
+     */
+    public Set<T> analyse(Set<T> o) throws InferenceException {
+        if (o == null)
+            return null;
+        LinkedHashSet<T> analysed = new LinkedHashSet<>(o.size());
+        for (T v: o)
+            analysed.add(this.analyse(v));
+        return analysed;
     }
 
     /**
@@ -249,7 +282,7 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
      * @return The corresponding observable
      */
     public static Observable<String> string(Term term) {
-        return new Observable<>(term, String.class, Style.CANONICAL, null, null, Multiplicity.OPTIONAL);
+        return new Observable<>(term, String.class, Style.CANONICAL, null, null, Multiplicity.OPTIONAL, Multiplicity.OPTIONAL);
     }
 
     /**
@@ -282,7 +315,7 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
      * @return The corresponding observable
      */
     public static Observable<Integer> integer(Term term) {
-        return new Observable<>(term, Integer.class, Style.IDENTIFIER, null, null, Multiplicity.OPTIONAL);
+        return new Observable<>(term, Integer.class, Style.IDENTIFIER, null, null, Multiplicity.OPTIONAL, Multiplicity.OPTIONAL);
     }
 
 
@@ -308,7 +341,7 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
      * @return The corresponding observable
      */
     public static <E extends Enum<E>> Observable<E> enumerated(Class<E> clazz, Term term) {
-        return new Observable<>(term, clazz, Style.IDENTIFIER, null, null, Multiplicity.OPTIONAL);
+        return new Observable<>(term, clazz, Style.IDENTIFIER, null, null, Multiplicity.OPTIONAL, Multiplicity.OPTIONAL);
     }
 
     /**

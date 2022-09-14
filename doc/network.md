@@ -169,6 +169,9 @@ In addition, observables have the following properties:
   * `1` - a required value with only one value (eg. taxonId)
   * `*` something with zero or more possible values (eg. family)
   * `+` something with one or more possible values (eg. scientificName)
+* **matchability** One of the same values as multiplicity.
+  The matchability is usually `?` but, if set to `*` it will allow a set of
+  values, all of which will be matched against the classifier.
 * **analysis** A reference to an object that interprets the observable so that
   it can be parsed, stored, queried and tested for equivalence.
   By default, this is derived from the type of the observable.
@@ -265,6 +268,13 @@ can be used to improve performance.
   used to filter values when using `http://ala.org.au/optimisation/1.0/aggregate`
   The class needs to implement `java.util.function.Predicate<org.gbif.dwc.record.Record>` 
   for the type of object being aggregated.
+* `http://ala.org.au/optimisation/1.0/checkPresentInClassifier` If true, only classifiers
+  that contain values that are part of the observable's group (see above) will be
+  considered as candidates. This allows you to specify that you must have a category
+  of observables in the answer, if the search classification contains a value.
+  This can be useful in eliminating matches that would match but are overly vague.
+* `http://ala.org.au/optimisation/1.0/approximateName` This observable holds an approximate name (eg. soundex or stem)
+  that can be used to pre-filter candidates.
 
 #### Derivations
 

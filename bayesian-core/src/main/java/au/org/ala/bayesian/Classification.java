@@ -150,6 +150,21 @@ public interface Classification<C extends Classification<C>> extends Cloneable {
     void inferForSearch(@NonNull Analyser<C> analyser, @NonNull MatchOptions options) throws BayesianException;
 
     /**
+     * Does this classification roughly match a classifier?
+     * <p>
+     * This method usually does an approximate name check and a signature check.
+     * </p>
+     *
+     * @param classifier The classifier to check
+     *
+     * @return True if this classifier is a rough match to the classification
+     *
+     * @throws BayesianException if there is a problem checking the candidate
+     *
+     */
+    boolean isValidCandidate(Classifier classifier) throws BayesianException;
+
+    /**
      * Build a fidelity model for this (original) classification against an actual classification.
      * <p>
      * The fidelity model can be used to build an estimate of how much the matched classification

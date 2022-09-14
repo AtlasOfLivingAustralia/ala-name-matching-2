@@ -2,6 +2,7 @@
   "@class" : "au.org.ala.util.BasicNormaliser",
   "id" : "normaliser_1",
   "normaliseSpaces" : true,
+  "removePunctuation" : false,
   "normalisePunctuation" : true,
   "normaliseSymbols" : true,
   "normaliseAccents" : true,

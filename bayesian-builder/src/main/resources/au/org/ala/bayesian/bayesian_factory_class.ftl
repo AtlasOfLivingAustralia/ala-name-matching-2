@@ -49,6 +49,7 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
       Observable.Style.${observable.style},
       <#if observable.normaliser??>${observable.normaliser.javaVariable}<#else>null</#if>,
       new ${observable.analysis.class.simpleName}(<#list observable.analysis.constructorParameters as param><#if param?is_boolean>${param?c}<#elseif param?is_number>${param?c}<#else>"${param?j_string}"</#if><#if param?has_next>, </#if></#list>),
+      Multiplicity.${observable.matchability},
       Multiplicity.${observable.multiplicity}
     );
   </#list>

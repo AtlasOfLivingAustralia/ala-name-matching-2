@@ -111,4 +111,11 @@
     <field index="3" term="http://purl.org/dc/terms/rightsHolder"/>
     <field index="4" term="http://purl.org/dc/terms/license"/>
   </extension>
+  <extension encoding="utf-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Distribution">
+    <files>
+      <location>distribution.csv</location>
+    </files>
+    <coreid index="0" />
+    <field index="1" term="http://rs.tdwg.org/dwc/terms/locationID"/>
+  </extension>
 </archive>

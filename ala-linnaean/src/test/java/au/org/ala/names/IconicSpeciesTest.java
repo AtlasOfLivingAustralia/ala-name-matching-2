@@ -3,6 +3,7 @@ package au.org.ala.names;
 import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.MatchMeasurement;
+import au.org.ala.location.AlaLocationClassification;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
 import org.gbif.utils.file.csv.CSVReader;
@@ -27,9 +28,10 @@ import static org.junit.Assert.assertEquals;
 public class IconicSpeciesTest {
     private static final Logger logger = LoggerFactory.getLogger(IconicSpeciesTest.class);
 
-    public static final String INDEX = "/data/lucene/index-20210811-3";
-    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-3";
-    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-3";
+    public static final String INDEX = "/data/lucene/index-20210811-4";
+    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-4";
+    public static final String LOCATION_INDEX = "/data/lucene/location-2022";
+    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-4";
 
     private ALANameSearcher searcher;
     private AlaNameAnalyser analyser;
@@ -38,12 +40,13 @@ public class IconicSpeciesTest {
     public void setUp() throws Exception {
         File index = new File(INDEX);
         File vernacular = new File(VERNACULAR_INDEX);
+        File location = new File(LOCATION_INDEX);
         File suggester = new File(SUGGESTER_INDEX);
         if (!index.exists())
             throw new IllegalStateException("Index " + index + " not present");
         if (!vernacular.exists())
             throw new IllegalStateException("Vernacular Index " + vernacular + " not present");
-        this.searcher = new ALANameSearcher(index, vernacular, suggester, null, null);
+        this.searcher = new ALANameSearcher(index, vernacular, location, suggester, null, null);
         this.analyser = new AlaNameAnalyser();
     }
 
@@ -52,7 +55,7 @@ public class IconicSpeciesTest {
         this.searcher.close();
     }
 
-    private int testIssues(Match<?, ?> match, String name, int line) {
+    private int testIssues(Match<?, ?> match, String name, int line, boolean testLocation) {
         Issues issues = match.getIssues();
         if (issues.isEmpty())
             return 0;
@@ -62,6 +65,8 @@ public class IconicSpeciesTest {
         values.remove(AlaLinnaeanFactory.PARTIALLY_EXCLUDED_NAME);
         values.remove(AlaLinnaeanFactory.MULTIPLE_MATCHES);
         values.remove(AlaLinnaeanFactory.PARENT_CHILD_SYNONYM);
+        if (!testLocation)
+            values.remove(AlaLinnaeanFactory.REMOVED_LOCATION);
         if (values.isEmpty())
             return 0;
         logger.error("Issues for " + name + " line " + line + " " + issues);
@@ -76,14 +81,14 @@ public class IconicSpeciesTest {
         return 0;
     }
     
-    private int testMatch(AlaLinnaeanClassification template, Match<AlaLinnaeanClassification, MatchMeasurement> match, int line) {
+    private int testMatch(AlaLinnaeanClassification template, Match<AlaLinnaeanClassification, MatchMeasurement> match, int line, boolean testLocation) {
         int errors = 0;
         String scientificName = template.scientificName;
         if (!match.isValid()) {
             logger.error("No valid match for " + scientificName + " line " + line);
             return 1;
         }
-        errors += this.testIssues(match, scientificName, line);
+        errors += this.testIssues(match, scientificName, line, testLocation);
         if (match.getProbability().getPosterior() < 0.98) {
             logger.error("Inaccurate match for " + scientificName + " of " + match.getProbability() + " line " + line);
             errors += 1;
@@ -102,14 +107,14 @@ public class IconicSpeciesTest {
     }
 
 
-    private int testMatch(AlaVernacularClassification template, Match<AlaVernacularClassification, MatchMeasurement> match, Match<AlaLinnaeanClassification, MatchMeasurement> scientific, int line, boolean matchVernacular) throws Exception  {
+    private int testMatch(AlaVernacularClassification template, Match<AlaVernacularClassification, MatchMeasurement> match, Match<AlaLinnaeanClassification, MatchMeasurement> scientific, int line, boolean matchVernacular, boolean testLocation) throws Exception  {
         int errors = 0;
         String vernacularName = template.vernacularName;
         if (!match.isValid()) {
             logger.error("No valid match for " + vernacularName + " line " + line);
             return 1;
         }
-        errors += this.testIssues(match,vernacularName,  line);
+        errors += this.testIssues(match,vernacularName,  line, testLocation);
         String matchedName = match.getAccepted().vernacularName;
         errors += this.compare(vernacularName, matchedName, "vernacular name", vernacularName, line);
         if (!matchVernacular) {
@@ -118,7 +123,10 @@ public class IconicSpeciesTest {
             String taxonId = match.getAccepted().taxonId;
             AlaLinnaeanClassification accepted = scientific.getAccepted();
             AlaLinnaeanClassification matchAccepted = this.searcher.get(taxonId);
-            if (!taxonId.equals(accepted.taxonId)) {
+            if (matchAccepted == null) {
+                logger.error("Unable to get taxonId " + taxonId + " for " + vernacularName + " ... maybe out of date indexes?");
+                errors += 1;
+            } else if (!taxonId.equals(accepted.taxonId)) {
                 if (matchAccepted.speciesId != null && matchAccepted.speciesId.equals(accepted.speciesId)) {
                     logger.info("Match for " + vernacularName + " at species level for " + matchAccepted.scientificName + " vs accepted " + accepted.scientificName + " on line " + line);
                 } else if (matchAccepted.genusId != null && matchAccepted.genusId.equals(accepted.genusId)) {
@@ -135,7 +143,7 @@ public class IconicSpeciesTest {
         return errors;
     }
 
-    private void testFile(String name) throws Exception {
+    private void testFile(String name, boolean locality) throws Exception {
         InputStream s = null;
         int errors = 0;
         try {
@@ -146,12 +154,18 @@ public class IconicSpeciesTest {
                 String row[] = reader.next();
                 line++;
                 AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+                AlaLocationClassification location = null;
                 String species;
                 String subspecies;
                 String scientificName;
                 try {
                     if (row[0].startsWith("#")) // Skip comment
                         continue;
+                    if (locality) {
+                        location = new AlaLocationClassification();
+                        location.stateProvince = StringUtils.trimToNull(row[1]);
+                        location.country = "Australia";
+                    }
                     classification.kingdom = StringUtils.trimToNull(row[2]);
                     classification.phylum = StringUtils.trimToNull(row[3]);
                     classification.class_ = StringUtils.trimToNull(row[4]);
@@ -165,12 +179,22 @@ public class IconicSpeciesTest {
                 } catch (Exception ex) {
                     throw new IllegalStateException("Error on line " + line, ex);
                 }
+                if (location != null) {
+                    Match<AlaLocationClassification, MatchMeasurement> locMatch = this.searcher.search(location);
+                    if (!locMatch.isValid()) {
+                        logger.info("Unable to match location " + location.country + "/" + location.stateProvince);
+                        errors += 1;
+                    } else {
+                        classification.locationId = locMatch.getAllIdentifiers();
+                    }
+                }
                 Match<AlaLinnaeanClassification, MatchMeasurement> match = this.searcher.search(classification);
-                errors += this.testMatch(classification, match, line);
+                boolean testLocation = Boolean.parseBoolean(row.length >= 12 ? row[11] : "true");
+                errors += this.testMatch(classification, match, line, testLocation);
                 AlaLinnaeanClassification nameOnly = new AlaLinnaeanClassification();
                 nameOnly.scientificName = scientificName;
                 match = this.searcher.search(nameOnly);
-                this.testMatch(classification, match, line);
+                this.testMatch(classification, match, line, testLocation);
 
                 String vernacularName = StringUtils.trimToNull(row[0]);
                 boolean matchVernacular = Boolean.parseBoolean(row.length >= 11 ? row[10] : "true");
@@ -178,7 +202,7 @@ public class IconicSpeciesTest {
                     AlaVernacularClassification vernacularClassification = new AlaVernacularClassification();
                     vernacularClassification.vernacularName = vernacularName;
                     Match<AlaVernacularClassification, MatchMeasurement> vernacularMatch = this.searcher.search(vernacularClassification);
-                    errors += testMatch(vernacularClassification, vernacularMatch, match, line, matchVernacular);
+                    errors += testMatch(vernacularClassification, vernacularMatch, match, line, matchVernacular, testLocation);
                 }
             }
         } finally {
@@ -190,57 +214,57 @@ public class IconicSpeciesTest {
 
     @Test
     public void testProblems() throws Exception {
-        this.testFile("problems.csv");
+        this.testFile("problems.csv", false);
     }
 
     @Test
     public void testBirds() throws Exception {
-        this.testFile("birds.csv");
+        this.testFile("birds.csv", false);
     }
 
     @Test
     public void testFish() throws Exception {
-        this.testFile("fish.csv");
+        this.testFile("fish.csv", false);
     }
 
     @Test
     public void testFrogs() throws Exception {
-        this.testFile("frogs.csv");
+        this.testFile("frogs.csv", false);
     }
 
     @Test
     public void testMammals() throws Exception {
-        this.testFile("mammals.csv");
+        this.testFile("mammals.csv", false);
     }
 
     @Test
     public void testReptiles() throws Exception {
-        this.testFile("reptiles.csv");
+        this.testFile("reptiles.csv", false);
     }
 
     @Test
     public void testInvertebrates() throws Exception {
-        this.testFile("invertebrates.csv");
+        this.testFile("invertebrates.csv", false);
     }
 
     @Test
     public void testFloweringPlants() throws Exception {
-        this.testFile("flowering-plants.csv");
+        this.testFile("flowering-plants.csv", false);
     }
 
     @Test
     public void testFungi() throws Exception {
-        this.testFile("fungi.csv");
+        this.testFile("fungi.csv", false);
     }
 
     @Test
     public void testFerns() throws Exception {
-        this.testFile("ferns.csv");
+        this.testFile("ferns.csv", false);
     }
 
     @Test
     public void testEmblems() throws Exception {
-        this.testFile("emblems.csv");
+        this.testFile("emblems.csv", true);
     }
 
 }

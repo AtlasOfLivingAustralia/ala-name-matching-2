@@ -96,6 +96,39 @@ public interface Classifier {
     <T> Boolean match(T value, Observable<T>... observables) throws StoreException;
 
 
+
+    /**
+     * Does this classifier have a matching term for an observable?
+     * <p>
+     * All variants are tested.
+     * Integer types and double types are directly compared.
+     * String types are compared according to the normalisation and style rules specified by the observable.
+     * </p>
+     *
+     * @param observables The observables to match
+     * @param values      The values to match against (may be null)
+     *
+     * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
+     *
+     * @throws StoreException if there was a problem matching the result or testing for equivalence.
+     */
+    default public <T> Boolean match(Set<T> values, Observable<T>... observables) throws StoreException {
+        if (values == null)
+            return null;
+        Boolean result = null;
+        for (T value: values) {
+            Boolean r = this.match(value, observables);
+            if (r != null) {
+                if (r)
+                    return r;
+                result = false;
+            }
+        }
+        return result;
+    }
+
+
+
     /**
      * Match definitively.
      * <p>
@@ -142,6 +175,27 @@ public interface Classifier {
      * @throws StoreException if the value is already present or unable to add this variable to the classifier
      */
     <T> void add(Observable<T> observable, T value, boolean variant, boolean replace) throws StoreException;
+
+    /**
+     * Add a set of values to the classifier.
+     *
+     * @param observable The observable to store
+     * @param values The values to store
+     * @param variant Load this value as a variant only
+     * @param replace Replace the non-variant value with this value
+     *
+     * @throws StoreException if the value is already present or unable to add this variable to the classifier
+     *
+     * @see #add(Observable, Object, boolean, boolean)
+     */
+    default <T> void addAll(Observable<T> observable, Set<T> values, boolean variant, boolean replace) throws StoreException {
+        if (values == null) {
+            this.add(observable, null, variant, replace);
+        } else {
+            for (T value: values)
+                this.add(observable, value, variant, replace);
+        }
+    }
 
     /**
      * Copy all values from another classifier
@@ -418,5 +472,4 @@ public interface Classifier {
         }
         return result;
     }
-
 }

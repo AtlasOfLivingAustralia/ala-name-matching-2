@@ -115,6 +115,16 @@ public class ObservableTest {
     }
 
     @Test
+    public void testToJson9() throws Exception {
+        Observable<String> observable = Observable.string("test_9");
+        observable.setMatchability(Observable.Multiplicity.REQUIRED_MANY);
+        ObjectMapper mapper = JsonUtils.createMapper();
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, observable);
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "observable-9.json"), writer.toString());
+    }
+
+    @Test
     public void testFromJson1() throws Exception {
         ObjectMapper mapper = JsonUtils.createMapper();
         Observable observable = mapper.readValue(TestUtils.getResource(this.getClass(), "observable-1.json"), Observable.class);
@@ -202,6 +212,14 @@ public class ObservableTest {
         assertEquals(new HashSet(Arrays.asList(1.0, 2.0)), observable.getProperties(property2, null));
         assertEquals(Collections.emptySet(), observable.getProperties(property3, null));
         assertEquals(Collections.singleton("Hello"), observable.getProperties(property3, "Hello"));
+    }
+
+    @Test
+    public void testFromJson9() throws Exception {
+        ObjectMapper mapper = JsonUtils.createMapper();
+        Observable observable = mapper.readValue(TestUtils.getResource(this.getClass(), "observable-9.json"), Observable.class);
+        assertEquals("test_9", observable.getId());
+        assertEquals(Observable.Multiplicity.REQUIRED_MANY, observable.getMatchability());
     }
 
     @Test

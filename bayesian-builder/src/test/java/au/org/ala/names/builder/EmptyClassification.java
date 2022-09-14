@@ -95,6 +95,11 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     }
 
     @Override
+    public boolean isValidCandidate(Classifier classifier) throws BayesianException {
+        return true;
+    }
+
+    @Override
     public Fidelity<EmptyClassification> buildFidelity(EmptyClassification actual) {
         return new CompositeFidelity<>(this, actual);
     }

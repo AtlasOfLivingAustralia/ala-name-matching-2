@@ -77,7 +77,7 @@ public class AlaVernacularBuilderTest extends TestUtils {
         assertNotNull(doc);
         assertEquals("Jewel Beetles", doc.get(AlaVernacularFactory.vernacularName));
         assertEquals("en", doc.get(AlaVernacularFactory.language));
-        assertNull(doc.get(AlaVernacularFactory.countryCode));
+        assertNull(doc.get(AlaVernacularFactory.locationId));
         AlaVernacularParameters_ params = new AlaVernacularParameters_();
         doc.loadParameters(params);
         AlaVernacularInferencer_ inference = new AlaVernacularInferencer_();
