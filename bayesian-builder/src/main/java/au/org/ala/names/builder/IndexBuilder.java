@@ -685,7 +685,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
          }
         if (!output.mkdirs())
             throw new IllegalArgumentException("Unable to create " + output);
-        LoadStore index = new LuceneLoadStore("index", output, false, false);
+        LoadStore index = new LuceneLoadStore("index", output, false, false, this.config.getCacheSize());
         // Copy taxa across
         Iterable<Cl> taxa = source.getAll(this.conceptTerm);
         for (Classifier classifier : taxa) {

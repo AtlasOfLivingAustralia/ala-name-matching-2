@@ -28,7 +28,7 @@ public class CSVSourceTest {
     public void setUp() throws Exception {
         this.network = new Network();
         this.factory = SimpleLinnaeanFactory.instance();
-        this.store = new TestLoadStore("test");
+        this.store = new TestLoadStore("test", 0);
     }
 
     @After

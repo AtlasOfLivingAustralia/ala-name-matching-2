@@ -31,7 +31,7 @@ public class LuceneLoadStoreTest {
     public void setUp() throws Exception {
         this.network = new Network();
         this.annotator = new TestAnnotator();
-        this.store = new LuceneLoadStore("test", null, true, true);
+        this.store = new LuceneLoadStore("test", null, true, true, 0);
     }
 
     @After

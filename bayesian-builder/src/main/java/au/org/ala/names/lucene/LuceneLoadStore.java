@@ -35,9 +35,6 @@ import java.util.stream.IntStream;
 public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     /** The default batch size for getting results. Assumes a smallish size */
     public static final int DEFAULT_BATCH_SIZE = 256;
-    /** The default cache size for storing imtermediate results */
-    public static final int DEFAULT_CACHE_SIZE = 2000000;
-
     /** The name of the network description file */
     public static final String NETWORK_FILE = "network.json";
 
@@ -55,10 +52,6 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     @Getter
     @Setter
     private int batchSize = DEFAULT_BATCH_SIZE;
-    /** The cache size for repeated queries */
-    @Getter
-    @Setter
-    private int cacheSize = DEFAULT_CACHE_SIZE;
     /** Delete this store on closing */
     @Getter
     private final boolean temporary;
@@ -76,9 +69,10 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @param dir The store directory (if temporary is true, this is a work directory under which a temoporray directory is created, null for the standard temporary work area)
      * @param temporary Delete the store on closing (for temporary stores)
      * @param memory Prefer an in-memory store using {@Link MMapDirectory}
+     * @param cacheSize The cache size (0 for default)
      */
-    public LuceneLoadStore(String name, File dir, boolean temporary, boolean memory) throws StoreException {
-        super(name);
+    public LuceneLoadStore(String name, File dir, boolean temporary, boolean memory, int cacheSize) throws StoreException {
+        super(name, cacheSize);
         this.temporary = temporary;
         this.queryUtils = new QueryUtils();
         FSDirectory directory = null;
@@ -103,7 +97,6 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
         } catch (IOException ex) {
             throw new StoreException("Unable to make index in " + directory, ex);
         }
-        this.batchSize = DEFAULT_BATCH_SIZE;
         this.annotationObservable = Observable.string(LuceneClassifier.ANNOTATION_FIELD);
         this.annotationObservable.setExternal(ExternalContext.LUCENE, LuceneClassifier.ANNOTATION_FIELD);
         log.info("Lucene load store " + this.getName() + " created at " + directory);
@@ -119,7 +112,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
      * @param work The work directory
      */
     public LuceneLoadStore(String name, File work) throws StoreException {
-        this(name, work, true, true);
+        this(name, work, true, true, 0);
     }
 
     /**
@@ -325,7 +318,7 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
     @Override
     public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws BayesianException {
         this.ensureReader();
-        return new LuceneParameterAnalyser(network, this.searcher, weight, defaultWeight, network.getInputs(), network.getOutputs(), true);
+        return new LuceneParameterAnalyser(network, this.searcher, weight, defaultWeight, network.getInputs(), network.getOutputs(), this.getCacheSize(), true);
     }
 
     /**

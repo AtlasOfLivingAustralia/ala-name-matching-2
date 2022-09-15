@@ -27,7 +27,7 @@ public class DwCASourceTest {
     @Before
     public void setUp() throws Exception {
         this.factory = SimpleLinnaeanFactory.instance();
-        this.store = new TestLoadStore("test");
+        this.store = new TestLoadStore("test", 0);
     }
 
     @After

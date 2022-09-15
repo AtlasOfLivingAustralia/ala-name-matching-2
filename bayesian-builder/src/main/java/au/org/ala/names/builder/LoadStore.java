@@ -3,6 +3,7 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.*;
 import au.org.ala.util.Metadata;
 import lombok.Getter;
+import lombok.Setter;
 import org.gbif.dwc.terms.Term;
 
 import java.util.List;
@@ -16,9 +17,15 @@ import java.util.stream.StreamSupport;
  * @param <C> The type of classifier to use with this store
  */
 abstract public class LoadStore<C extends Classifier> implements LoadStoreMXBean {
+    /** The default cache size */
+    private static int DEFAULT_CACHE_SIZE = 2000000;
+
     /** The name of the store */
     @Getter
     private final String name;
+    /** The cache size of the store */
+    @Getter
+    private final int cacheSize;
     /** The number of classifiers that have been created */
     private final AtomicInteger created = new AtomicInteger();
     /** The number of classifiers that have been written to the store */
@@ -36,11 +43,13 @@ abstract public class LoadStore<C extends Classifier> implements LoadStoreMXBean
      * Create a store for a network.
      *
      * @param name The store name
+     * @param cacheSize The cache size (0 for default)
      *
      * @throws StoreException if unable to create the store
      */
-    public LoadStore(String name) throws StoreException {
+    public LoadStore(String name, int cacheSize) throws StoreException {
         this.name = name;
+        this.cacheSize = cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE;
     }
 
     /**

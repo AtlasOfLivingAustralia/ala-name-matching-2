@@ -84,6 +84,13 @@ public class IndexBuilderConfiguration {
     @Getter
     @Setter
     private int threads;
+    /**
+     * The size of any internal cache (0 for default)
+     */
+    @JsonProperty
+    @Getter
+    @Setter
+    private int cacheSize;
     /** Use JMX instrumentation (true by default) */
     @JsonProperty
     @Getter
@@ -106,6 +113,7 @@ public class IndexBuilderConfiguration {
         this.logInterval = 10000;
         this.types = Arrays.asList(DwcTerm.Taxon);
         this.threads = Runtime.getRuntime().availableProcessors();
+        this.cacheSize = 0;
         this.enableJmx = true;
         this.metadataTemplate = Metadata.builder().build();
         this.parameters = new HashMap<>();
@@ -156,36 +164,36 @@ public class IndexBuilderConfiguration {
         if (this.loadStoreClass == null)
             throw new StoreException("Load store class not defined");
         try {
-            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, IndexBuilderConfiguration.class, boolean.class, boolean.class);
-            return c.newInstance(name, this, working, true);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, IndexBuilderConfiguration.class, boolean.class, boolean.class, int.class);
+            return c.newInstance(name, this, working, true, this.cacheSize);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, IndexBuilderConfiguration.class, boolean.class);
-            return c.newInstance(name, this, working);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, IndexBuilderConfiguration.class, boolean.class, int.class);
+            return c.newInstance(name, this, working, this.cacheSize);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, File.class, boolean.class, boolean.class);
-            return c.newInstance(name, this.getWork(), working, true);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, File.class, boolean.class, boolean.class, int.class);
+            return c.newInstance(name, this.getWork(), working, true, this.cacheSize);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, File.class, boolean.class);
-            return c.newInstance(name, this.getWork(), working);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, File.class, boolean.class, int.class);
+            return c.newInstance(name, this.getWork(), working, this.cacheSize);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {
         }
         try {
-            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class);
-            return c.newInstance(name);
+            c = (Constructor<? extends LoadStore<Cl>>) this.loadStoreClass.getConstructor(String.class, int.class);
+            return c.newInstance(name, this.cacheSize);
         } catch (InvocationTargetException ex) {
             throw new StoreException("Unable to construct load store for " + this.loadStoreClass, ex.getCause());
         } catch (Exception ex) {

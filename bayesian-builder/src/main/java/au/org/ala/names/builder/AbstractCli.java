@@ -52,6 +52,9 @@ abstract public class AbstractCli<C extends Classification<C>, B extends Builder
     @Parameter(names = { "-t", "--thread"}, description = "The number of threads to use for parallel processing")
     @Getter
     private int threads = 0;
+    @Parameter(names = { "-k", "--cache"}, description = "The cache size to use when loading data")
+    @Getter
+    private int cacheSize = 0;
     @Parameter(names = { "-m", "--metadata"}, splitter=NoSplitter.class, description = "Additional metadata settings for the final index in term=value form")
     @Getter
     private List<String> metadata = new ArrayList<>();
@@ -89,6 +92,8 @@ abstract public class AbstractCli<C extends Classification<C>, B extends Builder
             configuration.setData(this.data);
         if (this.threads > 0)
             configuration.setThreads(this.threads);
+        if (this.cacheSize > 0)
+            configuration.setCacheSize(this.cacheSize);
         for (String md: this.metadata) {
             String[] mdkv = md.split("=", 2);
             if (mdkv.length < 2)

@@ -19,8 +19,8 @@ import static au.org.ala.bayesian.ExternalContext.LUCENE;
 public class TestLoadStore extends LoadStore<LuceneClassifier> {
     private Map<String, LuceneClassifier> store;
 
-    public TestLoadStore(String name) throws StoreException {
-        super(name);
+    public TestLoadStore(String name, int cacheSize) throws StoreException {
+        super(name, cacheSize);
         this.store = new HashMap<>();
     }
 

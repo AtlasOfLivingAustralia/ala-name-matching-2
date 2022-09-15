@@ -67,11 +67,12 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      * @param defaultWeight The weight to use when a value is unavailable
      * @param inputs The input observables
      * @param outputs The output observables
+     * @param cacheSize The cache size
      * @param enableJmx Monitor via JMX
      *
      * @throws BayesianException if unable to build the analyser
      */
-    public LuceneParameterAnalyser(Network network, IndexSearcher searcher, Observable weight, double defaultWeight, Collection<Observable> inputs, Collection<Observable> outputs, boolean enableJmx) throws BayesianException {
+    public LuceneParameterAnalyser(Network network, IndexSearcher searcher, Observable weight, double defaultWeight, Collection<Observable> inputs, Collection<Observable> outputs, int cacheSize, boolean enableJmx) throws BayesianException {
         this.network = network;
         this.type = TermFactory.instance().findTerm(network.getConcept().toASCIIString());
         this.searcher = searcher;
@@ -79,7 +80,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
         // this.queryCache = null;
         Cache2kBuilder<Query, Double> builder = Cache2kBuilder.of(Query.class, Double.class)
             .eternal(true)
-            .entryCapacity(1000000)
+            .entryCapacity(cacheSize)
             .loader(this::doSum);
         if (enableJmx)
             builder.enable(JmxSupport.class);
