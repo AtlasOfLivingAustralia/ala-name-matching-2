@@ -6,6 +6,7 @@ import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.Trace;
+import au.org.ala.bayesian.Trace.TraceLevel;
 
 public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanClassification> {
   public final static String SIGNATURE = "FF";
@@ -43,42 +44,42 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       c$taxonRank += parameters.inf_taxonRank_t$t * c$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_taxonRank_t$t) + " \u00b7 " + this.formatDouble(c$taxonId);
-        trace.add("p(taxonRank) - taxonRank", "p(taxonRank | taxonID)·taxonID", val_, c$taxonRank);
+        trace.add(TraceLevel.TRACE, "p(taxonRank) - taxonRank", "p(taxonRank | taxonID)·taxonID", val_, c$taxonRank);
       }
     }
     if (evidence.isF$e$taxonRank()) {
       nc$taxonRank += parameters.inf_taxonRank_f$t * c$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_taxonRank_f$t) + " \u00b7 " + this.formatDouble(c$taxonId);
-        trace.add("p(¬taxonRank) - taxonRank", "p(¬taxonRank | taxonID)·taxonID", val_, nc$taxonRank);
+        trace.add(TraceLevel.TRACE, "p(¬taxonRank) - taxonRank", "p(¬taxonRank | taxonID)·taxonID", val_, nc$taxonRank);
       }
     }
     if (evidence.isT$e$scientificNameAuthorship()) {
       c$scientificNameAuthorship += parameters.inf_scientificNameAuthorship_t$t * c$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_scientificNameAuthorship_t$t) + " \u00b7 " + this.formatDouble(c$taxonId);
-        trace.add("p(scientificNameAuthorship) - scientificNameAuthorship", "p(scientificNameAuthorship | taxonID)·taxonID", val_, c$scientificNameAuthorship);
+        trace.add(TraceLevel.TRACE, "p(scientificNameAuthorship) - scientificNameAuthorship", "p(scientificNameAuthorship | taxonID)·taxonID", val_, c$scientificNameAuthorship);
       }
     }
     if (evidence.isF$e$scientificNameAuthorship()) {
       nc$scientificNameAuthorship += parameters.inf_scientificNameAuthorship_f$t * c$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_scientificNameAuthorship_f$t) + " \u00b7 " + this.formatDouble(c$taxonId);
-        trace.add("p(¬scientificNameAuthorship) - scientificNameAuthorship", "p(¬scientificNameAuthorship | taxonID)·taxonID", val_, nc$scientificNameAuthorship);
+        trace.add(TraceLevel.TRACE, "p(¬scientificNameAuthorship) - scientificNameAuthorship", "p(¬scientificNameAuthorship | taxonID)·taxonID", val_, nc$scientificNameAuthorship);
       }
     }
     if (evidence.isT$e$scientificName()) {
       c$scientificName += parameters.inf_scientificName_t$t * c$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_scientificName_t$t) + " \u00b7 " + this.formatDouble(c$taxonId);
-        trace.add("p(scientificName) - scientificName", "p(scientificName | taxonID)·taxonID", val_, c$scientificName);
+        trace.add(TraceLevel.TRACE, "p(scientificName) - scientificName", "p(scientificName | taxonID)·taxonID", val_, c$scientificName);
       }
     }
     if (evidence.isF$e$scientificName()) {
       nc$scientificName += parameters.inf_scientificName_f$t * c$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_scientificName_f$t) + " \u00b7 " + this.formatDouble(c$taxonId);
-        trace.add("p(¬scientificName) - scientificName", "p(¬scientificName | taxonID)·taxonID", val_, nc$scientificName);
+        trace.add(TraceLevel.TRACE, "p(¬scientificName) - scientificName", "p(¬scientificName | taxonID)·taxonID", val_, nc$scientificName);
       }
     }
     // Ignoring non-base soundexScientificName
@@ -89,7 +90,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
        c$family += parameters.derived_family_t$t_ff * c$taxonId * nc$soundexScientificName * nc$scientificName;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.derived_family_t$t_tt) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$soundexScientificName) + " \u00b7 " + this.formatDouble(c$scientificName) + " + " + this.formatDouble(parameters.derived_family_t$t_tf) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$soundexScientificName) + " \u00b7 " + this.formatDouble(nc$scientificName) + " + " + this.formatDouble(parameters.derived_family_t$t_ft) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$soundexScientificName) + " \u00b7 " + this.formatDouble(c$scientificName) + " + " + this.formatDouble(parameters.derived_family_t$t_ff) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$soundexScientificName) + " \u00b7 " + this.formatDouble(nc$scientificName);
-        trace.add("p(family) - family", "p(family | taxonID, soundexScientificName, scientificName)·taxonID·soundexScientificName·scientificName + p(family | taxonID, soundexScientificName, ¬scientificName)·taxonID·soundexScientificName·¬scientificName + p(family | taxonID, ¬soundexScientificName, scientificName)·taxonID·¬soundexScientificName·scientificName + p(family | taxonID, ¬soundexScientificName, ¬scientificName)·taxonID·¬soundexScientificName·¬scientificName", val_, c$family);
+        trace.add(TraceLevel.TRACE, "p(family) - family", "p(family | taxonID, soundexScientificName, scientificName)·taxonID·soundexScientificName·scientificName + p(family | taxonID, soundexScientificName, ¬scientificName)·taxonID·soundexScientificName·¬scientificName + p(family | taxonID, ¬soundexScientificName, scientificName)·taxonID·¬soundexScientificName·scientificName + p(family | taxonID, ¬soundexScientificName, ¬scientificName)·taxonID·¬soundexScientificName·¬scientificName", val_, c$family);
       }
     }
     if (evidence.isF$e$family()) {
@@ -99,7 +100,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       nc$family += parameters.derived_family_f$t_ff * c$taxonId * nc$soundexScientificName * nc$scientificName;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.derived_family_f$t_tt) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$soundexScientificName) + " \u00b7 " + this.formatDouble(c$scientificName) + " + " + this.formatDouble(parameters.derived_family_f$t_tf) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$soundexScientificName) + " \u00b7 " + this.formatDouble(nc$scientificName) + " + " + this.formatDouble(parameters.derived_family_f$t_ft) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$soundexScientificName) + " \u00b7 " + this.formatDouble(c$scientificName) + " + " + this.formatDouble(parameters.derived_family_f$t_ff) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$soundexScientificName) + " \u00b7 " + this.formatDouble(nc$scientificName);
-        trace.add("p(¬family) - !family", "p(¬family | taxonID, soundexScientificName, scientificName)·taxonID·soundexScientificName·scientificName + p(¬family | taxonID, soundexScientificName, ¬scientificName)·taxonID·soundexScientificName·¬scientificName + p(¬family | taxonID, ¬soundexScientificName, scientificName)·taxonID·¬soundexScientificName·scientificName + p(¬family | taxonID, ¬soundexScientificName, ¬scientificName)·taxonID·¬soundexScientificName·¬scientificName", val_, nc$family);
+        trace.add(TraceLevel.TRACE, "p(¬family) - !family", "p(¬family | taxonID, soundexScientificName, scientificName)·taxonID·soundexScientificName·scientificName + p(¬family | taxonID, soundexScientificName, ¬scientificName)·taxonID·soundexScientificName·¬scientificName + p(¬family | taxonID, ¬soundexScientificName, scientificName)·taxonID·¬soundexScientificName·scientificName + p(¬family | taxonID, ¬soundexScientificName, ¬scientificName)·taxonID·¬soundexScientificName·¬scientificName", val_, nc$family);
       }
     }
     if (evidence.isT$e$order()) {
@@ -107,7 +108,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       c$order += parameters.inf_order_t$t_f * c$taxonId * nc$family;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_order_t$t_t) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$family) + " + " + this.formatDouble(parameters.inf_order_t$t_f) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$family);
-        trace.add("p(order) - order", "p(order | taxonID, family)·taxonID·family + p(order | taxonID, ¬family)·taxonID·¬family", val_, c$order);
+        trace.add(TraceLevel.TRACE, "p(order) - order", "p(order | taxonID, family)·taxonID·family + p(order | taxonID, ¬family)·taxonID·¬family", val_, c$order);
       }
     }
     if (evidence.isF$e$order()) {
@@ -115,7 +116,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       nc$order += parameters.inf_order_f$t_f * c$taxonId * nc$family;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_order_f$t_t) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$family) + " + " + this.formatDouble(parameters.inf_order_f$t_f) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$family);
-        trace.add("p(¬order) - order", "p(¬order | taxonID, family)·taxonID·family + p(¬order | taxonID, ¬family)·taxonID·¬family", val_, nc$order);
+        trace.add(TraceLevel.TRACE, "p(¬order) - order", "p(¬order | taxonID, family)·taxonID·family + p(¬order | taxonID, ¬family)·taxonID·¬family", val_, nc$order);
       }
     }
     if (evidence.isT$e$class_()) {
@@ -123,7 +124,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       c$class_ += parameters.inf_class__t$t_f * c$taxonId * nc$order;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_class__t$t_t) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$order) + " + " + this.formatDouble(parameters.inf_class__t$t_f) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$order);
-        trace.add("p(class) - class", "p(class | taxonID, order)·taxonID·order + p(class | taxonID, ¬order)·taxonID·¬order", val_, c$class_);
+        trace.add(TraceLevel.TRACE, "p(class) - class", "p(class | taxonID, order)·taxonID·order + p(class | taxonID, ¬order)·taxonID·¬order", val_, c$class_);
       }
     }
     if (evidence.isF$e$class_()) {
@@ -131,7 +132,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       nc$class_ += parameters.inf_class__f$t_f * c$taxonId * nc$order;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_class__f$t_t) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$order) + " + " + this.formatDouble(parameters.inf_class__f$t_f) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$order);
-        trace.add("p(¬class) - class", "p(¬class | taxonID, order)·taxonID·order + p(¬class | taxonID, ¬order)·taxonID·¬order", val_, nc$class_);
+        trace.add(TraceLevel.TRACE, "p(¬class) - class", "p(¬class | taxonID, order)·taxonID·order + p(¬class | taxonID, ¬order)·taxonID·¬order", val_, nc$class_);
       }
     }
     if (evidence.isT$e$phylum()) {
@@ -139,7 +140,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       c$phylum += parameters.inf_phylum_t$t_f * c$taxonId * nc$class_;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_phylum_t$t_t) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$class_) + " + " + this.formatDouble(parameters.inf_phylum_t$t_f) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$class_);
-        trace.add("p(phylum) - phylum", "p(phylum | taxonID, class)·taxonID·class + p(phylum | taxonID, ¬class)·taxonID·¬class", val_, c$phylum);
+        trace.add(TraceLevel.TRACE, "p(phylum) - phylum", "p(phylum | taxonID, class)·taxonID·class + p(phylum | taxonID, ¬class)·taxonID·¬class", val_, c$phylum);
       }
     }
     if (evidence.isF$e$phylum()) {
@@ -147,7 +148,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       nc$phylum += parameters.inf_phylum_f$t_f * c$taxonId * nc$class_;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_phylum_f$t_t) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$class_) + " + " + this.formatDouble(parameters.inf_phylum_f$t_f) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$class_);
-        trace.add("p(¬phylum) - phylum", "p(¬phylum | taxonID, class)·taxonID·class + p(¬phylum | taxonID, ¬class)·taxonID·¬class", val_, nc$phylum);
+        trace.add(TraceLevel.TRACE, "p(¬phylum) - phylum", "p(¬phylum | taxonID, class)·taxonID·class + p(¬phylum | taxonID, ¬class)·taxonID·¬class", val_, nc$phylum);
       }
     }
     if (evidence.isT$e$kingdom()) {
@@ -155,7 +156,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       c$kingdom += parameters.inf_kingdom_t$t_f * c$taxonId * nc$phylum;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_kingdom_t$t_t) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$phylum) + " + " + this.formatDouble(parameters.inf_kingdom_t$t_f) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$phylum);
-        trace.add("p(kingdom) - kingdom", "p(kingdom | taxonID, phylum)·taxonID·phylum + p(kingdom | taxonID, ¬phylum)·taxonID·¬phylum", val_, c$kingdom);
+        trace.add(TraceLevel.TRACE, "p(kingdom) - kingdom", "p(kingdom | taxonID, phylum)·taxonID·phylum + p(kingdom | taxonID, ¬phylum)·taxonID·¬phylum", val_, c$kingdom);
       }
     }
     if (evidence.isF$e$kingdom()) {
@@ -163,13 +164,13 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       nc$kingdom += parameters.inf_kingdom_f$t_f * c$taxonId * nc$phylum;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_kingdom_f$t_t) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(c$phylum) + " + " + this.formatDouble(parameters.inf_kingdom_f$t_f) + " \u00b7 " + this.formatDouble(c$taxonId) + " \u00b7 " + this.formatDouble(nc$phylum);
-        trace.add("p(¬kingdom) - kingdom", "p(¬kingdom | taxonID, phylum)·taxonID·phylum + p(¬kingdom | taxonID, ¬phylum)·taxonID·¬phylum", val_, nc$kingdom);
+        trace.add(TraceLevel.TRACE, "p(¬kingdom) - kingdom", "p(¬kingdom | taxonID, phylum)·taxonID·phylum + p(¬kingdom | taxonID, ¬phylum)·taxonID·¬phylum", val_, nc$kingdom);
       }
     }
     double result_ = (c$taxonRank + nc$taxonRank) * (c$scientificNameAuthorship + nc$scientificNameAuthorship) * (c$kingdom + nc$kingdom);
     if (trace != null) {
       String val_ = "(" + this.formatDouble(c$taxonRank) + " + " + this.formatDouble(nc$taxonRank) + ")" + " \u00b7 " + "(" + this.formatDouble(c$scientificNameAuthorship) + " + " + this.formatDouble(nc$scientificNameAuthorship) + ")" + " \u00b7 " + "(" + this.formatDouble(c$kingdom) + " + " + this.formatDouble(nc$kingdom) + ")";
-      trace.add("c(E | taxonID)", "(p(taxonRank) + p(¬taxonRank)) \u00b7 (p(scientificNameAuthorship) + p(¬scientificNameAuthorship)) \u00b7 (p(kingdom) + p(¬kingdom))", val_, result_);
+      trace.add(TraceLevel.TRACE, "c(E | taxonID)", "(p(taxonRank) + p(¬taxonRank)) \u00b7 (p(scientificNameAuthorship) + p(¬scientificNameAuthorship)) \u00b7 (p(kingdom) + p(¬kingdom))", val_, result_);
     }
     return result_;
   }
@@ -199,42 +200,42 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       c$taxonRank += parameters.inf_taxonRank_t$f * nc$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_taxonRank_t$f) + " \u00b7 " + this.formatDouble(nc$taxonId);
-        trace.add("p(taxonRank) - taxonRank", "p(taxonRank | ¬taxonID)·¬taxonID", val_, c$taxonRank);
+        trace.add(TraceLevel.TRACE, "p(taxonRank) - taxonRank", "p(taxonRank | ¬taxonID)·¬taxonID", val_, c$taxonRank);
       }
     }
     if (evidence.isF$e$taxonRank()) {
       nc$taxonRank += parameters.inf_taxonRank_f$f * nc$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_taxonRank_f$f) + " \u00b7 " + this.formatDouble(nc$taxonId);
-        trace.add("p(¬taxonRank) - taxonRank", "p(¬taxonRank | ¬taxonID)·¬taxonID", val_, nc$taxonRank);
+        trace.add(TraceLevel.TRACE, "p(¬taxonRank) - taxonRank", "p(¬taxonRank | ¬taxonID)·¬taxonID", val_, nc$taxonRank);
       }
     }
     if (evidence.isT$e$scientificNameAuthorship()) {
       c$scientificNameAuthorship += parameters.inf_scientificNameAuthorship_t$f * nc$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_scientificNameAuthorship_t$f) + " \u00b7 " + this.formatDouble(nc$taxonId);
-        trace.add("p(scientificNameAuthorship) - scientificNameAuthorship", "p(scientificNameAuthorship | ¬taxonID)·¬taxonID", val_, c$scientificNameAuthorship);
+        trace.add(TraceLevel.TRACE, "p(scientificNameAuthorship) - scientificNameAuthorship", "p(scientificNameAuthorship | ¬taxonID)·¬taxonID", val_, c$scientificNameAuthorship);
       }
     }
     if (evidence.isF$e$scientificNameAuthorship()) {
       nc$scientificNameAuthorship += parameters.inf_scientificNameAuthorship_f$f * nc$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_scientificNameAuthorship_f$f) + " \u00b7 " + this.formatDouble(nc$taxonId);
-        trace.add("p(¬scientificNameAuthorship) - scientificNameAuthorship", "p(¬scientificNameAuthorship | ¬taxonID)·¬taxonID", val_, nc$scientificNameAuthorship);
+        trace.add(TraceLevel.TRACE, "p(¬scientificNameAuthorship) - scientificNameAuthorship", "p(¬scientificNameAuthorship | ¬taxonID)·¬taxonID", val_, nc$scientificNameAuthorship);
       }
     }
     if (evidence.isT$e$scientificName()) {
       c$scientificName += parameters.inf_scientificName_t$f * nc$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_scientificName_t$f) + " \u00b7 " + this.formatDouble(nc$taxonId);
-        trace.add("p(scientificName) - scientificName", "p(scientificName | ¬taxonID)·¬taxonID", val_, c$scientificName);
+        trace.add(TraceLevel.TRACE, "p(scientificName) - scientificName", "p(scientificName | ¬taxonID)·¬taxonID", val_, c$scientificName);
       }
     }
     if (evidence.isF$e$scientificName()) {
       nc$scientificName += parameters.inf_scientificName_f$f * nc$taxonId;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_scientificName_f$f) + " \u00b7 " + this.formatDouble(nc$taxonId);
-        trace.add("p(¬scientificName) - scientificName", "p(¬scientificName | ¬taxonID)·¬taxonID", val_, nc$scientificName);
+        trace.add(TraceLevel.TRACE, "p(¬scientificName) - scientificName", "p(¬scientificName | ¬taxonID)·¬taxonID", val_, nc$scientificName);
       }
     }
     // Ignoring non-base soundexScientificName
@@ -245,7 +246,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
        c$family += parameters.derived_family_t$f_ff * nc$taxonId * nc$soundexScientificName * nc$scientificName;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.derived_family_t$f_tt) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$soundexScientificName) + " \u00b7 " + this.formatDouble(c$scientificName) + " + " + this.formatDouble(parameters.derived_family_t$f_tf) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$soundexScientificName) + " \u00b7 " + this.formatDouble(nc$scientificName) + " + " + this.formatDouble(parameters.derived_family_t$f_ft) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$soundexScientificName) + " \u00b7 " + this.formatDouble(c$scientificName) + " + " + this.formatDouble(parameters.derived_family_t$f_ff) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$soundexScientificName) + " \u00b7 " + this.formatDouble(nc$scientificName);
-        trace.add("p(family) - family", "p(family | ¬taxonID, soundexScientificName, scientificName)·¬taxonID·soundexScientificName·scientificName + p(family | ¬taxonID, soundexScientificName, ¬scientificName)·¬taxonID·soundexScientificName·¬scientificName + p(family | ¬taxonID, ¬soundexScientificName, scientificName)·¬taxonID·¬soundexScientificName·scientificName + p(family | ¬taxonID, ¬soundexScientificName, ¬scientificName)·¬taxonID·¬soundexScientificName·¬scientificName", val_, c$family);
+        trace.add(TraceLevel.TRACE, "p(family) - family", "p(family | ¬taxonID, soundexScientificName, scientificName)·¬taxonID·soundexScientificName·scientificName + p(family | ¬taxonID, soundexScientificName, ¬scientificName)·¬taxonID·soundexScientificName·¬scientificName + p(family | ¬taxonID, ¬soundexScientificName, scientificName)·¬taxonID·¬soundexScientificName·scientificName + p(family | ¬taxonID, ¬soundexScientificName, ¬scientificName)·¬taxonID·¬soundexScientificName·¬scientificName", val_, c$family);
       }
     }
     if (evidence.isF$e$family()) {
@@ -255,7 +256,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       nc$family += parameters.derived_family_f$f_ff * nc$taxonId * nc$soundexScientificName * nc$scientificName;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.derived_family_f$f_tt) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$soundexScientificName) + " \u00b7 " + this.formatDouble(c$scientificName) + " + " + this.formatDouble(parameters.derived_family_f$f_tf) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$soundexScientificName) + " \u00b7 " + this.formatDouble(nc$scientificName) + " + " + this.formatDouble(parameters.derived_family_f$f_ft) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$soundexScientificName) + " \u00b7 " + this.formatDouble(c$scientificName) + " + " + this.formatDouble(parameters.derived_family_f$f_ff) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$soundexScientificName) + " \u00b7 " + this.formatDouble(nc$scientificName);
-        trace.add("p(¬family) - !family", "p(¬family | ¬taxonID, soundexScientificName, scientificName)·¬taxonID·soundexScientificName·scientificName + p(¬family | ¬taxonID, soundexScientificName, ¬scientificName)·¬taxonID·soundexScientificName·¬scientificName + p(¬family | ¬taxonID, ¬soundexScientificName, scientificName)·¬taxonID·¬soundexScientificName·scientificName + p(¬family | ¬taxonID, ¬soundexScientificName, ¬scientificName)·¬taxonID·¬soundexScientificName·¬scientificName", val_, nc$family);
+        trace.add(TraceLevel.TRACE, "p(¬family) - !family", "p(¬family | ¬taxonID, soundexScientificName, scientificName)·¬taxonID·soundexScientificName·scientificName + p(¬family | ¬taxonID, soundexScientificName, ¬scientificName)·¬taxonID·soundexScientificName·¬scientificName + p(¬family | ¬taxonID, ¬soundexScientificName, scientificName)·¬taxonID·¬soundexScientificName·scientificName + p(¬family | ¬taxonID, ¬soundexScientificName, ¬scientificName)·¬taxonID·¬soundexScientificName·¬scientificName", val_, nc$family);
       }
     }
     if (evidence.isT$e$order()) {
@@ -263,7 +264,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       c$order += parameters.inf_order_t$f_f * nc$taxonId * nc$family;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_order_t$f_t) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$family) + " + " + this.formatDouble(parameters.inf_order_t$f_f) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$family);
-        trace.add("p(order) - order", "p(order | ¬taxonID, family)·¬taxonID·family + p(order | ¬taxonID, ¬family)·¬taxonID·¬family", val_, c$order);
+        trace.add(TraceLevel.TRACE, "p(order) - order", "p(order | ¬taxonID, family)·¬taxonID·family + p(order | ¬taxonID, ¬family)·¬taxonID·¬family", val_, c$order);
       }
     }
     if (evidence.isF$e$order()) {
@@ -271,7 +272,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       nc$order += parameters.inf_order_f$f_f * nc$taxonId * nc$family;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_order_f$f_t) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$family) + " + " + this.formatDouble(parameters.inf_order_f$f_f) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$family);
-        trace.add("p(¬order) - order", "p(¬order | ¬taxonID, family)·¬taxonID·family + p(¬order | ¬taxonID, ¬family)·¬taxonID·¬family", val_, nc$order);
+        trace.add(TraceLevel.TRACE, "p(¬order) - order", "p(¬order | ¬taxonID, family)·¬taxonID·family + p(¬order | ¬taxonID, ¬family)·¬taxonID·¬family", val_, nc$order);
       }
     }
     if (evidence.isT$e$class_()) {
@@ -279,7 +280,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       c$class_ += parameters.inf_class__t$f_f * nc$taxonId * nc$order;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_class__t$f_t) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$order) + " + " + this.formatDouble(parameters.inf_class__t$f_f) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$order);
-        trace.add("p(class) - class", "p(class | ¬taxonID, order)·¬taxonID·order + p(class | ¬taxonID, ¬order)·¬taxonID·¬order", val_, c$class_);
+        trace.add(TraceLevel.TRACE, "p(class) - class", "p(class | ¬taxonID, order)·¬taxonID·order + p(class | ¬taxonID, ¬order)·¬taxonID·¬order", val_, c$class_);
       }
     }
     if (evidence.isF$e$class_()) {
@@ -287,7 +288,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       nc$class_ += parameters.inf_class__f$f_f * nc$taxonId * nc$order;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_class__f$f_t) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$order) + " + " + this.formatDouble(parameters.inf_class__f$f_f) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$order);
-        trace.add("p(¬class) - class", "p(¬class | ¬taxonID, order)·¬taxonID·order + p(¬class | ¬taxonID, ¬order)·¬taxonID·¬order", val_, nc$class_);
+        trace.add(TraceLevel.TRACE, "p(¬class) - class", "p(¬class | ¬taxonID, order)·¬taxonID·order + p(¬class | ¬taxonID, ¬order)·¬taxonID·¬order", val_, nc$class_);
       }
     }
     if (evidence.isT$e$phylum()) {
@@ -295,7 +296,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       c$phylum += parameters.inf_phylum_t$f_f * nc$taxonId * nc$class_;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_phylum_t$f_t) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$class_) + " + " + this.formatDouble(parameters.inf_phylum_t$f_f) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$class_);
-        trace.add("p(phylum) - phylum", "p(phylum | ¬taxonID, class)·¬taxonID·class + p(phylum | ¬taxonID, ¬class)·¬taxonID·¬class", val_, c$phylum);
+        trace.add(TraceLevel.TRACE, "p(phylum) - phylum", "p(phylum | ¬taxonID, class)·¬taxonID·class + p(phylum | ¬taxonID, ¬class)·¬taxonID·¬class", val_, c$phylum);
       }
     }
     if (evidence.isF$e$phylum()) {
@@ -303,7 +304,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       nc$phylum += parameters.inf_phylum_f$f_f * nc$taxonId * nc$class_;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_phylum_f$f_t) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$class_) + " + " + this.formatDouble(parameters.inf_phylum_f$f_f) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$class_);
-        trace.add("p(¬phylum) - phylum", "p(¬phylum | ¬taxonID, class)·¬taxonID·class + p(¬phylum | ¬taxonID, ¬class)·¬taxonID·¬class", val_, nc$phylum);
+        trace.add(TraceLevel.TRACE, "p(¬phylum) - phylum", "p(¬phylum | ¬taxonID, class)·¬taxonID·class + p(¬phylum | ¬taxonID, ¬class)·¬taxonID·¬class", val_, nc$phylum);
       }
     }
     if (evidence.isT$e$kingdom()) {
@@ -311,7 +312,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       c$kingdom += parameters.inf_kingdom_t$f_f * nc$taxonId * nc$phylum;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_kingdom_t$f_t) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$phylum) + " + " + this.formatDouble(parameters.inf_kingdom_t$f_f) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$phylum);
-        trace.add("p(kingdom) - kingdom", "p(kingdom | ¬taxonID, phylum)·¬taxonID·phylum + p(kingdom | ¬taxonID, ¬phylum)·¬taxonID·¬phylum", val_, c$kingdom);
+        trace.add(TraceLevel.TRACE, "p(kingdom) - kingdom", "p(kingdom | ¬taxonID, phylum)·¬taxonID·phylum + p(kingdom | ¬taxonID, ¬phylum)·¬taxonID·¬phylum", val_, c$kingdom);
       }
     }
     if (evidence.isF$e$kingdom()) {
@@ -319,13 +320,13 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
       nc$kingdom += parameters.inf_kingdom_f$f_f * nc$taxonId * nc$phylum;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.inf_kingdom_f$f_t) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(c$phylum) + " + " + this.formatDouble(parameters.inf_kingdom_f$f_f) + " \u00b7 " + this.formatDouble(nc$taxonId) + " \u00b7 " + this.formatDouble(nc$phylum);
-        trace.add("p(¬kingdom) - kingdom", "p(¬kingdom | ¬taxonID, phylum)·¬taxonID·phylum + p(¬kingdom | ¬taxonID, ¬phylum)·¬taxonID·¬phylum", val_, nc$kingdom);
+        trace.add(TraceLevel.TRACE, "p(¬kingdom) - kingdom", "p(¬kingdom | ¬taxonID, phylum)·¬taxonID·phylum + p(¬kingdom | ¬taxonID, ¬phylum)·¬taxonID·¬phylum", val_, nc$kingdom);
       }
     }
     double result_ = (c$taxonRank + nc$taxonRank) * (c$scientificNameAuthorship + nc$scientificNameAuthorship) * (c$kingdom + nc$kingdom);
     if (trace != null) {
       String val_ = "(" + this.formatDouble(c$taxonRank) + " + " + this.formatDouble(nc$taxonRank) + ")" + " \u00b7 " + "(" + this.formatDouble(c$scientificNameAuthorship) + " + " + this.formatDouble(nc$scientificNameAuthorship) + ")" + " \u00b7 " + "(" + this.formatDouble(c$kingdom) + " + " + this.formatDouble(nc$kingdom) + ")";
-      trace.add("c(E | ¬taxonID)", "(p(taxonRank) + p(¬taxonRank)) \u00b7 (p(scientificNameAuthorship) + p(¬scientificNameAuthorship)) \u00b7 (p(kingdom) + p(¬kingdom))", val_, result_);
+      trace.add(TraceLevel.TRACE, "c(E | ¬taxonID)", "(p(taxonRank) + p(¬taxonRank)) \u00b7 (p(scientificNameAuthorship) + p(¬scientificNameAuthorship)) \u00b7 (p(kingdom) + p(¬kingdom))", val_, result_);
     }
     return result_;
   }
@@ -338,35 +339,35 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
     double pe = 0.0;
 
     if (trace != null)
-        trace.push("p(taxonID)");
+        trace.push(TraceLevel.TRACE, "p(taxonID)");
     try {
         if (evidence.isT$e$taxonId()) {
           c = this.infer_t(evidence, parameters, trace);
           p = c  * parameters.prior_taxonId_t;
           if (trace != null) {
-            trace.value("c(E | taxonID)\u00b7p(taxonID)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_taxonId_t), p);
+            trace.value(TraceLevel.TRACE, "c(E | taxonID)\u00b7p(taxonID)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_taxonId_t), p);
           }
           ph += p;
           pe += p;
         }
     } finally {
         if (trace != null)
-            trace.pop();
+            trace.pop(TraceLevel.TRACE);
     }
     if (trace != null)
-        trace.push("p(¬taxonID)");
+        trace.push(TraceLevel.TRACE, "p(¬taxonID)");
     try {
         if (evidence.isF$e$taxonId()) {
           c = this.infer_f(evidence, parameters, trace);
           p = c  * parameters.prior_taxonId_f;
           if (trace != null) {
-            trace.value("c(E | ¬taxonID)\u00b7p(¬taxonID)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_taxonId_f), p);
+            trace.value(TraceLevel.TRACE, "c(E | ¬taxonID)\u00b7p(¬taxonID)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_taxonId_f), p);
           }
           pe += p;
         }
     } finally {
         if (trace != null)
-            trace.pop();
+            trace.pop(TraceLevel.TRACE);
     }
     return Inference.forPEH(prior, pe, ph);
   }
@@ -374,11 +375,11 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
   @Override
   public Inference probability(SimpleLinnaeanClassification classification, Classifier classifier, Trace trace) throws BayesianException {
     if (trace != null)
-        trace.push("inference");
+        trace.push(TraceLevel.TRACE, "inference");
     try {
         SimpleLinnaeanInferencer.Evidence evidence = classification.match(classifier);
         if (trace != null)
-            trace.add("evidence", evidence);
+            trace.add(TraceLevel.TRACE, "evidence", evidence);
         SimpleLinnaeanParameters_FF params = (SimpleLinnaeanParameters_FF) classifier.getCachedParameters();
         if (params == null) {
           params = new SimpleLinnaeanParameters_FF();
@@ -387,7 +388,7 @@ public class SimpleLinnaeanInferencer_FF implements Inferencer<SimpleLinnaeanCla
         return this.probability(evidence, params, trace);
     } finally {
         if (trace != null)
-            trace.pop();
+            trace.pop(TraceLevel.TRACE);
     }
   }
 }

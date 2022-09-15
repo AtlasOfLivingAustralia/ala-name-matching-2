@@ -181,15 +181,15 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             measurement = this.createMeasurement();
             measurement.start();
         }
-        if (options.isTrace())
-            trace = Optional.of(new Trace(this.getFactory(), "match"));
-        trace.ifPresent(t -> t.add("template", classification.clone()));
-        trace.ifPresent(t -> t.add("options", options));
+        if (options.getTrace() != Trace.TraceLevel.NONE)
+            trace = Optional.of(new Trace(this.getFactory(), options.getTrace(), "match"));
+        trace.ifPresent(t -> t.add(Trace.TraceLevel.SUMMARY, "template", classification.clone()));
+        trace.ifPresent(t -> t.add(Trace.TraceLevel.SUMMARY, "options", options));
         final Match<C, M> match = this.findMatch(classification, options, measurement, trace);
         if (measurement != null)
             measurement.stop();
         this.recordMeasurement(measurement);
-        trace.ifPresent(t -> t.value(match));
+        trace.ifPresent(t -> t.value(Trace.TraceLevel.SUMMARY, match));
         Match<C, M> annotated = match;
         annotated = annotated.getActual() == null ? annotated : annotated.with(classification.buildFidelity(annotated.getActual()));
         annotated = options.isMeasure() ? annotated.with(measurement) :annotated;
@@ -209,7 +209,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      */
     @NonNull
     protected Match<C, M> findMatch(@NonNull C classification, MatchOptions options, M measurement, Optional<Trace> trace) throws BayesianException {
-        trace.ifPresent(t -> t.push("match"));
+        trace.ifPresent(t -> t.push(Trace.TraceLevel.SUMMARY, "match"));
         try {
             classification.inferForSearch(this.analyser, options);
             classification = this.prepareForMatching(classification);
@@ -218,7 +218,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             final Match<C, M> match = this.findSource(classification, options, measurement, trace);
             Match<C, M> bad = Match.invalidMatch();
             if (match != null && match.isValid()) {
-                trace.ifPresent(t -> t.value(match));
+                trace.ifPresent(t -> t.value(Trace.TraceLevel.SUMMARY, match));
                 return match;
             }
             if (match != null && !match.isValid())
@@ -240,14 +240,14 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
                 modified.inferForSearch(this.analyser, options);
                 final Match<C, M> modifiedMatch = this.findSource(modified, options, measurement, trace);
                 if (modifiedMatch != null && modifiedMatch.isValid()) {
-                    trace.ifPresent(t -> t.value(modifiedMatch));
+                    trace.ifPresent(t -> t.value(Trace.TraceLevel.SUMMARY, modifiedMatch));
                     return modifiedMatch;
                 }
                 previous = modified;
             }
             return bad;
         } finally {
-            trace.ifPresent(Trace::pop);
+            trace.ifPresent(t -> t.pop(Trace.TraceLevel.SUMMARY));
         }
     }
 
@@ -262,8 +262,8 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * @throws BayesianException if there is an error in search or inference
      */
     protected Match<C, M> findSource(@NonNull C classification, MatchOptions options, M measurement, Optional<Trace> trace) throws BayesianException {
-        trace.ifPresent(t -> t.push("source"));
-        trace.ifPresent(t -> t.add("classification", classification.clone()));
+        trace.ifPresent(t -> t.push(Trace.TraceLevel.SUMMARY, "source"));
+        trace.ifPresent(t -> t.add(Trace.TraceLevel.SUMMARY, "classification", classification.clone()));
         try {
             if (measurement != null)
                 measurement.search();
@@ -272,12 +272,12 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
                 measurement.addCandidates(candidates.size());
             if (candidates.isEmpty())
                 return null;
-            trace.ifPresent(t -> t.add("candidates", candidates.size()));
+            trace.ifPresent(t -> t.add(Trace.TraceLevel.SUMMARY, "candidates", candidates.size()));
             // First do a basic match and see if we have something easily matchable
             final Match<C, M> match = this.findMatch(classification, candidates, options, measurement, trace);
             Match<C, M> bad = null;
             if (match != null && match.isValid()) {
-                trace.ifPresent(t -> t.value(match));
+                trace.ifPresent(t -> t.value(Trace.TraceLevel.SUMMARY, match));
                 return match;
             }
             if (match != null && !match.isValid())
@@ -298,14 +298,14 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
                     measurement.hintModification();
                 final Match<C, M> modifiedMatch = this.findMatch(modified, candidates, options, measurement, trace);
                 if (modifiedMatch != null && modifiedMatch.isValid()) {
-                    trace.ifPresent(t -> t.value(modifiedMatch));
+                    trace.ifPresent(t -> t.value(Trace.TraceLevel.SUMMARY, modifiedMatch));
                     return modifiedMatch;
                 }
                 previous = modified;
             }
             return bad;
         } finally {
-            trace.ifPresent(Trace::pop);
+            trace.ifPresent(t -> t.pop(Trace.TraceLevel.SUMMARY));
         }
     }
 
@@ -324,8 +324,8 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * @throws BayesianException if there is an error in search or inference
      */
     protected Match<C, M> findMatch(@NonNull C classification, List<? extends Classifier> candidates, MatchOptions options, MatchMeasurement measurement, Optional<Trace> trace) throws BayesianException {
-        trace.ifPresent(t -> t.push("match"));
-        trace.ifPresent(t -> t.add("classification", classification.clone()));
+        trace.ifPresent(t -> t.push(Trace.TraceLevel.INFO, "match"));
+        trace.ifPresent(t -> t.add(Trace.TraceLevel.INFO, "classification", classification.clone()));
         try {
             if (measurement != null)
                 measurement.match();
@@ -336,7 +336,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             final Match<C, M> match = this.findSingle(classification, results, measurement);
             Match<C, M> bad = null;
             if (match != null && match.isValid()) {
-                trace.ifPresent(t -> t.value(match));
+                trace.ifPresent(t -> t.value(Trace.TraceLevel.INFO, match));
                 return match;
             }
             if (match != null && !match.isValid())
@@ -360,14 +360,14 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
                 results = this.doMatch(modified, candidates, measurement, trace);
                 final Match<C, M> modifiedMatch = this.findSingle(modified, results, measurement);
                 if (modifiedMatch != null && modifiedMatch.isValid()) {
-                    trace.ifPresent(t -> t.value(modifiedMatch));
-                     return modifiedMatch;
+                    trace.ifPresent(t -> t.value(Trace.TraceLevel.INFO, modifiedMatch));
+                    return modifiedMatch;
                 }
                 previous = modified;
             }
             return bad;
         } finally {
-            trace.ifPresent(Trace::pop);
+            trace.ifPresent(t -> t.pop(Trace.TraceLevel.INFO));
         }
     }
 
@@ -452,16 +452,17 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
             final String label = Integer.toString(index);
             index++;
             if (!this.isValidCandidate(classification, candidate)) {
-                trace.ifPresent(t -> t.addSummary("invalid", candidate));
+                trace.ifPresent(t -> t.addSummary(Trace.TraceLevel.INFO, "invalid", candidate));
                 continue;
             }
-            trace.ifPresent(t -> t.push(label));
-            trace.ifPresent(t -> t.add("classifier", candidate));
+            trace.ifPresent(t -> t.push(Trace.TraceLevel.INFO, label));
+            trace.ifPresent(t -> t.addSummary(Trace.TraceLevel.INFO, "candidate", candidate));
+            trace.ifPresent(t -> t.add(Trace.TraceLevel.DEBUG, "classifier", candidate));
             try {
                 Inference inference = this.inferencer.probability(classification, candidate, trace.orElse(null));
-                trace.ifPresent(t -> t.value(inference));
+                trace.ifPresent(t -> t.value(Trace.TraceLevel.DEBUG, inference));
                 if (!this.isPossible(classification, candidate, inference)) {
-                    trace.ifPresent(t -> t.add("discarded", null));
+                    trace.ifPresent(t -> t.add(Trace.TraceLevel.INFO, "discarded", null));
                     continue;
                 }
                 C candidateClassification = this.factory.createClassification();
@@ -470,7 +471,7 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
                 results.add(match);
                 maxCandidate = index;
             } finally {
-                trace.ifPresent(Trace::pop);
+                trace.ifPresent(t -> t.pop(Trace.TraceLevel.INFO));
             }
         }
         results.sort(this.getMatchSorter());

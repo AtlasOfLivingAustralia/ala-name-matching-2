@@ -71,7 +71,7 @@ public class ALAClassificationMatcherTest {
     public void testTrace1() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia dealbata";
-        MatchOptions options = MatchOptions.ALL.withTrace(true);
+        MatchOptions options = MatchOptions.ALL.withTrace(Trace.TraceLevel.TRACE);
         Match<AlaLinnaeanClassification, MatchMeasurement> match = this.matcher.findMatch(classification, options);
         assertNotNull(match);
         assertTrue(match.isValid());
@@ -87,7 +87,7 @@ public class ALAClassificationMatcherTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia dealbata";
         classification.family = "Rando";
-        MatchOptions options = MatchOptions.ALL.withTrace(true);
+        MatchOptions options = MatchOptions.ALL.withTrace(Trace.TraceLevel.SUMMARY);
         Match<AlaLinnaeanClassification, MatchMeasurement> match = this.matcher.findMatch(classification, options);
         assertNotNull(match);
         assertTrue(match.isValid());
@@ -97,6 +97,41 @@ public class ALAClassificationMatcherTest {
         ObjectMapper mapper = JsonUtils.createMapper();
         // mapper.writeValue(new File("trace-2.json"), trace);
         TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "trace-2.json"), mapper.writeValueAsString(trace));
+    }
+
+    @Test
+    public void testTrace3() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Acacia dealbata";
+        classification.family = "Rando";
+        MatchOptions options = MatchOptions.ALL.withTrace(Trace.TraceLevel.INFO);
+        Match<AlaLinnaeanClassification, MatchMeasurement> match = this.matcher.findMatch(classification, options);
+        assertNotNull(match);
+        assertTrue(match.isValid());
+        assertEquals("Acacia dealbata", match.getAccepted().scientificName);
+        Trace trace = match.getTrace();
+        assertNotNull(trace);
+        ObjectMapper mapper = JsonUtils.createMapper();
+        // mapper.writeValue(new File("trace-2.json"), trace);
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "trace-3.json"), mapper.writeValueAsString(trace));
+    }
+
+
+    @Test
+    public void testTrace4() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Acacia dealbata";
+        classification.family = "Rando";
+        MatchOptions options = MatchOptions.ALL.withTrace(Trace.TraceLevel.DEBUG);
+        Match<AlaLinnaeanClassification, MatchMeasurement> match = this.matcher.findMatch(classification, options);
+        assertNotNull(match);
+        assertTrue(match.isValid());
+        assertEquals("Acacia dealbata", match.getAccepted().scientificName);
+        Trace trace = match.getTrace();
+        assertNotNull(trace);
+        ObjectMapper mapper = JsonUtils.createMapper();
+        // mapper.writeValue(new File("trace-2.json"), trace);
+        TestUtils.compareNoSpaces(TestUtils.getResource(this.getClass(), "trace-4.json"), mapper.writeValueAsString(trace));
     }
 
 }

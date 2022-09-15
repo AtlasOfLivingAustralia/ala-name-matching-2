@@ -16,7 +16,7 @@
       "modifyConsistency" : true,
       "useHints" : true,
       "measure" : false,
-      "trace" : true
+      "trace" : "TRACE"
     }
   }, {
     "label" : "match",
@@ -133,7 +133,7 @@
             "posterior" : 0.999999650387713
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/taxon/apni/51286863",
               "type" : "dwc:Taxon",
@@ -178,6 +178,9 @@
               "vernacularName" : "Silver Wattle",
               "weight" : "1939.9029496420383"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/taxon/apni/51286863"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -634,7 +637,7 @@
             "posterior" : 0.010410421883993206
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/instance/apni/845052",
               "type" : "dwc:Taxon",
@@ -668,6 +671,9 @@
               "vernacularName" : "Silver Wattle",
               "weight" : "18.58809928020406"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/instance/apni/845052"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -1050,7 +1056,7 @@
             "posterior" : 5.1112378499804124E-11
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/taxon/apni/51286862",
               "type" : "dwc:Taxon",
@@ -1092,6 +1098,9 @@
               "taxonomicStatus" : "excluded",
               "weight" : "4.758596595708119"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/taxon/apni/51286862"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -1550,7 +1559,7 @@
             "posterior" : 3.829918492898098E-19
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/name/apni/173047",
               "type" : "dwc:Taxon",
@@ -1590,6 +1599,9 @@
               "taxonomicStatus" : "inferredAccepted",
               "weight" : "17.80201410398484"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/name/apni/173047"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -2048,7 +2060,7 @@
             "posterior" : 2.093361739361131E-18
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/node/apni/2911757",
               "type" : "dwc:Taxon",
@@ -2092,6 +2104,9 @@
               "taxonomicStatus" : "accepted",
               "weight" : "96.99514748210191"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/node/apni/2911757"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -2550,7 +2565,7 @@
             "posterior" : 3.829918492898098E-19
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/name/apni/197624",
               "type" : "dwc:Taxon",
@@ -2590,6 +2605,9 @@
               "taxonomicStatus" : "inferredAccepted",
               "weight" : "17.80201410398484"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/name/apni/197624"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -3048,7 +3066,7 @@
             "posterior" : 3.829918492898098E-19
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/name/apni/173051",
               "type" : "dwc:Taxon",
@@ -3088,6 +3106,9 @@
               "taxonomicStatus" : "inferredAccepted",
               "weight" : "17.80201410398484"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/name/apni/173051"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -3546,7 +3567,7 @@
             "posterior" : 3.829918492898098E-19
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/name/apni/232073",
               "type" : "dwc:Taxon",
@@ -3585,6 +3606,9 @@
               "taxonomicStatus" : "inferredAccepted",
               "weight" : "17.80201410398484"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/name/apni/232073"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -4043,7 +4067,7 @@
             "posterior" : 3.829918492898098E-19
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/name/apni/232074",
               "type" : "dwc:Taxon",
@@ -4082,6 +4106,9 @@
               "taxonomicStatus" : "inferredAccepted",
               "weight" : "17.80201410398484"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/name/apni/232074"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -4540,7 +4567,7 @@
             "posterior" : 3.829918492898098E-19
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/name/apni/5509624",
               "type" : "dwc:Taxon",
@@ -4580,6 +4607,9 @@
               "taxonomicStatus" : "inferredAccepted",
               "weight" : "17.80201410398484"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/name/apni/5509624"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -5038,7 +5068,7 @@
             "posterior" : 3.829918492898098E-19
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/name/apni/5512907",
               "type" : "dwc:Taxon",
@@ -5078,6 +5108,9 @@
               "taxonomicStatus" : "inferredAccepted",
               "weight" : "17.80201410398484"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/name/apni/5512907"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -5536,7 +5569,7 @@
             "posterior" : 3.829918492898098E-19
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/name/apni/5516191",
               "type" : "dwc:Taxon",
@@ -5578,6 +5611,9 @@
               "taxonomicStatus" : "inferredAccepted",
               "weight" : "17.80201410398484"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/name/apni/5516191"
           }, {
             "label" : "inference",
             "children" : [ {
@@ -6036,7 +6072,7 @@
             "posterior" : 2.0933617889761484E-18
           },
           "children" : [ {
-            "label" : "classifier",
+            "label" : "candidate",
             "value" : {
               "@id" : "https://id.biodiversity.org.au/node/apni/2886432",
               "type" : "dwc:Taxon",
@@ -6078,6 +6114,9 @@
               "vernacularName" : "Mimosa",
               "weight" : "96.99514748210191"
             }
+          }, {
+            "label" : "classifier",
+            "value" : "https://id.biodiversity.org.au/node/apni/2886432"
           }, {
             "label" : "inference",
             "children" : [ {

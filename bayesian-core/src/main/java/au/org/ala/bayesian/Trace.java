@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"label", "formula", "derivation", "value", "children"})
 public class Trace {
-    /** The factory for accessing thigns like identifiers and names */
+    /** The factory for accessing things like identifiers and names */
     @JsonIgnore
     private NetworkFactory<?, ?, ?> factory;
     /** How to access the elements of a class */
@@ -40,6 +40,9 @@ public class Trace {
     private Map<Object, String> identifiers;
     /** The identifier counter */
     private AtomicInteger identifierCounter;
+    /** The trace level accepted */
+    @JsonIgnore
+    private TraceLevel level;
     /** The operation described by the trace */
     @JsonProperty
     private String label;
@@ -64,14 +67,19 @@ public class Trace {
 
     /**
      * Construct a top-level trace.
+     *
+     * @param factory The factory to use
+     * @param level The trace level to accept
+     * @param label The label to use
      */
-    public Trace(NetworkFactory<?, ?, ?> factory, String label) {
+    public Trace(NetworkFactory<?, ?, ?> factory, @NonNull TraceLevel level, String label) {
         this.factory = factory;
         this.accessors = Collections.synchronizedMap(new HashMap<>());
         this.identifiers = Collections.synchronizedMap(new HashMap<>());
         this.identifierCounter = new AtomicInteger();
         this.parent = this;
         this.current = this;
+        this.level = level;
         this.label = label;
     }
 
@@ -84,6 +92,7 @@ public class Trace {
      */
     protected Trace(@NonNull Trace parent, @NonNull String label, Object value) {
         this.parent = parent;
+        this.level = parent.level;
         this.label = label;
         this.value = value;
     }
@@ -100,6 +109,7 @@ public class Trace {
      */
     protected Trace(@NonNull Trace parent, @NonNull String label, @NonNull String formula, @NonNull String derivation, Object value) {
         this.parent = parent;
+        this.level = parent.level;
         this.label = label;
         this.formula = formula;
         this.derivation = derivation;
@@ -188,10 +198,13 @@ public class Trace {
     /**
      * Add a leaf element to the trace
      *
+     * @param level The level this trace is at
      * @param label The leaf label
      * @param value The leaf value
      */
-    public void add(String label, Object value) {
+    public void add(TraceLevel level, String label, Object value) {
+        if (this.current.level.ordinal() < level.ordinal())
+            return;
         value = this.buildValue(value, false);
         Trace trace = new Trace(this.current, label, value);
         this.current.add(trace);
@@ -200,10 +213,13 @@ public class Trace {
     /**
      * Add a summary leaf element to the trace
      *
+     * @param level The level this trace is at
      * @param label The leaf label
      * @param value The leaf value
      */
-    public void addSummary(String label, Object value) {
+    public void addSummary(TraceLevel level, String label, Object value) {
+        if (this.current.level.ordinal() < level.ordinal())
+            return;
         value = this.buildValue(value, true);
         Trace trace = new Trace(this.current, label, value);
         this.current.add(trace);
@@ -213,10 +229,13 @@ public class Trace {
     /**
      * Add a leaf element to the trace
      *
+     * @param level The level this trace is at
      * @param label The leaf label
      * @param value The leaf value
      */
-    public void add(String label, String formula, String derivation, Object value) {
+    public void add(TraceLevel level, String label, String formula, String derivation, Object value) {
+        if (this.current.level.ordinal() < level.ordinal())
+            return;
         value = this.buildValue(value, false);
         Trace trace = new Trace(this.current, label, formula, derivation, value);
         this.current.add(trace);
@@ -225,9 +244,12 @@ public class Trace {
     /**
      * Push a sub-trace and make it the current trace
      *
+     * @param level The level this trace is at
      * @param label The label for the trace operation
      */
-    public void push(String label) {
+    public void push(TraceLevel level, String label) {
+        if (this.current.level.ordinal() < level.ordinal())
+            return;
         Trace trace = new Trace(this.current, label, null);
         this.current.add(trace);
         this.current = trace;
@@ -235,17 +257,24 @@ public class Trace {
 
     /**
      * Pop out of a sub-trace and back to the parent trace.
+     *
+     * @param level The level this trace is at
      */
-    public void pop() {
+    public void pop(TraceLevel level) {
+        if (this.current.level.ordinal() < level.ordinal())
+            return;
         this.current = this.current.parent;
     }
 
     /**
      * Set the resulting value of the trace
      *
+     * @param level The level this trace is at
      * @param value The value to set
      */
-    public void value(Object value) {
+    public void value(TraceLevel level, Object value) {
+        if (this.current.level.ordinal() < level.ordinal())
+            return;
         this.current.value = this.buildValue(value, false);
     }
 
@@ -253,11 +282,14 @@ public class Trace {
     /**
      * Set the resulting value of the trace
      *
+     * @param level The level this trace is at
      * @param formula The formula that built the trace
      * @param derivation The value derivation
      * @param value The value to set
      */
-    public void value(String formula, String derivation, Object value) {
+    public void value(TraceLevel level, String formula, String derivation, Object value) {
+        if (this.current.level.ordinal() < level.ordinal())
+            return;
         this.current.formula = formula;
         this.current.derivation = derivation;
         this.current.value = this.buildValue(value, false);
@@ -330,5 +362,18 @@ public class Trace {
         public Object getSummary(Object o) {
             return this.summary.apply(o);
         }
+    }
+
+    public static enum TraceLevel {
+        /** No tracing */
+        NONE,
+        /** Summary level tracing */
+        SUMMARY,
+        /** Information level tracing */
+        INFO,
+        /** Debug level tracing */
+        DEBUG,
+        /** Detailed tracing, including inference values */
+        TRACE;
     }
 }

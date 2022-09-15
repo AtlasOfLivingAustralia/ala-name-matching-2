@@ -15,7 +15,7 @@ public class TraceTest {
 
     @Before
     public void setUp() {
-        this.trace = new Trace(new TestFactory(), "top");
+        this.trace = new Trace(new TestFactory(), Trace.TraceLevel.DEBUG, "top");
         this.mapper = JsonUtils.createMapper();
     }
 
@@ -27,51 +27,58 @@ public class TraceTest {
 
     @Test
     public void testSimple1() throws Exception {
-        this.trace.value(100);
+        this.trace.value(Trace.TraceLevel.INFO, 100);
         this.compare("trace-1.json");
     }
 
 
     @Test
     public void testSimple2() throws Exception {
-        this.trace.value(Arrays.asList("Hello", 21));
+        this.trace.value(Trace.TraceLevel.SUMMARY, Arrays.asList("Hello", 21));
         this.compare("trace-2.json");
+    }
+
+
+    @Test
+    public void testSimple3() throws Exception {
+        this.trace.value(Trace.TraceLevel.TRACE, Arrays.asList("Hello", 21));
+        this.compare("trace-10.json");
     }
 
     @Test
     public void testDescriptor1() throws Exception {
         TestTracable tracable = TestTracable.builder().id("1").value1("Hello").value2("There").build();
-        this.trace.value(tracable);
+        this.trace.value(Trace.TraceLevel.INFO, tracable);
         this.compare("trace-3.json");
     }
 
     @Test
     public void testDescriptor2() throws Exception {
         TestTracable tracable = TestTracable.builder().id("XX").value1("Hello").value2("There").build();
-        this.trace.value(tracable);
-        this.trace.add("repeated", tracable);
+        this.trace.value(Trace.TraceLevel.INFO, tracable);
+        this.trace.add(Trace.TraceLevel.DEBUG, "repeated", tracable);
         this.compare("trace-4.json");
     }
 
     @Test
     public void testDescriptor3() throws Exception {
         TestTracable2 tracable = TestTracable2.builder().id("1").value1("Hello").build();
-        this.trace.value(tracable);
+        this.trace.value(Trace.TraceLevel.SUMMARY, tracable);
         this.compare("trace-5.json");
     }
 
     @Test
     public void testDescriptor4() throws Exception {
         TestTracable2 tracable = TestTracable2.builder().id("XX").value1("Hello").value2("There").build();
-        this.trace.value(tracable);
-        this.trace.add("repeated", tracable);
+        this.trace.value(Trace.TraceLevel.INFO, tracable);
+        this.trace.add(Trace.TraceLevel.TRACE.DEBUG, "repeated", tracable);
         this.compare("trace-6.json");
     }
 
     @Test
     public void testDescriptor5() throws Exception {
         TestTracable2 tracable = TestTracable2.builder().id("XX").value1("Hello").value2("There").build();
-        this.trace.addSummary("repeated", tracable);
+        this.trace.addSummary(Trace.TraceLevel.INFO, "repeated", tracable);
         this.compare("trace-7.json");
     }
 
@@ -81,7 +88,7 @@ public class TraceTest {
         classification.scientificName = "Acacia dealbata";
         classification.taxonID = "ABC:123";
         classification.testEnum = TestEnum.FOO;
-        this.trace.value(classification);
+        this.trace.value(Trace.TraceLevel.DEBUG, classification);
         this.compare("trace-8.json");
     }
 
@@ -92,8 +99,8 @@ public class TraceTest {
         classification.scientificName = "Acacia dealbata";
         classification.taxonID = "ABC:123";
         classification.testEnum = TestEnum.FOO;
-        this.trace.value(classification);
-        this.trace.add("repeat", classification);
+        this.trace.value(Trace.TraceLevel.INFO, classification);
+        this.trace.add(Trace.TraceLevel.DEBUG, "repeat", classification);
         this.compare("trace-9.json");
     }
 

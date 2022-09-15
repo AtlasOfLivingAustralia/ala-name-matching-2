@@ -3,6 +3,7 @@ package au.org.ala.bayesian;
 import lombok.Builder;
 import lombok.Value;
 import lombok.With;
+import au.org.ala.bayesian.Trace.TraceLevel;
 
 /**
  * Options for searching and matching.
@@ -21,6 +22,7 @@ public class MatchOptions {
             .modifyTemplate(false)
             .modifyConsistency(false)
             .useHints(false)
+            .trace(TraceLevel.NONE)
             .build();
 
     /**
@@ -85,5 +87,5 @@ public class MatchOptions {
      * Trace the inference
      */
     @Builder.Default
-    boolean trace = false;
+    TraceLevel trace = TraceLevel.NONE;
 }

@@ -6,6 +6,7 @@ import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.Trace;
+import au.org.ala.bayesian.Trace.TraceLevel;
 
 public class GrassInferencer_ implements Inferencer<GrassClassification> {
   public final static String SIGNATURE = "";
@@ -31,7 +32,7 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
        c$wet += parameters.derived_wet_t$t_f * c$rain * nc$sprinkler;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.derived_wet_t$t_t) + " \u00b7 " + this.formatDouble(c$rain) + " \u00b7 " + this.formatDouble(c$sprinkler) + " + " + this.formatDouble(parameters.derived_wet_t$t_f) + " \u00b7 " + this.formatDouble(c$rain) + " \u00b7 " + this.formatDouble(nc$sprinkler);
-        trace.add("p(wet) - wet", "p(wet | rain, sprinkler)·rain·sprinkler + p(wet | rain, ¬sprinkler)·rain·¬sprinkler", val_, c$wet);
+        trace.add(TraceLevel.TRACE, "p(wet) - wet", "p(wet | rain, sprinkler)·rain·sprinkler + p(wet | rain, ¬sprinkler)·rain·¬sprinkler", val_, c$wet);
       }
     }
     if (evidence.isF$e$wet()) {
@@ -39,13 +40,13 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
       nc$wet += parameters.derived_wet_f$t_f * c$rain * nc$sprinkler;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.derived_wet_f$t_t) + " \u00b7 " + this.formatDouble(c$rain) + " \u00b7 " + this.formatDouble(c$sprinkler) + " + " + this.formatDouble(parameters.derived_wet_f$t_f) + " \u00b7 " + this.formatDouble(c$rain) + " \u00b7 " + this.formatDouble(nc$sprinkler);
-        trace.add("p(¬wet) - !wet", "p(¬wet | rain, sprinkler)·rain·sprinkler + p(¬wet | rain, ¬sprinkler)·rain·¬sprinkler", val_, nc$wet);
+        trace.add(TraceLevel.TRACE, "p(¬wet) - !wet", "p(¬wet | rain, sprinkler)·rain·sprinkler + p(¬wet | rain, ¬sprinkler)·rain·¬sprinkler", val_, nc$wet);
       }
     }
     double result_ = (c$wet + nc$wet);
     if (trace != null) {
       String val_ = "(" + this.formatDouble(c$wet) + " + " + this.formatDouble(nc$wet) + ")";
-      trace.add("c(E | rain)", "(p(wet) + p(¬wet))", val_, result_);
+      trace.add(TraceLevel.TRACE, "c(E | rain)", "(p(wet) + p(¬wet))", val_, result_);
     }
     return result_;
   }
@@ -63,7 +64,7 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
        c$wet += parameters.derived_wet_t$f_f * nc$rain * nc$sprinkler;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.derived_wet_t$f_t) + " \u00b7 " + this.formatDouble(nc$rain) + " \u00b7 " + this.formatDouble(c$sprinkler) + " + " + this.formatDouble(parameters.derived_wet_t$f_f) + " \u00b7 " + this.formatDouble(nc$rain) + " \u00b7 " + this.formatDouble(nc$sprinkler);
-        trace.add("p(wet) - wet", "p(wet | ¬rain, sprinkler)·¬rain·sprinkler + p(wet | ¬rain, ¬sprinkler)·¬rain·¬sprinkler", val_, c$wet);
+        trace.add(TraceLevel.TRACE, "p(wet) - wet", "p(wet | ¬rain, sprinkler)·¬rain·sprinkler + p(wet | ¬rain, ¬sprinkler)·¬rain·¬sprinkler", val_, c$wet);
       }
     }
     if (evidence.isF$e$wet()) {
@@ -71,13 +72,13 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
       nc$wet += parameters.derived_wet_f$f_f * nc$rain * nc$sprinkler;
       if (trace != null) {
         String val_ = this.formatDouble(parameters.derived_wet_f$f_t) + " \u00b7 " + this.formatDouble(nc$rain) + " \u00b7 " + this.formatDouble(c$sprinkler) + " + " + this.formatDouble(parameters.derived_wet_f$f_f) + " \u00b7 " + this.formatDouble(nc$rain) + " \u00b7 " + this.formatDouble(nc$sprinkler);
-        trace.add("p(¬wet) - !wet", "p(¬wet | ¬rain, sprinkler)·¬rain·sprinkler + p(¬wet | ¬rain, ¬sprinkler)·¬rain·¬sprinkler", val_, nc$wet);
+        trace.add(TraceLevel.TRACE, "p(¬wet) - !wet", "p(¬wet | ¬rain, sprinkler)·¬rain·sprinkler + p(¬wet | ¬rain, ¬sprinkler)·¬rain·¬sprinkler", val_, nc$wet);
       }
     }
     double result_ = (c$wet + nc$wet);
     if (trace != null) {
       String val_ = "(" + this.formatDouble(c$wet) + " + " + this.formatDouble(nc$wet) + ")";
-      trace.add("c(E | ¬rain)", "(p(wet) + p(¬wet))", val_, result_);
+      trace.add(TraceLevel.TRACE, "c(E | ¬rain)", "(p(wet) + p(¬wet))", val_, result_);
     }
     return result_;
   }
@@ -90,35 +91,35 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
     double pe = 0.0;
 
     if (trace != null)
-        trace.push("p(rain)");
+        trace.push(TraceLevel.TRACE, "p(rain)");
     try {
         if (evidence.isT$e$rain()) {
           c = this.infer_t(evidence, parameters, trace);
           p = c  * parameters.prior_rain_t;
           if (trace != null) {
-            trace.value("c(E | rain)\u00b7p(rain)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_rain_t), p);
+            trace.value(TraceLevel.TRACE, "c(E | rain)\u00b7p(rain)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_rain_t), p);
           }
           ph += p;
           pe += p;
         }
     } finally {
         if (trace != null)
-            trace.pop();
+            trace.pop(TraceLevel.TRACE);
     }
     if (trace != null)
-        trace.push("p(¬rain)");
+        trace.push(TraceLevel.TRACE, "p(¬rain)");
     try {
         if (evidence.isF$e$rain()) {
           c = this.infer_f(evidence, parameters, trace);
           p = c  * parameters.prior_rain_f;
           if (trace != null) {
-            trace.value("c(E | ¬rain)\u00b7p(¬rain)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_rain_f), p);
+            trace.value(TraceLevel.TRACE, "c(E | ¬rain)\u00b7p(¬rain)", this.formatDouble(c) +  " \u00b7 " + this.formatDouble(parameters.prior_rain_f), p);
           }
           pe += p;
         }
     } finally {
         if (trace != null)
-            trace.pop();
+            trace.pop(TraceLevel.TRACE);
     }
     return Inference.forPEH(prior, pe, ph);
   }
@@ -126,11 +127,11 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
   @Override
   public Inference probability(GrassClassification classification, Classifier classifier, Trace trace) throws BayesianException {
     if (trace != null)
-        trace.push("inference");
+        trace.push(TraceLevel.TRACE, "inference");
     try {
         GrassInferencer.Evidence evidence = classification.match(classifier);
         if (trace != null)
-            trace.add("evidence", evidence);
+            trace.add(TraceLevel.TRACE, "evidence", evidence);
         GrassParameters_ params = (GrassParameters_) classifier.getCachedParameters();
         if (params == null) {
           params = new GrassParameters_();
@@ -139,7 +140,7 @@ public class GrassInferencer_ implements Inferencer<GrassClassification> {
         return this.probability(evidence, params, trace);
     } finally {
         if (trace != null)
-            trace.pop();
+            trace.pop(TraceLevel.TRACE);
     }
   }
 }
