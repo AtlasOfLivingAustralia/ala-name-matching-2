@@ -78,12 +78,12 @@ public class Autocomplete {
             }
             for (Observation observation: this.classification.toObservations()) {
                if (!observation.isBlank()) {
-                   Observable observable = observation.getObservable();
-                   try {
-                       cl.put(observable.getId(), observable.getAnalysis().toStore(observation.getValue()));
-                   } catch (StoreException ex) {
+                   if (observation.isSingleton()) {
+                       cl.put(observation.getObservable().getId(), observation.getStoreValue());
+                   } else {
+                       cl.put(observation.getObservable().getId(), observation.getStoreValues());
                    }
-               }
+                }
             }
             map.put("cl", cl);
         }

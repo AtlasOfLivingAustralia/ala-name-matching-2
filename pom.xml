@@ -80,7 +80,7 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>${org.slf4j.version}</version>
-      <scope>runtime</scope>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -139,9 +139,8 @@
           <executions>
             <execution>
               <id>attach-sources</id>
-              <phase>verify</phase>
               <goals>
-                <goal>jar-no-fork</goal>
+                <goal>jar</goal>
               </goals>
             </execution>
           </executions>

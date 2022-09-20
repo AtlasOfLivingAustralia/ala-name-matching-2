@@ -9,6 +9,7 @@ import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
 import au.org.ala.names.lucene.LuceneClassifierSuggester;
+import au.org.ala.vocab.ALATerm;
 import au.org.ala.vocab.BayesianTerm;
 import lombok.Getter;
 import lombok.NonNull;
@@ -239,6 +240,39 @@ public class ALANameSearcher implements AutoCloseable {
     public Match<AlaLocationClassification, MatchMeasurement> search(AlaLocationClassification template) throws BayesianException {
         return this.search(template, MatchOptions.ALL);
     }
+
+
+    /**
+     * Search for a location identifier.
+     *
+     * @param locationId The location identifier
+     *
+     * @return The resulting match
+     *
+     * @throws BayesianException If unable to retrieve the match
+     */
+    @NonNull
+    public Match<AlaLocationClassification, MatchMeasurement> searchLocation(String locationId) throws BayesianException {
+        AlaLocationClassification actual = new AlaLocationClassification();
+        actual.locationId = locationId;
+        LuceneClassifier classifier = this.locationSearcher.get(AlaLocationFactory.CONCEPT, AlaLocationFactory.locationId, locationId);
+        if (classifier == null)
+            return Match.invalidMatch();
+        AlaLocationClassification classification = AlaLocationFactory.instance().createClassification();
+        classification.read(classifier, true);
+        Match<AlaLocationClassification, MatchMeasurement> match = new Match<>(actual, classifier, classification, Inference.one())
+                .with(new SimpleFidelity<>(actual, actual, 1.0));
+        if (classification.acceptedLocalityId != null) {
+            LuceneClassifier accepted = this.searcher.get(AlaLocationFactory.CONCEPT, AlaLocationFactory.locationId, classification.acceptedLocalityId);
+            if (accepted != null) {
+                AlaLocationClassification acceptedClassification = AlaLocationFactory.instance().createClassification();
+                acceptedClassification.read(accepted, true);
+                match = match.withAccepted(accepted, acceptedClassification);
+            }
+        }
+        return match;
+    }
+
 
 
     @SneakyThrows

@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An observation or fact about a node in the Bayesian network.
@@ -181,6 +179,32 @@ public class Observation<T> {
         negative.value = this.value;
         negative.values = this.values;
         return negative;
+    }
+
+    /**
+     * Get a singleton value as a store form for reporting
+     *
+     * @return Thne singleton vaklue in store form
+     */
+    @SneakyThrows
+    public Object getStoreValue() {
+        T value = this.getValue();
+        return this.observable.getAnalysis().toStore(value);
+    }
+
+    /**
+     * Get all values as a store form for reporting
+     *
+     * @return The values in store form
+     */
+    @SneakyThrows
+    public List<Object> getStoreValues() {
+        ArrayList<Object> values = new ArrayList<>(this.values.size());
+        for (T value: this.getValues()) {
+            Object store = this.observable.getAnalysis().toStore(value);
+            values.add(store);
+        }
+        return values;
     }
 
     /**

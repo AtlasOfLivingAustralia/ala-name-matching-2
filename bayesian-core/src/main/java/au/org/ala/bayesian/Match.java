@@ -219,11 +219,11 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
     public Map<String, Object> getFullDescription(NetworkFactory<?, ?, ?> factory) {
         Map<String, Object> desc = new LinkedHashMap<>();
         desc.put("actual", this.actual);
-        desc.put("candidate", this.candidate.getSummaryDescription(factory));
+        desc.put("candidate", this.candidate == null ? null : this.candidate.getSummaryDescription(factory));
         desc.put("match", this.match);
         if (this.accepted != this.match) {
             desc.put("accepted", this.accepted);
-            desc.put("acceptedCandidate", this.acceptedCandidate.getSummaryDescription(factory));
+            desc.put("acceptedCandidate", this.acceptedCandidate == null ? null : this.acceptedCandidate.getSummaryDescription(factory));
         }
         desc.put("probability", this.getProbability());
         desc.put("fidelity", this.getFidelity());

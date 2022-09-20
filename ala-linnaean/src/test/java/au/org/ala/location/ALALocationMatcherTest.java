@@ -101,11 +101,11 @@ public class ALALocationMatcherTest {
         assertSame(match.getMatch(), match.getAccepted());
         assertEquals("http://vocab.getty.edu/tgn/1009851", match.getAccepted().locationId);
         assertEquals(GeographyType.islandGroup, match.getAccepted().geographyType);
-        assertEquals("Tubuaï, Îles", match.getAccepted().locality);
+        assertEquals("Austral Islands", match.getAccepted().locality);
         assertEquals("Oceania", match.getAccepted().continent);
         assertNull(match.getAccepted().waterBody);
-        assertEquals("Tubuaï, Îles", match.getAccepted().islandGroup);
-        assertEquals("Polynésie française", match.getAccepted().country);
+        assertEquals("Austral Islands", match.getAccepted().islandGroup);
+        assertEquals("French Polynesia", match.getAccepted().country);
         assertEquals("PF", match.getAccepted().countryCode);
         assertNull(match.getAccepted().stateProvince);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
@@ -216,11 +216,11 @@ public class ALALocationMatcherTest {
         classification.continent = "Oceania";
         match = this.matcher.findMatch(classification, MatchOptions.ALL);
         assertTrue(match.isValid());
-        assertEquals(0.54117, match.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.54154, match.getProbability().getPosterior(), 0.00001);
         classification.continent = "Asia";
         match = this.matcher.findMatch(classification, MatchOptions.ALL);
         assertTrue(match.isValid());
-        assertEquals(0.90271, match.getProbability().getPosterior(), 0.00001);
+        assertEquals(0.90177, match.getProbability().getPosterior(), 0.00001);
     }
 
     @Test
@@ -333,8 +333,8 @@ public class ALALocationMatcherTest {
         assertSame(match.getMatch(), match.getAccepted());
         assertEquals("http://vocab.getty.edu/tgn/7000084", match.getAccepted().locationId);
         assertEquals(GeographyType.country, match.getAccepted().geographyType);
-        assertEquals("Deutschland", match.getAccepted().locality);
-        assertEquals("Deutschland", match.getAccepted().country);
+        assertEquals("Federal Republic of Germany", match.getAccepted().locality);
+        assertEquals("Federal Republic of Germany", match.getAccepted().country);
         assertEquals("Europe", match.getAccepted().continent);
         assertNull(match.getAccepted().waterBody);
         assertNull(match.getAccepted().island);
@@ -530,8 +530,8 @@ public class ALALocationMatcherTest {
         assertSame(match.getMatch(), match.getAccepted());
         assertEquals("http://vocab.getty.edu/tgn/7005152", match.getAccepted().locationId);
         assertEquals(GeographyType.country, match.getAccepted().geographyType);
-        assertEquals("Falkland Islands (Islas Malvinas)", match.getAccepted().locality);
-        assertEquals("Falkland Islands (Islas Malvinas)", match.getAccepted().country);
+        assertEquals("Falkland Islands", match.getAccepted().locality);
+        assertEquals("Falkland Islands", match.getAccepted().country);
         assertEquals("South America", match.getAccepted().continent);
         assertNull(match.getAccepted().waterBody);
         assertNull(match.getAccepted().island);
@@ -561,6 +561,27 @@ public class ALALocationMatcherTest {
         assertEquals("Queensland", match.getAccepted().stateProvince);
         assertEquals(1.0, match.getProbability().getPosterior(), 0.00001);
         assertEquals(Issues.of(AlaLocationFactory.REMOVED_ISLAND_GROUP), match.getIssues());
+    }
+
+
+    @Test
+    public void testProblemMatch13() throws Exception {
+        AlaLocationClassification classification = new AlaLocationClassification();
+        classification.locality = "Northeastern Italy";
+        Match<AlaLocationClassification, MatchMeasurement> match = this.matcher.findMatch(classification, MatchOptions.ALL);
+        assertTrue(match.isValid());
+        assertSame(match.getMatch(), match.getAccepted());
+        assertEquals("http://vocab.getty.edu/tgn/4005362", match.getAccepted().locationId);
+        assertEquals(GeographyType.stateProvince, match.getAccepted().geographyType);
+        assertEquals("Northeastern Italy", match.getAccepted().locality);
+        assertEquals("Italy", match.getAccepted().country);
+        assertEquals("Europe", match.getAccepted().continent);
+        assertNull(match.getAccepted().waterBody);
+        assertNull(match.getAccepted().island);
+        assertNull(match.getAccepted().islandGroup);
+        assertEquals("Northeastern Italy", match.getAccepted().stateProvince);
+        assertEquals(0.99993, match.getProbability().getPosterior(), 0.00001);
+        assertEquals(Issues.of(), match.getIssues());
     }
 
 }
