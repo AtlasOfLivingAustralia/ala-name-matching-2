@@ -41,7 +41,7 @@ public class PerformanceTest {
 
     public static final int SEARCH_QUERY_LIMIT = 15;
     public static final int SEARCH_CACHE_SIZE = 10000;
-    public static final String LOCATION_INDEX = "/data/lucene/location-2022";
+    public static final String LOCATION_INDEX = "/data/lucene/location-20221005-1";
 
 
     private LuceneClassifierSearcher searcher;
@@ -73,12 +73,19 @@ public class PerformanceTest {
     private void testFile(String name) throws Exception {
         InputStream s = null;
         int errors = 0;
+        int errorsWeighted = 0;
         int matched = 0;
-        int succcess = 0;
+        int matchedWeighted = 0;
+        int success = 0;
+        int successWeighted = 0;
         int expected = 0;
+        int expectedWeighted = 0;
         int accurate = 0;
+        int accurateWeighted = 0;
         int clean = 0;
+        int cleanWeighted = 0;
         Map<Term, Integer> issueCount = new HashMap<>();
+        Map<Term, Integer> issueCountWeighted = new HashMap<>();
         long startTime, endTime;
         try {
             s = this.getClass().getResourceAsStream(name);
@@ -92,6 +99,7 @@ public class PerformanceTest {
             int islandIndex = this.indexOf(header, "island");
             int islandGroupIndex = this.indexOf(header, "islandGroup");
             int waterBodyIndex = this.indexOf(header, "waterBody");
+            int countIndex = this.indexOf(header, "count");
             int matchIndex = this.indexOf(header, "match");
             int line = 1;
             startTime = System.currentTimeMillis();
@@ -102,6 +110,7 @@ public class PerformanceTest {
                 boolean expectValid = false;
                 boolean flag = false;
                 String expectedLocality = null;
+                int count = 1;
                 try {
                     if (row[0].startsWith("#")) // Skip comment
                         continue;
@@ -116,22 +125,30 @@ public class PerformanceTest {
                     classification.islandGroup = islandGroupIndex < 0 ? null : StringUtils.trimToNull(row[islandGroupIndex]);
                     classification.waterBody = waterBodyIndex < 0 ? null : StringUtils.trimToNull(row[waterBodyIndex]);
                     expectedLocality = matchIndex < 0 ? null : StringUtils.trimToNull(row[matchIndex]);
+                    String cv = countIndex < 0 ? null : StringUtils.trimToNull(row[countIndex]);
+                    count = cv == null || cv.isEmpty() ? 1 : Integer.parseInt(cv);
                 } catch (Exception ex) {
                     throw new IllegalStateException("Error on line " + line, ex);
                 }
                 matched++;
+                matchedWeighted += count;
                 try {
                     Match<AlaLocationClassification, MatchMeasurement> match = this.matcher.findMatch(classification.clone(), MatchOptions.ALL);
                     for (Term issue : match.getIssues()) {
-                        int count = issueCount.getOrDefault(issue, 0);
-                        issueCount.put(issue, count + 1);
+                        int ic = issueCount.getOrDefault(issue, 0);
+                        issueCount.put(issue, ic + 1);
+                        ic = issueCountWeighted.getOrDefault(issue, 0);
+                        issueCountWeighted.put(issue, ic + count);
                     }
                     if (match.isValid()) {
-                        succcess++;
+                        success++;
+                        successWeighted += count;
                         classification.inferForSearch(this.matcher.getAnalyser(), MatchOptions.ALL);
                         String cleanLocality = classification.locality;
-                        if (cleanLocality.equalsIgnoreCase(match.getMatch().locality))
+                        if (cleanLocality.equalsIgnoreCase(match.getMatch().locality)) {
                             clean++;
+                            cleanWeighted += count;
+                        }
                         final String searchName;
                         final Collection<String> names = match.getAcceptedCandidate().getNames();
                         if (expectedLocality != null) {
@@ -156,13 +173,15 @@ public class PerformanceTest {
                                 searchName = classification.locality;
                             }
                         }
-                        if (searchName != null && names.stream().anyMatch(n -> searchName.equalsIgnoreCase(n)))
+                        if (searchName != null && names.stream().anyMatch(n -> searchName.equalsIgnoreCase(n))) {
                             accurate++;
-                        else
+                            accurateWeighted += count;
+                        } else
                             logger.warn("Unexpected match on line {}, got {} {} not {} on {}", line, match.getAccepted().locality, match.getAccepted().locationId, searchName, row);
                     }
                     if (expectValid == match.isValid()) {
                         expected++;
+                        expectedWeighted += count;
                     } else {
                         logger.info("Unexpected validity line {}, values {}", line, row);
                         if (match.isValid())
@@ -174,22 +193,41 @@ public class PerformanceTest {
                 } catch (Exception ex) {
                     logger.warn("Error on line " + line, ex);
                     errors++;
+                    errorsWeighted += count;
                 }
             }
             endTime = System.currentTimeMillis();
             double rate = (matched * 1000.0) / (endTime - startTime);
-            double successRate = (succcess * 100.0) / matched;
+            double successRate = (success * 100.0) / matched;
             double expectedRate = (expected * 100.0) / matched;
             double accurateRate = (accurate * 100.0) / matched;
             double cleanRate = (clean * 100.0) / matched;
-            logger.info("Processed " + matched + " entries, " + succcess + " successful, " + expected + " expected, " + accurate + " accurate, " + clean + " clean, " + errors + " errors");
+            logger.info("Processed " + matched + " entries, " + success + " successful, " + expected + " expected, " + accurate + " accurate, " + clean + " clean, " + errors + " errors");
             logger.info("Processing rate " + rate + " macthes per second");
             logger.info("Successful match rate " + successRate);
             logger.info("Expected match rate " + expectedRate);
             logger.info("Accurate match rate " + accurateRate);
             logger.info("Clean match rate " + cleanRate);
+            logger.info("Issues");
             for (Map.Entry<Term, Integer> entry : issueCount.entrySet()) {
-                logger.info(entry.getKey().toString() + ": " + entry.getValue());
+                Term issue = entry.getKey();
+                Integer ic = entry.getValue();
+                logger.info(issue.toString() + ": " + ic + ", " + (ic * 100.0) / matched + "%");
+            }
+            successRate = (successWeighted * 100.0) / matchedWeighted;
+            expectedRate = (expectedWeighted * 100.0) / matchedWeighted;
+            accurateRate = (accurateWeighted * 100.0) / matchedWeighted;
+            cleanRate = (cleanWeighted * 100.0) / matchedWeighted;
+            logger.info("Processed weighted " + matchedWeighted + " entries, " + successWeighted + " successful, " + expectedWeighted + " expected, " + accurateWeighted + " accurate, " + cleanWeighted + " clean, " + errorsWeighted + " errors");
+            logger.info("Weighted successful match rate " + successRate);
+            logger.info("Weighted expected match rate " + expectedRate);
+            logger.info("Weighted accurate match rate " + accurateRate);
+            logger.info("Weighted clean match rate " + cleanRate);
+            logger.info("Weighted issues");
+            for (Map.Entry<Term, Integer> entry : issueCountWeighted.entrySet()) {
+                Term issue = entry.getKey();
+                Integer ic = entry.getValue();
+                logger.info(issue.toString() + ": " + ic + ", " + (ic * 100.0) / matchedWeighted + "%");
             }
             StringWriter sw = new StringWriter();
             this.matcher.reportStatistics(sw);
@@ -200,7 +238,7 @@ public class PerformanceTest {
         }
         assertEquals(0, errors);
         assertEquals(matched, expected);
-        assertEquals(succcess, accurate);
+        assertEquals(success, accurate);
     }
 
     protected int indexOf(String[] header, String column) {

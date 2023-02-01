@@ -1,0 +1,16 @@
+{
+  "version" : "20221005-1",
+  "index" : "/data/lucene",
+  "work" : "/data/tmp",
+  "location": "location-20221005-1",
+  "searcherConfiguration" : {
+    "queryLimit" : 15,
+    "cacheSize" : 10000
+  },
+  "matcherConfiguration" : {
+    "enableJmx": true,
+    "statistics": true,
+    "secondaryCacheSize" : 100000
+  },
+  "localities" : [ "Australia", "New Zealand", "Antarctica" ]
+}

@@ -17,7 +17,7 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 public class ALAClassificationMatcherTest {
-    public static final String INDEX = "/data/lucene/index-20210811-4";
+    public static final String INDEX = "/data/lucene/linnaean-20221005-1";
 
     private LuceneClassifierSearcher searcher;
     private ALAClassificationMatcher matcher;
@@ -28,7 +28,7 @@ public class ALAClassificationMatcherTest {
         if (!index.exists())
             throw new IllegalStateException("Index " + index + " not present");
         this.searcher = new LuceneClassifierSearcher(index, null, AlaLinnaeanFactory.taxonId);
-        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, null);
+        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, null, null);
     }
 
     @After

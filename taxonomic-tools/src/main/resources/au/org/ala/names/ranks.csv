@@ -1,4 +1,4 @@
-rank,rankID,higher,lower,marker,codes,other names
+rank,rankID,higher,lower,markers,codes,other names
 DOMAIN,100,1,1999, dom.,,
 REALM,700,1,1999, realm,,regio
 SUBREALM,800,1,1999, subrealm,,
@@ -45,7 +45,7 @@ GRANDFAMILY,4820,4001,5999, grandfam.,, grandfamilies
 SUPERFAMILY,4900,4001,5999, superfam.,, superfamilies, superfamilia
 EPIFAMILY,4920,4001,5999, epifam.,, epifamilies
 FAMILY,5000,4001,5999, fam.,, families, familia
-SUBFAMILY,5100,4001,5999, subfam.,, subfamilies, subfamilia
+SUBFAMILY,5100,4001,5999, subfam.,, subfamilies, subfamilia, subf., subf
 INFRAFAMILY,5200,5001,6999, infrafam.,, infrafamilies, infrafamilia
 SUPERTRIBE,5280,5001,6999, supertrib.,,
 TRIBE,5300,5001,6999, trib.,,
@@ -77,7 +77,7 @@ MORPH,8280,7000,10000, morph,,
 VARIETY,8300,7000,10000, var.,, varieties, varietias
 SUBVARIETY,8320,7000,10000, subvar.,, subvarieties, subvarietas
 FORM,8400,7000,10000, f.,, forma
-SUBFORM,8420,7000,10000, subf.,, subforma
+SUBFORM,8420,7000,10000, sf.,, subforma
 PATHOVAR,8500,7000,10000, pv.,,
 BIOVAR,8510,7000,10000, biovar,,
 CHEMOVAR,8520,7000,10000, chemovar,,

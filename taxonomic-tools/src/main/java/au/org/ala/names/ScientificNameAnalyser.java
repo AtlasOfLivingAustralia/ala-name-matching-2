@@ -38,7 +38,7 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
             .filter(Objects::nonNull)
             .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
             .collect(Collectors.joining("|"))
-            + "|ssp|spp";
+            + "|subf|ssp|spp";
     /**
      * A string giving a regular expression for the Linnaean rank markers
      */

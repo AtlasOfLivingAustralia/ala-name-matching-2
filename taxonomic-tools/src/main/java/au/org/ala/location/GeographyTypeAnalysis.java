@@ -24,7 +24,7 @@ public class GeographyTypeAnalysis extends EnumAnalysis<GeographyType> {
     /** Lookup for equivalence classes */
     private static final Map<GeographyType, Set<GeographyType>> EQUIVALENCES = new HashMap<>();
 
-    {
+    static {
         for (List<GeographyType> eq: EQUIVALENCE_CLASSES) {
             GeographyType base = null;
             for (GeographyType gt: eq) {

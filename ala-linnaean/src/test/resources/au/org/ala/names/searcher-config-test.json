@@ -1,0 +1,7 @@
+{
+  "version" : "20221005-1",
+  "index" : "/data/lucene",
+  "work" : "/data/tmp",
+  "location": "location-20221005-1",
+  "localities" : [ "Australia", "New Zealand", "Antarctica" ]
+}

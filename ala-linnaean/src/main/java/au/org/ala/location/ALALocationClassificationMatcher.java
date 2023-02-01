@@ -38,7 +38,7 @@ public class ALALocationClassificationMatcher extends ClassificationMatcher<AlaL
     /**
      * Is this a possible match.
      * <p>
-     * We'll accept anything that vaguely looks right according to the soundex match.
+     * We'll accept anything that vaguely looks right according to the soundex match, if there is one.
      * </p>
      *
      * @param classification The source classification
@@ -50,7 +50,10 @@ public class ALALocationClassificationMatcher extends ClassificationMatcher<AlaL
     @Override
     protected boolean isPossible(AlaLocationClassification classification, Classifier candidate, Inference inference) {
         try {
-            return classification.soundexLocality != null && candidate.match(classification.soundexLocality, AlaLocationFactory.soundexLocality);
+            if (classification.soundexLocality != null)
+                return candidate.match(classification.soundexLocality, AlaLocationFactory.soundexLocality);
+            else
+                return super.isPossible(classification, candidate, inference);
         } catch (Exception ignored) {
             return false;
         }

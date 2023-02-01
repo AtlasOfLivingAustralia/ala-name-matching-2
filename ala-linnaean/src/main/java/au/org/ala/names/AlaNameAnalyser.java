@@ -56,6 +56,8 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         classification.scientificName = this.checkInvalid(classification.scientificName, analysis, DATA_ISSUES, CANONICAL_MODIFICATION);
         analysis.setScientificName(this.checkInvalid(analysis.getScientificName(), analysis, DATA_ISSUES, CANONICAL_MODIFICATION));
     }
+
+
     /**
      * This is a really, really annoyting thiung where we split apart names of
      * the form <em>fam. Gracilariaceae gen. Gracilaria</em> I mean,

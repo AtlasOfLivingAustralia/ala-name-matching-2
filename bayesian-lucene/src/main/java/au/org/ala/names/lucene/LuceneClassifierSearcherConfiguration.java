@@ -1,14 +1,18 @@
 package au.org.ala.names.lucene;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * Configuration and tuning parameters for the {@link LuceneClassifierSearcher}
  */
 @Value
 @Builder
+@Jacksonized
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class LuceneClassifierSearcherConfiguration {
     /** Instrument this searcher with JMX */
     @JsonProperty

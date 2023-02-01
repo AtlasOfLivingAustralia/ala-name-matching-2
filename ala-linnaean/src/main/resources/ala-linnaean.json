@@ -1133,6 +1133,11 @@
       "id": "bare_phrase_name",
       "uri": "http://ala.org.au/issues/1.0/barePhraseName",
       "description": "The name is probably a phrase name but is without a voucher."
+    },
+    {
+      "id": "location_out_of_scope",
+      "uri": "http://ala.org.au/issues/1.0/locationOutOfScope",
+      "description": "The matching index does not have accurate distribution information for this location."
     }
   ],
   "modifications": [

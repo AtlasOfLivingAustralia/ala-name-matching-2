@@ -543,6 +543,17 @@ public class ScientificNameAnalyserTest {
     }
 
     @Test
+    public void detectAlternatingRankName5() {
+        Analysis analysis = new Analysis("subf. Chironominae trib. Chironomini", null, null, null, MatchOptions.ALL);
+        Map<Rank, String> map = this.analyser.detectAlternatingRankName(analysis, DEFAULT_DETECTED_ISSUES);
+        assertNotNull(map);
+        assertEquals(2, map.size());
+        assertEquals("Chironominae", map.get(Rank.SUBFAMILY));
+        assertEquals("Chironomini", map.get(Rank.TRIBE));
+        assertEquals(DEFAULT_DETECTED_ISSUES, analysis.getIssues());
+    }
+
+    @Test
     public void processRankMarker1() {
         Analysis analysis = new Analysis("Gymnothorax javanicus", null, null, null, MatchOptions.ALL);
         this.analyser.processRankMarker(analysis, false, DEFAULT_DETECTED_ISSUES, DEFAULT_MODIFIED_ISSUES);

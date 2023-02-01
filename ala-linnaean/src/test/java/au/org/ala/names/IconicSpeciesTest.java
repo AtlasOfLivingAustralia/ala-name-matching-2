@@ -4,6 +4,8 @@ import au.org.ala.bayesian.Issues;
 import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.location.AlaLocationClassification;
+import au.org.ala.util.JsonUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
 import org.gbif.utils.file.csv.CSVReader;
@@ -28,27 +30,20 @@ import static org.junit.Assert.assertEquals;
 public class IconicSpeciesTest {
     private static final Logger logger = LoggerFactory.getLogger(IconicSpeciesTest.class);
 
-    public static final String INDEX = "/data/lucene/index-20210811-4";
-    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20210811-4";
-    public static final String LOCATION_INDEX = "/data/lucene/location-2022";
-    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20210811-4";
+    public static final String INDEX = "/data/lucene/index-20221005-1";
+    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20221005-1";
+    public static final String LOCATION_INDEX = "/data/lucene/location-20221005-1";
+    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20221005-1";
 
     private ALANameSearcher searcher;
     private AlaNameAnalyser analyser;
 
     @Before
     public void setUp() throws Exception {
-        File index = new File(INDEX);
-        File vernacular = new File(VERNACULAR_INDEX);
-        File location = new File(LOCATION_INDEX);
-        File suggester = new File(SUGGESTER_INDEX);
-        if (!index.exists())
-            throw new IllegalStateException("Index " + index + " not present");
-        if (!vernacular.exists())
-            throw new IllegalStateException("Vernacular Index " + vernacular + " not present");
-        this.searcher = new ALANameSearcher(index, vernacular, location, suggester, null, null);
-        this.analyser = new AlaNameAnalyser();
-    }
+        ObjectMapper mapper = JsonUtils.createMapper();
+        ALANameSearcherConfiguration config = mapper.readValue(IconicSpeciesTest.class.getResource("searcher-config-test.json"), ALANameSearcherConfiguration.class);
+        this.searcher = new ALANameSearcher(config);
+     }
 
     @After
     public void tearDown() throws Exception {

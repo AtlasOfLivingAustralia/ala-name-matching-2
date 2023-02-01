@@ -51,14 +51,18 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
 
     /** Hints for kingdoms */
     private final Cache<KingdomKey, AlaLinnaeanClassification> kingdomCache;
+    /** The list of valid localities (by locationId) that allow locality tests */
+    private final Set<String> localityScope;
 
     /**
      * Create with a searcher and inferencer.
      *
      * @param factory  The factory for creating objects for the matcher to work on
      * @param searcher The mechanism for getting candidiates
+     * @param config The classification matcher configuration
+     * @param localityScope The locality scope
      */
-    public ALAClassificationMatcher(AlaLinnaeanFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config) {
+    public ALAClassificationMatcher(AlaLinnaeanFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, Set<String> localityScope) {
         super(factory, searcher, config);
         Cache2kBuilder<KingdomKey, AlaLinnaeanClassification> builder = Cache2kBuilder.of(KingdomKey.class, AlaLinnaeanClassification.class)
                 .entryCapacity(this.getConfig().getSecondaryCacheSize())
@@ -67,6 +71,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         if (this.getConfig().isEnableJmx())
             builder.enable(JmxSupport.class);
         this.kingdomCache = builder.build();
+        this.localityScope = localityScope;
     }
 
     /**
@@ -346,6 +351,13 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     @Override
     protected AlaLinnaeanClassification prepareForMatching(AlaLinnaeanClassification classification) throws BayesianException {
         this.estimateKingdom(classification);
+        if (this.localityScope != null && !this.localityScope.isEmpty() && classification.locationId != null && !classification.locationId.isEmpty()) {
+            if (!classification.locationId.stream().anyMatch(id -> this.localityScope.contains(id))) {
+                classification = classification.clone();
+                classification.locationId = null;
+                classification.addIssue(AlaLinnaeanFactory.LOCATION_OUT_OF_SCOPE);
+            }
+        }
         return classification;
     }
 

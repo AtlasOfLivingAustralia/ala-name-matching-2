@@ -25,10 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +38,8 @@ import java.util.stream.Collectors;
 public class ALANameSearcher implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(ALANameSearcher.class);
 
+    @Getter
+    private ALANameSearcherConfiguration config;
     @Getter
     private final LuceneClassifierSearcher searcher;
     @Getter
@@ -58,15 +57,48 @@ public class ALANameSearcher implements AutoCloseable {
     private final LuceneClassifierSuggester suggester = buildSuggester();
     private final RankAnalysis rankAnalysis;
 
-    public ALANameSearcher(File index, File vernacular, File location, File suggesterDir, LuceneClassifierSearcherConfiguration sConfig, ClassificationMatcherConfiguration cConfig) throws StoreException {
-        this.searcher = new LuceneClassifierSearcher(index, sConfig, AlaLinnaeanFactory.taxonId);
-        this.vernacularSearcher = new LuceneClassifierSearcher(vernacular, sConfig, AlaVernacularFactory.taxonId);
-        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, cConfig);
-        this.vernacularMatcher = new ALAVernacularClassificationMatcher(AlaVernacularFactory.instance(), this.vernacularSearcher, cConfig);
-        this.locationSearcher = new LuceneClassifierSearcher(location, sConfig, AlaLocationFactory.locationId);
-        this.locationMatcher = new ALALocationClassificationMatcher(AlaLocationFactory.instance(), this.locationSearcher, cConfig);
-        this.suggesterDir = suggesterDir;
+    public ALANameSearcher(ALANameSearcherConfiguration config) throws BayesianException {
+        this.config = config;
+        if (!this.config.getLinnaean().exists())
+            throw new IllegalArgumentException("Can't find linnaean index " + this.config.getLinnaean());
+        if (!this.config.getVernacular().exists())
+            throw new IllegalArgumentException("Can't find vernacular index " + this.config.getVernacular());
+        if (!this.config.getLocation().exists())
+            throw new IllegalArgumentException("Can't find location index " + this.config.getLocation());
+        this.locationSearcher = new LuceneClassifierSearcher(this.config.getLocation(), this.config.getSearcherConfiguration(), AlaLocationFactory.locationId);
+        this.locationMatcher = new ALALocationClassificationMatcher(AlaLocationFactory.instance(), this.locationSearcher, this.config.getMatcherConfiguration());
+        Set<String> localities = this.buildLocalities(this.config.getLocalities());
+        this.searcher = new LuceneClassifierSearcher(this.config.getLinnaean(), this.config.getSearcherConfiguration(), AlaLinnaeanFactory.taxonId);
+        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, this.config.getMatcherConfiguration(), localities);
+        this.vernacularSearcher = new LuceneClassifierSearcher(this.config.getVernacular(), this.config.getSearcherConfiguration(), AlaVernacularFactory.taxonId);
+        this.vernacularMatcher = new ALAVernacularClassificationMatcher(AlaVernacularFactory.instance(), this.vernacularSearcher, this.config.getMatcherConfiguration());
+        this.suggesterDir = this.config.getSuggester();
         this.rankAnalysis = new RankAnalysis();
+     }
+
+    /**
+     * Build the locality identifiers for which we can accurately identify a distribution
+     *
+     * @return
+     */
+    protected Set<String> buildLocalities(Collection<String> names) throws BayesianException {
+        Set<String> localities = new HashSet<>();
+        for (String locality: names) {
+            AlaLocationClassification classification = new AlaLocationClassification();
+            classification.locality = locality;
+            Match<AlaLocationClassification, MatchMeasurement> match = this.search(classification, MatchOptions.NONE);
+            if (match.isValid()) {
+                localities.add(match.getAccepted().getIdentifier());
+            } else {
+                LuceneClassifier classifier = this.locationSearcher.get(AlaLocationFactory.CONCEPT, AlaLocationFactory.locationId, locality);
+                if (classifier != null)
+                    localities.add(locality);
+                else {
+                    throw new IllegalArgumentException("Unable to find locality " + locality);
+                }
+            }
+        }
+        return localities;
     }
 
     /**
