@@ -5,7 +5,7 @@ package au.org.ala.bayesian;
  */
 public class ClassifierVariable extends Variable {
     /** The observable that this evidence is associated with */
-    private Observable observable;
+    private final Observable observable;
 
     public ClassifierVariable(Observable observable) {
         super(observable.getJavaVariable());

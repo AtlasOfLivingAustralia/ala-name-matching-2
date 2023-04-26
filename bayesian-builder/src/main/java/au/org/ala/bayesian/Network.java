@@ -2,6 +2,7 @@ package au.org.ala.bayesian;
 
 import au.org.ala.util.JsonUtils;
 import au.org.ala.vocab.BayesianTerm;
+import au.org.ala.vocab.OptimisationTerm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -31,9 +32,9 @@ import java.util.stream.Collectors;
 @JsonPropertyOrder({"id", "description", "uri", "concept", "vocabularies", "normalisers", "observables", "vertices", "edges", "issues", "modifications", "sourceModifiers", "matchModifiers" })
 public class Network extends Identifiable {
     /** The vertex id map */
-    private final SortedMap<String, Observable> idMap;
+    private final SortedMap<String, Observable<?>> idMap;
     /** The vertex URI map */
-    private final Map<URI, Observable> uriMap;
+    private final Map<URI, Observable<?>> uriMap;
     /** The concept that this network reflects */
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -76,6 +77,11 @@ public class Network extends Identifiable {
     /** The inference links between vertices */
     @JsonIgnore
     private DirectedAcyclicGraph<Observable, Dependency> graph;
+
+    {
+        BayesianTerm.weight.toString(); // Ensure loaded
+        OptimisationTerm.load.toString(); // Ensure loaded
+    }
 
     /**
      * Construct an empty network
@@ -228,7 +234,7 @@ public class Network extends Identifiable {
      * @return The observables in network toplogical order, followed by additional observables.
      */
     @JsonProperty("observables")
-    public Collection<Observable> getObservables() {
+    public Collection<Observable<?>> getObservables() {
         return this.idMap.values();
     }
 
@@ -238,8 +244,8 @@ public class Network extends Identifiable {
      * @return The vertices in breadth-first order, followed by additional vertices.
      */
     @JsonIgnore
-    public List<Observable> getObservablesById() {
-        List<Observable> observables = new ArrayList<>(this.idMap.values());
+    public List<Observable<?>> getObservablesById() {
+        List<Observable<?>> observables = new ArrayList<>(this.idMap.values());
         observables.sort(Comparator.comparing(Identifiable::getId));
         return observables;
     }
@@ -253,7 +259,7 @@ public class Network extends Identifiable {
      * @param vertices The new list of vertices
      */
     @JsonProperty("observables")
-    public void setObservables(Collection<Observable> vertices) {
+    public void setObservables(Collection<Observable<?>> vertices) {
         this.idMap.clear();
         this.uriMap.clear();
         for (Observable v: vertices) {
@@ -271,10 +277,15 @@ public class Network extends Identifiable {
      * @param property The property
      * @param value The property value
      *
+     * @param <T> The type of observable
+     *
      * @return An optional observable
      */
-    public Optional<Observable> findObservable(Term property, Object value) {
-        return this.idMap.values().stream().filter(o -> o.hasProperty(property, value)).findFirst();
+    public <T> Optional<Observable<T>> findObservable(Term property, Class<T> clazz_, Object value) {
+        return this.idMap.values().stream()
+                .filter(o -> o.hasProperty(property, value))
+                .findFirst()
+                .map(o -> (Observable<T>) o); // Force cast within Optional
     }
 
     /**
@@ -283,8 +294,8 @@ public class Network extends Identifiable {
      * @return The identifier observable or null if not present
      */
     @JsonIgnore
-    public Observable getIdentifierObservable() {
-        return this.findObservable(BayesianTerm.identifier, true).orElse(null);
+    public Observable<String> getIdentifierObservable() {
+        return this.findObservable(BayesianTerm.identifier, String.class,true).orElse(null);
     }
 
     /**
@@ -293,8 +304,8 @@ public class Network extends Identifiable {
      * @return The name observable or null if not present
      */
     @JsonIgnore
-    public Observable getNameObservable() {
-        return this.findObservable(BayesianTerm.name, true).orElse(null);
+    public Observable<String> getNameObservable() {
+        return this.findObservable(BayesianTerm.name, String.class,true).orElse(null);
     }
 
 
@@ -304,8 +315,8 @@ public class Network extends Identifiable {
      * @return The alt name observable or null if not present
      */
     @JsonIgnore
-    public Observable getAltNameObservable() {
-        return this.findObservable(BayesianTerm.altName, true).orElse(null);
+    public Observable<String> getAltNameObservable() {
+        return this.findObservable(BayesianTerm.altName, String.class, true).orElse(null);
     }
 
 
@@ -315,8 +326,8 @@ public class Network extends Identifiable {
      * @return The parent identifier observable or null
      */
     @JsonIgnore
-    public Observable getParentObservable() {
-        return this.findObservable(BayesianTerm.parent, true).orElse(null);
+    public Observable<String> getParentObservable() {
+        return this.findObservable(BayesianTerm.parent, String.class, true).orElse(null);
     }
 
     /**
@@ -325,8 +336,8 @@ public class Network extends Identifiable {
      * @return The accepted identifier observable or null
      */
     @JsonIgnore
-    public Observable getAcceptedObservable() {
-        return this.findObservable(BayesianTerm.accepted, true).orElse(null);
+    public Observable<String> getAcceptedObservable() {
+        return this.findObservable(BayesianTerm.accepted, String.class,true).orElse(null);
     }
 
     /**
@@ -337,7 +348,7 @@ public class Network extends Identifiable {
      *
      * @return A, possibly empty, list of matching observables.
      */
-    public List<Observable> findObservables(Term property, Object value) {
+    public List<Observable<?>> findObservables(Term property, Object value) {
         return this.idMap.values().stream().filter(o -> o.hasProperty(property, value)).collect(Collectors.toList());
     }
 
@@ -396,6 +407,10 @@ public class Network extends Identifiable {
     public void setEdges(Collection<FullEdge> edges) {
         this.graph.removeAllEdges(this.graph.edgeSet());
         for (FullEdge e: edges) {
+            if (e.source == null)
+                throw new IllegalArgumentException("Edge to " + e.target + " has invalid source");
+            if (e.target == null)
+                throw new IllegalArgumentException("Edge from " + e.source + " has invalid target");
             this.graph.addVertex(e.source);
             this.graph.addVertex(e.target);
             this.graph.addEdge(e.source, e.target, e.edge);
@@ -422,6 +437,26 @@ public class Network extends Identifiable {
      */
     public Set<Dependency> getOutgoing(Observable observable) {
         return this.graph.outgoingEdgesOf(observable);
+    }
+
+    /**
+     * Get the list of input observables
+     *
+     * @return The list of observables in the network not dependent on anything
+     */
+    @JsonIgnore
+    public List<Observable> getInputs() {
+        return this.getVertices().stream().filter(o -> this.getIncoming(o).isEmpty()).collect(Collectors.toList());
+    }
+
+    /**
+     * Get the list of output observables
+     *
+     * @return The list of observables in the network with no dependencies
+     */
+    @JsonIgnore
+    public List<Observable> getOutputs() {
+        return this.getVertices().stream().filter(o -> this.getOutgoing(o).isEmpty()).collect(Collectors.toList());
     }
 
     /**

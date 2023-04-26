@@ -1,0 +1,119 @@
+{
+  "label" : "match",
+  "value" : "Match:0",
+  "children" : [ {
+    "label" : "template",
+    "value" : {
+      "scientificName" : "Acacia dealbata",
+      "family" : "Rando"
+    }
+  }, {
+    "label" : "options",
+    "value" : {
+      "normaliseTemplate" : true,
+      "canonicalDerivations" : true,
+      "fuzzyDerivations" : true,
+      "modifyTemplate" : true,
+      "modifyConsistency" : true,
+      "useHints" : true,
+      "measure" : false,
+      "trace" : "SUMMARY"
+    }
+  }, {
+    "label" : "match",
+    "value" : "Match:0",
+    "children" : [ {
+      "label" : "source",
+      "value" : {
+        "@id" : "Match:0",
+        "actual" : {
+          "scientificName" : "Acacia dealbata",
+          "rankId" : 7000,
+          "specificEpithet" : "dealbata",
+          "soundexScientificName" : "ACACA DIALBATA",
+          "soundexSpecificEpithet" : "DIALBATA",
+          "genus" : "Acacia",
+          "soundexGenus" : "ACACA",
+          "kingdom" : "Plantae",
+          "nameType" : "SCIENTIFIC",
+          "taxonRank" : "SPECIES",
+          "issues" : [ "http://ala.org.au/issues/1.0/removedFamily", "http://ala.org.au/issues/1.0/removedOrder" ]
+        },
+        "candidate" : {
+          "type" : "dwc:Taxon",
+          "id" : "https://id.biodiversity.org.au/taxon/apni/51286863",
+          "name" : "Acacia dealbata"
+        },
+        "match" : {
+          "@id" : "https://id.biodiversity.org.au/taxon/apni/51286863",
+          "value" : {
+            "taxonId" : "https://id.biodiversity.org.au/taxon/apni/51286863",
+            "scientificName" : "Acacia dealbata",
+            "rankId" : 7000,
+            "locationId" : [ "http://vocab.getty.edu/tgn/1001989", "http://vocab.getty.edu/tgn/7000430", "http://vocab.getty.edu/tgn/7001828", "http://vocab.getty.edu/tgn/7001831", "http://vocab.getty.edu/tgn/7001834", "http://vocab.getty.edu/tgn/7001992", "http://vocab.getty.edu/tgn/7006238" ],
+            "nomenclaturalCode" : "BOTANICAL",
+            "specificEpithet" : "dealbata",
+            "soundexScientificName" : "ACACA DIALBATA",
+            "canonicalAuthorship" : "Link",
+            "soundexSpecificEpithet" : "DIALBATA",
+            "speciesId" : "https://id.biodiversity.org.au/taxon/apni/51286863",
+            "genus" : "Acacia",
+            "soundexGenus" : "ACACA",
+            "genusId" : "https://id.biodiversity.org.au/taxon/apni/51471290",
+            "family" : "Fabaceae",
+            "soundexFamily" : "FABACI",
+            "familyId" : "https://id.biodiversity.org.au/taxon/apni/51695379",
+            "order" : "Fabales",
+            "soundexOrder" : "FABALIS",
+            "orderId" : "https://id.biodiversity.org.au/taxon/apni/51695380",
+            "class_" : "Equisetopsida",
+            "soundexClass" : "EQISITAPSIDA",
+            "classId" : "https://id.biodiversity.org.au/taxon/apni/51695383",
+            "phylum" : "Charophyta",
+            "soundexPhylum" : "CARAPITA",
+            "phylumId" : "https://id.biodiversity.org.au/taxon/apni/51695384",
+            "kingdom" : "Plantae",
+            "soundexKingdom" : "Plantae",
+            "kingdomId" : "https://id.biodiversity.org.au/taxon/apni/51695385",
+            "nameType" : "SCIENTIFIC",
+            "parentNameUsageId" : "https://id.biodiversity.org.au/taxon/apni/51471290",
+            "scientificNameAuthorship" : "Link",
+            "taxonRank" : "SPECIES",
+            "taxonomicStatus" : "http://ala.org.au/vocabulary/1.0/taxonomicStatus/accepted",
+            "vernacularName" : "Silver Wattle",
+            "weight" : 1939.9029496420383
+          }
+        },
+        "probability" : {
+          "prior" : 2.9481973614315375E-6,
+          "evidence" : 2.9202168294744074E-6,
+          "conditional" : 0.9905089954010717,
+          "posterior" : 0.9999997182542213
+        },
+        "fidelity" : null,
+        "left" : 351504,
+        "right" : 351514,
+        "issues" : [ "http://ala.org.au/issues/1.0/acceptedAndSynonym", "http://ala.org.au/issues/1.0/removedFamily", "http://ala.org.au/issues/1.0/removedOrder" ]
+      },
+      "children" : [ {
+        "label" : "classification",
+        "value" : {
+          "scientificName" : "Acacia dealbata",
+          "rankId" : 7000,
+          "specificEpithet" : "dealbata",
+          "soundexScientificName" : "ACACA DIALBATA",
+          "soundexSpecificEpithet" : "DIALBATA",
+          "genus" : "Acacia",
+          "soundexGenus" : "ACACA",
+          "family" : "Rando",
+          "soundexFamily" : "RANDA",
+          "nameType" : "SCIENTIFIC",
+          "taxonRank" : "SPECIES"
+        }
+      }, {
+        "label" : "candidates",
+        "value" : 20
+      } ]
+    } ]
+  } ]
+}

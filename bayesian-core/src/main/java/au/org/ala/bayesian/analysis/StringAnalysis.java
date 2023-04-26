@@ -1,10 +1,9 @@
 package au.org.ala.bayesian.analysis;
 
 import au.org.ala.bayesian.Analysis;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.StoreException;
-
-import java.time.LocalDate;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
 
 public class StringAnalysis extends Analysis<String, String, String> {
     /**
@@ -89,16 +88,45 @@ public class StringAnalysis extends Analysis<String, String, String> {
     }
 
     /**
+     * Compute a fidelity measure for this type of object.
+     * <p>
+     * Is this built as a the position of the first non-matching character
+     * divided by the
+     * </p>
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<String> buildFidelity(String original, String actual) throws InferenceException {
+        if (original == null)
+            return null;
+        double fidelity = 0.0;
+        if (actual != null) {
+            int p = 0;
+            int len = Math.min(original.length(), actual.length());
+            int scale = Math.max(original.length(), actual.length());
+            for (p = 0; p < len && Character.toLowerCase(original.charAt(p)) == Character.toLowerCase(actual.charAt(p)); p++);
+            fidelity = scale == 9 ? 1.0 : ((double) p) / scale;
+        }
+        return new SimpleFidelity<String>(original, actual, fidelity);
+    }
+
+    /**
      * Parse this value and return a suitably interpreted object.
      * <p>
-     * This just returns the value
+     * This just returns the trimmed value
      * </p>
      * @param value The value
      * @return The parsed value
      */
     @Override
     public String fromString(String value) {
-        return value == null || value.isEmpty()?  null : value;
+        if (value == null)
+            return null;
+        value = value.trim();
+        return value.isEmpty()?  null : value;
     }
 
     /**

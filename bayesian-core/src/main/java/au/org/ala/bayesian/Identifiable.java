@@ -1,8 +1,6 @@
 package au.org.ala.bayesian;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import org.gbif.dwc.terms.Term;
@@ -12,6 +10,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * A node in a Bayesian inference graph.
@@ -27,7 +26,9 @@ abstract public class Identifiable {
     /** The pattern for removing any unusable identifer part */
     public static final Pattern INVALID_SEQUENCE = Pattern.compile("[^" + VALID_IDENTIFIER_PART + "]+");
 
-    private static AtomicInteger ID_SEQUENCE = new AtomicInteger();
+    private static final AtomicInteger ID_SEQUENCE = new AtomicInteger();
+
+    private static final Comparator<Term> PROPERTY_ORDER = (t1, t2) -> t1.qualifiedName().compareTo(t2.qualifiedName());
 
     /** The identifier */
     @JsonProperty
@@ -64,7 +65,7 @@ abstract public class Identifiable {
     private Map<ExternalContext, String> variantCache;
     /** Any property flags that this observable has */
     // See getter/setter for json properties
-    private SortedMap<Term, Object> properties;
+    private SortedMap<Term, Set<Object>> properties;
 
 
     /**
@@ -87,7 +88,7 @@ abstract public class Identifiable {
         this.uri = uri;
         this.external = new HashMap<>();
         this.externalCache = new HashMap<>();
-        this.properties = new TreeMap<>((t1, t2) -> t1.qualifiedName().compareTo(t2.qualifiedName()));
+        this.properties = new TreeMap<>(PROPERTY_ORDER);
     }
     /**
      * Construct with a defined identifier.
@@ -118,7 +119,12 @@ abstract public class Identifiable {
         this.label = source.label;
         this.external = new HashMap<>(source.external);
         this.externalCache = new HashMap<>();
-        this.properties = new TreeMap<>(source.properties);
+        this.properties = new TreeMap<>(PROPERTY_ORDER);
+        this.properties.putAll(
+                source.properties.entrySet().stream()
+                        .collect(Collectors.toMap(
+                                e -> e.getKey(),
+                                e -> new HashSet<>(e.getValue()))));
     }
 
     /**
@@ -221,7 +227,7 @@ abstract public class Identifiable {
      * Make an identifier out of a URI
      * <p>
      * The identifier is constructed from the last bit of the path or the fragment.
-     * For example, <code>http://id.ala.org.au/terms/subgenus</code> becomes <code>subgenus</code>,
+     * For example, <code>http://ala.org.au/terms/subgenus</code> becomes <code>subgenus</code>,
      * <code>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</code> becomes <code>type</code> or
      * <code>urn:isbn:978-0143035008</code> is <code>978-0143035008</code>
      * </p>
@@ -291,27 +297,83 @@ abstract public class Identifiable {
      /** Getter for json serialisation */
      @JsonGetter("properties")
      @JsonInclude(JsonInclude.Include.NON_EMPTY)
-     protected Map<Term, Object> getProperties() {
-        return this.properties;
+     protected Map<Term, Object> getPropertiesList() {
+        return this.properties.entrySet().stream()
+                .filter(e -> e.getValue() != null && !e.getValue().isEmpty())
+                .collect(Collectors.toMap(
+                        e -> e.getKey(),
+                        e -> e.getValue().size() == 1 ? e.getValue().iterator().next() : new ArrayList<>(e.getValue()),
+                        (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); },
+                        () -> new TreeMap<>((t1, t2) -> t1.qualifiedName().compareTo(t2.qualifiedName()))
+                ));
      }
 
      /** Setter for json deserialisation */
      @JsonSetter("properties")
-     protected void setProperties(Map<Term, Object> properties) {
+     protected void setPropertiesList(Map<Term, Object> properties) {
         this.properties.clear();
-        this.properties.putAll(properties);
+        properties.entrySet().stream().forEach(
+                e -> this.properties.put(
+                        e.getKey(),
+                        e.getValue() instanceof Collection ?
+                                new HashSet<>((Collection) e.getValue()) :
+                                Collections.singleton(e.getValue()))
+        );
      }
+
+    /**
+     * Get the list of properties available
+     *
+     * @return The property set.
+     */
+    @JsonIgnore
+    public Set<Term> getPropertyKeys() {
+         return this.properties.keySet();
+     }
+
+
+    /**
+     * Get all the values of a property.
+     *
+     * @param property The property
+     * @param dflt The default value (null for null)
+     *
+     * @return The property values or set containing the optional
+     */
+    public <T> Set<T> getProperties(Term property, T dflt) {
+        Set<T> values = (Set<T>) this.properties.get(property);
+        if (values == null || values.isEmpty())
+            values = dflt == null ? Collections.emptySet() : Collections.singleton(dflt);
+        return values;
+    }
 
     /**
      * Get the value of a property.
      *
      * @param property The property
      *
-     * @return The property value
+     * @return The property value or null for not found
      */
-     public Object getProperty(Term property) {
-        return this.properties.get(property);
+     public <T> T getProperty(Term property) {
+         return this.getProperty(property, null);
      }
+
+    /**
+     * Get the value of a property.
+     * <p>
+     * If there are multiple values, an arbitrary value is returned.
+     * </p>
+     *
+     * @param property The property
+     * @param dflt The default value
+     *
+     * @return The property value
+     *
+     */
+    public <T> T getProperty(Term property, T dflt) {
+        Set<T> values = this.getProperties(property, dflt);
+        return values.isEmpty() ? null : values.iterator().next();
+    }
 
     /**
      * Set the value of a property (remove if null)
@@ -323,7 +385,7 @@ abstract public class Identifiable {
          if (value == null)
              this.properties.remove(property);
          else
-            this.properties.put(property, value);
+            this.properties.computeIfAbsent(property, k -> new HashSet<>()).add(value);
      }
 
     /**
@@ -335,7 +397,20 @@ abstract public class Identifiable {
      * @return True if the values match
      */
      public boolean hasProperty(Term property, Object value) {
-         return Objects.equals(this.properties.get(property), value);
+         if (value == null)
+             return !this.properties.containsKey(property);
+         return this.getProperties(property, null).contains(value);
+    }
+
+    /**
+     * Test to see whether this observable has any property.
+     *
+     * @param property The property
+     *
+     * @return True if there are properties for this property
+     */
+    public boolean hasProperty(Term property) {
+        return this.properties.containsKey(property);
     }
 
     @Override

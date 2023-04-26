@@ -32,7 +32,7 @@ public class SumCollectorTest {
 
     @Test
     public void testSumCollector1() throws Exception {
-        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST);
+        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST, null);
         SumCollector collector = new SumCollector(this.lucene.getSearcher(), this.scoreCache, "bayesian_weight", 1.0);
         Query query = new TermQuery(new Term("dcterms_type", "insect"));
         this.lucene.getSearcher().search(query, collector);
@@ -41,7 +41,7 @@ public class SumCollectorTest {
 
     @Test
     public void testSumCollector2() throws Exception {
-        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST);
+        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST, null);
         SumCollector collector = new SumCollector(this.lucene.getSearcher(), this.scoreCache, "bayesian_weight", 1.0);
         Query query = new TermQuery(new Term("dcterm_type", "invalid"));
         this.lucene.getSearcher().search(query, collector);
@@ -50,7 +50,7 @@ public class SumCollectorTest {
 
     @Test
     public void testSumCollector3() throws Exception {
-        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST);
+        this.lucene = new LuceneUtils(SumCollector.class, "sum-collector-1.csv", Collections.EMPTY_LIST, null);
         SumCollector collector = new SumCollector(this.lucene.getSearcher(), this.scoreCache, "bayesian_weight", 1.0);
         Query query = new TermQuery(new Term("bayesian_name", "Ant"));
         this.lucene.getSearcher().search(query, collector);

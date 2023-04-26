@@ -1,0 +1,14 @@
+{
+  "label" : "top",
+  "value" : {
+    "@id" : "XX",
+    "id" : "XX",
+    "value1" : "Hello",
+    "value2" : "There",
+    "factory" : "test"
+  },
+  "children" : [ {
+    "label" : "repeated",
+    "value" : "XX"
+  } ]
+}

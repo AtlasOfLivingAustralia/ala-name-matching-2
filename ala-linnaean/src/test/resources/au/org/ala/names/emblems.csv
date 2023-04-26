@@ -1,0 +1,44 @@
+Common name,stateProvince,Kingdom,Phylum,Class,Order,Family,Genus,Species,Subspecies.match vernacular,test location
+#ACT
+#Animal,,No animal - remove Dingo,Animalia
+,ACT,Plantae,Charophyta,Equisetopsida,Asterales,CAMPANULACEAE,Wahlenbergia,gloriosa,,true,true
+Gang-gang Cockatoo,Australian Capital Territory,Animalia,CHORDATA,AVES,PSITTACIFORMES,CACATUIDAE,Callocephalon,fimbriatum,,true,true
+#Marine,No emblem
+#NSW
+Platypus,NSW,Animalia,CHORDATA,MAMMALIA,MONOTREMATA,ORNITHORHYNCHIDAE,Ornithorhynchus,anatinus,,true,true
+Waratah,New South Wales,Plantae,,,,,Telopea,speciosissima,,true,true
+Kookaburra,New South Wales,Animalia,CHORDATA,AVES,CORACIIFORMES,ALCEDINIDAE,Dacelo,novaeguineae,,true,true
+Blue Groper,New South Wales,Animalia,,,,,Achoerodus,viridis,,true,true
+#NT
+Red Kangaroo,Northern Territory,Animalia,CHORDATA,MAMMALIA,DIPROTODONTIA,MACROPODIDAE,Osphranter,rufus,,true,true
+Sturt's Desert Rose,Northern Territory,Plantae,Charophyta,Equisetopsida,MALVALES,MALVACEAE,Gossypium,sturtianum,,true,true
+Wedge-tailed Eagle,NT,Animalia,CHORDATA,AVES,Accipitriformes,Accipitridae,Aquila,audax,,true,true
+#Marine,No emblem
+#QLD
+Koala,Queensland,ANIMALIA,CHORDATA,MAMMALIA,DIPROTODONTIA,PHASCOLARCTIDAE,Phascolarctos,cinereus,,true,true
+,QLD,Plantae,Charophyta,Equisetopsida,Asparagales,Orchidaceae,Dendrobium,bigibbum,,true,true
+Brolga,Queensland,ANIMALIA,CHORDATA,AVES,GRUIFORMES,GRUIDAE,Antigone,rubicunda,,true,true
+Barrier Reef Anemonefish,Qld,ANIMALIA,,,,,Amphiprion,akindynos,,true,true
+#SA
+Southern Hairy-nosed Wombat,South Australia,ANIMALIA,CHORDATA,MAMMALIA,DIPROTODONTIA,VOMBATIDAE,Lasiorhinus,latifrons,,true,true
+Sturt's Desert Pea,SA,PLANTAE,Charophyta,Equisetopsida,FABALES,FABACEAE,Swainsona,formosa,,true,true
+Piping Shrike,SA,ANIMALIA,Chordata,Aves,Passeriformes,Artamidae,Gymnorhina,tibicen,telonocua,true,true
+Leafy Sea-Dragon,South Australia,ANIMALIA,Chordata,ACTINOPTERYGII,Syngnathiformes,SYNGNATHIDAE,Phycodurus,eques,,true,true
+#TAS
+Tasmanian Devil,Tasmania,ANIMALIA,CHORDATA,MAMMALIA,DASYUROMORPHIA,DASYURIDAE,Sarcophilus,harrisii,,true,true
+Blue Gum,Tasmania,PLANTAE,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Eucalyptus,globulus,,true,true
+Yellow Wattlebird,TAS,,,,,,Anthochaera,paradoxa,,true,true
+#Marine,No emblem
+#WA
+Numbat,Western Australia,Animalia,,,,,Myrmecobius,fasciatus,fasciatus,true,true
+Mangles' Kangaroo Paw,Western Australia,Plantae,Charophyta,Equisetopsida,COMMELINALES,HAEMODORACEAE,Anigozanthos,manglesii,,true,true
+Black Swan,WA,Animalia,CHORDATA,AVES,ANSERIFORMES,ANATIDAE,Cygnus,atratus,,true,true
+#Marine,No emblem
+#VIC
+Leadbeater's Possum,Victoria,Animalia,CHORDATA,MAMMALIA,DIPROTODONTIA,PETAURIDAE,Gymnobelideus,leadbeateri,,true,true
+Common Heath,Victoria,Plantae,,,,,Epacris,impressa,,true,true
+Helmeted Honeyeater,Vic,Animalia,CHORDATA,AVES,PASSERIFORMES,MELIPHAGIDAE,Lichenostomus,melanops,cassidix,true,true
+Weedy Seadragon,Victoria,Animalia,Chordata,ACTINOPTERYGII,Syngnathiformes,SYNGNATHIDAE,Phyllopteryx,taeniolatus,,true,true
+#Australian National Emblems
+Golden Wattle,,,,,,,Acacia,pycnantha,,true,false
+#Coat of Arms,Emu and kangaroo

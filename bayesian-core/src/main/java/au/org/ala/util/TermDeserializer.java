@@ -14,7 +14,7 @@ import java.io.IOException;
  * Deserializer for GBIF terms.
  */
 public class TermDeserializer extends StdDeserializer<Term> {
-    private TermFactory factory;
+    private final TermFactory factory;
 
     public TermDeserializer() {
         super(Term.class);
@@ -22,7 +22,7 @@ public class TermDeserializer extends StdDeserializer<Term> {
     }
 
     @Override
-    public Term deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+    public Term deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         String value = jsonParser.getText();
 
         if (value == null || value.isEmpty())

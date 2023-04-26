@@ -1,14 +1,16 @@
 package au.org.ala.bayesian.analysis;
 
 import au.org.ala.bayesian.Analysis;
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.fidelity.SimpleFidelity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
-import java.util.Calendar;
 
 /**
  * The default date analysis for a local date (no time part)
@@ -87,6 +89,37 @@ public class LocalDateAnalysis extends Analysis<LocalDate, String, String> {
     @Override
     public LocalDate fromStore(String value) throws StoreException {
         return this.fromString(value);
+    }
+    /**
+     * Compute a fidelity measure for this type of object.
+     *
+     * @param original The original value
+     * @param actual   The actual value
+     * @return The computed fidelity
+     */
+    @Override
+    public Fidelity<LocalDate> buildFidelity(LocalDate original, LocalDate actual) throws InferenceException {
+        return original == null ? null : new SimpleFidelity<>(
+                original,
+                actual,
+                actual == null ?
+                        0.0 :
+                        1.0 - Math.min(1.0, Math.abs(original.until(actual).getDays()) / this.getFidelityScale())
+        );
+    }
+
+    /**
+     * How far away an actual value can be from an original value before zero
+     * fidelity is reported.
+     * <p>
+     * This value defaults to 30.0 (a month) but can be overridden by subclasses.
+     * </p>
+     *
+     * @return The fi
+     */
+    @JsonIgnore
+    public double getFidelityScale() {
+        return 30.0;
     }
 
     /**

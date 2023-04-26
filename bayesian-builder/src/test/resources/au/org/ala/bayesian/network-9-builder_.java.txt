@@ -1,10 +1,10 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
-import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.builder.Builder;
 
 import java.util.Arrays;
@@ -14,7 +14,7 @@ import java.util.Optional;
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.derivation.SoundexGenerator;
 
-public class Network9Builder_ implements Builder {
+public class Network9Builder_ implements Builder<Network9Classification> {
   public final static String SIGNATURE = "";
 
   public  Network9Builder_() {
@@ -26,17 +26,22 @@ public class Network9Builder_ implements Builder {
   }
 
   @Override
-  public void generate(Classifier classifier) throws InferenceException, StoreException {
+  public void generate(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
   @Override
-  public void infer(Classifier classifier) throws InferenceException, StoreException {
+  public void interpret(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
   @Override
-  public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
+  public void infer(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
+    throw new UnsupportedOperationException("Sub-builders do not support this operation");
+  }
+
+  @Override
+  public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<Network9Classification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
@@ -46,7 +51,7 @@ public class Network9Builder_ implements Builder {
   }
 
   @Override
-  public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
+  public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws BayesianException {
     Network9Parameters_ parameters = new Network9Parameters_();
     parameters.prior_v1_t = analyser.computePrior(analyser.getObservation(true, Network9Factory.v1, classifier));
     parameters.inf_v2_t$t = analyser.computeConditional(analyser.getObservation(true, Network9Factory.v2, classifier) , analyser.getObservation(true, Network9Factory.v1, classifier));

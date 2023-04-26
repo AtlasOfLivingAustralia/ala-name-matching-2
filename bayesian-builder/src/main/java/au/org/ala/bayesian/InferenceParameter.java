@@ -1,6 +1,5 @@
 package au.org.ala.bayesian;
 
-import lombok.Getter;
 import lombok.Value;
 
 import java.util.ArrayList;

@@ -1,0 +1,12 @@
+kingdom,code,classes,more...
+Plantae,ICBN,Plantae|Viridiplantae|Fungi|Chromista|Protozoa|Protista,PLANTI
+Viridiplantae,ICBN,Viridiplantae|Plantae|Fungi|Chromista|Protozoa|Protista,VIRIDIPLANTI
+Fungi,ICBN,Fungi|Plantae|Viridiplantae|Chromista|Protozoa|Protista,FINGI
+Animalia,ICZN,Animalia|Chromista|Protozoa|Protista,ANIMALA
+Virus,ICVN,Virus,VIRIS,Viruses
+Bacteria,ICNB,Bacteria|Archaea|Eubacteria,BACTIRA
+Archaea,ICNB,Archaea|Bacteria|Eubacteria,ARCA
+Eubacteria,ICNB,Eubacteria|Bacteria|Archaea,UBACTIRA
+Chromista,ICBN,Chromista|Animalia|Viridiplantae|Plantae|Fungi|Protozoa|Protista,CRAMISTA
+Protozoa,ICZN,Protozoa|Animalia|Viridiplantae|Plantae|Fungi|Chromista|Protista,PRATACA
+Protista,ICZN,Protista|Animalia|Viridiplantae|Plantae|Fungi|Chromista|Protozoa,PRATISTA

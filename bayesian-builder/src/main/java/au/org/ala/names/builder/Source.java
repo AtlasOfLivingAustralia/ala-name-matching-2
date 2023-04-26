@@ -1,8 +1,16 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.BayesianException;
+import au.org.ala.bayesian.Classification;
+import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Observable;
+import au.org.ala.util.Counter;
+import au.org.ala.util.Metadata;
+import au.org.ala.vocab.OptimisationTerm;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -19,23 +27,33 @@ import java.util.stream.Collectors;
  * Sources can be used to populate the index builder.
  * </p>
  */
+@Slf4j
 abstract public class Source {
     private final NetworkFactory factory;
-    private final Map<Term, Observable> observables;
+    private final Map<Term, Observable<?>> observables;
     private final Set<Term> types;
+    @Getter
+    @Setter
+    private Metadata metadata;
+    @Getter
+    private final Counter counter;
+
 
     /**
      * Construct with a list of known observables
      *
-     * @param observables The list of observables (may be null)
+     * @param factory The network factory
+     * @param observables The list of observables (may be null, in which case the factory list is used)
      * @param types The list of record types to load
      */
-    public Source(NetworkFactory factory, Collection<Observable> observables, Collection<Term> types) {
+    public Source(NetworkFactory factory, Collection<Observable<?>> observables, Collection<Term> types) {
         if (observables == null)
-            observables = Collections.emptyList();
+            observables = factory.getObservables();
         this.factory = factory;
         this.observables = observables.stream().collect(Collectors.toMap(o -> o.getTerm(), o -> o));
         this.types = new HashSet<>(types);
+        this.metadata = Metadata.builder().identifier(UUID.randomUUID().toString()).build();
+        this.counter = new Counter("Loaded {0} records, {2,number,0.0}/s", log, 10000, -1);
     }
 
     /**
@@ -49,7 +67,7 @@ abstract public class Source {
      * @return An observable matching the term
      */
     public @NotNull Observable getObservable(@NotNull Term term) {
-        return this.observables.computeIfAbsent(term, t -> new Observable(t));
+        return this.observables.computeIfAbsent(term, t -> Observable.string(t));
     }
 
     /**
@@ -83,32 +101,14 @@ abstract public class Source {
     }
 
     /**
-     * Perform an inference step on a classifier.
-     * <p>
-     * To do this, we convert the classifier data into a classification,
-     * do the inference step and then write it back into the classifier.
-     * </p>
-     *
-     * @param classifier The classifier to expand.
-     */
-    public void infer(Classifier classifier) throws StoreException, InferenceException {
-        Classification classification = this.createClassification();
-        classification.read(classifier, true);
-        classification.inferForIndex();
-        classification.write(classifier, true);
-    }
-
-    /**
      * Load this source into an index builder.
      *
      * @param store The store to load into
-     * @param accepted The accepted observations, all if null
+     * @param accepted The accepted observables (null for all not set with {@link OptimisationTerm#load} = false)
      *
-     * @throws BuilderException If there is an error in loading
-     * @throws InferenceException if there is an error in annotating a record
-     * @throws StoreException If there is an error in storing the retrieved data
+     * @throws BayesianException If there is an error in loading
      */
-    abstract public void load(LoadStore store, Collection<Observable> accepted) throws BuilderException, InferenceException, StoreException;
+    abstract public void load(LoadStore store, Collection<Observable> accepted) throws BayesianException;
 
     /**
      * Close this source after loading
@@ -131,7 +131,7 @@ abstract public class Source {
      *
      * @throws Exception for all kinds of reasons
      */
-    public static Source create(URL source, NetworkFactory factory, Collection<Observable> observables, Collection<Term> types) throws Exception {
+    public static Source create(URL source, NetworkFactory factory, Collection<Observable<?>> observables, Collection<Term> types) throws Exception {
         if (source.getFile().endsWith(".csv")) {
             return new CSVSource(types.isEmpty() ? DwcTerm.Taxon : types.iterator().next(), source, factory, observables);
         }

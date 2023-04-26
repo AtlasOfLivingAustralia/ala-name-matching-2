@@ -11,7 +11,7 @@ import java.util.Deque;
  * Subclasses are generated based on the network configuration.
  * </p>
  */
-public interface Builder {
+public interface Builder<C extends Classification<C>> {
     /**
      * Get the erasure signature for this builder.
      *
@@ -19,8 +19,7 @@ public interface Builder {
      *
      * @see Inferencer#getSignature()
      */
-    public String getSignature();
-
+    String getSignature();
 
     /**
      * Generate for a classifier during building.
@@ -30,25 +29,37 @@ public interface Builder {
      * </p>
      *
      * @param classifier The document
+     * @param analyser The document analyser
      *
-     * @throws InferenceException if unable to calculate the inference
-     * @throws StoreException if unable to retrieve inference data
+     * @throws BayesianException if unable to calculate the inference
+      */
+    void generate(Classifier classifier, Analyser<C> analyser) throws BayesianException;
+
+    /**
+     * Interpret values in a classifier.
+     * <p>
+     * Perform any immedidate derivations that can be collected from the classifier.
+     * </p>
+     *
+     * @param classifier The document
+     * @param analyser The document analyser
+     *
+     * @throws BayesianException if unable to calculate the inference
      */
-    public void generate(Classifier classifier) throws InferenceException, StoreException;
+    void interpret(Classifier classifier, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Infer from a classifier during building.
      * <p>
-     * This method creates all the derived values from the incoming classifier
-     * and the stack of parent documents.
+     * This method creates all the derived values from the incoming classifier.
      * </p>
      *
      * @param classifier The document
+     * @param analyser The document analyser
      *
-     * @throws InferenceException if unable to calculate the inference
-     * @throws StoreException if unable to retrieve inference data
-     */
-    public void infer(Classifier classifier) throws InferenceException, StoreException;
+     * @throws BayesianException if unable to calculate the inference
+      */
+    void infer(Classifier classifier, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Expand a classifier during building.
@@ -58,11 +69,11 @@ public interface Builder {
      *
      * @param document The classifier
      * @param parents The classifier's parents
+     * @param analyser The document analyser
      *
-     * @throws InferenceException if unable to calculate the expansion
-     * @throws StoreException if unable to retrieve expansion data
+     * @throws BayesianException if unable to calculate the expansion
     */
-    public void expand(Classifier document, Deque<Classifier> parents) throws InferenceException, StoreException;
+    void expand(Classifier document, Deque<Classifier> parents, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Build a signture for a classifier.
@@ -74,7 +85,7 @@ public interface Builder {
      *
      * @see Inferencer#getSignature()
      */
-    public String buildSignature(Classifier classifier);
+    String buildSignature(Classifier classifier);
 
     /**
      * Calculate parameter values for a particular document.
@@ -84,8 +95,7 @@ public interface Builder {
      *
      * @return The parameters for this document
      *
-     * @throws InferenceException if unable to calculate the parameters
-     * @throws StoreException if unable to retrieve parameter data
+     * @throws BayesianException if unable to calculate the parameters
      */
-    public Parameters calculate(ParameterAnalyser analyser, Classifier document) throws InferenceException, StoreException;
+    Parameters calculate(ParameterAnalyser analyser, Classifier document) throws BayesianException;
 }

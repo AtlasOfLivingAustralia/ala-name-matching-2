@@ -1,9 +1,11 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.BayesianException;
+
 /**
  * An exception caused by using the builder
  */
-public class BuilderException extends Exception {
+public class BuilderException extends BayesianException {
     /**
      * Construct for a specific message.
      *

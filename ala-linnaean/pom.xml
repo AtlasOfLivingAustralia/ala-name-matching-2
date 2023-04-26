@@ -31,6 +31,22 @@
             <groupId>au.org.ala.names</groupId>
             <artifactId>bayesian-lucene</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>au.org.ala.names</groupId>
+            <artifactId>bayesian-lucene</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>${opencsv.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>name-matching-common-test</artifactId>
+            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -71,7 +87,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>ala-vernacular_network</id>
+                        <id>ala-vernacular-network</id>
                         <goals>
                             <goal>generate-network</goal>
                         </goals>
@@ -98,11 +114,39 @@
                             <full>false</full>
                         </configuration>
                     </execution>
-                 </executions>
+                    <execution>
+                        <id>ala-location-network</id>
+                        <goals>
+                            <goal>generate-network</goal>
+                        </goals>
+                        <configuration>
+                            <source>${project.basedir}/src/main/resources/ala-location.json</source>
+                            <outputPackage>au.org.ala.location</outputPackage>
+                            <generateBuilder>false</generateBuilder>
+                            <generateCli>false</generateCli>
+                            <generateInferencer>true</generateInferencer>
+                            <generateParameters>true</generateParameters>
+                            <generateClassification>true</generateClassification>
+                            <generateFactory>true</generateFactory>
+                            <analyserClass>au.org.ala.location.AlaLocationAnalyser</analyserClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ala-location-graph</id>
+                        <goals>
+                            <goal>generate-graph</goal>
+                        </goals>
+                        <configuration>
+                            <source>${project.basedir}/src/main/resources/ala-location.json</source>
+                            <output>${project.basedir}/target/diagrams/ala-location.dot</output>
+                            <full>false</full>
+                        </configuration>
+                    </execution>
+                </executions>
                 <dependencies>
                     <dependency>
                         <groupId>${project.parent.groupId}</groupId>
-                        <artifactId>taxonomic-tools</artifactId>
+                        <artifactId>taxonomic-tools-builder</artifactId>
                         <version>${project.parent.version}</version>
                     </dependency>
                 </dependencies>

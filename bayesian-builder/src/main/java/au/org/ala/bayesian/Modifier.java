@@ -5,10 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.net.URI;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,11 +21,16 @@ import java.util.stream.Collectors;
  */
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property="@class")
 public abstract class Modifier extends Identifiable {
-    /** Any issue associated with this modifier */
+    /** Any issues associated with this modifier */
     @JsonProperty
     @Getter
     @Setter
-    private Issue issue;
+    private Set<Issue> issues;
+    /** Any non-implicit condition associated with the modifier */
+    @JsonProperty
+    @Getter
+    @Setter
+    private Condition condition;
 
     /**
      * Construct an empty identifiable object with an arbitrary identifier.
@@ -82,7 +86,7 @@ public abstract class Modifier extends Identifiable {
      * @see #getAnyCondition()
      */
     @JsonIgnore
-    abstract public Collection<Observable> getConditions();
+    abstract public Set<Observable> getConditions();
 
     /**
      * Can we proceed with any conditonal variable being true or must we have all of them?
@@ -118,8 +122,110 @@ public abstract class Modifier extends Identifiable {
      * @param to The name of the variable that holds the resulting classification
      *
      * @return A list of statements needed to modify the classification
+     *
+     * @throws BayesianException if unable to genereate code
      */
-    abstract public List<String> generate(NetworkCompiler compiler, String from, String to);
+    public List<String> generate(NetworkCompiler compiler, String from, String to) throws BayesianException {
+        List<String> statements = new ArrayList<>();
+        this.generateConditions(compiler, from, to, statements);
+        this.generatePrelude(compiler, from, to, statements);
+        this.generateConditioning(compiler, from, to, statements);
+        this.generateModification(compiler, from, to, statements);
+        this.generateEpilogue(compiler, from, to, statements);
+        return statements;
+    }
+
+    /**
+     * Generate entry into the modification in preparation for modification.
+     * <p>
+     * By default, this first checks to see whether thw modified makes sense and, if it does,
+     * simply clones the from variable into the to variable, so that it can be esily modified.
+     * </p>
+     *
+     * @param compiler The compiled network
+     * @param from The name of the variable that holds the classification to modify
+     * @param to The name of the variable that holds the resulting classification
+     * @param statements The list of statements needed to modify the classification
+     *
+     * @throws BayesianException if unable to genereate code
+     */
+    public void generateConditions(NetworkCompiler compiler, String from, String to, List<String> statements) throws BayesianException {
+        final String check = this.buildCheck(compiler, from, false);
+        if (check == null)
+            return;
+        StringBuilder statement = new StringBuilder();
+        statement.append("if (");
+        statement.append(check);
+        statement.append(") return ");
+        statement.append(from);
+        statement.append(";");
+        statements.add(statement.toString());
+    }
+
+    /**
+     * Generate entry into the modification in preparation for modification.
+     * <p>
+     * By default, this simply clones the from variable into the to variable, so that it can be easily modified.
+     * </p>
+     *
+     * @param compiler The compiled network
+     * @param from The name of the variable that holds the classification to modify
+     * @param to The name of the variable that holds the resulting classification
+     * @param statements The list of statements needed to modify the classification
+     *
+     * @throws BayesianException if unable to genereate code
+     */
+    public void generatePrelude(NetworkCompiler compiler, String from, String to, List<String> statements) throws BayesianException {
+        statements.add(to + " = " + from + ".clone();");
+    }
+
+    /**
+     * Generate the code that modifies other variables that need to be cleaned-up.
+     * <p>
+     * By default, this does nothing.
+     * </p>
+     *
+     * @param compiler The compiled network
+     * @param from The name of the variable that holds the classification to modify
+     * @param to The name of the variable that holds the resulting classification
+     * @param statements The list of statements needed to modify the classification
+     *
+     * @throws BayesianException if unable to genereate code
+     */
+    public void generateConditioning(NetworkCompiler compiler, String from, String to, List<String> statements) throws BayesianException {
+    }
+
+    /**
+     * Generate the code that modifies the result.
+     * <p>
+     * Subclasses are responsible for implementing the actual modification
+     * </p>
+     *
+     * @param compiler The compiled network
+     * @param from The name of the variable that holds the classification to modify
+     * @param to The name of the variable that holds the resulting classification
+     * @param statements The list of statements needed to modify the classification
+     *
+     * @throws BayesianException if unable to genereate code
+     */
+    abstract public void generateModification(NetworkCompiler compiler, String from, String to, List<String> statements) throws BayesianException;
+
+
+    /**
+     * Generate any code that needs to clean up after the modification
+     * <p>
+     * By default, this does nothing.
+     * </p>
+     *
+     * @param compiler The compiled network
+     * @param from The name of the variable that holds the classification to modify
+     * @param to The name of the variable that holds the resulting classification
+     * @param statements The list of statements needed to modify the classification
+     *
+     * @throws BayesianException if unable to genereate code
+     */
+    public void generateEpilogue(NetworkCompiler compiler, String from, String to, List<String> statements) throws BayesianException {
+    }
 
     /**
      * Clear any dependent values.
@@ -137,23 +243,43 @@ public abstract class Modifier extends Identifiable {
     }
 
     /**
-     * Check to see whether the proposed modification makes any difference.
+     * Generate the full test for this modifier.
      *
      * @param compiler The compiled network
      * @param var The variable to check
-     * @param statements The list of statements to add to
+     * @param positive True if this is a check to see if we whould use the modifier
+     * @return The list of checks to perform
+     *
+     * @see #buildChecks(NetworkCompiler, String, boolean)
      */
-    protected void checkModifiable(NetworkCompiler compiler, String var, List<String> statements) {
-        Collection<Observable> conditions = this.getConditions();
-        if (conditions.isEmpty())
-            return;
-        final String connector = this.getAnyCondition() ? " && " : " || ";
-        StringBuilder statement = new StringBuilder();
-        statement.append("if (");
-        statement.append(conditions.stream().map(o -> var + "." + o.getJavaVariable() + " == null").collect(Collectors.joining(connector)));
-        statement.append(") return ");
-        statement.append(var);
-        statement.append(";");
-        statements.add(statement.toString());
+    public String buildCheck(NetworkCompiler compiler, String var, boolean positive) {
+        String precondition = null;
+        if (this.condition != null)
+            precondition = (positive ? "" : "!") + "(" + this.condition.buildCheck(compiler, var) + ")";
+        boolean any = (positive && this.getAnyCondition()) || (!positive && !this.getAnyCondition());
+        final String connector = (positive && this.getAnyCondition()) || (!positive && !this.getAnyCondition()) ? " || " : " && ";
+        List<String> checks = this.buildChecks(compiler, var, positive);
+        if (checks == null || checks.isEmpty())
+            return precondition;
+        String check = checks.stream().collect(Collectors.joining(any ? " || " : " && "));
+        if (precondition != null)
+            check = precondition + (positive ? " && " : " || ") + "(" + check + ")";
+        return check;
+    }
+
+    /**
+     * Generate a list of tests to see whether we should run this modifier.
+     * <p>
+     * One or more of these checks being true means that the modifier will <em>not</em> be used.
+     * </p>
+     *
+     * @param compiler The compiled network
+     * @param var The variable to check
+     * @param positive True if this is a check to see if we whould use the modifier
+     * @return The list of checks to perform
+     */
+    public List<String> buildChecks(NetworkCompiler compiler, String var, boolean positive) {
+        final String test = positive ? "!=" : "==";
+        return this.getConditions().stream().map(o -> var + "." + o.getJavaVariable() + " " + test + " null").collect(Collectors.toList());
     }
 }

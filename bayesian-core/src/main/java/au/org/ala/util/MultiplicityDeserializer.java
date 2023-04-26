@@ -6,8 +6,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.gbif.dwc.terms.Term;
-import org.gbif.dwc.terms.TermFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -26,7 +24,7 @@ public class MultiplicityDeserializer extends StdDeserializer<Multiplicity> {
      }
 
     @Override
-    public Multiplicity deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+    public Multiplicity deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         String value = jsonParser.getText();
 
         if (value == null || value.isEmpty())

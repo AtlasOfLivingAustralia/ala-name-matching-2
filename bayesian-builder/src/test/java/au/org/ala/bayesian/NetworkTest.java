@@ -5,8 +5,6 @@ import au.org.ala.util.JsonUtils;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.TestTerms;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.gbif.common.shaded.com.google.common.graph.Graphs;
-import org.gbif.dwc.terms.Term;
 import org.junit.Test;
 
 import java.io.StringWriter;
@@ -14,7 +12,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -22,7 +19,7 @@ import static org.junit.Assert.*;
 public class NetworkTest {
     @Test
     public void testToJson1() throws Exception {
-        Observable v1 = new Observable("v_1");
+        Observable<String> v1 = Observable.string("v_1");
         Network network = new Network("network_1");
         network.setVertices(Arrays.asList(v1));
         ObjectMapper mapper = JsonUtils.createMapper();
@@ -33,8 +30,8 @@ public class NetworkTest {
 
     @Test
     public void testToJson2() throws Exception {
-        Observable v1 = new Observable("v_1");
-        Observable v2 = new Observable("v_2");
+        Observable<String> v1 = Observable.string("v_1");
+        Observable<String> v2 = Observable.string("v_2");
         Network.FullEdge e1 = new Network.FullEdge(v1, v2, new Dependency());
         Network network = new Network("network_2");
         network.setVertices(Arrays.asList(v1, v2));
@@ -47,9 +44,9 @@ public class NetworkTest {
 
     @Test
     public void testToJson3() throws Exception {
-        Observable v1 = new Observable("v_1");
-        Observable v2 = new Observable("v_2");
-        Observable v3 = new Observable("v_3");
+        Observable<String> v1 = Observable.string("v_1");
+        Observable<String> v2 = Observable.string("v_2");
+        Observable<String> v3 = Observable.string("v_3");
         Network.FullEdge e1 = new Network.FullEdge(v1, v2, new Dependency());
         Network.FullEdge e2 = new Network.FullEdge(v2, v3, new Dependency());
         Network.FullEdge e3 = new Network.FullEdge(v1, v3, new Dependency());
@@ -65,8 +62,8 @@ public class NetworkTest {
 
     @Test
     public void testToJson10() throws Exception {
-        Observable v1 = new Observable("v_1");
-        Observable v2 = new Observable("v_2");
+        Observable<String> v1 = Observable.string("v_1");
+        Observable<String> v2 = Observable.string("v_2");
         Network.FullEdge e1 = new Network.FullEdge(v1, v2, new Dependency());
         Network network = new Network("network_10");
         network.setVertices(Arrays.asList(v1, v2));
@@ -75,7 +72,7 @@ public class NetworkTest {
         network.setMatchModifiers(Arrays.asList(Arrays.asList(modifier)));
         Issue issue = new Issue(URI.create("http://localhost/issue_1"));
         network.getIssues().add(issue);
-        modifier.setIssue(issue);
+        modifier.setIssues(Collections.singleton(issue));
         network.setMatchModifiers(Arrays.asList(Arrays.asList(modifier)));
         ObjectMapper mapper = JsonUtils.createMapper();
         StringWriter writer = new StringWriter();
@@ -85,7 +82,7 @@ public class NetworkTest {
 
     @Test
     public void testToJson12() throws Exception {
-        Observable v1 = new Observable(TestTerms.test1);
+        Observable<String> v1 = Observable.string(TestTerms.test1);
         Network network = new Network("network_12");
         network.setVertices(Arrays.asList(v1));
         network.getVocabularies().add(TestTerms.class);
@@ -164,7 +161,7 @@ public class NetworkTest {
         assertEquals(1, modifications.size());
         Modifier modifier = modifications.get(0);
         assertEquals("mod_1", modifier.getId());
-        assertEquals(URI.create("http://localhost/issue_1"), modifier.getIssue().getUri());
+        assertEquals(URI.create("http://localhost/issue_1"), modifier.getIssues().iterator().next().getUri());
         assertEquals(RemoveModifier.class, modifier.getClass());
         assertEquals(Collections.singleton(vertices.get(0)), ((RemoveModifier) modifier).getObservables());
     }

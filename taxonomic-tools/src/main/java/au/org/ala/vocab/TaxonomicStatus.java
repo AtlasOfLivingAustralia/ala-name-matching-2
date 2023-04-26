@@ -23,7 +23,7 @@ public enum TaxonomicStatus implements Term, AlternativeNames {
     proParteSynonym(false, true, false, false, false, false),
     inferredSynonym(false, true, false, false, false, true),
     misapplied(false, false, true, false, false, false),
-    excluded(true, false, false, true, false, false),
+    excluded(false, false, false, true, false, false),
     inferredExcluded(false, false, false, true, false, true),
     invalid(false, false, false, false, true, true),
     inferredInvalid(false, false, false, false, true, true),
@@ -33,7 +33,7 @@ public enum TaxonomicStatus implements Term, AlternativeNames {
     unknown(false, false, false, false, true, true);
 
     private static final String PREFIX = "ts";
-    private static final String NS = "http://id.ala.org.au/vocabulary/1.0/taxonomicStatus/";
+    private static final String NS = "http://ala.org.au/vocabulary/1.0/taxonomicStatus/";
     private static final URI NS_URI = URI.create(NS);
 
     static {
@@ -41,21 +41,21 @@ public enum TaxonomicStatus implements Term, AlternativeNames {
     }
 
     @Getter
-    private boolean acceptedFlag;
+    private final boolean acceptedFlag;
     @Getter
-    private boolean synonymFlag;
+    private final boolean synonymFlag;
     @Getter
-    private boolean misappliedFlag;
+    private final boolean misappliedFlag;
     @Getter
-    private boolean excludedFlag;
+    private final boolean excludedFlag;
     @Getter
-    private boolean doubtfulFlag;
+    private final boolean doubtfulFlag;
     @Getter
-    private boolean inferredFlag;
+    private final boolean inferredFlag;
     @Getter
-    private String[] alternatives;
+    private final String[] alternatives;
 
-    private TaxonomicStatus(boolean accepted, boolean synonym, boolean misapplied, boolean excluded, boolean doubtful, boolean inferrred,  String... alternatives) {
+    TaxonomicStatus(boolean accepted, boolean synonym, boolean misapplied, boolean excluded, boolean doubtful, boolean inferrred, String... alternatives) {
         this.acceptedFlag = accepted;
         this.synonymFlag = synonym;
         this.misappliedFlag = misapplied;

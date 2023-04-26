@@ -36,11 +36,11 @@ import java.util.stream.Collectors;
  * @param <V> The vertex type
  * @param <E> The edge type
  */
-public class HorizonAlgorithm<V extends Comparable<V>, E> implements Comparator<V> {
+public class HorizonAlgorithm<V extends Comparable, E> implements Comparator<V> {
     /** The source graph */
-    private DirectedAcyclicGraph<V, E> graph;
+    private final DirectedAcyclicGraph<V, E> graph;
     /** The level number for each vertex */
-    private Map<V, Integer> levels;
+    private final Map<V, Integer> levels;
     /** The maximum level */
     int maximumLevel;
 
@@ -123,9 +123,9 @@ public class HorizonAlgorithm<V extends Comparable<V>, E> implements Comparator<
      */
     public static class Horizon<V> {
         /** All vertices */
-        private List<V> vertices;
+        private final List<V> vertices;
         /** The start point of the horizon */
-        private int horizon;
+        private final int horizon;
 
         /**
          * COnstruct for an interior list and a horizon list

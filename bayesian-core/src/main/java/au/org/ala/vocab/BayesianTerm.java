@@ -23,8 +23,10 @@ public enum BayesianTerm implements Term {
     name,
     /** The full name of a category */
     fullName,
-    /** An alternate name for a category */
+    /** An alternate name for a category (Eg. variant spellings, punctuation, etc.) */
     altName,
+    /** An synonym name for a category. (Ie. a name that comes from another category that explicitly references this category) */
+    synonymName,
     /** Additional (disambiguating) name information */
     additionalName,
     /** This identifier navigates to the parent category */
@@ -35,6 +37,8 @@ public enum BayesianTerm implements Term {
     copy,
     /** An observable that contains additional classification values */
     additional,
+    /** Index this value (if absent, then it defaults to a deduced value) */
+    index,
     /** Is this a root category? */
     isRoot,
     /** Is this a synonym category? */
@@ -55,14 +59,18 @@ public enum BayesianTerm implements Term {
     analysisMethod,
     /** An equivalence method - a method on an analyser that can be used to decide equality */
     equalityMethod,
+    /** Issue flagging ill-formed data (this may be recoverable) */
+    illformedData,
     /** Issue flagging an invalid match */
     invalidMatch,
+    /** Issue flagging that the match is based on identifier lookup */
+    identifierMatch,
     /** Default concept type */
     Concept,
     /** Record type describing document metadata */
     Metadata;
 
-    public static final String NS = "http://id.ala.org.au/bayesian/1.0/";
+    public static final String NS = "http://ala.org.au/bayesian/1.0/";
     public static final URI NAMESPACE = URI.create(NS);
     public static final String PREFIX = "bayesian";
 

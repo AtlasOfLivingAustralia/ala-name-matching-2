@@ -1,7 +1,9 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.Inference;
-import au.org.ala.names.generated.*;
+import au.org.ala.names.generated.GrassInferencer;
+import au.org.ala.names.generated.GrassInferencer_;
+import au.org.ala.names.generated.GrassParameters_;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +40,7 @@ public class GrassTest {
     public void testNoneNone() {
         GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
-        Inference inference = this.inferencer.probability(evidence, this.parameters);
+        Inference inference = this.inferencer.probability(evidence, this.parameters, null);
         assertEquals(1.0, inference.getEvidence(), 0.0001);
         assertEquals(0.2, inference.getPosterior(), 0.0001);
     }
@@ -57,7 +59,7 @@ public class GrassTest {
         GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$sprinkler = false;
-        Inference inference = this.inferencer.probability(evidence, this.parameters);
+        Inference inference = this.inferencer.probability(evidence, this.parameters, null);
         assertEquals(0.6780, inference.getEvidence(), 0.0001);
         assertEquals(0.2920, inference.getPosterior(), 0.0001);
     }
@@ -76,7 +78,7 @@ public class GrassTest {
         GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$sprinkler = true;
-        Inference inference = this.inferencer.probability(evidence, this.parameters);
+        Inference inference = this.inferencer.probability(evidence, this.parameters, null);
         assertEquals(0.3220, inference.getEvidence(), 0.0001);
         assertEquals(0.0062, inference.getPosterior(), 0.0001);
     }
@@ -95,7 +97,7 @@ public class GrassTest {
         GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$wet = false;
-        Inference inference = this.inferencer.probability(evidence, this.parameters);
+        Inference inference = this.inferencer.probability(evidence, this.parameters, null);
         assertEquals(0.5468, inference.getEvidence(), 0.0001);
         assertEquals(0.0724, inference.getPosterior(), 0.0001);
     }
@@ -114,7 +116,7 @@ public class GrassTest {
         GrassInferencer.Evidence evidence = new GrassInferencer.Evidence();
 
         evidence.e$wet = true;
-        Inference inference = this.inferencer.probability(evidence, this.parameters);
+        Inference inference = this.inferencer.probability(evidence, this.parameters, null);
         assertEquals(0.4532, inference.getEvidence(), 0.0001);
         assertEquals(0.3539, inference.getPosterior(), 0.0001);
     }
@@ -134,7 +136,7 @@ public class GrassTest {
 
         evidence.e$wet = true;
         evidence.e$sprinkler = false;
-        Inference inference = this.inferencer.probability(evidence, this.parameters);
+        Inference inference = this.inferencer.probability(evidence, this.parameters, null);
         assertEquals(0.1632, inference.getEvidence(), 0.0001);
         assertEquals(0.9706, inference.getPosterior(), 0.0001);
     }
@@ -155,7 +157,7 @@ public class GrassTest {
 
         evidence.e$wet = false;
         evidence.e$sprinkler = true;
-        Inference inference = this.inferencer.probability(evidence, this.parameters);
+        Inference inference = this.inferencer.probability(evidence, this.parameters, null);
         assertEquals(0.0320, inference.getEvidence(), 0.0001);
         assertEquals(0.0006, inference.getPosterior(), 0.0001);
     }
@@ -178,7 +180,7 @@ public class GrassTest {
 
         evidence.e$wet = true;
         evidence.e$sprinkler = true;
-        Inference inference = this.inferencer.probability(evidence, this.parameters);
+        Inference inference = this.inferencer.probability(evidence, this.parameters, null);
         assertEquals(0.2900, inference.getEvidence(), 0.0001);
         assertEquals(0.0068, inference.getPosterior(), 0.0001);
     }

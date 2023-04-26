@@ -12,6 +12,7 @@
       "@class" : "au.org.ala.util.BasicNormaliser",
       "id" : "basic_normaliser",
       "normaliseSpaces" : true,
+      "removePunctuation": false,
       "normalisePunctuation" : true,
       "normaliseSymbols" : false,
       "normaliseAccents" : false,
@@ -21,6 +22,7 @@
       "@class" : "au.org.ala.util.BasicNormaliser",
       "id" : "lower_case_normaliser",
       "normaliseSpaces" : true,
+      "removePunctuation": false,
       "normalisePunctuation" : true,
       "normaliseSymbols" : true,
       "normaliseAccents" : true,
@@ -36,7 +38,7 @@
         "@class": "au.org.ala.bayesian.derivation.IdentifierGeneratorDerivation"
       },
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/identifier": true
+        "http://ala.org.au/bayesian/1.0/identifier": true
       },
       "style": "IDENTIFIER",
       "multiplicity": "1"
@@ -53,7 +55,7 @@
       "label":"VN",
       "uri": "http://rs.tdwg.org/dwc/terms/vernacularName",
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/name": true
+        "http://ala.org.au/bayesian/1.0/name": true
       },
       "normaliser": "basic_normaliser",
       "style": "PHRASE",
@@ -62,7 +64,10 @@
     {
       "id": "soundexVernacularName",
       "label": "xVN",
-      "uri": "http://id.ala.org.au/terms/1.0/soundexVernacularName",
+      "uri": "http://ala.org.au/terms/1.0/soundexVernacularName",
+      "properties": {
+        "http://ala.org.au/optimisation/1.0/approximateName": true
+      },
       "derivation": {
         "@class": "au.org.ala.bayesian.derivation.SoundexDerivation",
         "sources": [ "vernacularName" ]
@@ -76,7 +81,7 @@
       "style": "IDENTIFIER",
       "multiplicity": "1",
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/link": true
+        "http://ala.org.au/bayesian/1.0/link": true
       }
     },
     {
@@ -88,20 +93,15 @@
       "multiplicity": "*"
     },
     {
-      "id": "locality",
-      "label": "LO",
-      "uri": "http://rs.tdwg.org/dwc/terms/stateOrProvince",
-      "normaliser": "lower_case_normaliser",
-      "style": "PHRASE",
-      "multiplicity": "*"
-    },
-    {
-      "id": "countryCode",
-      "label": "CO",
-      "uri": "http://rs.tdwg.org/dwc/terms/countryCode",
-      "normaliser": "lower_case_normaliser",
+      "id": "locationID",
+      "label": "lID",
+      "uri": "http://rs.tdwg.org/dwc/terms/locationID",
       "style": "IDENTIFIER",
-      "multiplicity": "*"
+      "matchability": "*",
+      "multiplicity": "*",
+      "properties": {
+        "http://ala.org.au/optimisation/1.0/loadFromClass": "http://rs.gbif.org/terms/1.0/Distribution"
+      }
     },
     {
       "id": "vernacularStatus",
@@ -112,7 +112,7 @@
         "@class": "au.org.ala.names.VernacularStatusAnalysis"
       },
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/additional": true
+        "http://ala.org.au/bayesian/1.0/additional": true
       }
     },
     {
@@ -124,7 +124,7 @@
         "@class": "au.org.ala.names.RankAnalysis"
       },
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/additional": true
+        "http://ala.org.au/bayesian/1.0/additional": true
       }
     },
     {
@@ -136,7 +136,7 @@
         "@class": "au.org.ala.names.TaxonomicStatusAnalysis"
       },
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/additional": true
+        "http://ala.org.au/bayesian/1.0/additional": true
       }
     },
     {
@@ -144,7 +144,7 @@
       "label": "aID",
       "uri": "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID",
       "properties": {
-         "http://id.ala.org.au/bayesian/1.0/additional": true
+         "http://ala.org.au/bayesian/1.0/additional": true
       },
       "style": "IDENTIFIER"
     },
@@ -152,10 +152,10 @@
       "id": "weight",
       "label": "w",
       "type": "java.lang.Double",
-      "uri": "http://id.ala.org.au/bayesian/1.0/weight",
+      "uri": "http://ala.org.au/bayesian/1.0/weight",
       "properties": {
-        "http://id.ala.org.au/bayesian/1.0/weight": true,
-        "http://id.ala.org.au/bayesian/1.0/additional": true
+        "http://ala.org.au/bayesian/1.0/weight": true,
+        "http://ala.org.au/bayesian/1.0/additional": true
       }
     }
   ],
@@ -165,8 +165,7 @@
     "vernacularName",
     "soundexVernacularName",
     "language",
-    "locality",
-    "countryCode",
+    "locationID",
     "taxonID"
   ],
   "edges": [
@@ -176,23 +175,22 @@
     { "source": "vernacularName", "target": "taxonID",  "edge": { } },
     { "source": "soundexVernacularName", "target": "taxonID",  "edge": { } },
     { "source": "vernacularUsageID", "target": "language",  "edge": { } },
-    { "source": "vernacularUsageID", "target": "locality",  "edge": { } },
-    { "source": "locality", "target": "countryCode",  "edge": { } }
+    { "source": "vernacularUsageID", "target": "locationID",  "edge": { } }
   ],
   "issues": [
     {
       "id": "removed_language",
-      "uri": "http://id.ala.org.au/issues/1.0/removedLanguage",
+      "uri": "http://ala.org.au/issues/1.0/removedLanguage",
       "description": "Ignored supplied language to find a match."
     },
     {
-      "id": "removed_locality",
-      "uri": "http://id.ala.org.au/issues/1.0/removedLocality",
-      "description": "Ignored supplied locality to find a match."
+      "id": "removed_location",
+      "uri": "http://ala.org.au/issues/1.0/removedLocation",
+      "description": "Ignored supplied location to find a match."
     },
     {
       "id": "misspelled_vernacular_name",
-      "uri": "http://id.ala.org.au/issues/1.0/misspelledVernacularName",
+      "uri": "http://ala.org.au/issues/1.0/misspelledVernacularName",
       "description": "Possible misspelled vernacular name."
     }
   ],
@@ -200,19 +198,19 @@
     {
       "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
       "id" : "remove_language",
-      "issue" : "removed_language",
+      "issues" : [ "removed_language" ],
       "observables" : [ "language" ]
     },
     {
       "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
-      "id" : "remove_locality",
-      "issue" : "removed_locality",
-      "observables" : [ "locality" ]
+      "id" : "remove_location",
+      "issues" : [ "removed_location" ],
+      "observables" : [ "locationID" ]
     },
     {
       "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
       "id" : "misspelled_vernacular_name_base",
-      "issue" : "misspelled_vernacular_name",
+      "issues" : [ "misspelled_vernacular_name" ],
       "observables" : [ "vernacularName" ]
     }
   ],
@@ -223,7 +221,7 @@
       "misspelled_vernacular_name_base"
     ],
     [
-      "remove_locality"
+      "remove_location"
     ],
     [
       "remove_language"

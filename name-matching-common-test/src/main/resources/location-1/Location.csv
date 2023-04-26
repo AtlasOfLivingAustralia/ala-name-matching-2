@@ -1,0 +1,24 @@
+locationID,parentLocationID,datasetID,geographyType,locality,countryCode,decimalLatitude,decimalLongitude,area
+http://vocab.getty.edu/tgn/7029392,,dr19606,other,World,,,,
+http://vocab.getty.edu/tgn/1000004,http://vocab.getty.edu/tgn/7029392,dr19606,continent,Asia,,43.8,87.633,
+http://vocab.getty.edu/tgn/1000105,http://vocab.getty.edu/tgn/1000004,dr19606,country,Bangladesh,BD,24.0,90.0,147570.0
+http://vocab.getty.edu/tgn/7032098,http://vocab.getty.edu/tgn/1000105,dr19606,stateProvince,Barisāl,,22.5,90.333,
+http://vocab.getty.edu/tgn/1000107,http://vocab.getty.edu/tgn/1000004,dr19606,country,Brunei,BN,4.5,114.6667,
+http://vocab.getty.edu/tgn/7014938,http://vocab.getty.edu/tgn/1000107,dr19606,stateProvince,Belait District,,4.4167,114.5833,
+http://vocab.getty.edu/tgn/1000109,http://vocab.getty.edu/tgn/1000004,dr19606,country,Cambodia,KH,13.0,105.0,181035.0
+http://vocab.getty.edu/tgn/7024196,http://vocab.getty.edu/tgn/1000109,dr19606,stateProvince,Banteay Meanchey,,13.75,103.0,
+http://vocab.getty.edu/tgn/1000003,http://vocab.getty.edu/tgn/7029392,dr19606,continent,Europe,,56.2,15.016,
+http://vocab.getty.edu/tgn/1000090,http://vocab.getty.edu/tgn/1000003,dr19606,country,Portugal,PT,39.5,-8.0,92090.0
+http://vocab.getty.edu/tgn/7003833,http://vocab.getty.edu/tgn/1000090,dr19606,stateProvince,Azores,,38.5,-28.0,
+http://vocab.getty.edu/tgn/1000080,http://vocab.getty.edu/tgn/1000003,dr19606,country,Italy,IT,42.8333,12.8333,301336.0
+http://vocab.getty.edu/tgn/7009084,http://vocab.getty.edu/tgn/1000080,dr19606,stateProvince,Abruzzi,,42.25,13.75,
+http://vocab.getty.edu/tgn/1000074,http://vocab.getty.edu/tgn/1000003,dr19606,country,Greece,GR,39.0,22.0,131990.0
+http://vocab.getty.edu/tgn/7235644,http://vocab.getty.edu/tgn/1000074,dr19606,stateProvince,Mount Athos,,40.25,24.25,
+http://vocab.getty.edu/tgn/7001242,http://vocab.getty.edu/tgn/7029392,dr19606,continent,Africa,,2.383,16.066,
+http://vocab.getty.edu/tgn/1000190,http://vocab.getty.edu/tgn/7001242,dr19606,country,Seychelles,SC,-4.5833,55.6667,452.0
+http://vocab.getty.edu/tgn/1006225,http://vocab.getty.edu/tgn/1000190,dr19606,islandGroup,"Aldabra, Groupe d'",,-9.4167,46.366,
+hhttp://vocab.getty.edu/tgn/7003749,http://vocab.getty.edu/tgn/7011731,dr19606,other,Jura,,47.3727,7.168,
+http://vocab.getty.edu/tgn/7594545,http://vocab.getty.edu/tgn/7029392,dr19606,other,Oceans,,,,
+http://vocab.getty.edu/tgn/7016532,http://vocab.getty.edu/tgn/7594545,dr19606,sea,Adriatic Sea,,43.0,16.0,
+http://vocab.getty.edu/tgn/7016599,http://vocab.getty.edu/tgn/7594545,dr19606,sea,Arabian Sea,,20.0,65.0,
+http://vocab.getty.edu/tgn/7014206,http://vocab.getty.edu/tgn/7594545,dr19606,ocean,Atlantic Ocean,,10.0,-25.0,

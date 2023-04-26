@@ -6,7 +6,7 @@ package au.org.ala.bayesian;
  * This can be generated either at runtime or during network construction.
  * </p>
  */
-public class InferenceException extends Exception {
+public class InferenceException extends BayesianException {
     /**
      * Construct an empty inference exception
      */

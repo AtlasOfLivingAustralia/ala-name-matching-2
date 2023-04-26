@@ -1,10 +1,10 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
-import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.builder.Builder;
 
 import java.util.Arrays;
@@ -16,7 +16,7 @@ import java.util.Optional;
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.derivation.SoundexGenerator;
 
-public class Network9Builder implements Builder {
+public class Network9Builder implements Builder<Network9Classification> {
   // Assumed to be stateless
   private static final Builder[] BUILDERS = new Builder[] {
     new Network9Builder_()
@@ -38,25 +38,25 @@ public class Network9Builder implements Builder {
     return null;
   }
 
-
   @Override
-  public void generate(Classifier classifier) throws InferenceException, StoreException {
-        Object d;
+  public void generate(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
   }
 
   @Override
-  public void infer(Classifier classifier) throws InferenceException, StoreException {
-    Object d;
-    if (!classifier.has(Network9Factory.v2)){
-      d = classifier.get(Network9Factory.v1);
-      d = this.soundex.soundex((String) d);
-      classifier.add(Network9Factory.v2, d);
+  public void interpret(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
+  }
+
+  @Override
+  public void infer(Classifier classifier, Analyser<Network9Classification> analyser) throws BayesianException {
+     if (!classifier.has(Network9Factory.v2)){
+       java.lang.String i_0 = classifier.get(Network9Factory.v1);
+       java.lang.String v_0 = this.soundex.soundex((String) i_0);
+       classifier.add(Network9Factory.v2, Network9Factory.v2.analyse(v_0), false, false);
     }
   }
 
   @Override
-    public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
-      Object d;
+  public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<Network9Classification> analyser) throws BayesianException {
   }
 
   @Override
@@ -66,7 +66,7 @@ public class Network9Builder implements Builder {
   }
 
   @Override
-  public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
+  public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws BayesianException {
     Builder sub = this.subBuilders.get(classifier.getSignature());
     if (sub == null)
         throw new IllegalArgumentException("Signature " + classifier.getSignature() + " not found");

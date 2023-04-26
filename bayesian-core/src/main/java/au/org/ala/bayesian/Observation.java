@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import java.util.*;
 
 /**
  * An observation or fact about a node in the Bayesian network.
  */
-public class Observation {
+public class Observation<T> {
     /** Is this fact true or false */
     @JsonProperty
     @Getter
@@ -18,15 +19,15 @@ public class Observation {
     /** The observable this fact is associated with */
     @JsonProperty
     @Getter
-    private Observable observable;
+    private Observable<T> observable;
     /** A single value (optimisation so that we don't bother with a singleton collection) */
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Object value;
+    private T value;
     /** The possible values that this observable can have */
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Set<Object> values;
+    private Set<T> values;
 
     /**
      * Empty constructor
@@ -42,7 +43,7 @@ public class Observation {
      * @param observable The associated network observable
      * @param values The possible values
      */
-    public Observation(boolean positive, Observable observable, Set<Object> values) {
+    public Observation(boolean positive, Observable<T> observable, Set<T> values) {
         this.positive = positive;
         this.observable = observable;
         if (values.size() == 0) {
@@ -52,7 +53,7 @@ public class Observation {
             this.value = values.iterator().next();
             this.values = null;
         } else {
-            this.values = null;
+            this.value = null;
             this.values = values;
         }
     }
@@ -64,7 +65,8 @@ public class Observation {
      * @param observable The associated network observable
      * @param values The possible values
      */
-    public Observation(boolean positive, Observable observable, Object... values) {
+    @SafeVarargs
+    public Observation(boolean positive, Observable<T> observable, T... values) {
         this.positive = positive;
         this.observable = observable;
         if (values.length == 0)
@@ -119,7 +121,7 @@ public class Observation {
      * @throws IllegalStateException if a singleton is not available
      */
     @JsonIgnore
-    public Object getValue() throws IllegalStateException {
+    public T getValue() throws IllegalStateException {
         if (this.value != null)
             return this.value;
         if (this.values != null && this.values.size() == 1)
@@ -133,7 +135,7 @@ public class Observation {
      * @return The set of values that correspond to matching the observation
      */
     @JsonIgnore
-    public Set<Object> getValues() {
+    public Set<T> getValues() {
         if (this.values != null)
             return this.values;
         if (this.value != null)
@@ -149,10 +151,10 @@ public class Observation {
      *
      * @return The positive observation
      */
-    public Observation asPositive() {
+    public Observation<T> asPositive() {
         if (this.isPositive())
             return this;
-        Observation positive = new Observation();
+        Observation<T> positive = new Observation<>();
         positive.observable = this.observable;
         positive.positive = true;
         positive.value = this.value;
@@ -161,22 +163,48 @@ public class Observation {
     }
 
     /**
-     * Return a positive version of this observation.
+     * Return a negative version of this observation.
      * <p>
-     * If the observation is already positive, return this.
+     * If the observation is already negative, return this.
      * </p>
      *
-     * @return The positive observation
+     * @return The negative observation
      */
-    public Observation asNegative() {
+    public Observation<T> asNegative() {
         if (!this.isPositive())
             return this;
-        Observation positive = new Observation();
-        positive.observable = this.observable;
-        positive.positive = false;
-        positive.value = this.value;
-        positive.values = this.values;
-        return positive;
+        Observation<T> negative = new Observation<>();
+        negative.observable = this.observable;
+        negative.positive = false;
+        negative.value = this.value;
+        negative.values = this.values;
+        return negative;
+    }
+
+    /**
+     * Get a singleton value as a store form for reporting
+     *
+     * @return Thne singleton vaklue in store form
+     */
+    @SneakyThrows
+    public Object getStoreValue() {
+        T value = this.getValue();
+        return this.observable.getAnalysis().toStore(value);
+    }
+
+    /**
+     * Get all values as a store form for reporting
+     *
+     * @return The values in store form
+     */
+    @SneakyThrows
+    public List<Object> getStoreValues() {
+        ArrayList<Object> values = new ArrayList<>(this.values.size());
+        for (T value: this.getValues()) {
+            Object store = this.observable.getAnalysis().toStore(value);
+            values.add(store);
+        }
+        return values;
     }
 
     /**

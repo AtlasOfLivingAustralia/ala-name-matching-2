@@ -1,5 +1,6 @@
 package au.org.ala.bayesian.analysis;
 
+import au.org.ala.bayesian.Fidelity;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -86,6 +87,33 @@ public class DoubleAnalysisTest {
         assertNull(this.analysis.equivalent(null, 5.0));
     }
 
+    public void testBuildFidelity1() throws Exception {
+        Fidelity<Double> fidelity = this.analysis.buildFidelity(1.0, 1.0);
+        assertNotNull(fidelity);
+        assertEquals(1.0, fidelity.getFidelity(), 0.00001);
+    }
 
+    public void testBuildFidelity2() throws Exception {
+        Fidelity<Double> fidelity = this.analysis.buildFidelity(1.0, 10.0);
+        assertNotNull(fidelity);
+        assertEquals(0.0, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity3() throws Exception {
+        Fidelity<Double> fidelity = this.analysis.buildFidelity(1.0, 1.5);
+        assertNotNull(fidelity);
+        assertEquals(0.4, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity4() throws Exception {
+        Fidelity<Double> fidelity = this.analysis.buildFidelity(null, 1.5);
+        assertNull(fidelity);
+     }
+
+    public void testBuildFidelity5() throws Exception {
+        Fidelity<Double> fidelity = this.analysis.buildFidelity(1.0, null);
+        assertNotNull(fidelity);
+        assertEquals(0.0, fidelity.getFidelity(), 0.00001);
+    }
 
 }

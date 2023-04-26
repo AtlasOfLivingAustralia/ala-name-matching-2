@@ -1,0 +1,12 @@
+{
+  "score" : 20.0,
+  "name" : "Eccles",
+  "lsid" : "ID-1",
+  "left" : "10",
+  "right" : "20",
+  "cl" : {
+    "scientificName" : "Ecclesonia goonus",
+    "nomenclaturalCode" : "ICZN",
+    "genus" : "Ecclesonia"
+  }
+}

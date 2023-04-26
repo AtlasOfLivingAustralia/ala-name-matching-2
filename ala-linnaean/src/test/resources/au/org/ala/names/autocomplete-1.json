@@ -1,0 +1,10 @@
+{
+  "score" : 0.0,
+  "name" : "Eccles",
+  "lsid" : "ID-1",
+  "acceptedLsid" : "ID-2",
+  "left" : "10",
+  "right" : "20",
+  "commonname" : "Der Famus",
+  "commonnames" : [ "Der Famus", "Der Also Famus" ]
+}

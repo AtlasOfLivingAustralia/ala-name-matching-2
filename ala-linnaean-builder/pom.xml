@@ -30,6 +30,11 @@
         </dependency>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
+            <artifactId>taxonomic-tools-builder</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
             <artifactId>bayesian-lucene</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -42,8 +47,12 @@
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>name-matching-common-test</artifactId>
             <version>${project.parent.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>${jts.version}</version>
         </dependency>
     </dependencies>
 
@@ -69,6 +78,7 @@
                             <generateClassification>false</generateClassification>
                             <generateFactory>false</generateFactory>
                             <analyserClass>au.org.ala.names.AlaNameAnalyser</analyserClass>
+                            <weightAnalyserClass>au.org.ala.names.AlaWeightAnalyser</weightAnalyserClass>
                         </configuration>
                     </execution>
                     <execution>
@@ -88,17 +98,39 @@
                             <analyserClass>au.org.ala.names.AlaVernacularAnalyser</analyserClass>
                         </configuration>
                     </execution>
-                </executions>
-                <dependencies>
+                <execution>
+                    <id>ala-location-build</id>
+                    <goals>
+                        <goal>generate-network</goal>
+                    </goals>
+                    <configuration>
+                        <source>../ala-linnaean/src/main/resources/ala-location.json</source>
+                        <outputPackage>au.org.ala.location</outputPackage>
+                        <generateBuilder>true</generateBuilder>
+                        <generateCli>true</generateCli>
+                        <generateInferencer>false</generateInferencer>
+                        <generateParameters>false</generateParameters>
+                        <generateClassification>false</generateClassification>
+                        <generateFactory>false</generateFactory>
+                        <analyserClass>au.org.ala.location.AlaLocationAnalyser</analyserClass>
+                        <weightAnalyserClass>au.org.ala.location.AlaLocationWeightAnalyser</weightAnalyserClass>
+                    </configuration>
+                </execution>
+            </executions>
+            <dependencies>
                     <dependency>
                         <groupId>${project.parent.groupId}</groupId>
                         <artifactId>ala-linnaean</artifactId>
+                        <version>${project.parent.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taxonomic-tools-builder</artifactId>
                         <version>${project.parent.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
         </plugins>
     </build>
-
 
 </project>

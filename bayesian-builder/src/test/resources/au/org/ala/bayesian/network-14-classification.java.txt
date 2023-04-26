@@ -1,0 +1,215 @@
+package au.org.ala.bayesian.generated;
+
+import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.fidelity.CompositeFidelity;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.Term;
+
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.Analyser;
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@TraceDescriptor(identify = true, identifier = "getIdentifier")
+public class Network14Classification implements Classification<Network14Classification> {
+  private static final int MAX_VALID_LENGTH = 4;
+
+  private Issues issues;
+  private Hints<Network14Classification> hints;
+
+
+  public Set<java.lang.String> v1;
+  public java.lang.String v2;
+  public java.lang.String v3;
+
+  public Network14Classification() {
+    this.issues = new Issues();
+    this.hints = new Hints<>();
+  }
+
+  public Network14Classification(Classifier classifier) throws BayesianException {
+    this();
+    this.read(classifier, true);
+  }
+
+  @Override
+  @SneakyThrows
+  public @NonNull Network14Classification clone() {
+      Network14Classification clone = (Network14Classification) super.clone();
+      clone.issues = new Issues(this.issues);
+      return clone;
+  }
+
+  @Override
+  public void addIssue(Term issue) {
+    this.issues = this.issues.with(issue);
+  }
+
+  @Override
+  public void addIssues(Issues issues) {
+        this.issues = this.issues.merge(issues);
+  }
+
+  @Override
+  public Hints<Network14Classification> getHints() {
+    return this.hints;
+  }
+
+  @Override
+  public <T> void addHint(Observable<T> observable, T value) {
+        this.hints.addHint(observable, value);
+  }
+
+  @Override
+  @JsonIgnore
+  public @NonNull Term getType() {
+    return Network14Factory.CONCEPT;
+  }
+
+  @Override
+  @JsonIgnore
+  public Issues getIssues() {
+    return this.issues;
+  }
+
+  @JsonProperty("issues")
+  public List<String> getIssueStrings() {
+    return this.issues.asStrings();
+  }
+
+  @JsonProperty("issues")
+  public void setIssueStrings(List<String> issues) {
+    this.issues = Issues.fromStrings(issues);
+  }
+
+  @Override
+  @JsonIgnore
+  public String getIdentifier() {
+    return null;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getName() {
+    return null;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getParent() {
+    return null;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getAccepted() {
+    return null;
+  }
+
+  @Override
+  public Collection<Observation<?>> toObservations() {
+    Collection<Observation<?>> obs = new ArrayList(3);
+
+    if (this.v1 != null)
+      obs.add(new Observation(true, Network14Factory.v1, this.v1));
+    if (this.v2 != null)
+      obs.add(new Observation(true, Network14Factory.v2, this.v2));
+    if (this.v3 != null)
+      obs.add(new Observation(true, Network14Factory.v3, this.v3));
+    return obs;
+  }
+
+  @Override
+  public void inferForSearch(@NonNull Analyser<Network14Classification> analyser, @NonNull MatchOptions options) throws BayesianException {
+    this.v1 = Network14Factory.v1.analyse(this.v1);
+    this.v2 = Network14Factory.v2.analyse(this.v2);
+    this.v3 = Network14Factory.v3.analyse(this.v3);
+    analyser.analyseForSearch(this, options);
+  }
+
+  @Override
+  public boolean isValidCandidate(Classifier candidate) throws BayesianException {
+    return true;
+  }
+
+  @Override
+  public Fidelity<Network14Classification> buildFidelity(Network14Classification actual) throws InferenceException {
+    CompositeFidelity<Network14Classification> fidelity = new CompositeFidelity<>(this, actual);
+    if (this.v1 != null)
+      fidelity.add(Network14Factory.v1.getAnalysis().buildFidelity(this.v1, actual.v1));
+    if (this.v2 != null)
+      fidelity.add(Network14Factory.v2.getAnalysis().buildFidelity(this.v2, actual.v2));
+    if (this.v3 != null)
+      fidelity.add(Network14Factory.v3.getAnalysis().buildFidelity(this.v3, actual.v3));
+    return fidelity;
+  }
+
+  @Override
+  public List<List<Function<Network14Classification, Network14Classification>>> searchModificationOrder() {
+        List<List<Function<Network14Classification, Network14Classification>>> modifications = new ArrayList();
+    return modifications;
+  }
+
+  @Override
+  public List<List<Function<Network14Classification, Network14Classification>>> matchModificationOrder() {
+    List<List<Function<Network14Classification, Network14Classification>>> modifications = new ArrayList();
+    return modifications;
+  }
+
+
+  @Override
+  public List<List<Function<Network14Classification, Network14Classification>>> hintModificationOrder() {
+    List<List<Function<Network14Classification, Network14Classification>>> modifications = new ArrayList();
+    this.hints.buildModifications(Network14Factory.v1, java.lang.String.class, (c, v) -> { c.v1 = Collections.singleton(v); }, modifications);
+    this.hints.buildModifications(Network14Factory.v2, java.lang.String.class, (c, v) -> { c.v2 = v; }, modifications);
+    this.hints.buildModifications(Network14Factory.v3, java.lang.String.class, (c, v) -> { c.v3 = v; }, modifications);
+    return modifications;
+  }
+
+  @Override
+  public void read(Classifier classifier, boolean overwrite) throws BayesianException {
+    if (overwrite || this.v1 == null || this.v1.isEmpty()) {
+      this.v1 = classifier.getAll(Network14Factory.v1);
+    }
+    if (overwrite || this.v2 == null) {
+      this.v2 = classifier.get(Network14Factory.v2);
+    }
+    if (overwrite || this.v3 == null) {
+      this.v3 = classifier.get(Network14Factory.v3);
+    }
+  }
+
+  @Override
+  public void write(Classifier classifier, boolean overwrite) throws BayesianException {
+    if(overwrite){
+      classifier.clear(Network14Factory.v1);
+      classifier.clear(Network14Factory.v2);
+      classifier.clear(Network14Factory.v3);
+    }
+    classifier.addAll(Network14Factory.v1, this.v1, false, false);
+    classifier.add(Network14Factory.v2, this.v2, false, false);
+    classifier.add(Network14Factory.v3, this.v3, false, false);
+  }
+
+  public Network14Inferencer.Evidence match(Classifier classifier) throws BayesianException {
+    Network14Inferencer.Evidence evidence = new Network14Inferencer.Evidence();
+    evidence.e$v1 = classifier.match(this.v1, Network14Factory.v1);
+    evidence.e$v2 = classifier.match(this.v2, Network14Factory.v2);
+    evidence.e$v3 = classifier.match(this.v3, Network14Factory.v3);
+    return evidence;
+  }
+
+}

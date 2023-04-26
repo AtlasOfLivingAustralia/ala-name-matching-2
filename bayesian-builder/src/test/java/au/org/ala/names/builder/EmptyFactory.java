@@ -1,35 +1,54 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.*;
+import au.org.ala.vocab.BayesianTerm;
 import lombok.NonNull;
+import org.gbif.dwc.terms.Term;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyInferencer, EmptyFactory> {
     @Override
-    public @NonNull List<Observable> getObservables() {
+    public @NonNull String getNetworkId() {
+        return "empty";
+    }
+
+    @Override
+    public @NonNull Term getConcept() {
+        return BayesianTerm.Concept;
+    }
+
+    @Override
+    public @NonNull List<Observable<?>> getObservables() {
         return Collections.emptyList();
     }
 
+
     @Override
-    public @NonNull Optional<Observable> getIdentifier() {
+    public @NonNull List<Term> getAllIssues() {
+        return Arrays.asList(BayesianTerm.illformedData, BayesianTerm.invalidMatch);
+    }
+
+    @Override
+    public @NonNull Optional<Observable<String>> getIdentifier() {
         return Optional.empty();
     }
 
     @Override
-    public @NonNull Optional<Observable> getName() {
+    public @NonNull Optional<Observable<String>> getName() {
         return Optional.empty();
     }
 
     @Override
-    public @NonNull Optional<Observable> getParent() {
+    public @NonNull Optional<Observable<String>> getParent() {
         return Optional.empty();
     }
 
     @Override
-    public @NonNull Optional<Observable> getAccepted() {
+    public @NonNull Optional<Observable<String>> getAccepted() {
         return Optional.empty();
     }
 
@@ -70,7 +89,7 @@ public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyIn
      * @return The new matcher
      */
     @Override
-    public @NonNull ClassificationMatcher<EmptyClassification, EmptyInferencer, EmptyFactory> createMatcher(ClassifierSearcher searcher) {
+    public @NonNull ClassificationMatcher<EmptyClassification, EmptyInferencer, EmptyFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config) {
         return null;
     }
 }

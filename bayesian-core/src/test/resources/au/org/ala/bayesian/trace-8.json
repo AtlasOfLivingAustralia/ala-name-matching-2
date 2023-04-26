@@ -1,0 +1,14 @@
+{
+  "label" : "top",
+  "value" : {
+    "@id" : "TestClassification:0",
+    "value" : {
+      "identifier" : "ABC:123",
+      "name" : "Acacia dealbata",
+      "scientificName" : "Acacia dealbata",
+      "taxonID" : "ABC:123",
+      "testEnum" : "FOO",
+      "type" : "http://rs.tdwg.org/dwc/terms/Taxon"
+    }
+  }
+}

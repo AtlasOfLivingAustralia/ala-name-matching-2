@@ -1,9 +1,14 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.bayesian.derivation.CompiledDerivation;
 import au.org.ala.names.builder.Builder;
 import au.org.ala.names.builder.Cli;
+import au.org.ala.names.builder.DefaultWeightAnalyser;
+import au.org.ala.names.builder.WeightAnalyser;
 import au.org.ala.util.IdentifierConverter;
 import au.org.ala.util.SimpleIdentifierConverter;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import freemarker.core.Environment;
@@ -16,22 +21,23 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.cli.*;
+import org.gbif.dwc.terms.TermFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Compile a network into java code.
  */
 @Slf4j
 public class JavaGenerator extends Generator {
+    private static final Logger logger = LoggerFactory.getLogger(JavaGenerator.class);
+
     /** The default package to generate code for */
     private static final String DEFAULT_PACKAGE = "au.org.ala.bayesian.generated";
     /** The encoding to use for code generation */
@@ -59,9 +65,9 @@ public class JavaGenerator extends Generator {
     private static Configuration CONFIG =null;
 
     /** The java code target directory */
-    private File javaTargetDir;
+    private final File javaTargetDir;
     /** The resources target directory */
-    private File resourceTargetDir;
+    private final File resourceTargetDir;
     /** The package to use */
     @Getter
     @Setter
@@ -71,44 +77,47 @@ public class JavaGenerator extends Generator {
     @Setter
     private String artifactName;
     /** The freemarker configuration */
-    private Configuration freemarkerConfig;
+    private final Configuration freemarkerConfig;
     /** The object wrapper to use */
-    private BeansWrapper wrapper;
+    private final BeansWrapper wrapper;
     /** The identifier converter for creating class names */
-    private IdentifierConverter classConverter;
+    private final IdentifierConverter classConverter;
     /** Builder class specification */
     @Getter
-    private JavaGeneratorSpecification<Builder> builderSpec;
+    private final JavaGeneratorSpecification<Builder> builderSpec;
     /** Builder specific class specification */
     @Getter
-    private JavaGeneratorSpecification<Builder> builderSpecificSpec;
+    private final JavaGeneratorSpecification<Builder> builderSpecificSpec;
     /** Parameter class specification */
     @Getter
-    private JavaGeneratorSpecification<Parameters> parametersSpec;
+    private final JavaGeneratorSpecification<Parameters> parametersSpec;
     /** Parameter specific class specification */
     @Getter
-    private JavaGeneratorSpecification<Parameters> parametersSpecificSpec;
+    private final JavaGeneratorSpecification<Parameters> parametersSpecificSpec;
     /** Classification class specification */
     @Getter
-    private JavaGeneratorSpecification<Classification> classificationSpec;
+    private final JavaGeneratorSpecification<Classification> classificationSpec;
     /** Inferencer class specification */
     @Getter
-    private JavaGeneratorSpecification<Inferencer> inferencerSpec;
+    private final JavaGeneratorSpecification<Inferencer> inferencerSpec;
     /** Inferencer specific class specification */
     @Getter
-    private JavaGeneratorSpecification<Inferencer> inferencerSpecificSpec;
+    private final JavaGeneratorSpecification<Inferencer> inferencerSpecificSpec;
     /** Analysis class specification */
     @Getter
-    private JavaGeneratorSpecification<Analyser> analyserSpec;
+    private final JavaGeneratorSpecification<Analyser> analyserSpec;
+    /** Weight analysis class specification */
+    @Getter
+    private final JavaGeneratorSpecification<WeightAnalyser> weightAnalyserSpec;
     /** Generator class specification */
     @Getter
-    private JavaGeneratorSpecification<ClassificationMatcher> matcherSpec;
+    private final JavaGeneratorSpecification<ClassificationMatcher> matcherSpec;
     /** Parameter class specification */
     @Getter
-    private JavaGeneratorSpecification<NetworkFactory> factorySpec;
+    private final JavaGeneratorSpecification<NetworkFactory> factorySpec;
     /** Parameter class specification */
     @Getter
-    private JavaGeneratorSpecification<Cli> cliSpec;
+    private final JavaGeneratorSpecification<Cli> cliSpec;
 
     /**
      * Construct a generator
@@ -131,12 +140,14 @@ public class JavaGenerator extends Generator {
         this.parametersSpecificSpec = new JavaGeneratorSpecification<>("Parameters", PARAMETERS_SPECIFIC_CLASS_TEMPLATE, Parameters.class, true);
         this.classificationSpec = new JavaGeneratorSpecification<>("Classification", CLASSIFICATION_CLASS_TEMPLATE, Classification.class, false);
         this.analyserSpec = new JavaGeneratorSpecification<>("Analyser", null, Analyser.class, false, this.classificationSpec);
+        this.weightAnalyserSpec = new JavaGeneratorSpecification<>("Weight", null, WeightAnalyser.class, false);
+        this.weightAnalyserSpec.setImplementationClassName(DefaultWeightAnalyser.class.getName());
         this.inferencerSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_CLASS_TEMPLATE, Inferencer.class, false, this.classificationSpec, this.parametersSpec, this.analyserSpec);
         this.inferencerSpecificSpec = new JavaGeneratorSpecification<>("Inferencer", INFERENCE_SPECIFIC_CLASS_TEMPLATE, Inferencer.class, true, this.classificationSpec, this.parametersSpecificSpec, this.analyserSpec);
         this.factorySpec = new JavaGeneratorSpecification<>("Factory", FACTORY_CLASS_TEMPLATE, NetworkFactory.class, false, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.analyserSpec);
-        this.builderSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_CLASS_TEMPLATE, Builder.class, false, this.parametersSpec, this.factorySpec);
-        this.builderSpecificSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_SPECIFIC_CLASS_TEMPLATE, Builder.class, true, this.parametersSpecificSpec, this.factorySpec);
-        this.cliSpec = new JavaGeneratorSpecification<>("Cli", CLI_CLASS_TEMPLATE, Cli.class, false, this.classificationSpec, this.parametersSpec, this.builderSpec, this.inferencerSpec, this.factorySpec);
+        this.builderSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_CLASS_TEMPLATE, Builder.class, false, this.parametersSpec, this.factorySpec, this.classificationSpec);
+        this.builderSpecificSpec = new JavaGeneratorSpecification<>("Builder", BUILDER_SPECIFIC_CLASS_TEMPLATE, Builder.class, true, this.parametersSpecificSpec, this.factorySpec, this.classificationSpec);
+        this.cliSpec = new JavaGeneratorSpecification<>("Cli", CLI_CLASS_TEMPLATE, Cli.class, false, this.classificationSpec, this.parametersSpec, this.builderSpec, this.inferencerSpec, this.factorySpec, this.weightAnalyserSpec);
         this.matcherSpec = new JavaGeneratorSpecification<>("matcher", null, ClassificationMatcher.class, false, this.classificationSpec, this.parametersSpec, this.inferencerSpec, this.factorySpec);
         this.factorySpec.addParameter(this.matcherSpec);
         this.classificationSpec.addParameter(this.factorySpec);
@@ -218,11 +229,11 @@ public class JavaGenerator extends Generator {
      * @param environment The environmwent to populate
      * @param spec The base specification
      */
-    protected void populate(Environment environment, NetworkCompiler compiler, JavaGeneratorSpecification spec, Collection<Derivation.Variable> variables) {
+    protected void populate(Environment environment, NetworkCompiler compiler, JavaGeneratorSpecification spec, Collection<CompiledDerivation.Variable> variables) {
         Set<String> imports = new HashSet<>();
         JavaGeneratorSpecification.Context baseContext = spec.withContext(compiler, this.packageName);
         if (variables != null) {
-            for (Derivation.Variable v: variables) {
+            for (CompiledDerivation.Variable v: variables) {
                 baseContext.addImport(v.getClazz().getName(), imports);
             }
         }
@@ -236,6 +247,7 @@ public class JavaGenerator extends Generator {
         environment.setVariable("networkFileName", new StringModel(this.getNetworkFileName(compiler), this.wrapper));
         environment.setVariable("externalContexts", new CollectionModel(Arrays.asList(ExternalContext.LUCENE), this.wrapper));
         environment.setVariable("variantExternalContexts", new CollectionModel(Arrays.asList(ExternalContext.LUCENE_VARIANT), this.wrapper));
+        environment.setVariable("termFactory", new BeanModel(TermFactory.instance(), this.wrapper));
         baseContext.populate(environment, this.wrapper, imports);
         environment.setVariable("imports", new CollectionModel(imports, this.wrapper));
     }
@@ -244,7 +256,7 @@ public class JavaGenerator extends Generator {
         return SimpleIdentifierConverter.FILE_NAME.convert(compiler.getNetwork()) + ".json";
     }
 
-    protected <I> void generateClass(@NonNull NetworkCompiler compiler, @NonNull JavaGeneratorSpecification<I> spec, @NonNull Writer writer, Collection<Derivation.Variable> variables) throws IOException, TemplateException {
+    protected <I> void generateClass(@NonNull NetworkCompiler compiler, @NonNull JavaGeneratorSpecification<I> spec, @NonNull Writer writer, Collection<CompiledDerivation.Variable> variables) throws IOException, TemplateException {
        if (spec.getTemplate() == null || !spec.isGenerate())
             return;
         Template template = this.freemarkerConfig.getTemplate(spec.getTemplate());
@@ -254,7 +266,7 @@ public class JavaGenerator extends Generator {
         environment.process();
     }
 
-    protected <I> void generateClass(@NonNull NetworkCompiler compiler, @NonNull JavaGeneratorSpecification<I> spec, File javaTarget, Collection<Derivation.Variable> variables) throws IOException, TemplateException {
+    protected <I> void generateClass(@NonNull NetworkCompiler compiler, @NonNull JavaGeneratorSpecification<I> spec, File javaTarget, Collection<CompiledDerivation.Variable> variables) throws IOException, TemplateException {
         if (spec.getTemplate() == null || !spec.isGenerate())
             return;
         File target = new File(javaTarget, spec.withContext(compiler, this.packageName).getClassName() + ".java");
@@ -303,25 +315,16 @@ public class JavaGenerator extends Generator {
      */
     public static void main(String[] args) throws Exception {
         Options options = new Options();
-        Option pkgOption = Option.builder("p").longOpt("package").desc("Output package name").hasArg().argName("PACKAGE").build();
-        Option outputOption = Option.builder("o").longOpt("output").desc("Base output directory (not including package)").hasArg().argName("DIR").type(File.class).build();
-        options.addOption(pkgOption);
-        options.addOption(outputOption);
+        JCommander commander = JCommander.newBuilder().addObject(options).args(args).build();
 
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse(options, args);
-        String pkg = cmd.getOptionValue("p", "au.org.ala.names.generated");
-        File output = new File(cmd.getOptionValue("o", System.getProperty("user.dir")));
-
-        log.info("Generating for package " + pkg + " and output " + output.getAbsolutePath());
-        if (!pkg.matches("[a-z]+(\\.[a-z]+)*"))
-            throw new IllegalArgumentException("Invalid package name " + pkg);
-        if (!output.exists())
-            throw new IllegalArgumentException("Output directory " + output + " does not exist");
-        JavaGenerator generator = new JavaGenerator(output, output, pkg);
-        for (String s: cmd.getArgList()) {
-            File source = new File(s);
-            log.info("Generating " + source.getAbsolutePath());
+        log.info("Generating for package " + options.pkg + " and output " + options.output.getAbsolutePath());
+        if (!options.pkg.matches("[a-z]+(\\.[a-z]+)*"))
+            throw new IllegalArgumentException("Invalid package name " + options.pkg);
+        if (!options.output.exists())
+            throw new IllegalArgumentException("Output directory " + options.output + " does not exist");
+        JavaGenerator generator = new JavaGenerator(options.output, options.output, options.pkg);
+        for (File source: options.sources) {
+             log.info("Generating " + source.getAbsolutePath());
             if (!source.exists())
                 throw new IllegalArgumentException("Base network " + source + " does not exist");
             Network network = Network.read(source.toURI().toURL());
@@ -329,5 +332,14 @@ public class JavaGenerator extends Generator {
             compiler.analyse();
             generator.generate(compiler);
         }
+    }
+
+    public static class Options {
+        @Parameter(names = "-o")
+        public File output = new File(System.getProperty("user.dir"));
+        @Parameter(names = "-p")
+        public String pkg = "au.org.ala.names.generated";
+        @Parameter(required = true)
+        public List<File> sources;
     }
 }

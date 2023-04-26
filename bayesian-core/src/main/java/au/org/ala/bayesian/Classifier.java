@@ -1,11 +1,9 @@
 package au.org.ala.bayesian;
 
-import lombok.extern.slf4j.Slf4j;
 import org.gbif.dwc.terms.Term;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * An object that holds information that would allow classification of a particular case.
@@ -25,8 +23,27 @@ public interface Classifier {
      * Get the value for an observable.
      *
      * @param observable The observable
+     *
+     * @param <T> The type of value returned
+     *
+     * @return The retrieved value or the default if not found
      */
-    public <T> T get(Observable observable);
+    <T> T get(Observable<T> observable);
+
+    /**
+     * Get a vavlue with a default if not found.
+     *
+     * @param observable The observable
+     * @param dflt The default value
+     *
+     * @param <T> The type of value returned
+     *
+     * @return The retrieved value or the default if not found
+     */
+    default <T> T getOrDefault(Observable<T> observable, T dflt) {
+        T result = this.get(observable);
+        return result == null ? dflt : result;
+    }
 
     /**
      * Get all the possible values, including variants, for some observables.
@@ -39,16 +56,25 @@ public interface Classifier {
      *
      * @return The a set of all present values
      */
-    public <T> LinkedHashSet<T> getAll(Observable... observables);
+    <T> LinkedHashSet<T> getAll(Observable<T>... observables);
 
     /**
-     * Does this classifier contain any information about this observable?
+     * Does this classifier contain any (non-variant) information about this observable?
      *
      * @param observable The observable to test
      *
-     * @return True if there are values in the classifier
+     * @return True if there are (not variant only) values in the classifier
      */
-    public boolean has(Observable observable);
+    boolean has(Observable observable);
+
+    /**
+     * Does this classifier contain any (variant or non-variant) information about this observable?
+     *
+     * @param observable The observable to test
+     *
+     * @return True if there are (not variant only) values in the classifier
+     */
+    boolean hasAny(Observable observable);
 
     /**
      * Does this classifier have a matching term for an observable?
@@ -65,10 +91,67 @@ public interface Classifier {
      *
      * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
      *
-     * @throws StoreException if there was a problem retrieving a value from the classifier
-     * @throws InferenceException if there was a problem matching the result
+     * @throws StoreException if there was a problem retrieving a value from the classifier or matching the result
      */
-    public <T> Boolean match(T value, Observable... observables) throws StoreException, InferenceException;
+    <T> Boolean match(T value, Observable<T>... observables) throws StoreException;
+
+
+
+    /**
+     * Does this classifier have a matching term for an observable?
+     * <p>
+     * All variants are tested.
+     * Integer types and double types are directly compared.
+     * String types are compared according to the normalisation and style rules specified by the observable.
+     * </p>
+     *
+     * @param observables The observables to match
+     * @param values      The values to match against (may be null)
+     *
+     * @return Null for nothing to match against (ie null value), or true for a match/false for a non-match
+     *
+     * @throws StoreException if there was a problem matching the result or testing for equivalence.
+     */
+    default public <T> Boolean match(Set<T> values, Observable<T>... observables) throws StoreException {
+        if (values == null)
+            return null;
+        Boolean result = null;
+        for (T value: values) {
+            Boolean r = this.match(value, observables);
+            if (r != null) {
+                if (r)
+                    return r;
+                result = false;
+            }
+        }
+        return result;
+    }
+
+
+
+    /**
+     * Match definitively.
+     * <p>
+     * Exceptions and null results are treated as false.
+     * </p>
+     *
+     * @param observables The possible observables to match against
+     * @param value The value to match against (may be null)
+     *
+     * @return True for a match/false for a non-match
+     *
+     * @see #match(Object, Observable...)
+     */
+    default <T> boolean matchClean(T value, Observable<T>... observables) {
+        try {
+            Boolean match = this.match(value, observables);
+            if (match == null)
+                return false;
+            return match.booleanValue();
+        } catch (StoreException ex) {
+            return false;
+        }
+    }
 
     /**
      * Add a value to the classifier.
@@ -86,16 +169,41 @@ public interface Classifier {
      *
      * @param observable The observable to store
      * @param value The value to store
+     * @param variant Load this value as a variant only
+     * @param replace Replace the non-variant value with this value
      *
      * @throws StoreException if the value is already present or unable to add this variable to the classifier
      */
-    public <T> void add(Observable observable, T value) throws StoreException;
+    <T> void add(Observable<T> observable, T value, boolean variant, boolean replace) throws StoreException;
+
+    /**
+     * Add a set of values to the classifier.
+     *
+     * @param observable The observable to store
+     * @param values The values to store
+     * @param variant Load this value as a variant only
+     * @param replace Replace the non-variant value with this value
+     *
+     * @throws StoreException if the value is already present or unable to add this variable to the classifier
+     *
+     * @see #add(Observable, Object, boolean, boolean)
+     */
+    default <T> void addAll(Observable<T> observable, Set<T> values, boolean variant, boolean replace) throws StoreException {
+        if (values == null) {
+            this.add(observable, null, variant, replace);
+        } else {
+            for (T value: values)
+                this.add(observable, value, variant, replace);
+        }
+    }
 
     /**
      * Copy all values from another classifier
      * <p>
      * Parsing and normalisation has assumed to have already taken place.
      * Values should not be added twice.
+     * Things which are variants should stay as variants; only explicitly non-varant values should be
+     * added as non-variants.
      * </p>
      *
      * @param observable The observable for the values
@@ -103,27 +211,26 @@ public interface Classifier {
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    public void addAll(Observable observable, Classifier classifier) throws StoreException;
+    <T> void addAll(Observable<T> observable, Classifier classifier) throws StoreException;
 
     /**
-     * Set a value in the classifier.
+     * Clear any values in the classifier
      * <p>
-     * Replaces any existing values
+     * Removes any existing values from the classifier
      * </p>
      *
-     * @param observable The observable to store
-     * @param value The value to store
+     * @param observable The observable to remove
      *
      * @throws StoreException if unable to add this variable to the classifier
      */
-    public <T> void replace(Observable observable, T value) throws StoreException;
+    void clear(Observable observable) throws StoreException;
 
     /**
      * Get the identifier for a classifier.
      *
      * @return The identifier, or null for no identifier found.
      */
-    public String getIdentifier();
+    String getIdentifier();
 
     /**
      * Label a classifier with a unique identifier.
@@ -136,7 +243,7 @@ public interface Classifier {
      *
      * @throws StoreException If unable to create an identifier for some reason.
      */
-    public String identify() throws StoreException;
+    String identify() throws StoreException;
 
     /**
      * Get the classifier's type
@@ -145,7 +252,7 @@ public interface Classifier {
      *
      * @throws StoreException If unable to create a type for some reason.
      */
-    public Term getType() throws StoreException;
+    Term getType() throws StoreException;
 
     /**
      * Set the classifier's type
@@ -154,7 +261,7 @@ public interface Classifier {
      *
      * @throws StoreException If unable to create a type for some reason.
      */
-    public void setType(Term type) throws StoreException;
+    void setType(Term type) throws StoreException;
 
 
     /**
@@ -166,7 +273,7 @@ public interface Classifier {
      *
      * @return The annotation value
      */
-    public static String getAnnotationValue(Term term) {
+    static String getAnnotationValue(Term term) {
         return term.qualifiedName();
     }
 
@@ -182,7 +289,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to test for the annotation
      */
-    public boolean hasAnnotation(Term annotation) throws StoreException;
+    boolean hasAnnotation(Term annotation) throws StoreException;
 
     /**
      * Add an annotation to a classifier.
@@ -191,14 +298,26 @@ public interface Classifier {
      *
      * @throws StoreException If unable to annotate for some reason.
      */
-    public void annotate(Term annotation) throws StoreException;
+    void annotate(Term annotation) throws StoreException;
 
     /**
-     * Load the inference parameters in a classifier
+     * Get the parameters associated with this classifier
+     *
+     * @return A pre-loaded set of parameters or null for not loaded
+     *
+     * @see #loadParameters(Parameters)
+     */
+    Parameters getCachedParameters();
+
+    /**
+     * Load the inference parameters in a classifier.
+     * <p>
+     * This loads the parameters and, if they can be accessed via {@link #getCachedParameters()}
+     * </p>
      *
      * @throws StoreException if unable to retrieve the parameters
      */
-    public void loadParameters(Parameters parameters) throws StoreException;
+    void loadParameters(Parameters parameters) throws StoreException;
 
     /**
      * Store the inference parameters in a classifier.
@@ -207,7 +326,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to store the parameters in the document
      */
-    public void storeParameters(Parameters parameters) throws StoreException;
+    void storeParameters(Parameters parameters) throws StoreException;
 
 
     /**
@@ -217,7 +336,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to retrieve the index
      */
-    public int[] getIndex() throws StoreException;
+    int[] getIndex() throws StoreException;
 
     /**
      * Set the index values for a classifier.
@@ -230,7 +349,7 @@ public interface Classifier {
      *
      * @throws StoreException If unable to store the index
      */
-    public void setIndex(int left, int right) throws StoreException;
+    void setIndex(int left, int right) throws StoreException;
 
     /**
      * Get the names for the classifier.
@@ -242,7 +361,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to get the names list
      */
-    public Collection<String> getNames() throws StoreException;
+    Collection<String> getNames() throws StoreException;
 
     /**
      * Set the names for a classifier.
@@ -254,7 +373,7 @@ public interface Classifier {
      *
      * @throws StoreException if unable to store the names in the classifier
      */
-    public void setNames(Collection<String> names) throws StoreException;
+    void setNames(Collection<String> names) throws StoreException;
 
     /**
      * Get the signature of the classifier, indicating which erasure groups are in and which are out.
@@ -263,7 +382,7 @@ public interface Classifier {
      *
      * @see Inferencer#getSignature()
      */
-    public String getSignature();
+    String getSignature();
 
     /**
      * Set the signature for tha classifier.
@@ -272,7 +391,7 @@ public interface Classifier {
      *
      * @see Inferencer#getSignature()
      */
-    public void setSignature(String signature);
+    void setSignature(String signature);
 
     /**
      * Get the trail of identifiers used in hierarchical classifiers.
@@ -282,14 +401,14 @@ public interface Classifier {
      *
      * @return The trail
      */
-    public List<String> getTrail();
+    List<String> getTrail();
 
     /**
      * Set the trail of identifiers used in the classifier hierarchy.
      *
      * @param trail The new trail
      */
-    public void setTrail(List<String> trail);
+    void setTrail(List<String> trail);
 
     /**
      * Get a list of all the values set in the classifier.
@@ -299,6 +418,58 @@ public interface Classifier {
      *
      * @return The values in the form of key -> value pairs, with the keys a useful internal representation
      */
-    public Collection<String[]> getAllValues();
+    Collection<String[]> getAllValues();
 
+    /**
+     * Get a summary of the classifier for use when recording traces and the like.
+     *
+     * @param factory The network factory to produce the summary for.
+     *
+     * @return A summary map for the classifier
+     */
+    default String getLabel(NetworkFactory<?, ?, ?> factory) {
+        return factory.getIdentifier().map(i -> this.get(i)).filter(Objects::nonNull).orElse(this.getIdentifier());
+    }
+
+    /**
+     * Get a summary of the classifier for use when recording traces and the like.
+     *
+     * @param factory The network factory to produce the summary for.
+     *
+     * @return A summary map for the classifier
+     */
+    default Map<String, Object> getSummaryDescription(NetworkFactory<?, ?, ?> factory) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        String id = factory.getIdentifier().map(i -> this.get(i)).filter(Objects::nonNull).orElse(this.getIdentifier());
+        String name = factory.getName().map(n -> this.get(n)).orElse(null);
+        String type = null;
+        try {
+            type = this.getType().prefixedName();
+        } catch (StoreException ex) {
+        }
+        result.put("type", type);
+        result.put("id", id);
+        result.put("name", name);
+        return result;
+    }
+
+    /**
+     * Get a full description of the classifier for use when recording traces and the like.
+     *
+     * @param factory The network factory to produce the summary for.
+     *
+     * @return A full map for the classifier
+     */
+    default Map<String, Object> getFullDescription(NetworkFactory<?, ?, ?> factory) {
+        Map<String, Object> result = this.getSummaryDescription(factory);
+        for (Observable<?> observable: factory.getObservables()) {
+            List<String> values = this.getAll(observable).stream()
+                    .filter(Objects::nonNull)
+                    .map(v -> v.toString())
+                    .collect(Collectors.toList());
+            if (!values.isEmpty())
+                result.put(observable.getId(), values.size() == 1 ? values.get(0) : values);
+        }
+        return result;
+    }
 }

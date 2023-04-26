@@ -1,5 +1,7 @@
 package au.org.ala.vocab;
 
+import lombok.Getter;
+import org.gbif.dwc.terms.AlternativeNames;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 
@@ -12,7 +14,8 @@ import java.net.URI;
  *
  * Copyright (c) 2016 CSIRO
  */
-public enum ALATerm implements Term {
+public enum ALATerm implements Term, AlternativeNames {
+    // Terms associated with taxonomy
     /** The supplied nomenclatural code */
     verbatimNomenclaturalCode,
     /** The supplied taxonomicStatus */
@@ -31,12 +34,6 @@ public enum ALATerm implements Term {
     nameFormatted,
     /** A soundex of the specific epithet */
     soundexSpecificEpithet,
-    /** An identifier for non-scientific names */
-    nameID,
-    /** The status of a piece of information (current, superseeded, etc.) */
-    status,
-    /** A score for taxon/name priority */
-    priority,
     /** A numerical rank identifier for the taxon rank */
     rankID,
     /** A taxon identifier for the kingdom */
@@ -93,28 +90,86 @@ public enum ALATerm implements Term {
     voucher,
     /** The phrase name nominating party */
     nominatingParty,
-    /** Context labels for names. See http://localcontexts.org/ */
-    labels,
-    /** A value */
-    value,
     /** The principal taxon identifier, for taxa that may have been re-assigned */
     principalTaxonID,
     /** The principal scientific name, for taxa that may have been re-assigned */
     principalScientificName,
+
+    // Terms associated with location determination
+    /** The location identifier for a parent-child relationship */
+    parentLocationID,
+    /** The location identifier for a synonym relationship */
+    acceptedLocationID,
+    /** The geography type of a location. @see GeographyType */
+    geographyType,
+    /** The soundex locality */
+    soundexLocality,
+    /** The locality identifier */
+    localityID,
+    /** The soundex state or province */
+    soundexStateProvince,
+    /** The state or province identifier */
+    stateProvinceID,
+    /** The soundex country */
+    soundexCountry,
+    /** The country identifier */
+    countryID,
+    /** The soundex continent */
+    soundexContinent,
+    /** The continent identifier */
+    continentID,
+    /** The soundex island group */
+    soundexIslandGroup,
+    /** The island group identifier */
+    islandGroupID,
+    /** The soundex water body */
+    soundexWaterBody,
+    /** The water body identifier */
+    waterBodyID,
+    /** Location area (square kilometres assumed */
+    area,
+
+    // Generic information
+    /** Context labels for concepts. See http://localcontexts.org/ */
+    labels,
+    /** A value */
+    value,
+    /** An identifier for a name */
+    nameID,
+    /** The status of a piece of information (current, superseeded, etc.) */
+    status,
+    /** A score for concept priority */
+    priority,
+
+    // Record classes
     /** Record type describing an unplaced vernacular name */
     UnplacedVernacularName,
     /** Record type describing a variant (different source, spelling etc.) of a taxon */
     TaxonVariant,
+    /** Record type describing a variant (different source, spelling etc.) locality name */
+    LocationName,
     /** Record type describing a problem or note about a taxon */
     TaxonomicIssue;
 
-    public static final String NS = "http://id.ala.org.au/terms/1.0/";
+    public static final String NS = "http://ala.org.au/terms/1.0/";
     public static final URI NAMESPACE = URI.create(NS);
     public static final String PREFIX = "ala:";
+
+    @Getter
+    private final String[] alternatives;
+
+    ALATerm(String... alternatives) {
+        this.alternatives = alternatives;
+    }
 
     @Override
     public String qualifiedName() {
         return NS + this.simpleName();
+    }
+
+    @Override
+    public String[] alternativeNames() {
+        return this.alternatives;
     }
 
     @Override
@@ -142,10 +197,7 @@ public enum ALATerm implements Term {
     }
 
     static {
-        TermFactory factory = TermFactory.instance();
-        for (Term term : ALATerm.values()) {
-            factory.registerTerm(term);
-        }
+        TermFactory.instance().registerTermEnum(ALATerm.class, PREFIX);
     }
 
 }

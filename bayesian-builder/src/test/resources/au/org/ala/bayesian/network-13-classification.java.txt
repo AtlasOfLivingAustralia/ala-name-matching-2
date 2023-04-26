@@ -1,0 +1,282 @@
+package au.org.ala.bayesian.generated;
+
+import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.fidelity.CompositeFidelity;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.Term;
+
+import au.org.ala.vocab.BayesianTerm;
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.analysis.EnumAnalysis;
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@TraceDescriptor(identify = true, identifier = "getIdentifier")
+public class Network13Classification implements Classification<Network13Classification> {
+  private static final int MAX_VALID_LENGTH = 4;
+
+  private Issues issues;
+  private Hints<Network13Classification> hints;
+
+  private static Function<Network13Classification, Network13Classification> MOD_1 =
+    c -> {
+      Network13Classification nc;
+      if (c.v1 == null && c.v3 == null) return c;
+      nc = c.clone();
+      nc.v2 = c.v3;
+      if (nc.v2 == null)
+        nc.v2 = c.v1;
+      nc.addIssue(Network13Factory.ISSUE_1);
+      return nc;
+    };
+  private static Function<Network13Classification, Network13Classification> MOD_2 =
+    c -> {
+      Network13Classification nc;
+      if (c.v3 == null) return c;
+      nc = c.clone();
+      nc.v3 = null;
+      nc.addIssue(Network13Factory.ISSUE_1);
+      return nc;
+    };
+  private static Function<Network13Classification, Network13Classification> MOD_3 =
+    c -> {
+      Network13Classification nc;
+      nc = c.clone();
+      nc.v1 = au.org.ala.vocab.BayesianTerm.illformedData;
+      nc.addIssue(Network13Factory.ISSUE_1);
+      return nc;
+    };
+  private static Function<Network13Classification, Network13Classification> MOD_4 =
+    c -> {
+      Network13Classification nc;
+      if (c.v2 == null || c.v1 == null) return c;
+      nc = c.clone();
+      nc.v3 = c.v1 + " " + c.v2;
+      nc.addIssue(Network13Factory.ISSUE_1);
+      return nc;
+    };
+  private static Function<Network13Classification, Network13Classification> MOD_5 =
+    c -> {
+      Network13Classification nc;
+      if ((c.v1 == null && c.v3 == null) || (c.v3 == null) || (c.v2 == null || c.v1 == null)) return c;
+      nc = c.clone();
+      nc.v2 = c.v3;
+      if (nc.v2 == null)
+        nc.v2 = c.v1;
+      nc.v3 = null;
+      nc.v1 = au.org.ala.vocab.BayesianTerm.illformedData;
+      nc.v3 = c.v1 + " " + c.v2;
+      nc.addIssue(Network13Factory.ISSUE_1);
+      return nc;
+    };
+
+  public au.org.ala.vocab.BayesianTerm v1;
+  public java.lang.String v2;
+  public java.lang.String v3;
+
+  public Network13Classification() {
+    this.issues = new Issues();
+    this.hints = new Hints<>();
+  }
+
+  public Network13Classification(Classifier classifier) throws BayesianException {
+    this();
+    this.read(classifier, true);
+  }
+
+  @Override
+  @SneakyThrows
+  public @NonNull Network13Classification clone() {
+      Network13Classification clone = (Network13Classification) super.clone();
+      clone.issues = new Issues(this.issues);
+      return clone;
+  }
+
+  @Override
+  public void addIssue(Term issue) {
+    this.issues = this.issues.with(issue);
+  }
+
+  @Override
+  public void addIssues(Issues issues) {
+        this.issues = this.issues.merge(issues);
+  }
+
+  @Override
+  public Hints<Network13Classification> getHints() {
+    return this.hints;
+  }
+
+  @Override
+  public <T> void addHint(Observable<T> observable, T value) {
+        this.hints.addHint(observable, value);
+  }
+
+  @Override
+  @JsonIgnore
+  public @NonNull Term getType() {
+    return Network13Factory.CONCEPT;
+  }
+
+  @Override
+  @JsonIgnore
+  public Issues getIssues() {
+    return this.issues;
+  }
+
+  @JsonProperty("issues")
+  public List<String> getIssueStrings() {
+    return this.issues.asStrings();
+  }
+
+  @JsonProperty("issues")
+  public void setIssueStrings(List<String> issues) {
+    this.issues = Issues.fromStrings(issues);
+  }
+
+  @Override
+  @JsonIgnore
+  public String getIdentifier() {
+    return null;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getName() {
+    return null;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getParent() {
+    return null;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getAccepted() {
+    return null;
+  }
+
+  @Override
+  public Collection<Observation<?>> toObservations() {
+    Collection<Observation<?>> obs = new ArrayList(3);
+
+    if (this.v1 != null)
+      obs.add(new Observation(true, Network13Factory.v1, this.v1));
+    if (this.v2 != null)
+      obs.add(new Observation(true, Network13Factory.v2, this.v2));
+    if (this.v3 != null)
+      obs.add(new Observation(true, Network13Factory.v3, this.v3));
+    return obs;
+  }
+
+  @Override
+  public void inferForSearch(@NonNull Analyser<Network13Classification> analyser, @NonNull MatchOptions options) throws BayesianException {
+    this.v1 = Network13Factory.v1.analyse(this.v1);
+    this.v2 = Network13Factory.v2.analyse(this.v2);
+    this.v3 = Network13Factory.v3.analyse(this.v3);
+    analyser.analyseForSearch(this, options);
+  }
+
+  @Override
+  public boolean isValidCandidate(Classifier candidate) throws BayesianException {
+    return true;
+  }
+
+  @Override
+  public Fidelity<Network13Classification> buildFidelity(Network13Classification actual) throws InferenceException {
+    CompositeFidelity<Network13Classification> fidelity = new CompositeFidelity<>(this, actual);
+    if (this.v1 != null)
+      fidelity.add(Network13Factory.v1.getAnalysis().buildFidelity(this.v1, actual.v1));
+    if (this.v2 != null)
+      fidelity.add(Network13Factory.v2.getAnalysis().buildFidelity(this.v2, actual.v2));
+    if (this.v3 != null)
+      fidelity.add(Network13Factory.v3.getAnalysis().buildFidelity(this.v3, actual.v3));
+    return fidelity;
+  }
+
+  @Override
+  public List<List<Function<Network13Classification, Network13Classification>>> searchModificationOrder() {
+        List<List<Function<Network13Classification, Network13Classification>>> modifications = new ArrayList();
+    return modifications;
+  }
+
+  @Override
+  public List<List<Function<Network13Classification, Network13Classification>>> matchModificationOrder() {
+    List<List<Function<Network13Classification, Network13Classification>>> modifications = new ArrayList();
+    List<Function<Network13Classification, Network13Classification>> ml;
+    ml = new ArrayList();
+    ml.add(null);
+    if (this.v1 != null || this.v3 != null)
+      ml.add(MOD_1);
+    if (this.v3 != null)
+      ml.add(MOD_2);
+    ml.add(MOD_3);
+    if (this.v2 != null && this.v1 != null)
+      ml.add(MOD_4);
+    if ((this.v1 != null || this.v3 != null) && (this.v3 != null) && (this.v2 != null && this.v1 != null))
+      ml.add(MOD_5);
+    if (ml.size() > 1)
+      modifications.add(ml);
+    return modifications;
+  }
+
+
+  @Override
+  public List<List<Function<Network13Classification, Network13Classification>>> hintModificationOrder() {
+    List<List<Function<Network13Classification, Network13Classification>>> modifications = new ArrayList();
+    this.hints.buildModifications(Network13Factory.v1, au.org.ala.vocab.BayesianTerm.class, (c, v) -> { c.v1 = v; }, modifications);
+    this.hints.buildModifications(Network13Factory.v2, java.lang.String.class, (c, v) -> { c.v2 = v; }, modifications);
+    this.hints.buildModifications(Network13Factory.v3, java.lang.String.class, (c, v) -> { c.v3 = v; }, modifications);
+    return modifications;
+  }
+
+  @Override
+  public void read(Classifier classifier, boolean overwrite) throws BayesianException {
+    if (overwrite || this.v1 == null) {
+      this.v1 = classifier.get(Network13Factory.v1);
+    }
+    if (overwrite || this.v2 == null) {
+      this.v2 = classifier.get(Network13Factory.v2);
+    }
+    if (overwrite || this.v3 == null) {
+      this.v3 = classifier.get(Network13Factory.v3);
+    }
+  }
+
+  @Override
+  public void write(Classifier classifier, boolean overwrite) throws BayesianException {
+    if(overwrite){
+      classifier.clear(Network13Factory.v1);
+      classifier.clear(Network13Factory.v2);
+      classifier.clear(Network13Factory.v3);
+    }
+    classifier.add(Network13Factory.v1, this.v1, false, false);
+    classifier.add(Network13Factory.v2, this.v2, false, false);
+    classifier.add(Network13Factory.v3, this.v3, false, false);
+  }
+
+  public Network13Inferencer.Evidence match(Classifier classifier) throws BayesianException {
+    Network13Inferencer.Evidence evidence = new Network13Inferencer.Evidence();
+    evidence.e$v1 = classifier.match(this.v1, Network13Factory.v1);
+    evidence.e$v2 = classifier.match(this.v2, Network13Factory.v2);
+    evidence.e$v3 = classifier.match(this.v3, Network13Factory.v3);
+    return evidence;
+  }
+
+}

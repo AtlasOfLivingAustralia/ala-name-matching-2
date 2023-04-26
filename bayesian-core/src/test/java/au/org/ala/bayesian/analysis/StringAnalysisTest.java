@@ -1,5 +1,6 @@
 package au.org.ala.bayesian.analysis;
 
+import au.org.ala.bayesian.Fidelity;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -84,6 +85,53 @@ public class StringAnalysisTest {
         assertFalse(this.analysis.equivalent("bing", "bong"));
         assertNull(this.analysis.equivalent("bong", null));
         assertNull(this.analysis.equivalent(null, "bing"));
+    }
+
+    public void testBuildFidelity1() throws Exception {
+        Fidelity<String> fidelity = this.analysis.buildFidelity("One", "One");
+        assertNotNull(fidelity);
+        assertEquals(1.0, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity2() throws Exception {
+        Fidelity<String> fidelity = this.analysis.buildFidelity("One", "ONE");
+        assertNotNull(fidelity);
+        assertEquals(1.0, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity3() throws Exception {
+        Fidelity<String> fidelity = this.analysis.buildFidelity("One", "two");
+        assertNotNull(fidelity);
+        assertEquals(0.0, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity4() throws Exception {
+        Fidelity<String> fidelity = this.analysis.buildFidelity("one", "Ome");
+        assertNotNull(fidelity);
+        assertEquals(0.33333, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity5() throws Exception {
+        Fidelity<String> fidelity = this.analysis.buildFidelity("Oneee", "One");
+        assertNotNull(fidelity);
+        assertEquals(0.6, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity6() throws Exception {
+        Fidelity<String> fidelity = this.analysis.buildFidelity("One", "Oneee");
+        assertNotNull(fidelity);
+        assertEquals(0.6, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity7() throws Exception {
+        Fidelity<String> fidelity = this.analysis.buildFidelity(null, "Hello");
+        assertNull(fidelity);
+    }
+
+    public void testBuildFidelity8() throws Exception {
+        Fidelity<String> fidelity = this.analysis.buildFidelity("Hello", null);
+        assertNotNull(fidelity);
+        assertEquals(0.0, fidelity.getFidelity(), 0.00001);
     }
 
 

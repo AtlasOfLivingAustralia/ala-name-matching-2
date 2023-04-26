@@ -3,6 +3,7 @@ package au.org.ala.bayesian;
 import au.org.ala.util.MulitplicitySerializer;
 import au.org.ala.util.MultiplicityDeserializer;
 import au.org.ala.vocab.BayesianTerm;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -12,14 +13,20 @@ import lombok.Setter;
 import org.gbif.dwc.terms.Term;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A node of a bayseian network, representing some sort of observable element that can be reasoned about.
+ *
+ * @param <T> The type of object that the observable handles.
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Observable extends Identifiable implements Comparable<Observable> {
-    /** The domain of the observable if unspecified */
-    public static final Class<?> DEFAULT_TYPE = String.class;
+public class Observable<T> extends Identifiable implements Comparable<Observable<?>> {
+
     /** The derivation of this observable, if this is a derived value */
     @JsonProperty
     @Getter
@@ -30,16 +37,23 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     @Getter
     @Setter
     private Derivation base;
-    /** The base class of the values for this observable, if this is not directly supplied, a {@link String} is assumed by default */
+    /** The base class of the values for this observable. Defaults to the string type if not specified. */
     @JsonProperty
     @Getter
     @Setter
-    private Class<?> type = DEFAULT_TYPE;
+    private Class<?> type = String.class;
     /** the style of this observable. How to treat searching and canonicity */
     @JsonProperty
     @Getter
     @Setter
     private Style style = Style.CANONICAL;
+    /** The number of possible values that this observable can have for a single classification */
+    @JsonProperty
+    @JsonSerialize(using = MulitplicitySerializer.class)
+    @JsonDeserialize(using = MultiplicityDeserializer.class)
+    @Getter
+    @Setter
+    private Multiplicity matchability = Multiplicity.OPTIONAL;
     /** The number of possible values that this observable can have for a single classifier */
     @JsonProperty
     @JsonSerialize(using = MulitplicitySerializer.class)
@@ -59,8 +73,14 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     private Normaliser normaliser;
     /** The object that analyses this observable and provides equivalence. */
     @JsonProperty
+    @Getter
     @Setter
-    private Analysis analysis;
+    private Analysis<T, ?, ?> analysis;
+    /** Observables that provide additional matches, in addition to this match. See {@link BayesianTerm#name} and {@link BayesianTerm#altName} */
+    @JsonProperty
+    @Getter
+    @Setter
+    private List<Observable<T>> alternativeMatches;
 
     // Ensure Bayesian Term vocabulary is properly loaded
     static {
@@ -84,45 +104,17 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * @param style The style of value (how to search for the value)
      * @param normaliser Any normaliser
      * @param analysis The analysis object
+     * @param matchability The classification multiplicity
+     * @param multiplicity The classifier multiplicity
      */
-    public Observable(String id, URI uri, Class type, Style style, Normaliser normaliser, Analysis analysis, Multiplicity multiplicity) {
+    public Observable(String id, URI uri, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?> analysis, Multiplicity matchability, Multiplicity multiplicity) {
         super(id, uri);
         this.type = type;
         this.style = style;
         this.normaliser = normaliser;
         this.analysis = analysis;
+        this.matchability = matchability;
         this.multiplicity = multiplicity;
-    }
-
-    /**
-     * Construct for an identifier
-     *
-     * @param id The identifier
-     *
-     * @see Identifiable#Identifiable(String)
-     */
-    public Observable(String id) {
-        super(id);
-    }
-
-    /**
-     * Construct for a URI
-     *
-     * @param uri The URI
-     *
-     * @see Identifiable#Identifiable(String)
-     */
-    public Observable(URI uri) {
-        super(uri);
-    }
-
-    /**
-     * Construct from a term.
-     *
-     * @param term The term
-     */
-    public Observable(Term term) {
-        this(term, String.class, Style.CANONICAL, null, null, Multiplicity.OPTIONAL);
     }
 
     /**
@@ -133,9 +125,35 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      * @param style The style to usse
      * @param normaliser Any normaliser
      * @param analysis The analysis object
+     * @param matchability The classification multiplicity
+     * @param multiplicity The classifier multiplicity
      */
-    public Observable(Term term, Class<?> type, Style style, Normaliser normaliser, Analysis analysis, Multiplicity multiplicity) {
-        this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, analysis, multiplicity);
+    public Observable(Term term, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?> analysis, Multiplicity matchability, Multiplicity multiplicity) {
+        this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, analysis, matchability, multiplicity);
+    }
+
+    /**
+     * Construct for an identifier
+     *
+     * @param id The identifier
+     *
+     * @see Identifiable#Identifiable(String)
+     */
+    protected Observable(String id, Class<T> type) {
+        super(id);
+        this.type = type;
+    }
+
+    /**
+     * Construct for a URI
+     *
+     * @param uri The URI
+     *
+     * @see Identifiable#Identifiable(String)
+     */
+    protected Observable(URI uri, Class<T> type) {
+        super(uri);
+        this.type = type;
     }
 
     /**
@@ -147,14 +165,67 @@ public class Observable extends Identifiable implements Comparable<Observable> {
      *
      * @return The analysis object.
      */
-    public Analysis getAnalysis() {
+    public Analysis<T, ?, ?> getAnalysis() {
         if (this.analysis == null) {
             synchronized (this) {
                 if (this.analysis == null)
-                    this.analysis = Analysis.defaultAnalyser(this.getType());
+                    this.analysis = Analysis.defaultAnalyser((Class<T>) this.getType());
             }
         }
         return this.analysis;
+    }
+
+    /**
+     * Analyse an object into the correct form.
+     *
+     * @param o The object
+     *
+     * @return The normalised, analysed object
+     *
+     * @throws InferenceException If unable to analyse correctly
+     */
+    public T analyse(T o) throws InferenceException {
+        Normaliser normaliser = this.getNormaliser();
+        if (normaliser != null && o instanceof String)
+            o = (T) normaliser.normalise((String) o);
+        return this.getAnalysis().analyse(o);
+    }
+
+    /**
+     * Analyse a set of objects into the correct form.
+     *
+     * @param o The object
+     *
+     * @return The normalised, analysed object
+     *
+     * @throws InferenceException If unable to analyse correctly
+     */
+    public Set<T> analyse(Set<T> o) throws InferenceException {
+        if (o == null)
+            return null;
+        LinkedHashSet<T> analysed = new LinkedHashSet<>(o.size());
+        for (T v: o)
+            analysed.add(this.analyse(v));
+        return analysed;
+    }
+
+    /**
+     * Get the list of observables that can be enlisted to make a match.
+     * <p>
+     * The actual observable is always first, followed by any alternative matches
+     * </p>
+     *
+     * @return The list of observables that can be used for a match
+     *
+     * @see #alternativeMatches
+     */
+    @JsonIgnore
+    public List<Observable<T>> getMatchers() {
+        List<Observable<T>> matchers = new ArrayList<>();
+        matchers.add(this);
+        if (this.alternativeMatches != null)
+            matchers.addAll(this.alternativeMatches);
+        return matchers;
     }
 
     /**
@@ -193,7 +264,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
     public boolean equals(Object obj) {
         if (!(obj instanceof Observable))
             return false;
-        Observable o = (Observable) obj;
+        Observable<?> o = (Observable) obj;
         URI uri1 = this.getUri();
         URI uri2 = o.getUri();
         if ((uri1 == null && uri2 != null) || (uri1 != null  && uri2 == null))
@@ -201,6 +272,76 @@ public class Observable extends Identifiable implements Comparable<Observable> {
         if (uri1 != null)
             return uri1.equals(uri2);
         return this.getId().equals(o.getId());
+    }
+
+    /**
+     * Construct an optional, canonical string observable for a term.
+     *
+     * @param term The term
+     *
+     * @return The corresponding observable
+     */
+    public static Observable<String> string(Term term) {
+        return new Observable<>(term, String.class, Style.CANONICAL, null, null, Multiplicity.OPTIONAL, Multiplicity.OPTIONAL);
+    }
+
+    /**
+     * Construct an optional, canonical string observable for an identifier.
+     *
+     * @param id The identifier
+     *
+     * @return The corresponding observable
+     */
+    public static Observable<String> string(String id) {
+        return new Observable<>(id, String.class);
+    }
+
+    /**
+     * Construct an optional, canonical string observable for a URI.
+     *
+     * @param uri The URI
+     *
+     * @return The corresponding observable
+     */
+    public static Observable<String> string(URI uri) {
+        return new Observable<>(uri, String.class);
+    }
+
+    /**
+     * Construct an optional, identfiier integer observable for a term.
+     *
+     * @param term The term
+     *
+     * @return The corresponding observable
+     */
+    public static Observable<Integer> integer(Term term) {
+        return new Observable<>(term, Integer.class, Style.IDENTIFIER, null, null, Multiplicity.OPTIONAL, Multiplicity.OPTIONAL);
+    }
+
+
+    /**
+     * Construct an optional, canonical integer observable for an identifier.
+     *
+     * @param id The identifier
+     *
+     * @return The corresponding observable
+     */
+    public static Observable<Integer> integer(String id) {
+        return new Observable<>(id, Integer.class);
+    }
+
+    /**
+     * Construct an optional, identfiier enumeration observable for a term.
+     *
+     * @param clazz The enumeration class
+     * @param term The term
+     *
+     * @param <E> the type of enumneration
+     *
+     * @return The corresponding observable
+     */
+    public static <E extends Enum<E>> Observable<E> enumerated(Class<E> clazz, Term term) {
+        return new Observable<>(term, clazz, Style.IDENTIFIER, null, null, Multiplicity.OPTIONAL, Multiplicity.OPTIONAL);
     }
 
     /**
@@ -220,7 +361,7 @@ public class Observable extends Identifiable implements Comparable<Observable> {
 
     public enum Multiplicity {
         /** Zero or one values */
-        OPTIONAL(false, false, "0..1"),
+        OPTIONAL(false, false, "?"),
         /** One only value */
         REQUIRED(true, false, "1"),
         /** Zero to many values */

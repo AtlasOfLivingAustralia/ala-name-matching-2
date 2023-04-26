@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
  * Generate a soundexed version of a phrase, taking care of multiple words and accents.
  */
 public class SoundexGenerator {
-    private Pattern SPLITTER = Pattern.compile("[^A-Za-z]+");
+    private final Pattern SPLITTER = Pattern.compile("[^A-Za-z]+");
 
-    private Soundex soundex = new Soundex();
+    private final Soundex soundex = new Soundex();
 
     /**
      * Convert a stream of words into concatenated soundexed values.

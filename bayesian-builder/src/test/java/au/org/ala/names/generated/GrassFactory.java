@@ -1,13 +1,16 @@
 package au.org.ala.names.generated;
 
 import au.org.ala.bayesian.ClassificationMatcher;
+import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observable.Multiplicity;
 import static au.org.ala.bayesian.ExternalContext.*;
+import au.org.ala.vocab.BayesianTerm;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -27,37 +30,40 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
 
 
   /** It is raining */
-  public static final Observable rain = new Observable(
+  public static final Observable<String> rain = new Observable(
       "rain",
       null,
       String.class,
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   /** The sprinkler is on */
-  public static final Observable sprinkler = new Observable(
+  public static final Observable<String> sprinkler = new Observable(
       "sprinkler",
       null,
       String.class,
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
   /** The grass is wet */
-  public static final Observable wet = new Observable(
+  public static final Observable<String> wet = new Observable(
       "wet",
       null,
       String.class,
       Observable.Style.CANONICAL,
       null,
       new StringAnalysis(),
+      Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
 
-  public static List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
+  public static List<Observable<?>> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
     rain,
     sprinkler,
     wet
@@ -65,41 +71,61 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
 
   public static final TermFactory TERM_FACTORY = TermFactory.instance();
 
-  public static final List<Class> VOCABULARIES = Collections.unmodifiableList(Arrays.asList(
-    au.org.ala.vocab.BayesianTerm.class
-  ));
+  public static final Term CONCEPT = TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/Concept");
 
-  public static final Term CONCEPT = TERM_FACTORY.findTerm("http://id.ala.org.au/bayesian/1.0/Concept");
+
+  public static final List<Term> ISSUES = Collections.unmodifiableList(Arrays.asList(
+          BayesianTerm.illformedData,
+          BayesianTerm.invalidMatch
+  ));
 
 
   static {
+    // Force vocabularies to load
+    au.org.ala.vocab.BayesianTerm.values();
+    au.org.ala.vocab.OptimisationTerm.values();
     rain.setExternal(LUCENE, "rain");
     sprinkler.setExternal(LUCENE, "sprinkler");
     wet.setExternal(LUCENE, "wet");
   }
 
   @Override
-  public List<Observable> getObservables() {
-      return OBSERVABLES;
+  public String getNetworkId() {
+    return "grass";
   }
 
   @Override
-  public Optional<Observable> getIdentifier() {
+  public List<Observable<?>> getObservables() {
+    return OBSERVABLES;
+  }
+
+  @Override
+  public List<Term> getAllIssues() {
+    return ISSUES;
+  }
+
+  @Override
+  public Term getConcept() {
+    return CONCEPT;
+  }
+
+  @Override
+  public Optional<Observable<String>> getIdentifier() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<Observable> getName() {
+  public Optional<Observable<String>> getName() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<Observable> getParent() {
+  public Optional<Observable<String>> getParent() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<Observable> getAccepted() {
+  public Optional<Observable<String>> getAccepted() {
     return Optional.empty();
   }
 
@@ -119,8 +145,8 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
   }
 
   @Override
-  public ClassificationMatcher<GrassClassification, GrassInferencer, GrassFactory> createMatcher(ClassifierSearcher searcher){
-        return new ClassificationMatcher<>(this, searcher);
+  public ClassificationMatcher<GrassClassification, GrassInferencer, GrassFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config){
+        return new ClassificationMatcher<>(this, searcher, config);
   }
 
   public static GrassFactory instance() {

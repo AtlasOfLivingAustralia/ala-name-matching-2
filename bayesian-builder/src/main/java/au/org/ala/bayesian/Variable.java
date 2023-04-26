@@ -5,7 +5,7 @@ import lombok.Getter;
 abstract public class Variable {
     /** The variable identifier */
     @Getter
-    private String id;
+    private final String id;
 
     /**
      * Construct for an identifier.

@@ -1,11 +1,15 @@
 package au.org.ala.bayesian.generated;
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
-import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.Trace;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,20 +35,24 @@ public class Network1Inferencer implements Inferencer<Network1Classification> {
   }
 
   @Override
-  public Inference probability(Network1Classification classification, Classifier classifier) throws StoreException, InferenceException {
+  public Inference probability(Network1Classification classification, Classifier classifier, Trace trace) throws BayesianException {
     Inferencer<Network1Classification> sub = this.subInferencers.get(classifier.getSignature());
     if (sub == null)
       throw new IllegalArgumentException("Signature '" + classifier.getSignature() + "' is not recognised");
-    return sub.probability(classification, classifier);
+    return sub.probability(classification, classifier, trace);
   }
 
+  @JsonPropertyOrder(alphabetic = true)
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public static class Evidence {
     public Boolean e$v1;
 
+    @JsonIgnore
     public boolean isT$e$v1() {
       return this.e$v1 == null || this.e$v1;
     }
 
+    @JsonIgnore
     public boolean isF$e$v1() {
       return this.e$v1 == null || !this.e$v1;
     }

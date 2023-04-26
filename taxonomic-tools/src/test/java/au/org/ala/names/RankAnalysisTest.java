@@ -16,13 +16,14 @@ public class RankAnalysisTest {
     @Test
     public void testAnalyse1() throws Exception{
         assertNull(analysis.analyse(null));
+        assertNull(analysis.analyse(Rank.UNRANKED));
+        assertNull(analysis.analyse(Rank.OTHER));
     }
 
     @Test
     public void testAnalyse2() throws Exception {
         assertEquals(Rank.SPECIES, analysis.analyse(Rank.SPECIES));
         assertEquals(Rank.CLASS, analysis.analyse(Rank.CLASS));
-        assertEquals(Rank.UNRANKED, analysis.analyse(Rank.UNRANKED));
     }
 
     @Test
@@ -43,10 +44,23 @@ public class RankAnalysisTest {
         assertNull(analysis.fromString(null));
         assertNull(analysis.fromString(""));
         assertNull(analysis.fromString("  "));
+    }
+
+    @Test
+    public void testFromString2() throws Exception {
         assertEquals(Rank.CLASS, analysis.fromString("class"));
         assertEquals(Rank.CLASS, analysis.fromString("CLASS"));
         assertEquals(Rank.FAMILY, analysis.fromString("Family"));
         assertEquals(Rank.SPECIES, analysis.fromString("sp"));
+        assertEquals(Rank.DIVISION, analysis.fromString("division"));
+    }
+
+
+    @Test
+    public void testFromString3() throws Exception {
+        assertEquals(Rank.PHYLUM, analysis.fromString("divisio"));
+        assertEquals(Rank.CLASS, analysis.fromString("classis"));
+        assertEquals(Rank.KINGDOM, analysis.fromString("regnum"));
     }
 
     @Test

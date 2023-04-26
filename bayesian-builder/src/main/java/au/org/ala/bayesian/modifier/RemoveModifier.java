@@ -2,20 +2,39 @@ package au.org.ala.bayesian.modifier;
 
 import au.org.ala.bayesian.NetworkCompiler;
 import au.org.ala.bayesian.Observable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Remove the value of an entry
  */
 public class RemoveModifier extends BaseModifier {
+    /** The observable to modify */
+    @JsonProperty
+    @Getter
+    protected Set<Observable> observables;
+
     protected RemoveModifier() {
     }
 
-    public RemoveModifier(String id, Collection<Observable> observables, boolean nullDerived) {
-        super(id, observables, nullDerived);
+    public RemoveModifier(String id, Collection<Observable> observables, boolean clearDerived) {
+        super(id, clearDerived);
+        this.observables = new HashSet<>(observables);
+    }
+
+    /**
+     * Get the base variables that this will alter
+     *
+     * @return A singleton set with the observable in it.
+     */
+    @Override
+    public Set<Observable> getModified() {
+        return this.observables;
     }
 
     /**
@@ -25,7 +44,7 @@ public class RemoveModifier extends BaseModifier {
      * @see #getAnyCondition()
      */
     @Override
-    public Collection<Observable> getConditions() {
+    public Set<Observable> getConditions() {
         return this.getModified();
     }
 
@@ -41,6 +60,9 @@ public class RemoveModifier extends BaseModifier {
 
     /**
      * Generate code that will perform the modification.
+     * <p>
+     * Set any values to null.
+     * </p>
      *
      * @param compiler The source network
      * @param from The name of the variable that holds the classification to modify
@@ -48,14 +70,8 @@ public class RemoveModifier extends BaseModifier {
      * @return The code needed to modify the classification
      */
     @Override
-    public List<String> generate(NetworkCompiler compiler, String from, String to) {
-        List<String> statements = new ArrayList<>();
-        this.checkModifiable(compiler, from, statements);
-        statements.add(to + " = " + from + ".clone();");
+    public void generateModification(NetworkCompiler compiler, String from, String to, List<String> statements) {
         for (Observable observable: this.getModified())
             statements.add(to + "." + observable.getJavaVariable() + " = null;");
-        if (this.isNullDerived())
-            this.nullDependents(compiler, to, statements);
-        return statements;
     }
 }

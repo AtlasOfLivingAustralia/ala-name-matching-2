@@ -1,20 +1,24 @@
 package au.org.ala.names.lucene;
 
 import au.org.ala.bayesian.*;
-import au.org.ala.names.builder.Annotator;
+import au.org.ala.bayesian.Observable;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
+import org.cache2k.extra.jmx.JmxSupport;
+import org.cache2k.operation.CacheControl;
+import org.cache2k.operation.CacheStatistics;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -24,12 +28,15 @@ import static au.org.ala.bayesian.Inference.MAXIMUM_PROBABILITY;
 import static au.org.ala.bayesian.Inference.MINIMUM_PROBABILITY;
 
 public class LuceneParameterAnalyser implements ParameterAnalyser {
+    private static final Logger logger = LoggerFactory.getLogger(LuceneParameterAnalyser.class);
+
+    /** Set this to true to use the p(B, !C) = p(B) - p(B, C) for C as a fixed input value */
+    private static final boolean NEGATIVE_OPTIMISATION = false;
+
     /** The network for this analyser */
     protected final Network network;
     /** The type of term this analyses */
     private final Term type;
-    /** The annotator for this analyser  */
-    protected final Annotator annotator;
     /** The index */
     private final IndexSearcher searcher;
     /** The weight cache */
@@ -37,7 +44,11 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
     /** The query cache */
     private final Cache<Query, Double>  queryCache;
     /** The weight observable */
-    private final Observable weight;
+    private final Observable<Double> weight;
+    /** The input observables */
+    private final Set<Observable> inputs;
+    /** The output observables */
+    private final Set<Observable> outputs;
     /** The default weight */
     private final double defaultWeight;
     /** The query builder */
@@ -51,24 +62,33 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      * Create for an index.
      *
      * @param network The network model
-     * @param annotator The annotator to use
      * @param searcher The index searcher for queries
      * @param weight The weight observable
      * @param defaultWeight The weight to use when a value is unavailable
+     * @param inputs The input observables
+     * @param outputs The output observables
+     * @param cacheSize The cache size
+     * @param enableJmx Monitor via JMX
+     *
+     * @throws BayesianException if unable to build the analyser
      */
-    public LuceneParameterAnalyser(Network network, Annotator annotator, IndexSearcher searcher, Observable weight, double defaultWeight) throws InferenceException, StoreException {
+    public LuceneParameterAnalyser(Network network, IndexSearcher searcher, Observable weight, double defaultWeight, Collection<Observable> inputs, Collection<Observable> outputs, int cacheSize, boolean enableJmx) throws BayesianException {
         this.network = network;
         this.type = TermFactory.instance().findTerm(network.getConcept().toASCIIString());
-        this.annotator = annotator;
         this.searcher = searcher;
         this.weightCache = new ConcurrentHashMap<>();
-        this.queryCache = Cache2kBuilder.of(Query.class, Double.class)
+        // this.queryCache = null;
+        Cache2kBuilder<Query, Double> builder = Cache2kBuilder.of(Query.class, Double.class)
             .eternal(true)
-            .entryCapacity(1000000)
-            .loader(this::doSum)
-            .build();
+            .entryCapacity(cacheSize)
+            .loader(this::doSum);
+        if (enableJmx)
+            builder.enable(JmxSupport.class);
+        this.queryCache = builder.build();
         this.weight = weight;
         this.defaultWeight = defaultWeight;
+        this.inputs = new HashSet<>(inputs);
+        this.outputs = new HashSet<>(outputs);
         this.queryUtils = new QueryUtils();
         this.taxonQuery = this.queryUtils.createBuilder().add(LuceneClassifier.getTypeClause(this.type)).build();
         this.totalWeight = this.sum(this.taxonQuery);
@@ -84,6 +104,37 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
     }
 
     /**
+     * Close the analyser
+     */
+    @Override
+    public void close() {
+        CacheStatistics statistics = CacheControl.of(this.queryCache).sampleStatistics();
+        logger.info("Query cache statistics");
+        logger.info("Clear calls count " + statistics.getClearCallsCount());
+        logger.info("Cleared count " + statistics.getClearedCount());
+        logger.info("Get count " + statistics.getGetCount());
+        logger.info("Evicted count " + statistics.getEvictedCount());
+        logger.info("Evicted or removed weight " + statistics.getEvictedOrRemovedWeight());
+        logger.info("Expired count " + statistics.getExpiredCount());
+        logger.info("Hit rate " + statistics.getHitRate());
+        logger.info("Insert count " + statistics.getInsertCount());
+        logger.info("Key mutation count " + statistics.getKeyMutationCount());
+        logger.info("Load count " + statistics.getLoadCount());
+        logger.info("Load exception count " + statistics.getLoadExceptionCount());
+        logger.info("Milliseconds per load " + statistics.getMillisPerLoad());
+        logger.info("Miss count " + statistics.getMissCount());
+        logger.info("Put count " + statistics.getPutCount());
+        logger.info("Refresh count " + statistics.getRefreshCount());
+        logger.info("Refreshed hit count " + statistics.getRefreshedHitCount());
+        logger.info("Refresh failed count " + statistics.getRefreshFailedCount());
+        logger.info("Remove count " + statistics.getRemoveCount());
+        logger.info("Suppressed load exception count " + statistics.getSuppressedLoadExceptionCount());
+        logger.info("Total load in milliseconds " + statistics.getTotalLoadMillis());
+        this.queryCache.close();
+
+    }
+
+    /**
      * Sum all the weights for documents matching this query.
      * <p>
      * The result is cached.
@@ -95,7 +146,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      * @return The resulting sum
      */
     protected double sum(final Query query) throws InferenceException {
-        return this.queryCache.get(query);
+        return this.queryCache != null ? this.queryCache.get(query) : this.doSum(query);
     }
 
 
@@ -129,7 +180,7 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      *
      * @return The probaility of the observation, by weight.
      *
-     * @throws InferenceException
+     * @throws InferenceException if unable to sum
      * @throws StoreException if unable to convert to a query
      */
     public double computePrior(Observation observation) throws InferenceException, StoreException {
@@ -149,22 +200,25 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
      * cases and then subtract them from the total weight than compute the negative cases,
      * which will be manyfold.
      * </p>
+     * <p>
+     * The prior
+     * </p>
      *
      * @param observation The observation
      * @param inputs The facts inputting into the result
      *
      * @return The probability of the observation, given the inputs, by weight
      *
-     * @throws InferenceException
+     * @throws InferenceException if unable to compute the weight
      * @throws StoreException if unable to convert to a query
      */
     public double computeConditional(Observation observation, Observation... inputs) throws InferenceException, StoreException {
         if (totalWeight <= 0.0)
             return 0.0;
-         List<Observation> nonBlank = Arrays.stream(inputs).filter(o -> !o.isBlank()).collect(Collectors.toList());
-
+        List<Observation> nonBlank = Arrays.stream(inputs).filter(o -> !o.isBlank()).collect(Collectors.toList());
+        List<Observation> sources = nonBlank.stream().filter(o -> this.inputs.contains(o.getObservable())).collect(Collectors.toList());
         // If no inputs, then pass on lower probabilities
-        if (nonBlank.isEmpty()) {
+        if (nonBlank.isEmpty() && sources.isEmpty()) {
             if (observation.isPositive())
                 return Arrays.stream(inputs).allMatch(o -> o.isPositive()) ? 1.0 : 0.0;
             else
@@ -172,13 +226,24 @@ public class LuceneParameterAnalyser implements ParameterAnalyser {
         }
         double priorWeight = 1.0;
         boolean allNegative = true;
+        BooleanQuery.Builder partialBuilder = this.queryUtils.createBuilder(this.taxonQuery);
         BooleanQuery.Builder conditionalBuilder = this.queryUtils.createBuilder(this.taxonQuery);
         for (Observation input : nonBlank) {
-            conditionalBuilder.add(this.queryUtils.asClause(input));
+            BooleanClause clause = this.queryUtils.asClause(input);
+            conditionalBuilder.add(clause);
+            if (!sources.contains(input))
+                partialBuilder.add(clause);
             allNegative = allNegative && !input.isPositive();
         }
         if (!allNegative) {
-            priorWeight = this.sum(conditionalBuilder.build());
+            // Special case for negative sources. Compute the total and then subtract out the positive cases
+            if (NEGATIVE_OPTIMISATION && sources.size() == 1 && !sources.get(0).isPositive()) {
+                priorWeight = this.sum(partialBuilder.build());
+                partialBuilder.add(this.queryUtils.asClause(sources.get(0).asPositive()));
+                priorWeight -= this.sum(partialBuilder.build());
+            } else {
+                priorWeight = this.sum(conditionalBuilder.build());
+            }
         } else {
             priorWeight = this.totalWeight;
             for (List<Observation> cases : this.generatePositiveCases(nonBlank)) {

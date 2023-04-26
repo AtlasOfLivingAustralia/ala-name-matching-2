@@ -1,54 +1,23 @@
 package au.org.ala.bayesian;
 
-import au.org.ala.util.BasicNormaliser;
+import au.org.ala.bayesian.fidelity.CompositeFidelity;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
-import org.gbif.dwc.terms.TermFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 
+@TraceDescriptor(identify = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonPropertyOrder(alphabetic = true)
 public class TestClassification implements Classification<TestClassification> {
-    public static final Term RANK_ID_TERM = TermFactory.instance().findTerm("rankID");
-    public static final Term RANK_RANGE_TERM = TermFactory.instance().findTerm("rankRange");
-    public static final Term TEST_ENUM_TERM = TermFactory.instance().findTerm("testEnum");
-    public static final Normaliser NORMALISER = new BasicNormaliser("basic", true, true, true, true, false);
-    public static final Observable TAXON_ID = new Observable(DwcTerm.taxonID);
-    public static final Observable CLASS_ = new Observable(DwcTerm.class_);
-    public static final Observable SCIENTIFIC_NAME = new Observable(DwcTerm.scientificName);
-    public static final Observable VERNACULAR_NAME = new Observable(DwcTerm.vernacularName);
-    public static final Observable RANK_ID = new Observable(RANK_ID_TERM);
-    public static final Observable RANK_RANGE = new Observable(RANK_RANGE_TERM);
-    public static final Observable TEST_ENUM = new Observable(TEST_ENUM_TERM);
-    public static final List<Observable> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
-            TAXON_ID,
-            CLASS_,
-            SCIENTIFIC_NAME,
-            VERNACULAR_NAME,
-            RANK_ID,
-            RANK_RANGE,
-            TEST_ENUM
-    ));
-
-    static {
-        TAXON_ID.setMultiplicity(Observable.Multiplicity.REQUIRED);
-        TAXON_ID.setStyle(Observable.Style.IDENTIFIER);
-        CLASS_.setNormaliser(NORMALISER);
-        CLASS_.setStyle(Observable.Style.PHRASE);
-        SCIENTIFIC_NAME.setMultiplicity(Observable.Multiplicity.REQUIRED_MANY);
-        SCIENTIFIC_NAME.setStyle(Observable.Style.PHRASE);
-        SCIENTIFIC_NAME.setNormaliser(NORMALISER);
-        VERNACULAR_NAME.setNormaliser(NORMALISER);
-        VERNACULAR_NAME.setStyle(Observable.Style.PHRASE);
-        RANK_ID.setType(Integer.class);
-        RANK_RANGE.setType(Integer.class);
-        RANK_RANGE.setAnalysis(new TestRangeAnalysis());
-        TEST_ENUM.setType(TestEnum.class);
-    }
-
     public String taxonID;
     public String class_;
     public String scientificName;
@@ -56,8 +25,6 @@ public class TestClassification implements Classification<TestClassification> {
     public Integer rankID;
     public Integer rankRange;
     public TestEnum testEnum;
-    @Getter
-    private TestAnalyser analyser = new TestAnalyser();
     @Getter
     private Issues issues = new Issues();
 
@@ -73,6 +40,7 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
+    @NonNull
     public Term getType() {
         return DwcTerm.Taxon;
     }
@@ -98,23 +66,23 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public Collection<Observation> toObservations() {
-        Collection<Observation> obs = new ArrayList<>(12);
+    public Collection<Observation<?>> toObservations() {
+        Collection<Observation<?>> obs = new ArrayList<>(12);
 
         if (this.taxonID != null)
-            obs.add(new Observation(true, TAXON_ID, this.taxonID));
+            obs.add(new Observation<String>(true, TestFactory.TAXON_ID, this.taxonID));
         if (this.class_ != null)
-            obs.add(new Observation(true, CLASS_, this.class_));
+            obs.add(new Observation<String>(true, TestFactory.CLASS_, this.class_));
         if (this.scientificName != null)
-            obs.add(new Observation(true, SCIENTIFIC_NAME, this.scientificName));
+            obs.add(new Observation<String>(true, TestFactory.SCIENTIFIC_NAME, this.scientificName));
         if (this.vernacularName != null)
-            obs.add(new Observation(true, VERNACULAR_NAME, this.vernacularName));
+            obs.add(new Observation<String>(true, TestFactory.VERNACULAR_NAME, this.vernacularName));
         if (this.rankID != null)
-            obs.add(new Observation(true, RANK_ID, this.rankID));
+            obs.add(new Observation<Integer>(true, TestFactory.RANK_ID, this.rankID));
         if (this.rankRange != null)
-            obs.add(new Observation(true, RANK_RANGE, this.rankRange));
+            obs.add(new Observation<Integer>(true, TestFactory.RANK_RANGE, this.rankRange));
         if (this.testEnum != null)
-            obs.add(new Observation(true, TEST_ENUM, this.testEnum));
+            obs.add(new Observation<TestEnum>(true, TestFactory.TEST_ENUM, this.testEnum));
         return obs;
     }
 
@@ -124,11 +92,47 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public void inferForSearch() {
+    public void addIssues(Issues issues) {
+        this.issues = this.issues.merge(issues);
     }
 
     @Override
-    public void inferForIndex() {
+    @JsonIgnore
+    public Hints<TestClassification> getHints() {
+        return new Hints<>();
+    }
+
+    @Override
+    public <T> void addHint(Observable<T> observable, T value) {
+    }
+
+    @Override
+    public void inferForSearch(@NonNull Analyser<TestClassification> analyser, @NonNull MatchOptions options) {
+    }
+
+    @Override
+    public boolean isValidCandidate(Classifier classifier) throws BayesianException {
+        return true;
+    }
+
+    @Override
+    public Fidelity<TestClassification> buildFidelity(TestClassification actual) throws InferenceException {
+        CompositeFidelity<TestClassification> fidelity = new CompositeFidelity<>(this, actual);
+        if (this.taxonID != null)
+            fidelity.add(TestFactory.TAXON_ID.getAnalysis().buildFidelity(this.taxonID, actual.taxonID));
+        if (this.class_ != null)
+            fidelity.add(TestFactory.CLASS_.getAnalysis().buildFidelity(this.class_, actual.class_));
+        if (this.scientificName != null)
+            fidelity.add(TestFactory.SCIENTIFIC_NAME.getAnalysis().buildFidelity(this.scientificName, actual.scientificName));
+        if (this.vernacularName != null)
+            fidelity.add(TestFactory.VERNACULAR_NAME.getAnalysis().buildFidelity(this.vernacularName, actual.vernacularName));
+        if (this.rankID != null)
+            fidelity.add(TestFactory.RANK_ID.getAnalysis().buildFidelity(this.rankID, actual.rankID));
+        if (this.rankRange != null)
+            fidelity.add(TestFactory.RANK_RANGE.getAnalysis().buildFidelity(this.rankRange, actual.rankRange));
+        if (this.testEnum != null)
+            fidelity.add(TestFactory.TEST_ENUM.getAnalysis().buildFidelity(this.testEnum, actual.testEnum));
+        return fidelity;
     }
 
     /**
@@ -174,41 +178,46 @@ public class TestClassification implements Classification<TestClassification> {
     }
 
     @Override
-    public void read(Classifier classifier, boolean overwrite) throws StoreException, InferenceException {
-        if (overwrite || this.taxonID == null)
-            this.taxonID = classifier.get(TAXON_ID);
-        if (overwrite || this.class_ == null)
-            this.class_ = classifier.get(CLASS_);
-        if (overwrite || this.scientificName == null)
-            this.scientificName = classifier.get(SCIENTIFIC_NAME);
-        if (overwrite || this.vernacularName == null)
-            this.vernacularName = classifier.get(VERNACULAR_NAME);
-        if (overwrite || this.rankID == null)
-            this.rankID = classifier.get(RANK_ID);
-        if (overwrite || this.rankRange == null)
-            this.rankRange = classifier.get(RANK_RANGE);
-        if (overwrite || this.testEnum == null)
-            this.testEnum = classifier.get(TEST_ENUM);
+    public List<List<Function<TestClassification, TestClassification>>> hintModificationOrder() {
+        List<List<Function<TestClassification, TestClassification>>> modifiers = new ArrayList<>();
+        return modifiers;
     }
 
     @Override
-    public void write(Classifier classifier, boolean overwrite) throws StoreException {
+    public void read(Classifier classifier, boolean overwrite) {
+        if (overwrite || this.taxonID == null)
+            this.taxonID = classifier.get(TestFactory.TAXON_ID);
+        if (overwrite || this.class_ == null)
+            this.class_ = classifier.get(TestFactory.CLASS_);
+        if (overwrite || this.scientificName == null)
+            this.scientificName = classifier.get(TestFactory.SCIENTIFIC_NAME);
+        if (overwrite || this.vernacularName == null)
+            this.vernacularName = classifier.get(TestFactory.VERNACULAR_NAME);
+        if (overwrite || this.rankID == null)
+            this.rankID = classifier.get(TestFactory.RANK_ID);
+        if (overwrite || this.rankRange == null)
+            this.rankRange = classifier.get(TestFactory.RANK_RANGE);
+        if (overwrite || this.testEnum == null)
+            this.testEnum = classifier.get(TestFactory.TEST_ENUM);
+    }
+
+    @Override
+    public void write(Classifier classifier, boolean overwrite) throws BayesianException {
         if (overwrite) {
-            classifier.replace(TAXON_ID, this.taxonID);
-            classifier.replace(CLASS_, this.class_);
-            classifier.replace(SCIENTIFIC_NAME, this.scientificName);
-            classifier.replace(VERNACULAR_NAME, this.vernacularName);
-            classifier.replace(RANK_ID, this.rankID);
-            classifier.replace(RANK_RANGE, this.rankRange);
-            classifier.replace(TEST_ENUM, this.testEnum);
-        } else {
-            classifier.add(TAXON_ID, this.taxonID);
-            classifier.add(CLASS_, this.class_);
-            classifier.add(SCIENTIFIC_NAME, this.scientificName);
-            classifier.add(VERNACULAR_NAME, this.vernacularName);
-            classifier.add(RANK_ID, this.rankID);
-            classifier.add(RANK_RANGE, this.rankRange);
-            classifier.add(TEST_ENUM, this.testEnum);
+            classifier.clear(TestFactory.TAXON_ID);
+            classifier.clear(TestFactory.CLASS_);
+            classifier.clear(TestFactory.SCIENTIFIC_NAME);
+            classifier.clear(TestFactory.VERNACULAR_NAME);
+            classifier.clear(TestFactory.RANK_ID);
+            classifier.clear(TestFactory.RANK_RANGE);
+            classifier.clear(TestFactory.TEST_ENUM);
         }
+        classifier.add(TestFactory.TAXON_ID, this.taxonID, false, false);
+        classifier.add(TestFactory.CLASS_, this.class_, false, false);
+        classifier.add(TestFactory.SCIENTIFIC_NAME, this.scientificName, false, false);
+        classifier.add(TestFactory.VERNACULAR_NAME, this.vernacularName, false, false);
+        classifier.add(TestFactory.RANK_ID, this.rankID, false, false);
+        classifier.add(TestFactory.RANK_RANGE, this.rankRange, false, false);
+        classifier.add(TestFactory.TEST_ENUM, this.testEnum, false, false);
     }
 }

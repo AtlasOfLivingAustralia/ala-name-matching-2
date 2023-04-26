@@ -1,10 +1,13 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.bayesian.analysis.*;
+import au.org.ala.util.Service;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * An analysis object for an observable.
@@ -17,6 +20,7 @@ import java.util.HashMap;
  * @param <S> The type of object this analyser reads/writes.
  * @param <Q> The type of object this analyser uses to query the store
  */
+@Service
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
 abstract public class Analysis<C, S, Q> {
     /**
@@ -93,6 +97,51 @@ abstract public class Analysis<C, S, Q> {
     abstract public C fromString(String value) throws StoreException;
 
     /**
+     * Compute a fidelity measure for this type of object.
+     * <p>
+     * If the original is null or otherwise emopty, then the computed fidelity is also null
+     * </p>
+      *
+     * @param original The original value
+     * @param actual The actual value
+     *
+     * @return The computed fidelity. Null if there is no fidelity to compute
+     *
+     * @throws InferenceException if unable to compute a fidelity
+     */
+    abstract public Fidelity<C> buildFidelity(C original, C actual) throws InferenceException;
+
+
+    /**
+     * Compute a fidelity measure for this type of object based on multiple values.
+     * <p>
+     * The overall maximum for each actual value is chosen
+     * </p>
+     *
+     * @param original The original value
+     * @param actual The actual value
+     *
+     * @return The computed fidelity. Null if there is no fidelity to compute
+     *
+     * @throws InferenceException if unable to compute a fidelity
+     * 
+     * @see #buildFidelity(Object, Object) 
+     */
+    public Fidelity<C> buildFidelity(Set<C> original, Set<C> actual) throws InferenceException {
+        if (actual == null || original == null || actual.isEmpty() || original.isEmpty())
+            return null;
+        Fidelity<C> fidelity = null;
+        for (C a: actual) {
+            for (C o: original) {
+                Fidelity<C> f = this.buildFidelity(o, a);
+                if (f != null && (fidelity == null || f.getFidelity() > fidelity.getFidelity()))
+                    fidelity = f;
+            }
+        }
+        return fidelity;
+    }
+
+    /**
      * Test for equivalence.
      * <p>
      * By default, if either value1 or value2 is null, the result is null.
@@ -112,6 +161,21 @@ abstract public class Analysis<C, S, Q> {
     }
 
     /**
+     * Get the parameters used to construct this analysis object.
+     * <p>
+     * Used by code generation to construct an analysis object.
+     * By default, this is the empty list.
+     * Override this for analysis that takes actual parameters.
+     * </p>
+     *
+     * @return The list of parameters to feed to the constructor.
+     */
+    @JsonIgnore
+    public List<Object> getConstructorParameters() {
+        return new ArrayList<>();
+    }
+
+    /**
      * Get a default analysis object for a class.
      *
      * @param clazz The class
@@ -123,6 +187,8 @@ abstract public class Analysis<C, S, Q> {
      * @param <C> The type of object this analyses
      */
     public static <C, S, Q> Analysis<C, S, Q> defaultAnalyser(Class<C> clazz) throws IllegalArgumentException {
+        if (clazz == null)
+            return (Analysis<C, S, Q>) new StringAnalysis();
         if (clazz == LocalDateAnalysis.class)
             return (Analysis<C, S, Q>) new LocalDateAnalysis();
         if (clazz == Double.class)

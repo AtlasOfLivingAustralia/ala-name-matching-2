@@ -1,0 +1,15 @@
+{
+  "version" : "20221017",
+  "index" : "/data/lucene",
+  "work" : "/data/tmp/namematching",
+  "searcherConfiguration" : {
+    "scoreCutoff" : 1.0,
+    "queryLimit" : 20,
+    "cache" : true,
+    "cacheSize" : 10000
+  },
+  "matcherConfiguration" : {
+    "secondaryCacheSize" : 100000
+  },
+  "localities" : [ "Australia", "New Zealand", "Antarctica" ]
+}

@@ -1,9 +1,7 @@
 package au.org.ala.names;
 
 import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.StoreException;
 import au.org.ala.bayesian.analysis.StringAnalysis;
-import org.gbif.checklistbank.authorship.AuthorComparator;
 
 import java.util.regex.Pattern;
 
@@ -14,8 +12,8 @@ import java.util.regex.Pattern;
  * </p>
  */
 public class PhraseAnalysis extends StringAnalysis {
-    private static Pattern SINE_NOMINE = Pattern.compile("s\\.n\\.");
-    private static Pattern INVALID_CHARS = Pattern.compile("[^A-Za-z0-9]+");
+    private static final Pattern SINE_NOMINE = Pattern.compile("s\\.n\\.");
+    private static final Pattern INVALID_CHARS = Pattern.compile("[^A-Za-z0-9]+");
 
     /**
      * Analyse this object, providing any special interpretation

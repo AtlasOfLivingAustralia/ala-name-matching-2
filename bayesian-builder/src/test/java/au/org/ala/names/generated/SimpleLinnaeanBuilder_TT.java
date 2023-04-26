@@ -1,10 +1,10 @@
 package au.org.ala.names.generated;
 
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
-import au.org.ala.bayesian.StoreException;
 import au.org.ala.names.builder.Builder;
 
 import java.util.Arrays;
@@ -12,9 +12,10 @@ import java.util.Deque;
 import java.util.Optional;
 
 import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.analysis.IntegerAnalysis;
 import au.org.ala.bayesian.analysis.DoubleAnalysis;
 
-public class SimpleLinnaeanBuilder_TT implements Builder {
+public class SimpleLinnaeanBuilder_TT implements Builder<SimpleLinnaeanClassification> {
   public final static String SIGNATURE = "TT";
 
   public  SimpleLinnaeanBuilder_TT() {
@@ -26,17 +27,22 @@ public class SimpleLinnaeanBuilder_TT implements Builder {
   }
 
   @Override
-  public void generate(Classifier classifier) throws InferenceException, StoreException {
+  public void generate(Classifier classifier, Analyser<SimpleLinnaeanClassification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
   @Override
-  public void infer(Classifier classifier) throws InferenceException, StoreException {
+  public void interpret(Classifier classifier, Analyser<SimpleLinnaeanClassification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
   @Override
-  public void expand(Classifier classifier, Deque<Classifier> parents) throws InferenceException, StoreException {
+  public void infer(Classifier classifier, Analyser<SimpleLinnaeanClassification> analyser) throws BayesianException {
+    throw new UnsupportedOperationException("Sub-builders do not support this operation");
+  }
+
+  @Override
+  public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<SimpleLinnaeanClassification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 
@@ -46,7 +52,7 @@ public class SimpleLinnaeanBuilder_TT implements Builder {
   }
 
   @Override
-  public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws InferenceException, StoreException {
+  public Parameters calculate(ParameterAnalyser analyser, Classifier classifier) throws BayesianException {
     SimpleLinnaeanParameters_TT parameters = new SimpleLinnaeanParameters_TT();
     parameters.prior_taxonId_t = analyser.computePrior(analyser.getObservation(true, SimpleLinnaeanFactory.taxonId, classifier));
     parameters.inf_taxonRank_t$t = analyser.computeConditional(analyser.getObservation(true, SimpleLinnaeanFactory.taxonRank, classifier) , analyser.getObservation(true, SimpleLinnaeanFactory.taxonId, classifier));

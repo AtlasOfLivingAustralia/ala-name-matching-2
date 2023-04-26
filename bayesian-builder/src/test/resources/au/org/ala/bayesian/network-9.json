@@ -1,7 +1,12 @@
 {
   "id" : "network_9",
   "vertices" : [
-    { "id" : "v_1" },
+    {
+      "id" : "v_1",
+      "properties": {
+        "http://ala.org.au/optimisation/1.0/analysed": true
+      }
+    },
     {
       "id" : "v_2",
       "derivation": {

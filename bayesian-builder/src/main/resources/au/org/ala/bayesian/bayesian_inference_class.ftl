@@ -1,11 +1,15 @@
 package ${packageName};
 
+import au.org.ala.bayesian.BayesianException;
 import au.org.ala.bayesian.Analyser;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.Inference;
-import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.Inferencer;
-import au.org.ala.bayesian.StoreException;
+import au.org.ala.bayesian.Trace;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,23 +37,27 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public Inference probability(${classificationClassName} classification, Classifier classifier) throws StoreException, InferenceException {
+  public Inference probability(${classificationClassName} classification, Classifier classifier, Trace trace) throws BayesianException {
     Inferencer<${classificationClassName}> sub = this.subInferencers.get(classifier.getSignature());
     if (sub == null)
       throw new IllegalArgumentException("Signature '" + classifier.getSignature() + "' is not recognised");
-    return sub.probability(classification, classifier);
+    return sub.probability(classification, classifier, trace);
   }
 
+  @JsonPropertyOrder(alphabetic = true)
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public static class Evidence {
 <#list orderedNodes as node>
     public Boolean ${node.evidence.id};
 </#list>
 
 <#list orderedNodes as node>
+    @JsonIgnore
     public boolean isT$${node.evidence.id}() {
       return this.${node.evidence.id} == null || this.${node.evidence.id};
     }
 
+    @JsonIgnore
     public boolean isF$${node.evidence.id}() {
       return this.${node.evidence.id} == null || !this.${node.evidence.id};
     }

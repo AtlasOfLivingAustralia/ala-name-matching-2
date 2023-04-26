@@ -1,14 +1,18 @@
 package au.org.ala.names.lucene;
 
-import au.org.ala.bayesian.Analysis;
-import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.ExternalContext;
+import au.org.ala.bayesian.Observable;
+import au.org.ala.util.FileUtils;
+import au.org.ala.util.JsonUtils;
+import au.org.ala.util.Metadata;
 import au.org.ala.util.TestUtils;
 import au.org.ala.vocab.BayesianTerm;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.*;
 import lombok.Getter;
-import org.apache.lucene.document.*;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
@@ -18,6 +22,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.TermFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -49,11 +54,26 @@ public class LuceneUtils {
      *
      * @throws Exception if unable to load the resource
      */
-    public LuceneUtils(Class clazz, String resource, Collection<Observable> observables) throws Exception {
+    public LuceneUtils(Class clazz, String resource, Collection<Observable<?>> observables, Observable<String> namer) throws Exception {
+        this(clazz, resource, observables, namer, false);
+    }
+
+    /**
+     * Create a lucene utility connection for a resourced CSV file containing index terms
+     *
+     * @param clazz The class to load from
+     * @param resource The resource to load (CSV file)
+     * @param observables The list of observables to convert from/to
+     * @param ignoreDuplicates Ignore duplicate identifiers
+     *
+     * @throws Exception if unable to load the resource
+     */
+    public LuceneUtils(Class clazz, String resource, Collection<Observable<?>> observables, Observable<String> namer, boolean ignoreDuplicates) throws Exception {
         this.buildObservables(observables);
         this.buildIndexDir();
         this.openWriter();
-        this.makeIndex(clazz, resource);
+        this.makeIndex(clazz, resource, namer, ignoreDuplicates);
+        this.createMetadata();
         this.openSearcher();
     }
 
@@ -65,7 +85,7 @@ public class LuceneUtils {
      *
      * @throws Exception if unable to load the resource
      */
-    public LuceneUtils(Collection<Observable> observables) throws Exception {
+    public LuceneUtils(Collection<Observable<?>> observables) throws Exception {
         this.buildObservables(observables);
         this.buildIndexDir();
         this.openWriter();
@@ -89,7 +109,7 @@ public class LuceneUtils {
             this.indexWriter = null;
         }
         if (this.indexDir != null) {
-            TestUtils.deleteAll(this.indexDir.toFile());
+            FileUtils.deleteAll(this.indexDir.toFile());
             this.indexDir = null;
         }
     }
@@ -131,10 +151,9 @@ public class LuceneUtils {
         return this.searcher.doc(docs.scoreDocs[0].doc);
     }
 
-    private void buildObservables(Collection<Observable> observables) {
+    private void buildObservables(Collection<Observable<?>> observables) {
         this.observables = new HashMap<>();
-        Observable weight = new Observable(BayesianTerm.weight);
-        weight.setType(Double.class);
+        Observable<Double> weight = new Observable<>(BayesianTerm.weight, Double.class, Observable.Style.IDENTIFIER, null, null, Observable.Multiplicity.OPTIONAL, Observable.Multiplicity.OPTIONAL);
         this.observables.put("weight", weight);
         for (Observable o: observables) {
             this.observables.put(o.getId(), o);
@@ -178,34 +197,56 @@ public class LuceneUtils {
      *
      * @param clazz The class to load the resource for
      * @param resource The resource path to the CSV fiel
+     * @param ignoreDuplicates Ignore duplicate ids
      *
      * @throws Exception
      */
-    private void makeIndex(Class clazz, String resource) throws Exception {
+    private void makeIndex(Class clazz, String resource, Observable<String> namer, boolean ignoreDuplicates) throws Exception {
         Reader r = TestUtils.getResourceReader(clazz, resource);
-        CSVReader reader = new CSVReaderBuilder(r).build();
+        boolean tabs = resource.endsWith(".txt");
+        CSVParser parser = new CSVParserBuilder().withSeparator(tabs ? '\t' : ',').build();
+        CSVReader reader = new CSVReaderBuilder(r).withCSVParser(parser).build();
         String[] header = reader.readNext();
         Observable[] headerMap = new Observable[header.length];
         headerMap = Arrays.stream(header)
-                .map(h -> this.observables.computeIfAbsent(h, o -> new Observable(TermFactory.instance().findTerm(o))))
+                .map(h -> this.observables.computeIfAbsent(h, o -> Observable.string(TermFactory.instance().findTerm(o))))
                 .collect(Collectors.toList())
                 .toArray(headerMap);
         for (String[] line: reader) {
             LuceneClassifier classifier = new LuceneClassifier();
+            Set<Observable> seen = new HashSet<>();
             for (int i = 0; i < header.length; i++) {
                 if (i < line.length && line[i] != null && !line[i].isEmpty()) {
                     String value = line[i];
                     if (value == null || value.isEmpty())
                         continue;
                     Observable observable = headerMap[i];
+                    if (seen.contains(observable) && ignoreDuplicates)
+                        continue;
+                    seen.add(observable);
                     Object v = observable.getAnalysis().fromString(value);
-                    classifier.add(observable, v);
+                    classifier.add(observable, v, false, false);
+                    if (observable == namer && v != null)
+                        classifier.setNames(Collections.singleton(v.toString()));
                   }
             }
             classifier.setType(DwcTerm.Taxon);
             this.indexWriter.addDocument(classifier.getDocument());
         }
         this.indexWriter.commit();
+    }
+
+    /**
+     * Create a temporary metadata file.
+     *
+     * @throws Exception
+     */
+    private void createMetadata() throws Exception {
+        Metadata metadata = Metadata.builder()
+                .identifier(UUID.randomUUID().toString())
+                .created(new Date()).build();
+        ObjectMapper mapper = JsonUtils.createMapper();
+        mapper.writeValue(new File(this.indexDir.toFile(), LuceneClassifierSearcher.METADATA_FILE), metadata);
     }
 
 }

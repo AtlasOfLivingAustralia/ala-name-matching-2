@@ -1,0 +1,18 @@
+{
+  "about" : "http://id.test.com/Test-1",
+  "identifier" : "Test-1",
+  "version" : "1.1",
+  "type" : "application/json",
+  "title" : "title 1",
+  "description" : "Description 1",
+  "contact" : "A.N.Other, other@nowhere.com",
+  "created" : "2023-10-06T01:00:00.000+0000",
+  "creator" : "A.N. Other",
+  "publisher" : "Very Random House",
+  "modified" : "2023-10-06T01:01:40.000+0000",
+  "format" : "JSON",
+  "rights" : "Copyright (c) 2022",
+  "rightsHolder" : "The very important person",
+  "license" : "https://creativecommons.org/licenses/by/4.0/",
+  "references" : "http://id.test.com/resource"
+}

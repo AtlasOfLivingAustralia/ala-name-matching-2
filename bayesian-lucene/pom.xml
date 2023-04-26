@@ -34,20 +34,39 @@
     </dependency>
     <dependency>
       <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-suggest</artifactId>
+      <version>${org.apache.lucene.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-analyzers-common</artifactId>
       <version>${org.apache.lucene.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${commons-text.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.cache2k</groupId>
-      <artifactId>cache2k-base-bom</artifactId>
+      <artifactId>cache2k-api</artifactId>
       <version>${cache2k.version}</version>
-      <type>pom</type>
+    </dependency>
+    <dependency>
+      <groupId>org.cache2k</groupId>
+      <artifactId>cache2k-jmx</artifactId>
+      <version>${cache2k.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.cache2k</groupId>
+      <artifactId>cache2k-core</artifactId>
+      <version>${cache2k.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>${project.parent.groupId}</groupId>
       <artifactId>name-matching-common-test</artifactId>
       <version>${project.parent.version}</version>
-      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -66,6 +85,12 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

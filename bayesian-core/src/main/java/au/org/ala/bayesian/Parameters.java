@@ -18,7 +18,7 @@ public interface Parameters {
      *
      * @see #store()
      */
-    public void load(double[] vector);
+    void load(double[] vector);
 
     /**
      * Load an encoded set of doubles from an encoded set of bytes.
@@ -29,7 +29,7 @@ public interface Parameters {
      *
      * @see #storeAsBytes()
      */
-    public default void loadFromBytes(byte[] vector) throws IOException {
+    default void loadFromBytes(byte[] vector) throws IOException {
         ByteArrayInputStream is = new ByteArrayInputStream(vector);
         ObjectInputStream os = new ObjectInputStream(is);
         int length = os.readInt();
@@ -51,7 +51,7 @@ public interface Parameters {
      *
      * @see #load(double[])
      */
-    public double[] store();
+    double[] store();
 
     /**
      * Produces a serialized encoding of the parameters.
@@ -66,7 +66,7 @@ public interface Parameters {
      *
      * @see #loadFromBytes(byte[])
      */
-    public default byte[] storeAsBytes() throws IOException {
+    default byte[] storeAsBytes() throws IOException {
         double[] values = this.store();
         int length = values.length;
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(length * Double.BYTES + 32);

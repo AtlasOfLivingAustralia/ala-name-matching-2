@@ -1,8 +1,10 @@
 package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.*;
+import au.org.ala.bayesian.fidelity.CompositeFidelity;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -16,8 +18,6 @@ import java.util.function.Function;
  */
 public class EmptyClassification implements Classification<EmptyClassification> {
     @Getter
-    private NullAnalyser<EmptyClassification> analyser = new NullAnalyser<>();
-    @Getter
     private Issues issues = new Issues();
 
     @Override
@@ -26,7 +26,7 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     }
 
     @Override
-    public Collection<Observation> toObservations() {
+    public Collection<Observation<?>> toObservations() {
         return Collections.emptyList();
     }
 
@@ -51,11 +51,7 @@ public class EmptyClassification implements Classification<EmptyClassification> 
     }
 
     @Override
-    public void inferForIndex() {
-    }
-
-    @Override
-    public void inferForSearch() {
+    public void inferForSearch(@NonNull Analyser analyser, @NonNull MatchOptions options) {
     }
 
     /**
@@ -64,8 +60,9 @@ public class EmptyClassification implements Classification<EmptyClassification> 
      * @return The cloned classification
      */
     @Override
+    @SneakyThrows
     public @NonNull EmptyClassification clone() {
-        return (EmptyClassification) this.clone();
+        return (EmptyClassification) super.clone();
     }
 
     /**
@@ -79,34 +76,46 @@ public class EmptyClassification implements Classification<EmptyClassification> 
      */
     @Override
     public void addIssue(Term issue) {
+        this.issues = this.issues.with(issue);
     }
 
 
-    /**
-     * The order in which to modify this classification.
-     * <p>
-     * Returned is a list of functions that will take a classification and return
-     * a modified classification
-     * </p>
-     *
-     * @return
-     */
     @Override
+    public void addIssues(Issues issues) {
+        this.issues = this.issues.merge(issues);
+    }
+
+    @Override
+    public @NonNull Hints<EmptyClassification> getHints() {
+        return new Hints<>();
+    }
+
+    @Override
+    public <T> void addHint(Observable<T> observable, T value) {
+    }
+
+    @Override
+    public boolean isValidCandidate(Classifier classifier) throws BayesianException {
+        return true;
+    }
+
+    @Override
+    public Fidelity<EmptyClassification> buildFidelity(EmptyClassification actual) {
+        return new CompositeFidelity<>(this, actual);
+    }
+
+     @Override
     public List<List<Function<EmptyClassification, EmptyClassification>>> searchModificationOrder() {
         return Collections.emptyList();
     }
 
-    /**
-     * The order in which to modify this classification.
-     * <p>
-     * Returned is a list of functions that will take a classification and return
-     * a modified classification
-     * </p>
-     *
-     * @return
-     */
     @Override
     public List<List<Function<EmptyClassification, EmptyClassification>>> matchModificationOrder() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<List<Function<EmptyClassification, EmptyClassification>>> hintModificationOrder() {
         return Collections.emptyList();
     }
 

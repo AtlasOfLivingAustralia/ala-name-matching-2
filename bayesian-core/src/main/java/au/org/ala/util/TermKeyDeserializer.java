@@ -1,12 +1,7 @@
 package au.org.ala.util;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 
 import java.io.IOException;
@@ -15,7 +10,7 @@ import java.io.IOException;
  * Deserializer for GBIF terms.
  */
 public class TermKeyDeserializer extends KeyDeserializer {
-    private TermFactory factory;
+    private final TermFactory factory;
 
     public TermKeyDeserializer() {
         this.factory = TermFactory.instance();

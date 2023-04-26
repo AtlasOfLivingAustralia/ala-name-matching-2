@@ -1,0 +1,162 @@
+package au.org.ala.bayesian.generated;
+
+import au.org.ala.bayesian.ClassificationMatcher;
+import au.org.ala.bayesian.ClassificationMatcherConfiguration;
+import au.org.ala.bayesian.ClassifierSearcher;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.MatchMeasurement;
+import au.org.ala.bayesian.NetworkFactory;
+import au.org.ala.bayesian.Normaliser;
+import au.org.ala.bayesian.Observable;
+import au.org.ala.bayesian.Observable.Multiplicity;
+import static au.org.ala.bayesian.ExternalContext.*;
+import au.org.ala.vocab.BayesianTerm;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
+
+import au.org.ala.bayesian.analysis.StringAnalysis;
+import au.org.ala.bayesian.NullAnalyser;
+import au.org.ala.bayesian.Analyser;
+import au.org.ala.test.TestMatcher;
+import au.org.ala.bayesian.ClassificationMatcher;
+
+public class Network14Factory implements NetworkFactory<Network14Classification, Network14Inferencer, Network14Factory> {
+    private static Network14Factory instance = null;
+
+
+  public static final Observable<String> v1 = new Observable(
+      "v_1",
+      null,
+      String.class,
+      Observable.Style.CANONICAL,
+      null,
+      new StringAnalysis(),
+      Multiplicity.MANY,
+      Multiplicity.OPTIONAL
+    );
+  public static final Observable<String> v2 = new Observable(
+      "v_2",
+      null,
+      String.class,
+      Observable.Style.CANONICAL,
+      null,
+      new StringAnalysis(),
+      Multiplicity.OPTIONAL,
+      Multiplicity.OPTIONAL
+    );
+  public static final Observable<String> v3 = new Observable(
+      "v_3",
+      null,
+      String.class,
+      Observable.Style.CANONICAL,
+      null,
+      new StringAnalysis(),
+      Multiplicity.OPTIONAL,
+      Multiplicity.OPTIONAL
+    );
+
+  public static List<Observable<?>> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
+    v1,
+    v2,
+    v3
+  ));
+
+  public static final TermFactory TERM_FACTORY = TermFactory.instance();
+
+  public static final Term CONCEPT = TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/Concept");
+
+
+  public static final List<Term> ISSUES = Collections.unmodifiableList(Arrays.asList(
+          BayesianTerm.illformedData,
+          BayesianTerm.invalidMatch
+  ));
+
+
+  static {
+    // Force vocabularies to load
+    au.org.ala.vocab.BayesianTerm.values();
+    au.org.ala.vocab.OptimisationTerm.values();
+    v1.setExternal(LUCENE, "v_1");
+    v2.setExternal(LUCENE, "v_2");
+    v3.setExternal(LUCENE, "v_3");
+    v3.setProperty(au.org.ala.vocab.OptimisationTerm.load, false);
+  }
+
+  @Override
+  public String getNetworkId() {
+    return "network_14";
+  }
+
+  @Override
+  public List<Observable<?>> getObservables() {
+    return OBSERVABLES;
+  }
+
+  @Override
+  public List<Term> getAllIssues() {
+    return ISSUES;
+  }
+
+  @Override
+  public Term getConcept() {
+    return CONCEPT;
+  }
+
+  @Override
+  public Optional<Observable<String>> getIdentifier() {
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<Observable<String>> getName() {
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<Observable<String>> getParent() {
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<Observable<String>> getAccepted() {
+    return Optional.empty();
+  }
+
+  @Override
+  public Network14Classification createClassification() {
+      return new Network14Classification();
+  }
+
+  @Override
+  public Network14Inferencer createInferencer() {
+      return new Network14Inferencer();
+  }
+
+  @Override
+  public au.org.ala.bayesian.NullAnalyser createAnalyser() {
+        return new au.org.ala.bayesian.NullAnalyser();
+  }
+
+  @Override
+  public au.org.ala.test.TestMatcher createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config) {
+        return new au.org.ala.test.TestMatcher(this, searcher, config);
+  }
+
+  public static Network14Factory instance() {
+      if (instance == null) {
+          synchronized (Network14Factory.class) {
+              if (instance == null) {
+                  instance = new Network14Factory();
+              }
+          }
+      }
+      return instance;
+  }
+}

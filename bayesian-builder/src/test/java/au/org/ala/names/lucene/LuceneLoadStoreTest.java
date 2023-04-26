@@ -18,10 +18,10 @@ import java.util.Iterator;
 import static org.junit.Assert.*;
 
 public class LuceneLoadStoreTest {
-    private static final Observable TAXON_ID_OBS = new Observable(DwcTerm.taxonID);
-    private static final Observable SCIENTIFIC_NAME_OBS = new Observable(DwcTerm.scientificName);
-    private static final Observable GENUS_OBS = new Observable(DwcTerm.genus);
-    private static final Observable FAMILY_OBS = new Observable(DwcTerm.family);
+    private static final Observable<String> TAXON_ID_OBS = Observable.string(DwcTerm.taxonID);
+    private static final Observable<String> SCIENTIFIC_NAME_OBS = Observable.string(DwcTerm.scientificName);
+    private static final Observable<String> GENUS_OBS = Observable.string(DwcTerm.genus);
+    private static final Observable<String> FAMILY_OBS = Observable.string(DwcTerm.family);
 
     private Network network;
     private Annotator annotator;
@@ -31,7 +31,7 @@ public class LuceneLoadStoreTest {
     public void setUp() throws Exception {
         this.network = new Network();
         this.annotator = new TestAnnotator();
-        this.store = new LuceneLoadStore(this.annotator, null, true, true);
+        this.store = new LuceneLoadStore("test", null, true, true, 0);
     }
 
     @After
@@ -50,7 +50,7 @@ public class LuceneLoadStoreTest {
         while (i < vals.length) {
             Term term = TermFactory.instance().findTerm(vals[i++]);
             String value = vals[i++];
-            classifier.add(new Observable(term), value);
+            classifier.add(Observable.string(term), value, false, false);
         }
         return classifier;
     }

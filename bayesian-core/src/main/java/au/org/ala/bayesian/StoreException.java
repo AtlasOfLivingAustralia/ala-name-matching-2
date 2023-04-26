@@ -3,9 +3,9 @@ package au.org.ala.bayesian;
 /**
  * An exception that indicates one of the information stores has encountered a problem.
  */
-public class StoreException extends Exception {
+public class StoreException extends BayesianException {
     /**
-     * Consurct with a message.
+     * Construct with a message.
      *
      * @param message The message
      */
@@ -21,5 +21,14 @@ public class StoreException extends Exception {
      */
     public StoreException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    /**
+     * Constructs a new exception with the specified cause
+     *
+     * @param cause the cause
+     */
+    public StoreException(Throwable cause) {
+        super(cause);
     }
 }

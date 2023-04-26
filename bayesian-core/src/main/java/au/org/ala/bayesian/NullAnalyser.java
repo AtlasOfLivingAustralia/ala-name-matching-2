@@ -13,19 +13,24 @@ import java.util.Set;
  *
  * @param <C> The classification type.
  */
-public class NullAnalyser<C extends Classification> implements Analyser<C> {
+public class NullAnalyser<C extends Classification<C>> implements Analyser<C> {
     @Override
-    public void analyseForIndex(C classification) {
+    public void analyseForIndex(Classifier classifier) {
     }
 
     @Override
-    public void analyseForSearch(C classification) {
+    public void analyseForSearch(C classification, MatchOptions options) {
     }
 
     @Override
-    public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) {
+    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) {
         if (classifier.has(name))
             return Collections.singleton(classifier.get(name));
         return Collections.emptySet();
+    }
+
+    @Override
+    public boolean acceptSynonym(Classifier base, Classifier candidate) {
+        return true;
     }
 }

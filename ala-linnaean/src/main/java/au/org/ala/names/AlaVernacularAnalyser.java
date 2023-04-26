@@ -2,23 +2,13 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
-import au.org.ala.util.CleanedScientificName;
-import au.org.ala.vocab.ALATerm;
+import au.org.ala.vocab.TaxonomicStatus;
 import au.org.ala.vocab.VernacularStatus;
-import com.google.common.base.Enums;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import org.gbif.api.vocabulary.NomenclaturalCode;
-import org.gbif.dwc.terms.Term;
-import org.gbif.nameparser.AuthorshipParsingJob;
-import org.gbif.nameparser.NameParserGBIF;
-import org.gbif.nameparser.api.*;
-import org.gbif.nameparser.util.NameFormatter;
+import org.gbif.nameparser.api.Rank;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassification> {
     /** The default set of weights to apply */
@@ -35,29 +25,33 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
         STATUS_WEIGHT_MAP.put(VernacularStatus.common, 10.0);
         STATUS_WEIGHT_MAP.put(VernacularStatus.traditionalKnowledge, 20.0);
         STATUS_WEIGHT_MAP.put(VernacularStatus.local, 5.0);
+        STATUS_WEIGHT_MAP.put(VernacularStatus.deprecated, 1.0);
     }
     /**
      * Analyse the information in a classifier and extend the classifier
      * as required for indexing.
      *
-     * @param classification The classification
+     * @param classifier The classification
      */
     @Override
-    public void analyseForIndex(AlaVernacularClassification classification) {
-        if (classification.weight == null) {
-            double weight = STATUS_WEIGHT_MAP.getOrDefault(classification.vernacularStatus, 1.0);
-            if (classification.taxonRank == Rank.SPECIES)
+    public void analyseForIndex(Classifier classifier) throws StoreException {
+        if (!classifier.has(AlaVernacularFactory.weight)) {
+            double weight = STATUS_WEIGHT_MAP.getOrDefault(classifier.get(AlaVernacularFactory.vernacularStatus), 1.0);
+            Rank taxonRank = classifier.get(AlaVernacularFactory.taxonRank);
+            TaxonomicStatus taxonomicStatus = classifier.get(AlaVernacularFactory.taxonomicStatus);
+            if (taxonRank == Rank.SPECIES)
                 weight *= 10;
-            else if (classification.taxonRank == Rank.GENUS)
+            else if (taxonRank == Rank.GENUS)
                 weight *= 2;
-            else if (classification.taxonRank != null && classification.taxonRank != Rank.FAMILY && classification.taxonRank != Rank.SUBSPECIES)
+            else if (taxonRank != null && taxonRank != Rank.FAMILY && taxonRank != Rank.SUBSPECIES)
                 weight /= 10.0;
-            if (classification.taxonomicStatus != null && !classification.taxonomicStatus.isAcceptedFlag())
+            if (taxonomicStatus != null && !taxonomicStatus.isAcceptedFlag())
                 weight /= 10.0;
-            classification.weight = weight;
+            classifier.add(AlaVernacularFactory.weight, Math.max(1.0, weight), false, true);
         }
-        if (classification.acceptedNameUsageId != null)
-            classification.taxonId = classification.acceptedNameUsageId;
+        if (classifier.has(AlaVernacularFactory.acceptedNameUsageId)) {
+            classifier.add(AlaVernacularFactory.taxonId, classifier.get(AlaVernacularFactory.acceptedNameUsageId), false, true);
+        }
     }
 
     /**
@@ -65,9 +59,10 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
      * as required for searching.
      *
      * @param classification The classification
-      */
+     * @param options The match options to use
+     */
     @Override
-    public void analyseForSearch(AlaVernacularClassification classification)  {
+    public void analyseForSearch(AlaVernacularClassification classification, MatchOptions options)  {
     }
 
     /**
@@ -84,20 +79,19 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
      * @return All the names that refer to the classification
      */
     @Override
-    public Set<String> analyseNames(Classifier classifier, Observable name, Optional<Observable> complete, Optional<Observable> additional, boolean canonical) throws InferenceException {
+    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) throws InferenceException {
         Set<String> allNames = new HashSet<>(classifier.getAll(name));
         if (complete.isPresent())
             allNames.addAll(classifier.getAll(complete.get()));
         Set<String> names = new HashSet<>(allNames);
  
         if (allNames.isEmpty())
-            throw new InferenceException("No name for " + classifier.get(AlaVernacularFactory.nameId));
+            throw new InferenceException("No name for " + classifier.get(AlaVernacularFactory.nameId) + " at " +  classifier.get(AlaVernacularFactory.taxonId));
         for (String nm : allNames) {
-            CleanedScientificName n = new CleanedScientificName(nm);
-            names.add(n.getName());
-            names.add(n.getBasic());
-            names.add(n.getNormalised());
-            String nnm = n.getNormalised();
+            names.add(ScientificNameAnalyser.BASIC_NORMALISER.normalise(nm));
+            names.add(ScientificNameAnalyser.PUNCTUATION_NORMALISER.normalise(nm));
+            String nnm = ScientificNameAnalyser.FULL_NORMALISER.normalise(nm);
+            names.add(nnm);
             Set<String> moreNames = new HashSet<>();
             moreNames.add(nnm);
             Matcher matcher = POSSESSIVE.matcher(nnm);
@@ -113,5 +107,18 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
             }
         }
         return names;
+    }
+
+    /**
+     * Decide whether to accept a synonym or not.
+      *
+     * @param base      The base classifier the synonym is for
+     * @param candidate The classifier for the synonym
+     *
+     * @return True by default
+     */
+    @Override
+    public boolean acceptSynonym(Classifier base, Classifier candidate) {
+        return true;
     }
 }

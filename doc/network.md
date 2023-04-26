@@ -58,12 +58,20 @@ From these observables, you will need to identify:
   prior probability is the weight divided by the sum of all weights.
 
 Once you have identified these features, you can start work on an
-_analyser_ for the network.
+_analyser_ and _weight analyser_ for the network.
 Analysers<sup>1</sup> implement the `au.org.ala.bayesian.Analyser` interface
 and allow you to condition incoming information so that it matches properly.
+In most cases, the observable defintion can do enough analysis and derivation
+to not require specialsed treatment.
+Analysers allow you to do more complex and cross-observable treatment.
+For example, removing comments in a scientificName.
+WeightAnalysers implement the `au.org.ala.names.builder.WeightAnalyser` interface
+and allow you build probability weights for the _weight_ observable.
+WeightAnalysers can be used to boost specific parts of a heirarchy or pull
+information from an ancilliary file.
 
 To begin with, you'll usually have to do this in two parts. 
-First write a placeholder analyser that does nothing very useful and then,
+First write placeholder analysers that do nothing very useful and then,
 once the network has been compiled, fill it out using the classes that have
 been generated.
 
@@ -157,10 +165,13 @@ In addition, observables have the following properties:
     that can be used to compare non-identical versions (eg. taxonRank)
   * `PHRASE` - a string consisting of units than can be subject to tokenised search (eg. scientificName)
 * **multiplicity** One of:
-  * `0..1` - the default, an optional value with zero or one value (eg. taxonomicStatus)
+  * `?` - the default, an optional value with zero or one value (eg. taxonomicStatus)
   * `1` - a required value with only one value (eg. taxonId)
   * `*` something with zero or more possible values (eg. family)
   * `+` something with one or more possible values (eg. scientificName)
+* **matchability** One of the same values as multiplicity.
+  The matchability is usually `?` but, if set to `*` it will allow a set of
+  values, all of which will be matched against the classifier.
 * **analysis** A reference to an object that interprets the observable so that
   it can be parsed, stored, queried and tested for equivalence.
   By default, this is derived from the type of the observable.
@@ -199,7 +210,7 @@ An example observable with properties that specify that it is the identifier is:
     "label": "tID",
     "uri": "http://rs.tdwg.org/dwc/terms/taxonID",
     "properties": {
-      "http://id.ala.org.au/bayesian/1.0/identifier": true
+      "http://ala.org.au/bayesian/1.0/identifier": true
     },
     "style": "IDENTIFIER",
     "multiplicity": "1"
@@ -208,30 +219,62 @@ An example observable with properties that specify that it is the identifier is:
 
 A property is a URI and a value.
 The following properties are recognised by the network compiler.
-These are all boolean values at present but the model allows for further properties of
+Most properties are boolean values but the model allows for further properties of
 any type.
 
-* `http://id.ala.org.au/bayesian/1.0/weight` This observable provides the classifier weight.
-* `http://id.ala.org.au/bayesian/1.0/identifier` This observable is the classifer identifier
-* `http://id.ala.org.au/bayesian/1.0/name` This observable provides the name of the classifier.
-* `http://id.ala.org.au/bayesian/1.0/fullName` This observable provides the full, formal name of the classifier.
-* `http://id.ala.org.au/bayesian/1.0/altName` This observable holds alternative names for the classifier.
-* `http://id.ala.org.au/bayesian/1.0/additionalName` This observable holds additional, disambiguating information about a name. 
+* `http://ala.org.au/bayesian/1.0/weight` This observable provides the classifier weight.
+* `http://ala.org.au/bayesian/1.0/identifier` This observable is the classifer identifier
+* `http://ala.org.au/bayesian/1.0/name` This observable provides the name of the classifier.
+* `http://ala.org.au/bayesian/1.0/fullName` This observable provides the full, formal name of the classifier.
+* `http://ala.org.au/bayesian/1.0/altName` This observable holds alternative names for the classifier.
+* `http://ala.org.au/bayesian/1.0/additionalName` This observable holds additional, disambiguating information about a name. 
   For example, the scientificNameAuthorship field holds additional information 
   about how the scientificName and taxonId should be interpreted.
-* `http://id.ala.org.au/bayesian/1.0/parent` This observable provides the reference identifier to the parent classifier.
-* `http://id.ala.org.au/bayesian/1.0/accepted` This observable provides the linking reference to the
+* `http://ala.org.au/bayesian/1.0/parent` This observable provides the reference identifier to the parent classifier.
+* `http://ala.org.au/bayesian/1.0/accepted` This observable provides the linking reference to the
   accepted classifier in the case of a synonym.
-* `http://id.ala.org.au/bayesian/1.0/copy` Informtion that should be copied to a synonym from the accepted classifier.
+* `http://ala.org.au/bayesian/1.0/copy` Informtion that should be copied to a synonym from the accepted classifier.
   This property can be used to fill out clarifying infomation for something that has it missing.
   For example, the kingdom is copied from an accepted taxon to a synonym to provide a stable form of disambiguation
   if there is not enough contextual information.
-* `http://id.ala.org.au/bayesian/1.0/additional` The is an observable that does not particpate in the 
+* `http://ala.org.au/bayesian/1.0/additional` The is an observable that does not particpate in the 
   Bayesian network but which needs to be included in the final classification.
   As an example, taxonomicStatus is not used during matching but needs to be provided with the match.
-* `http://id.ala.org.au/bayesian/1.0/link` This is a link property for information derived from parent-child data.
+* `http://ala.org.au/bayesian/1.0/link` This is a link property for information derived from parent-child data.
   If there are different opinions about what the value of this property should be, the parent takes precidence.
   Otherwise, weird things can happen.
+
+As well as the Bayesian properties, there are optimisation properties that
+can be used to improve performance.
+
+* `http://ala.org.au/optimisation/1.0/load` Do not load values from source documents.
+  Instead, rely on derived information from the hierarchy.
+* `http://ala.org.au/optimisation/1.0/luceneNoSearch` Do not include this observable
+  when searching a Lucene index.
+  This can be used for observables that are naturally ranges; Lucene tends to make a
+  slow job of searching for these values.
+* `http://ala.org.au/optimisation/1.0/aggregate` Aggregate values when loading values
+  from a Darwin Core Archive extension.
+  This property can have the following values:
+  * `first` Use the first non-null value. The default.
+  * `max` Use the largest value for an observable with a comparable type.
+  * `min` Use the smallest value for an observable with a comparable type.
+* `http://ala.org.au/optimisation/1.0/dwcaOrder` The name of a class that will be
+  used to order values when using `http://ala.org.au/optimisation/1.0/aggregate`
+  The class needs to implement `java.util.Comparator<org.gbif.dwc.record.Record>` 
+  for the type of object being aggregated.
+  Otherwise, the natural ordering is used.
+* `http://ala.org.au/optimisation/1.0/dwcaFilter` The name of a class that will be
+  used to filter values when using `http://ala.org.au/optimisation/1.0/aggregate`
+  The class needs to implement `java.util.function.Predicate<org.gbif.dwc.record.Record>` 
+  for the type of object being aggregated.
+* `http://ala.org.au/optimisation/1.0/checkPresentInClassifier` If true, only classifiers
+  that contain values that are part of the observable's group (see above) will be
+  considered as candidates. This allows you to specify that you must have a category
+  of observables in the answer, if the search classification contains a value.
+  This can be useful in eliminating matches that would match but are overly vague.
+* `http://ala.org.au/optimisation/1.0/approximateName` This observable holds an approximate name (eg. soundex or stem)
+  that can be used to pre-filter candidates.
 
 #### Derivations
 
@@ -243,7 +286,7 @@ For example soundexFamily is derived from the family via the following derivatio
 {
   "id": "soundexFamily",
   "label": "xF",
-  "uri": "http://id.ala.org.au/terms/1.0/soundexFamily",
+  "uri": "http://ala.org.au/terms/1.0/soundexFamily",
   "group": "family",
   "multiplicity": "*",
   "derivation": {
@@ -346,9 +389,9 @@ The above example is a statement that the genus name affects the genus identifie
 ### Issues
 
 Issues are statements about various problems encountered when matching information,
-ranging from the minor (eg, `http://id.ala.org.au/issues/1.0/canonicalName` which means
+ranging from the minor (eg, `http://ala.org.au/issues/1.0/canonicalName` which means
 that the name had to be parsed into components) to the slightly more catastrophic
-(eg. `http://id.ala.org.au/issues/1.0/unresolvedHomonym` which indicates that a
+(eg. `http://ala.org.au/issues/1.0/unresolvedHomonym` which indicates that a
 name might apply to multiple, widely distibuted taxa).
 
 Issues contain the elements in [identification](#identification).
@@ -366,7 +409,18 @@ A typical modification is
 {
   "@class" : "au.org.ala.bayesian.modifier.RemoveModifier",
   "id" : "misspelled_scientific_name_base",
-  "issue" : "misspelled_scientific_name",
+  "issues" : [ "misspelled_scientific_name" ],
+  "condition": {
+    "@class" : "au.org.ala.bayesian.condition.PresentCondition",
+    "all": false,
+    "present": [
+      "kingdom",
+      "phylum",
+      "class",
+      "order",
+      "family"
+    ]
+  },  
   "observables" : [ "scientificName", "genus", "specificEpithet" ]
 }
 ```
@@ -377,6 +431,7 @@ section, an associated issue (since modifying the template implies that somethin
 and implementation-specific configuration.
 In the example, the modifier sets to null the scientificName, genus and specificEpithet
 values, if they exist, allowing inference to occur based on the soundex branches.
+However, it will only trigger if one of the higher order values has been set.
 
 ### Modifiers 
 
@@ -398,23 +453,30 @@ inaccurate ranks and the like.
 An example modifier list is shown below:
 
 ```json
-"matchModifiers": [
-  [
-    "remove_order", "remove_class", "remove_phylum"
-  ],
-  [
-    "remove_order", "remove_class", "remove_phylum"
-  ],
-  [
-    "remove_authorship"
-  ],
-  [
-    "misspelled_scientific_name_base", "misspelled_scientific_name_full"
-  ],
-  [
-    "remove_rank"
+{
+  "matchModifiers": [
+    [
+      "remove_order",
+      "remove_class",
+      "remove_phylum"
+    ],
+    [
+      "remove_order",
+      "remove_class",
+      "remove_phylum"
+    ],
+    [
+      "remove_authorship"
+    ],
+    [
+      "misspelled_scientific_name_base",
+      "misspelled_scientific_name_full"
+    ],
+    [
+      "remove_rank"
+    ]
   ]
-]
+}
 ```
 
 If applied to the following template

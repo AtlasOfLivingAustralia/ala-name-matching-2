@@ -1,13 +1,18 @@
 package au.org.ala.bayesian;
 
+import au.org.ala.bayesian.derivation.CompiledDerivation;
+import au.org.ala.names.builder.BuilderException;
 import au.org.ala.util.IdentifierConverter;
 import au.org.ala.util.SimpleIdentifierConverter;
 import au.org.ala.vocab.BayesianTerm;
+import au.org.ala.vocab.OptimisationTerm;
 import lombok.Getter;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -60,51 +65,6 @@ public class NetworkCompiler {
         this.parent = parent;
         this.children = new ArrayList<>();
         this.variableConverter = SimpleIdentifierConverter.JAVA_VARIABLE;
-        BayesianTerm.weight.toString(); // Ensure loaded
-    }
-
-    /**
-     * Get the variables required to create a builder for this network.
-     * <p>
-     * These represent utility classes that can be used to generate something.
-     * </p>
-     *
-     * @return The variables
-     */
-    public Set<Derivation.Variable> getBuilderVariables() {
-        Set<Derivation.Variable> variables = new HashSet<>();
-
-        for (Observable observable: this.network.getVertices()) {
-            if (observable.getDerivation() != null) {
-                variables.addAll(observable.getDerivation().getBuilderVariables());
-            }
-            if (observable.getBase() != null) {
-                variables.addAll(observable.getBase().getBuilderVariables());
-            }
-        }
-        return variables;
-    }
-
-    /**
-     * Get the variables required to create a classification for this network.
-     * <p>
-     * These represent utility classes that can be used to generate something.
-     * </p>
-     *
-     * @return The variables
-     */
-    public Set<Derivation.Variable> getClassificationVariables() {
-        Set<Derivation.Variable> variables = new HashSet<>();
-
-        for (Observable observable: this.network.getVertices()) {
-            if (observable.getDerivation() != null) {
-                variables.addAll(observable.getDerivation().getClassificationVariables());
-            }
-            if (observable.getBase() != null) {
-                variables.addAll(observable.getBase().getClassificationVariables());
-            }
-        }
-        return variables;
     }
 
     /**
@@ -119,7 +79,7 @@ public class NetworkCompiler {
     /**
      * Get the collections of erased observables
      */
-    public List<List<Observable>> getErasureStructure() {
+    public List<List<Observable<?>>> getErasureStructure() {
         List<String> erasureGroups = this.network.getGroups();
         return erasureGroups.stream()
                 .map(g -> this.network.getObservables().stream()
@@ -127,6 +87,21 @@ public class NetworkCompiler {
                     .collect(Collectors.toList()))
                 .collect(Collectors.toList());
     }
+
+
+    /**
+     * Get the collections of erased observables
+     */
+    public List<List<Observable<?>>> getCheckedErasureStructure() {
+        List<String> erasureGroups = this.network.getGroups();
+        return erasureGroups.stream()
+                .map(g -> this.network.getObservables().stream()
+                        .filter(o -> o.hasProperty(OptimisationTerm.checkPresentInClassifier, true) && g.equals(o.getGroup()))
+                        .collect(Collectors.toList()))
+                .filter(g -> !g.isEmpty())
+                .collect(Collectors.toList());
+    }
+
 
     /**
      * Get the list of issue defintitions.
@@ -148,8 +123,19 @@ public class NetworkCompiler {
     public Set<Class> getAllVocabularies() {
         Set<Class> all = new LinkedHashSet<>(this.network.getVocabularies());
         all.add(BayesianTerm.class);
+        all.add(OptimisationTerm.class);
         return all;
     }
+
+    /**
+     * Get all the nodes that have approximate name properties
+     *
+     * @return The approximate nodes
+     */
+    public List<Node> getApproximateNameNodes() {
+        return this.getOrderedNodes().stream().filter(n -> n.getObservable().hasProperty(OptimisationTerm.approximateName, true)).collect(Collectors.toList());
+    }
+
     public void analyse() throws InferenceException {
         this.sources = new DirectedAcyclicGraph<>(Dependency.class);
         Graphs.addGraphReversed(this.sources, this.network.getGraph());
@@ -157,9 +143,9 @@ public class NetworkCompiler {
         this.nodes = this.network.getVertices().stream().collect(Collectors.toMap(v -> v.getId(), v -> new Node(v)));
         this.orderedNodes = this.network.getVertices().stream().map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
         this.additionalNodes = this.network.getObservablesById().stream().filter(o -> o.hasProperty(BayesianTerm.additional, true) && !nodes.containsKey(o.getId())).map(o -> new Node(o)).collect(Collectors.toList());
-        this.inputs = this.network.getVertices().stream().filter(v -> this.network.getIncoming(v).isEmpty()).map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
+        this.inputs = this.network.getInputs().stream().map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
         this.inputSignatures = this.signatures(this.inputs.size());
-        this.outputs = this.network.getVertices().stream().filter(v -> this.network.getOutgoing(v).isEmpty()).map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
+        this.outputs = this.network.getOutputs().stream().map(v -> this.nodes.get(v.getId())).collect(Collectors.toList());
 
         for (Node node: this.inputs) {
             node.input = true;
@@ -273,6 +259,88 @@ public class NetworkCompiler {
         throw new InferenceException("Unable to find matching parameter for " + pattern + " from " + candidates);
     }
 
+    /**
+     * Get a list of observables in order of derivation, based on the partial order of inputs and outputs
+     *
+     * @return The observables in derivation order
+     */
+    public List<Observable> getDerivationOrder() throws BuilderException {
+        Predicate<Observable> isDerived = o -> o.getDerivation() != null;
+        final List<Observable> derived = new ArrayList<>(this.orderedNodes.size() + this.additionalNodes.size());
+        derived.addAll(this.orderedNodes.stream().map(Node::getObservable).filter(isDerived).collect(Collectors.toList()));
+        derived.addAll(this.additionalNodes.stream().map(Node::getObservable).filter(isDerived).collect(Collectors.toList()));
+        final Set<Observable> seen = new HashSet<>(derived.size());
+        seen.addAll(this.orderedNodes.stream().map(Node::getObservable).filter(isDerived.negate()).collect(Collectors.toSet()));
+        seen.addAll(this.additionalNodes.stream().map(Node::getObservable).filter(isDerived.negate()).collect(Collectors.toSet()));
+        final List<Observable> ordered = new ArrayList<>(derived.size());
+        while (!derived.isEmpty()) {
+           Observable active = derived.stream().filter(o -> o.getDerivation().getInputs().stream().allMatch(i -> seen.contains(i))).findFirst().orElse(null);
+            if (active == null)
+                throw new BuilderException("Unable to find next derivation in " + derived);
+            ordered.add(active);
+            seen.add(active);
+            derived.remove(active);
+        }
+        return ordered;
+    }
+
+    /**
+     * Get a list of observables in order of base generation
+     *
+     * @return The observables in base generation order
+     */
+    public List<Observable> getBaseOrder() throws BuilderException {
+        Predicate<Observable> isBase = o -> o.getBase() != null;
+        final List<Observable> ordered = new ArrayList<>(this.orderedNodes.size() + this.additionalNodes.size());
+        ordered.addAll(this.orderedNodes.stream().map(Node::getObservable).filter(isBase).collect(Collectors.toList()));
+        ordered.addAll(this.additionalNodes.stream().map(Node::getObservable).filter(isBase).collect(Collectors.toList()));
+         return ordered;
+    }
+
+    /**
+     * Get the variables required to create a builder for this network.
+     * <p>
+     * These represent utility classes that can be used to generate something.
+     * </p>
+     *
+     * @return The variables
+     */
+    public Set<CompiledDerivation.Variable> getBuilderVariables() {
+        return this.getCompiledDerivationVariables(CompiledDerivation::getBuilderVariables);
+    }
+
+    /**
+     * Get the variables required to create a classification for this network.
+     * <p>
+     * These represent utility classes that can be used to generate something.
+     * </p>
+     *
+     * @return The variables
+     */
+    public Set<CompiledDerivation.Variable> getClassificationVariables() {
+        return this.getCompiledDerivationVariables(CompiledDerivation::getClassificationVariables);
+    }
+
+    /**
+     * Collect a set of variables from a compiler derivation.
+     *
+     * @param getter The accessor for the variables.
+     *
+     * @return The set of variables to use.
+     */
+    public Set<CompiledDerivation.Variable> getCompiledDerivationVariables(Function<CompiledDerivation, Collection<CompiledDerivation.Variable>> getter) {
+        Set<CompiledDerivation.Variable> variables = new HashSet<>();
+
+        for (Observable observable: this.network.getVertices()) {
+            if (observable.getDerivation() != null && observable.getDerivation().isCompiled()) {
+                variables.addAll(getter.apply((CompiledDerivation) observable.getDerivation()));
+            }
+            if (observable.getBase() != null && observable.getBase().isCompiled()) {
+                variables.addAll(getter.apply((CompiledDerivation) observable.getBase()));
+            }
+        }
+        return variables;
+    }
 
     protected List<boolean[]> signatures(int size) {
         List<boolean[]> accumulator = new ArrayList<>();
@@ -292,10 +360,25 @@ public class NetworkCompiler {
         }
     }
 
+    public String formulaForSignature(boolean[] signature) {
+        StringBuilder builder = new StringBuilder();
+         int si = 0;
+        for (Node input: this.getInputs()) {
+            if (si > 0) {
+                builder.append(", ");
+            }
+            if (!signature[si]) {
+                builder.append('\u00ac');
+            }
+            builder.append(input.getObservable().getLabel());
+        }
+        return builder.toString();
+    }
+
     public class Node {
         /** The associated observable */
         @Getter
-        private Observable observable;
+        private final Observable observable;
         /** The variable that holds the matchiung evidence for this variable (if any) */
         @Getter
         private Variable evidence;
@@ -342,12 +425,34 @@ public class NetworkCompiler {
             return "p(\u00ac" + this.observable.getLabel() + ")";
         }
 
-        public List<InferenceParameter> matchingInference(final String signature) {
-            return this.inference.stream().filter(p -> signature.equals(p.getPostulateSignature())).collect(Collectors.toList());
+        public String formulaExpression(String signature, boolean match, boolean interior) {
+            StringBuilder builder = new StringBuilder();
+            List<InferenceParameter> parameters = interior ? this.matchingInterior(signature, match) : this.matchingInference(signature, match);
+            for (InferenceParameter parameter: parameters) {
+                if (builder.length() > 0) {
+                    builder.append(" + ");
+                }
+                builder.append(parameter.getFormula());
+                for (Contributor c: parameter.getContributors()) {
+                    builder.append("\u00b7");
+                    builder.append(c.getFormula());
+                }
+            }
+            return builder.toString();
         }
 
-        public List<InferenceParameter> matchingInterior(final String signature) {
-            return this.interior.stream().filter(p -> signature.equals(p.getPostulateSignature())).collect(Collectors.toList());
+        public List<InferenceParameter> matchingInference(final String signature, boolean match) {
+            return this.inference.stream()
+                    .filter(p -> signature.equals(p.getPostulateSignature()))
+                    .filter(p -> p.getOutcome().isMatch() == match)
+                    .collect(Collectors.toList());
+        }
+
+        public List<InferenceParameter> matchingInterior(final String signature, boolean match) {
+            return this.interior.stream()
+                    .filter(p -> signature.equals(p.getPostulateSignature()))
+                    .filter(p -> p.getOutcome().isMatch() == match)
+                    .collect(Collectors.toList());
         }
 
         /**

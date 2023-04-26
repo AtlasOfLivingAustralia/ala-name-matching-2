@@ -2,29 +2,37 @@ package au.org.ala.names.builder;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
+import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.names.lucene.LuceneLoadStore;
 import au.org.ala.util.Counter;
-import au.org.ala.util.SimpleClassifier;
+import au.org.ala.util.Metadata;
 import au.org.ala.vocab.BayesianTerm;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
-import org.apache.commons.cli.*;
+import lombok.SneakyThrows;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -40,8 +48,8 @@ import java.util.stream.IntStream;
  *     <li>Produce an output lucene index optimised for subsequent searching</li>
  * </ol>
  */
-public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, F extends NetworkFactory<C, I, F>> implements Annotator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IndexBuilder.class);
+public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, F extends NetworkFactory<C, I, F>, Cl extends Classifier> implements Annotator {
+    private static final Logger logger = LoggerFactory.getLogger(IndexBuilder.class);
 
     /** The date format for timestamping backups */
     public static final SimpleDateFormat BACKUP_TAG = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -62,66 +70,74 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     /** The class term to use for the concept */
     protected Term conceptTerm;
     /** The weight observable (required) */
-    protected Observable weight;
+    protected Observable<Double> weight;
     /** The parent observable */
-    protected Optional<Observable> parent;
+    protected Optional<Observable<String>> parent;
     /** The accepted name observable */
-    protected Optional<Observable> accepted;
+    protected Optional<Observable<String>> accepted;
     /** The category identifier observable (required) */
-    protected Observable identifier;
+    protected Observable<String> identifier;
     /** The concept name observable */
-    protected Observable name;
+    protected Observable<String> name;
     /** The alternative concept name observable */
-    protected Optional<Observable> altName;
+    protected Optional<Observable<String>> altName;
+    /** The synonym concept name observable */
+    protected Optional<Observable<String>> synonymName;
     /** The concept name additional terms */
-    protected Optional<Observable> additionalName;
+    protected Optional<Observable<String>> additionalName;
     /** The complete, propertly formatted concept name */
-    protected Optional<Observable> fullName;
+    protected Optional<Observable<String>> fullName;
     /** The set of terms to copy from an accepted taxon to a synonym */
-    protected Set<Observable> synonymCopy;
+    protected Set<Observable> copy;
     /** The set of terms that need to be stored */
     protected Set<Observable> stored;
-    /** The load-store. Used to store semi-structured information before building the complete index. */
+    /** The list of stores that have been generated. */
     @Getter
-    protected LoadStore loadStore;
-    /** The expanded store. Used to store expanded information */
+    private final List<LoadStore<Cl>> stores;
+    /** The store used to load sources */
     @Getter
-    protected LoadStore expandedStore;
-    /** The parameterised store. Used to store parameterised information */
-    @Getter
-    protected LoadStore parameterisedStore;
+    private final LoadStore<Cl> loader;
     /** The analyser. Used to add extra information to loaded classifiers. Accessed via the annotation interface */
     protected Analyser<C> analyser;
+    /** The wight analyser, used to compute the weight of a classifier */
+    @Getter
+    protected WeightAnalyser weightAnalyser;
     /** The identifiers used. Non-unique identifiers are disambiguated */
     protected Set<Object> identifiers;
+    /** The set of MBeans used */
+    protected Set<ObjectInstance> mbeans;
+    /** Source information metadata */
+    protected List<Metadata> sources;
 
     /**
      * Construct with a configuration.
      *
      * @param config The configuration
      *
-     * @throws StoreException if unable to create the load-store
+     * @throws BayesianException if unable to create the load-store
+     * @throws IOException if unable to read the information
      *
      */
-    public IndexBuilder(IndexBuilderConfiguration config) throws BuilderException, InferenceException, StoreException, IOException {
+    public IndexBuilder(IndexBuilderConfiguration config) throws BayesianException, IOException {
         this.config = config;
         this.network = Network.read(this.config.getNetwork());
         this.factory = config.createFactory(this);
-        this.builder = config.createBuilder(this, this.factory);
-        this.loadStore = config.createLoadStore(this);
+        this.builder = config.createBuilder(this.factory);
         this.analyser = this.factory.createAnalyser();
+        this.weightAnalyser = config.createWeightAnalyser(this.network);
         if (this.network.getConcept() == null)
             throw new BuilderException("Network requires concept term");
         this.conceptTerm = TermFactory.instance().findTerm(this.network.getConcept().toASCIIString());
-        this.weight = this.network.findObservable(BayesianTerm.weight, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.weight + ":true property"));
-        this.parent = this.network.findObservable(BayesianTerm.parent, true);
-        this.accepted = this.network.findObservable(BayesianTerm.accepted, true);
-        this.identifier = this.network.findObservable(BayesianTerm.identifier, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.identifier + ":true property"));
-        this.name = this.network.findObservable(BayesianTerm.name, true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.name + ":true property"));
-        this.additionalName = this.network.findObservable(BayesianTerm.additionalName, true);
-        this.fullName = this.network.findObservable(BayesianTerm.fullName, true);
-        this.altName = this.network.findObservable(BayesianTerm.altName, true);
-        this.synonymCopy = new HashSet<>(this.network.findObservables(BayesianTerm.copy, true));
+        this.weight = this.network.findObservable(BayesianTerm.weight, Double.class,true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.weight + ":true property"));
+        this.parent = this.network.findObservable(BayesianTerm.parent, String.class,true);
+        this.accepted = this.network.findObservable(BayesianTerm.accepted, String.class,true);
+        this.identifier = this.network.findObservable(BayesianTerm.identifier, String.class,true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.identifier + ":true property"));
+        this.name = this.network.findObservable(BayesianTerm.name, String.class,true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.name + ":true property"));
+        this.additionalName = this.network.findObservable(BayesianTerm.additionalName, String.class,true);
+        this.fullName = this.network.findObservable(BayesianTerm.fullName, String.class,true);
+        this.altName = this.network.findObservable(BayesianTerm.altName, String.class, true);
+        this.synonymName = this.network.findObservable(BayesianTerm.synonymName, String.class,true);
+        this.copy = new HashSet<>(this.network.findObservables(BayesianTerm.copy, true));
         this.stored = new HashSet<>(this.network.getObservables()); // The defined observables in the network
         this.stored.add(this.weight);
         this.parent.ifPresent(o -> this.stored.add(o));
@@ -131,8 +147,13 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.additionalName.ifPresent(o -> this.stored.add(o));
         this.fullName.ifPresent(o -> this.stored.add(o));
         this.altName.ifPresent(o -> this.stored.add(o));
-        this.stored.addAll(this.synonymCopy);
-        this.identifiers = new HashSet<>();
+        this.synonymName.ifPresent(o -> this.stored.add(o));
+        this.stored.addAll(this.copy);
+        this.identifiers = Collections.synchronizedSet(new HashSet<>());
+        this.mbeans = new HashSet<>();
+        this.stores = new ArrayList<>();
+        this.loader = this.createWorkStore("loader");
+        this.sources = new ArrayList<>();
     }
 
     /**
@@ -140,13 +161,13 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      *
      * @param source The source to load
      *
-     * @throws BuilderException if something foes wrong
-     * @throws InferenceException if there is something wrong with annotating the load
-     * @throws StoreException if the store fails during loading
+     * @throws BayesianException if something goes wrong during loading
      */
-    public void load(Source source) throws BuilderException, InferenceException, StoreException {
-        source.load(this.loadStore, this.stored);
-        this.loadStore.commit();
+    public void load(Source source) throws BayesianException {
+        this.registerJmx(source.getCounter(), "source");
+        source.load(this.loader, this.stored);
+        this.loader.commit();
+        this.addSourceMetadata(source.getMetadata());
     }
 
 
@@ -154,17 +175,19 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * Build the index once the data has been loaded.
      * <p>
      * This builds all the information so that the index can be constructed.
-     * It does not output the final index; see {@link #buildIndex(File)} for that.
+     * It does not output the final index; see {@link #buildIndex(File, LoadStore)} for that.
      * </p>
      *
-     * @throws BuilderException if unable to store information in the index
-     * @throws InferenceException if unable to build the inference parameters
-     * @throws StoreException if unable to store intermediate documents
+     * @throws BayesianException if unable to store information in the index or build inference parameters
      */
-    public void build() throws BuilderException, InferenceException, StoreException {
-        this.expandTree();
-        this.expandSynonyms();
-        this.buildParameters();
+    public LoadStore<Cl> build() throws BayesianException {
+        LoadStore<Cl> interpreted = this.interpret(this.loader);
+        LoadStore<Cl> synonymised = this.synonymise(interpreted);
+        LoadStore<Cl> expanded = this.expand(synonymised);
+        LoadStore<Cl> inferred = this.infer(expanded);
+        LoadStore<Cl> weighted = this.weight(inferred);
+        LoadStore<Cl> parameterised = this.parameterise(weighted);
+        return parameterised;
     }
 
 
@@ -177,129 +200,265 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * @throws StoreException if unable to close
      */
     public void close() throws StoreException {
-        this.loadStore.close();
-        if (this.expandedStore != null)
-            this.expandedStore.close();
-        if (this.parameterisedStore != null)
-            this.parameterisedStore.close();
+        for (LoadStore<Cl> store: this.stores) {
+            store.close();
+        }
+        if (this.config.isEnableJmx()) {
+            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+            for (ObjectInstance mbean: this.mbeans) {
+                try {
+                    mbs.unregisterMBean(mbean.getObjectName());
+                } catch (Exception ex) {
+                    logger.error("Unable to unregister " + mbean, ex);
+                }
+            }
+        }
     }
 
     /**
-     * Traverse the tree, building a model of the taxonomic tree in terms of parent/child relationships
-     * and fill out information about the
+     * Interpret the source data.
+     * <p>
+     * This is an initial pass-through to ensure that any immediately inferencable data is collected.
+     * </p>
      *
-     * @throws BuilderException if unable to traverse the tree
-     * @throws StoreException if unable to store data property
+     * @param source The source data store
+     *
+     * @throws BayesianException if unable to interpret the data
      */
-    public void expandTree() throws BuilderException, InferenceException, StoreException {
-        LOGGER.info("Expanding accepted concept tree");
-        this.expandedStore = this.config.createLoadStore(Annotator.NULL);
-        int index = 1;
-        int oldIndex = index;
-        Observation isRoot = this.loadStore.getAnnotationObservation(BayesianTerm.isRoot);
-        List<Classifier> top = this.loadStore.getAllClassifiers(this.conceptTerm, isRoot); // Keep across commits
-        Counter topCounter = new Counter("Processed {0} top level documents, {1}s, {3,number,0.0}%", LOGGER, 100, top.size());
-        Counter counter = new Counter("Processed {0} accepted taxa, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
-        topCounter.start();
-        counter.start();
-        for (Classifier classifier: top) {
-            topCounter.increment(classifier.getIdentifier());
-            index = this.expandTree(classifier, new LinkedList<Classifier>(), index, counter);
-            if (index - oldIndex > COMMIT_BATCH) {
-                this.expandedStore.commit();
-                oldIndex = index;
-            }
-        }
-        this.expandedStore.commit();
-        counter.stop();
-        topCounter.stop();
+    public LoadStore<Cl> interpret(LoadStore<Cl> source) throws BayesianException {
+        final LoadStore<Cl> target = this.createWorkStore("interpreted");
+        this.process(
+                "interpret",
+                "Interpreted {0} concepts, {2,number,0.0}/s, last {4}",
+                source,
+                target,
+                c -> {
+                    try {
+                        this.builder.generate(c, this.analyser);
+                        this.annotate(c);
+                        this.buildNames(c);
+                        this.builder.interpret(c, this.analyser);
+                        return c;
+                    } catch (BayesianException ex) {
+                        throw new IllegalArgumentException("Unable to process " + c.get(this.identifier), ex);
+                    }
+                }
+                );
+        target.commit();
+        return target;
     }
 
-    public int expandTree(Classifier classifier, Deque<Classifier> parents, int index, Counter counter) throws InferenceException, StoreException {
-        int left = index;
-        String id = classifier.get(this.identifier);
-        // Perform all derivations
-        this.builder.expand(classifier, parents);
+    /**
+     * Get the alternative name interretations for a classifier.
+     *
+     * @param classifier The classifier to expand
+     *
+     * @throws BayesianException if unable to interpret the names
+     */
+    public void buildNames(Cl classifier) throws BayesianException {
+        final String id = classifier.get(this.identifier);
         final Set<String> names = new LinkedHashSet<>(); // Require order
         Set<String> altNames = new LinkedHashSet<>();
 
         // Add all possible names something could be seen as
         names.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
         classifier.setNames(names);
+
+        // Add alternative names
+        if (this.altName.isPresent()) {
+            altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName,false).stream()
+                    .filter(n -> !names.contains(n))
+                    .collect(Collectors.toSet()));
+        }
+
         if (!this.name.getMultiplicity().isMany() && names.size() > 1) {
-            LOGGER.warn("Classifier " + id + " with single value name " + this.name.getId() + " has multiple names " + names);
+            logger.warn("Classifier " + id + " with single value name " + this.name.getId() + " has multiple names " + names);
         } else {
             for (String nm : names) { // Add any new and interesting variants of the name
                 Boolean match = classifier.match(nm, this.name);
                 if (match == null || !match)
-                    classifier.add(this.name, nm);
+                    classifier.add(this.name, nm, true, false);
             }
         }
 
-        // Add alternative names
         if (this.altName.isPresent()) {
-            altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName,false).stream().filter(n -> !names.contains(n)).collect(Collectors.toSet()));
-            if (this.accepted.isPresent()) {
-                Iterable<Classifier> synonyms = this.loadStore.getAll(this.conceptTerm, new Observation(true, this.accepted.get(), id));
-                for (Classifier synonym : synonyms) {
-                    altNames.addAll(this.analyser.analyseNames(synonym, this.name, this.fullName, this.additionalName, true));
-                 }
-            }
             if (!this.altName.get().getMultiplicity().isMany() && altNames.size() > 1) {
-                LOGGER.warn("Classifier " + id + " with single value alternate name " + this.altName.get().getId() + " has multiple names " + altNames);
+                logger.warn("Classifier " + id + " with single value alternate name " + this.altName.get().getId() + " has multiple names " + altNames);
             } else {
                 for (String nm : altNames) {
-                    classifier.add(this.altName.get(), nm);
+                    classifier.add(this.altName.get(), nm, false, false);
                 }
             }
         }
-        List<String> trail = parents.stream().map(p -> p.get(this.identifier).toString()).collect(Collectors.toList());
+    }
+
+    /**
+     * Synonymise the loaded data.
+     * <p>
+     * Collect synonyms for anything
+     * </p>
+     *
+     * @param source The source data store for synonyms
+     *
+     * @return The synonymised data store
+     *
+     * @throws BayesianException if unable to interpret the data
+     */
+    public LoadStore<Cl> synonymise(LoadStore<Cl> source) throws BayesianException {
+        if (!this.synonymName.isPresent() || !this.accepted.isPresent()) {
+            logger.info("No terms to synonymise");
+            return source;
+        }
+        final LoadStore<Cl> target = this.createWorkStore("synonymised");
+        this.process(
+                "synonymise",
+                "Synonymised {0} concepts, {2,number,0.0}/s, last {4}",
+                source,
+                target,
+                c -> this.synonymise(c, source)
+        );
+        target.commit();
+        return target;
+    }
+
+    @SneakyThrows
+    public Cl synonymise(Cl classifier, LoadStore<Cl> source) {
+        Set<String> synonymNames = new LinkedHashSet<String>();
+        String id = classifier.get(this.identifier);
+        Iterable<Cl> synonyms = source.getAll(this.conceptTerm, new Observation(true, this.accepted.get(), id));
+        for (Cl synonym : synonyms) {
+            if (this.analyser.acceptSynonym(classifier, synonym)) {
+                synonymNames.addAll(this.analyser.analyseNames(synonym, this.name, this.fullName, this.additionalName, true));
+            }
+        }
+        if (!this.synonymName.get().getMultiplicity().isMany() && synonymNames.size() > 1) {
+            logger.warn("Classifier " + id + " with single value synonym name " + this.synonymName.get().getId() + " has multiple names " + synonymNames);
+        } else {
+            for (String nm : synonymNames) {
+                classifier.add(this.synonymName.get(), nm, true, false);
+            }
+        }
+        return classifier;
+     }
+
+    /**
+     * Expand the parent-child tree for accepted concepts and for synonyms.
+     *
+     * @param source The source data store
+     *
+     * @return The expanded data store
+     *
+     * @throws BayesianException if unable to expand the tree
+     */
+     public LoadStore<Cl> expand(LoadStore<Cl> source) throws BayesianException {
+        LoadStore<Cl> expanded = this.createWorkStore("expanded");
+        this.expandTree(source, expanded);
+        this.expandSynonyms(source, expanded);
+        return expanded;
+     }
+
+    /**
+     * Traverse the tree, building a model of the taxonomic tree in terms of parent/child relationships
+     * and fill out information about the
+     * <p>
+     * This densely indexes the elements in the tree.
+     * This makes parallelisation hard.
+     * </p>
+     *
+     * @throws BayesianException if unable to traverse the tree, compute derivations or store data property
+     */
+    public void expandTree(LoadStore<Cl> source, LoadStore<Cl> target) throws BayesianException {
+        logger.info("Expanding accepted concept tree");
+        int index = 1;
+        int oldIndex = index;
+        Observation isRoot = source.getAnnotationObservation(BayesianTerm.isRoot);
+        List<Cl> top = source.getAllClassifiers(this.conceptTerm, isRoot); // Keep across commits
+        Counter topCounter = new Counter("Processed {0} top level concepts, {1}s, {3,number,0.0}%", logger, 100, top.size());
+        Counter counter = new Counter("Processed {0} accepted concepts, {2,number,0.0}/s, last {4}", logger, this.config.getLogInterval(), -1);
+        this.registerJmx(topCounter, "top");
+        this.registerJmx(counter, "accepted");
+        topCounter.start();
+        counter.start();
+        for (Cl classifier: top) {
+            topCounter.increment(classifier.getIdentifier());
+            index = this.expandTree(classifier, new LinkedList<Cl>(), index, counter, source, target);
+            if (index - oldIndex > COMMIT_BATCH) {
+                target.commit();
+                oldIndex = index;
+            }
+        }
+        target.commit();
+        counter.stop();
+        topCounter.stop();
+    }
+
+    /**
+     * Expand a single classifier in the tree.
+     *
+     * @param classifier The classifier
+     * @param parents A queue of parents, closest parent first
+     * @param index The index value
+     * @param counter The statistics counter
+     * @param source The source documents
+     * @param target The target documents
+     *
+     * @return The next index value to use
+     *
+     * @throws BayesianException if unable to computer derived values or store the result
+     */
+    public int expandTree(Cl classifier, Deque<Cl> parents, int index, Counter counter, LoadStore<Cl> source, LoadStore<Cl> target) throws BayesianException {
+        int left = index;
+        String id = classifier.get(this.identifier);
+        // Perform all derivations
+        this.builder.expand(classifier, parents, this.analyser);
+        List<String> trail = parents.stream().map(p -> p.get(this.identifier)).collect(Collectors.toList());
+        Collections.reverse(trail);
         classifier.setTrail(trail);
-        this.builder.infer(classifier);
         if (this.parent.isPresent()) {
             parents.push(classifier);
-            Iterable<Classifier> children = this.loadStore.getAll(this.conceptTerm, new Observation(true, this.parent.get(), id));
-            for (Classifier child : children) {
-                index = this.expandTree(child, parents, index, counter);
+            Iterable<Cl> children = source.getAll(this.conceptTerm, new Observation(true, this.parent.get(), id));
+            for (Cl child : children) {
+                index = this.expandTree(child, parents, index, counter, source, target);
             }
             parents.pop();
         }
         classifier.setIndex(left, index);
-        this.expandedStore.store(classifier);
-        counter.increment(classifier.getIdentifier() + ": " + id);
+        target.store(classifier);
+        counter.increment(id);
         return index + 1;
     }
 
     /**
      * Expand all synonyms, including the portions of the parent taxonomy that are accurate.
      *
-     * @throws StoreException if unable to manage the updates
+     * @throws BayesianException if unable to manage the updates
      */
-    public void expandSynonyms() throws InferenceException, StoreException {
-        LOGGER.info("Expanding synonyms");
-        Counter counter = new Counter("Processed {0} synonyms, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
-        Observation isSynonym = this.loadStore.getAnnotationObservation(BayesianTerm.isSynonym);
-        Iterable<Classifier> synonyms = this.loadStore.getAll(this.conceptTerm, isSynonym);
+    public void expandSynonyms(LoadStore<Cl> source, LoadStore<Cl> target) throws BayesianException {
+        logger.info("Expanding synonyms");
+        Counter counter = new Counter("Processed {0} synonyms, {2,number,0.0}/s, last {4}", logger, this.config.getLogInterval(), -1);
+        Observation isSynonym = source.getAnnotationObservation(BayesianTerm.isSynonym);
+        Iterable<Cl> synonyms = source.getAll(this.conceptTerm, isSynonym);
+        this.registerJmx(counter, "synonyms");
         counter.start();
-        for (Classifier classifier: synonyms) {
+        for (Cl classifier: synonyms) {
             String id = classifier.get(this.identifier);
             Optional<String> aid = this.accepted.map(acc -> classifier.get(acc));
-            Optional<Classifier> acpt = Optional.empty();
+            Optional<Cl> acpt = Optional.empty();
             if (!aid.isPresent()) {
-                LOGGER.error("Synonym document " + id + " does not have an accepted taxon id");
+                logger.error("Synonym document " + id + " does not have an accepted taxon id");
             } else {
-                acpt = Optional.ofNullable(this.expandedStore.get(this.conceptTerm, this.identifier, aid.get()));
+                acpt = Optional.ofNullable(target.get(this.conceptTerm, this.identifier, aid.get()));
                 if (!acpt.isPresent()) {
-                    LOGGER.error("Taxon " + id + " with accepted id " + aid + " does not have a matching accepted taxon");
+                    logger.error("Taxon " + id + " with accepted id " + aid + " does not have a matching accepted taxon");
                 }
             }
             this.expandSynonym(classifier, acpt);
-            this.expandedStore.store(classifier);
-           counter.increment(classifier.getIdentifier());
+            target.store(classifier);
+           counter.increment(id);
         }
+        target.commit();
         counter.stop();
-        this.expandedStore.commit();
-    }
+     }
 
     /**
      * Expand information about a synonym.
@@ -311,22 +470,81 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * @param classifier The synonym classifier
      * @param accepted The accepted taxon document
      *
-     * @throws StoreException if unable to write the updated document
+     * @throws BayesianException if unable to write the updated document
      */
-    public void expandSynonym(Classifier classifier, Optional<Classifier> accepted) throws InferenceException, StoreException {
-        Set<String> allNames = new LinkedHashSet<>();
-        allNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
-        classifier.setNames(allNames);
-        for (String nm: allNames)
-            classifier.add(this.name, nm);
+    public void expandSynonym(Cl classifier, Optional<Cl> accepted) throws BayesianException {
         if (accepted.isPresent()){
             Classifier acc = accepted.get();
-            for (Observable obs: this.synonymCopy) {
-                if (!classifier.has(obs))
+            for (Observable obs: this.copy) {
+                if (!classifier.hasAny(obs))
                     classifier.addAll(obs, acc);
             }
         }
-        this.builder.infer(classifier);
+    }
+
+
+    /**
+     * Interpret the source data.
+     * <p>
+     * This is an initial pass-through to ensure that any immediately inferencable data is collected.
+     * </p>
+     *
+     * @param source The source data store
+     *
+     * @throws BayesianException if unable to interpret the data
+     */
+    public LoadStore<Cl> infer(LoadStore<Cl> source) throws BayesianException {
+        final LoadStore<Cl> target = this.createWorkStore("inferred");
+        this.process(
+                "infer",
+                "Inferred data for {0} concepts, {2,number,0.0}/s, last {4}",
+                source,
+                target,
+                c -> {
+                    try {
+                        this.analyser.analyseForIndex(c);
+                        this.builder.infer(c, this.analyser);
+                        return c;
+                    } catch (BayesianException ex) {
+                        throw new IllegalArgumentException("Unable to process " + c.get(this.identifier), ex);
+                    }
+                }
+        );
+        target.commit();
+        return target;
+    }
+
+    /**
+     * Build classifier weights
+     * </p>
+     *
+     * @param source The source data store
+     *
+     * @throws BayesianException if unable to interpret the data
+     */
+    public LoadStore<Cl> weight(LoadStore<Cl> source) throws BayesianException {
+        final LoadStore<Cl> target = this.createWorkStore("weighted");
+        this.process(
+                "weight",
+                "Weighted {0} concepts, {2,number,0.0}/s, last {4}",
+                source,
+                target,
+                c -> this.weight(c)
+        );
+        target.commit();
+        return target;
+    }
+
+    @SneakyThrows
+    public Cl weight(Cl classifier) {
+        Double weight = classifier.get(this.weight);
+        if (weight == null)
+            weight = this.weightAnalyser.weight(classifier);
+        weight = this.weightAnalyser.modify(classifier, weight);
+        if (weight < 1.0)
+            throw new BuilderException("Weight must be greater than or equoal to 1 for " + classifier.get(this.identifier) + " weight " + weight);
+        classifier.add(this.weight, weight, false, true);
+        return classifier;
     }
 
     /**
@@ -335,108 +553,202 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      * This is a slow, expensive piece of processing and is done in parallel.
      * </p>
      *
-     * @throws StoreException
-     * @throws InferenceException
+     * @throws BayesianException if unable to compute the parameters
      */
-    public void buildParameters() throws StoreException, InferenceException {
-        LOGGER.info("Building parameter sets");
-        this.parameterisedStore = config.createLoadStore(Annotator.NULL);
-        final Counter counter = new Counter("Processed {0} parameter sets, {2,number,0.0}/s, last {4}", LOGGER, this.config.getLogInterval(), -1);
-        final ParameterAnalyser analyser = this.expandedStore.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight());
-        final BlockingQueue<Classifier> workQueue = new LinkedBlockingQueue<Classifier>(this.config.getThreads() * 4);
-        final Classifier poisonPill = new SimpleClassifier();
-        Iterable<Classifier> taxa = this.expandedStore.getAll(this.conceptTerm);
-        List<ParameterConsumer> consumers = IntStream.range(0, this.config.getThreads()).mapToObj(i -> new ParameterConsumer(analyser, workQueue, counter, poisonPill)).collect(Collectors.toList());
-        List<Thread> consumerThreads = consumers.stream().map(Thread::new).collect(Collectors.toList());
-        consumerThreads.forEach(t -> t.start());
+    public LoadStore<Cl> parameterise(LoadStore<Cl> source) throws BayesianException {
+        final LoadStore<Cl> target = this.createWorkStore("parameterised");
+        try {
+            try (final ParameterAnalyser parameterAnalyser = source.getParameterAnalyser(this.network, this.weight, this.config.getDefaultWeight())) {
+                this.process(
+                        "parameterise",
+                        "Parameterised {0} concepts, {2,number,0.0}/s, last {4}",
+                        source,
+                        target,
+                        c -> this.parameterise(c, parameterAnalyser)
+                );
+                target.commit();
+            }
+        } catch (Exception ex) {
+            throw new BayesianException("Unable to close parameter analyser", ex);
+        }
+        return target;
+    }
+
+    @SneakyThrows
+    protected Cl parameterise(Cl classifier, ParameterAnalyser analyser) {
+        String signature = this.builder.buildSignature(classifier);
+        classifier.setSignature(signature);
+        Parameters parameters = this.builder.calculate(analyser, classifier);
+        classifier.storeParameters(parameters);
+        return classifier;
+
+    }
+
+    /**
+     * Create a working load store.
+     *
+     * @param name The store label
+     *
+     * @return A new work store
+     *
+     * @throws StoreException If unable to create the store
+     */
+    public LoadStore<Cl> createWorkStore(String name) throws StoreException {
+        LoadStore<Cl> store = this.config.createLoadStore(name, true);
+        this.registerJmx(store, name);
+        this.stores.add(store);
+        return store;
+    }
+
+    /**
+     * Build the parameters for each taxon.
+     * <p>
+     * This is a slow, expensive piece of processing and is done in parallel.
+     * </p>
+     *
+     * @param name The process name
+     * @param message The progress message
+     * @param source The source data
+     * @param target The target data
+     * @param transform Convert the source into the target
+     * @param clauses Any restrictions on the taxa being collected
+     *
+     * @throws BayesianException if unable to compute the parameters
+     */
+    public void process(String name, String message, LoadStore<Cl> source, LoadStore<Cl> target, Function<Cl, Cl> transform, Observation... clauses) throws BayesianException {
+        final int count = source.count(this.conceptTerm, clauses);
+        final BlockingQueue<Cl> workQueue = new LinkedBlockingQueue<>(this.config.getThreads() * 4);
+        final Cl poisonPill = source.newClassifier();
+        final Counter counter = new Counter(message, logger, this.config.getLogInterval(), count);
+        final Iterable<Cl> concepts = source.getAll(this.conceptTerm, clauses);
+
+        this.registerJmx(counter, name);
+        logger.info("Processing " + name + " for " + count + " concepts");
+
+        List<Worker> workers = IntStream.range(0, this.config.getThreads()).mapToObj(i -> new Worker(transform, source, target, workQueue, counter, poisonPill)).collect(Collectors.toList());
+        List<Thread> workerThreads = workers.stream().map(Thread::new).collect(Collectors.toList());
+        workerThreads.forEach(t -> t.start());
         counter.start();
         try {
-            for (Classifier classifier : taxa) {
+            for (Cl classifier : concepts) {
                 workQueue.put(classifier);
             }
-            for (ParameterConsumer consumer : consumers)
+            for (Worker consumer : workers)
                 workQueue.put(poisonPill);
-            LOGGER.info("Waiting for consumers to terminate");
-            for (Thread thread: consumerThreads)
+            logger.debug("Waiting for workers to terminate");
+            for (Thread thread: workerThreads)
                 thread.join();
-            for (ParameterConsumer consumer: consumers)
-                if (consumer.getError() != null) {
-                    throw new InferenceException("Consumer error : " + consumer.getError());
+            for (Worker worker: workers)
+                if (worker.getError() != null) {
+                    throw new InferenceException("Worker error : " + worker.getError());
                 }
         } catch (InterruptedException ex) {
             throw new InferenceException("Interupted during parameter building", ex);
         }
         counter.stop();
-        this.loadStore.commit();
+        target.commit();
     }
 
-    protected void buildParameters(Classifier classifier, ParameterAnalyser analyser) throws StoreException, InferenceException {
-        String id = classifier.get(this.identifier);
-        String signature = this.builder.buildSignature(classifier);
-        classifier.setSignature(signature);
-        Parameters parameters = this.builder.calculate(analyser, classifier);
-        classifier.storeParameters(parameters);
-        this.parameterisedStore.store(classifier);
-
+    /**
+     * Build the weight of the classifier.
+     *
+     * @param classifier The classifier
+     *
+     * @throws BayesianException if unable to computer the weight.
+     *
+     * @see WeightAnalyser
+     */
+    protected void buildWeight(Classifier classifier) throws BayesianException {
+        Double weight = classifier.get(this.weight);
+        if (weight == null)
+            weight = this.weightAnalyser.weight(classifier);
+        weight = this.weightAnalyser.modify(classifier, weight);
+        if (weight < 1.0)
+            throw new BuilderException("Weight must be greater than or equoal to 1 for " + classifier.get(this.identifier) + " weight " + weight);
+        classifier.add(this.weight, weight, false, true);
     }
 
-    public void buildIndex(File output) throws StoreException, InferenceException {
-        LOGGER.info("Building matchng index at " + output);
+    /**
+     * Build the final matching index for use by classification matchers.
+     *
+     * @param output The directory to write to
+     *
+     * @throws BayesianException if unable to build
+     */
+    public void buildIndex(File output, LoadStore<Cl> source) throws BayesianException {
+        logger.info("Building matchng index at " + output);
         if (output.exists()) {
             String backup = output.getName() + "-" + ((SimpleDateFormat) BACKUP_TAG.clone()).format(new Date());
             File dest = new File(output.getParent(), backup);
             output.renameTo(dest);
-            LOGGER.info("Renamed existing " + output + " to " + dest);
+            logger.info("Renamed existing " + output + " to " + dest);
          }
         if (!output.mkdirs())
             throw new IllegalArgumentException("Unable to create " + output);
-        LoadStore index = new LuceneLoadStore(this, output, false, false);
+        LoadStore index = new LuceneLoadStore("index", output, false, false, this.config.getCacheSize());
         // Copy taxa across
-        Iterable<Classifier> taxa = this.parameterisedStore.getAll(this.conceptTerm);
+        Iterable<Cl> taxa = source.getAll(this.conceptTerm);
         for (Classifier classifier : taxa) {
             index.store(classifier);
         }
         // Insert metadata document
-        Classifier metadata = this.createMetadata();
-        index.store(metadata, BayesianTerm.Metadata);
-
+        Metadata metadata = this.createMetadata();
+        index.store(metadata);
+        index.store(this.network);
         index.commit();
         index.close();
+    }
+
+    /**
+     * Add metadata for a source of data.
+     * <p>
+     * Sources are included in the index metadata.
+     * </p>
+     *
+     * @param source The source metadata
+     */
+    public void addSourceMetadata(Metadata source) {
+        this.sources.add(source);
     }
 
     /**
      * Build a document describing the index
      *
      * @return The document metadata
-     *
-     * @throws StoreException if unable to construct the document
      */
-    public Classifier createMetadata() throws StoreException {
-        Classifier metadata = this.loadStore.newClassifier();
-        Observable creator = new Observable(DcTerm.creator);
-        Observable created = new Observable(DcTerm.created);
-        Observable description = new Observable(DcTerm.description);
-        Observable identifier = new Observable(DcTerm.identifier);
-        Observable title = new Observable(DcTerm.title);
-        Observable source = new Observable(DcTerm.source);
-        Observable builderClass = new Observable(BayesianTerm.builderClass);
-        Observable version = new Observable(DcTerm.hasVersion);
-        Date timestamp = new Date();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        metadata.add(identifier, UUID.randomUUID().toString());
-        metadata.add(title, this.network.getId());
-        metadata.add(description, this.network.getDescription());
-        metadata.add(creator, System.getProperty("user.name", "unknown"));
-        metadata.add(created, TIMESTAMP.format(timestamp));
-        metadata.add(builderClass, this.config.getBuilderClass().getName());
-        metadata.add(version, this.getClass().getPackage().getSpecificationVersion());
-        try {
-            metadata.add(source, mapper.writeValueAsString(this.network));
-        } catch (JsonProcessingException ex) {
-            throw new StoreException("Unable to write network condiguration", ex);
-        }
+    @SneakyThrows
+    public Metadata createMetadata() {
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("javaVersion", System.getProperty("java.version"));
+        properties.put("builderClass", this.builder.getClass().getName());
+        properties.put("factoryClass", this.factory.getClass().getName());
+        properties.put("accepted", this.accepted.map(Observable::getId).orElse(null));
+        properties.put("additionalName", this.additionalName.map(Observable::getId).orElse(null));
+        properties.put("altName", this.altName.map(Observable::getId).orElse(null));
+        properties.put("fullName", this.fullName.map(Observable::getId).orElse(null));
+        properties.put("parent", this.parent.map(Observable::getId).orElse(null));
+        properties.put("synonymName", this.synonymName.map(Observable::getId).orElse(null));
+        properties.put("concept", this.conceptTerm == null ? null : this.conceptTerm.qualifiedName());
+        properties.put("identifier", this.identifier.getId());
+        properties.put("name", this.name.getId());
+        properties.put("weight", this.weight.getId());
+        Metadata networkMetadata = Metadata.builder()
+                .about(this.config.getNetwork().toURI())
+                .identifier(this.network.getId())
+                .description(this.network.getDescription())
+                .build();
+        this.addSourceMetadata(networkMetadata);
+        Metadata metadata = Metadata.builder()
+                .identifier(UUID.randomUUID().toString())
+                .title(this.network.getId())
+                .description(this.network.getDescription())
+                .created(new Date())
+                .creator(System.getProperty("user.name", "unknown"))
+                .sources(this.sources)
+                .properties(properties)
+                .build();
+        metadata = LuceneClassifier.LUCENE_METADATA.with(metadata);
+        metadata = metadata.with(this.config.getMetadataTemplate());
         return metadata;
     }
 
@@ -452,21 +764,19 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      *
      * @param classifier The classifier
      *
-     * @throws InferenceException if unable to generate required values
-     * @throws StoreException If unable to create an annotation for some reason.
+     * @throws BayesianException if unable to generate required values or create an annotation
      */
     @Override
-    public void annotate(Classifier classifier) throws InferenceException, StoreException {
-        this.builder.generate(classifier);
+    public void annotate(Classifier classifier) throws BayesianException {
         Term type = classifier.getType();
         String id = classifier.get(this.identifier);
         String p = this.parent.isPresent() ? classifier.get(this.parent.get()) : null;
         String a = this.accepted.isPresent() ? classifier.get(this.accepted.get()) : null;
 
         if (id == null || this.identifiers.contains(id)) {
-            LOGGER.warn("Non-unique or null identifier " + id + " replacing with " + classifier.getIdentifier());
+            logger.warn("Non-unique or null identifier " + id + " replacing with " + classifier.getIdentifier());
             id = classifier.getIdentifier();
-            classifier.replace(this.identifier, id);
+            classifier.add(this.identifier, id, false, true);
             classifier.annotate(BayesianTerm.identifierCreated);
         }
         this.identifiers.add(id);
@@ -476,6 +786,26 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
             classifier.annotate(BayesianTerm.isRoot);
         if ((p == null || p.isEmpty()) && (a != null && !a.isEmpty()))
             classifier.annotate(BayesianTerm.isSynonym);
+    }
+
+    /**
+     * If called, will register the counters etc. for JMX management
+     *
+     * @param bean The mbean to register
+     * @param name The name of the mbean
+     */
+    public void registerJmx(Object bean, String name) {
+        if (this.config.isEnableJmx()) {
+            try {
+                MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+                String network = this.getNetwork().getJavaVariable();
+                ObjectName on = new ObjectName(this.getClass().getPackage().getName() + ":type=" + bean.getClass().getSimpleName() + ",network=" + network + ",name=" + name);
+                ObjectInstance mbean = mbs.registerMBean(bean, on);
+                this.mbeans.add(mbean);
+            } catch (Exception ex) {
+                logger.error("Unable to register bean " + name, ex);
+            }
+        }
     }
 
     /**
@@ -492,91 +822,89 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
      */
     public static void main(String[] args) throws Exception {
         Options options = new Options();
-        Option configOption = Option.builder("c").longOpt("config").desc("Specify a configuration file").hasArg().argName("URL").type(URL.class).build();
-        Option workOption = Option.builder("w").longOpt("work").desc("Working directory").hasArg().argName("DIR").type(File.class).build();
-        Option networkOption = Option.builder("n").longOpt("network").desc("Network description").hasArg().argName("URL").type(URL.class).build();
-        Option builderClassOption = Option.builder("b").longOpt("builder").desc("Network description").hasArg().argName("CLASS").type(Class.class).build();
-        Option outputOption = Option.builder("o").longOpt("output").desc("Output index directory").hasArg().argName("DIR").type(File.class).build();
-        Option helpOption = Option.builder("h").longOpt("help").desc("Print help").build();
-        options.addOption(configOption);
-        options.addOption(workOption);
-        options.addOption(networkOption);
-        options.addOption(builderClassOption);
-        options.addOption(outputOption);
-        options.addOption(helpOption);
+        JCommander commander = JCommander.newBuilder().addObject(options).args(args).build();
         IndexBuilderConfiguration config;
         File output;
 
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption(helpOption.getOpt())) {
-            HelpFormatter help = new HelpFormatter();
-            help.printHelp("java -jar name-matching-builder [OPTIONS] [SOURCES]", options);
-            System.exit(0);
-        }
-        if (cmd.hasOption(configOption.getOpt())) {
-            config = IndexBuilderConfiguration.read(((URL) cmd.getParsedOptionValue(configOption.getOpt())));
+        if (options.config != null) {
+            config = IndexBuilderConfiguration.read(options.config);
         } else {
             config = new IndexBuilderConfiguration();
         }
-        if (cmd.hasOption(workOption.getOpt())) {
-            config.setWork((File) cmd.getParsedOptionValue(workOption.getOpt()));
+        if (options.work != null) {
+            config.setWork(options.work);
         }
-        if (cmd.hasOption(networkOption.getOpt())) {
-            config.setNetwork((URL) cmd.getParsedOptionValue(networkOption.getOpt()));
+        if (options.network != null) {
+            config.setNetwork(options.network);
         }
-        if (cmd.hasOption(builderClassOption.getOpt())) {
-            config.setBuilderClass((Class) cmd.getParsedOptionValue(builderClassOption.getOpt()));
+        if (options.builder != null) {
+            config.setBuilderClass((Class<? extends Builder>) Class.forName(options.builder));
         }
-        if (cmd.hasOption(outputOption.getOpt())) {
-            output = (File) cmd.getParsedOptionValue(outputOption.getOpt());
+        if (options.output != null) {
+            output = options.output;
         } else {
             output = new File(config.getWork(), "output");
         }
         IndexBuilder builder = new IndexBuilder(config);
-        for (String input: cmd.getArgs()) {
-            File in = new File(input);
+        for (File input: options.sources) {
             Source source = null;
-            if (!in.exists()) {
-                System.err.println("Input file " + in + " does not exist");
+            if (!input.exists()) {
+                System.err.println("Input file " + input + " does not exist");
                 System.exit(1);
             }
-            if (input.endsWith(".csv")) {
-                source = new CSVSource(builder.conceptTerm, new FileReader(in), builder.getFactory(), builder.getNetwork().getObservables());
+            if (input.getName().endsWith(".csv")) {
+                source = new CSVSource(builder.conceptTerm, new FileReader(input), builder.getFactory(), builder.getNetwork().getObservables());
             } else {
-                System.err.println("Unable to determine the type of " + in);
+                System.err.println("Unable to determine the type of " + input);
             }
             builder.load(source);
         }
-        builder.expandTree();
-        builder.expandSynonyms();
-        builder.buildParameters();
-        builder.buildIndex(output);
+        LoadStore parameterised = builder.build();
+        builder.buildIndex(output, parameterised);
         builder.close();
     }
 
+    public static class Options {
+        @Parameter(names = "-c")
+        public URL config;
+        @Parameter(names = "-w")
+        public File work;
+        @Parameter(names = "-n")
+        public URL network;
+        @Parameter(names = "-b")
+        public String builder;
+        @Parameter(names = "-o")
+        public File output;
+        @Parameter(required = true)
+        public List<File> sources;
+    }
+
     /**
-     * Processor for parameter estimates
-     */
-    private class ParameterConsumer implements Runnable {
-        ParameterAnalyser analyser;
-        BlockingQueue<Classifier> queue;
+     * Processor for parallelising work */
+    private class Worker implements Runnable {
+        Function<Cl, Cl> transform;
+        LoadStore<Cl> source;
+        LoadStore<Cl> target;
+        BlockingQueue<Cl> queue;
         Counter counter;
-        Classifier poisonPill;
+        Cl poisonPill;
         @Getter
         String error;
 
         /**
          * Build a parameter consumer for a work queue
          *
-         * @param analyser The parameter analyser
+         * @param transform The transform for each classifier
+         * @param source The source store
+         * @param target The target store
          * @param queue The work queue
          * @param counter The statistics counter
          * @param poisonPill The "poison pill" used to terminate this worked
          */
-        public ParameterConsumer(ParameterAnalyser analyser, BlockingQueue<Classifier> queue, Counter counter, Classifier poisonPill) {
-            this.analyser = analyser;
+        public Worker(Function<Cl, Cl> transform, LoadStore<Cl> source, LoadStore <Cl> target, BlockingQueue<Cl> queue, Counter counter, Cl poisonPill) {
+            this.transform = transform;
+            this.source = source;
+            this.target = target;
             this.queue = queue;
             this.counter = counter;
             this.poisonPill = poisonPill;
@@ -592,19 +920,21 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         @Override
         public void run() {
             this.error = null;
-            IndexBuilder.this.LOGGER.info("Starting processor " + Thread.currentThread().getName());
+            logger.debug("Starting worker " + Thread.currentThread().getName());
             try {
                 while (true) {
-                    Classifier classifier = this.queue.take();
+                    Cl classifier = this.queue.take();
                     if (classifier == this.poisonPill) {
-                        IndexBuilder.this.LOGGER.info("Terminating processor " + Thread.currentThread().getName());
+                        logger.debug("Terminating worker " + Thread.currentThread().getName());
                         return;
                     }
-                    IndexBuilder.this.buildParameters(classifier, analyser);
-                    this.counter.increment(classifier.getIdentifier());
+                    Cl result = this.transform.apply(classifier);
+                    if (result != null)
+                        this.target.store(classifier);
+                    this.counter.increment(result.get(IndexBuilder.this.identifier));
                 }
             } catch (Exception ex) {
-                IndexBuilder.LOGGER.error(ex.getMessage(), ex);
+                IndexBuilder.logger.error(ex.getMessage(), ex);
                 this.error = ex.getMessage();
             }
         }

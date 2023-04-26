@@ -9,12 +9,12 @@ import static org.junit.Assert.assertEquals;
 public class IdentifiableTest {
     @Test
     public void makeIdFromURI1() throws Exception {
-        assertEquals("subgenus", Identifiable.makeIdFromURI(URI.create("http://id.ala.org.au/terms/subgenus")));
+        assertEquals("subgenus", Identifiable.makeIdFromURI(URI.create("http://ala.org.au/terms/subgenus")));
     }
 
     @Test
     public void makeIdFromURI2() throws Exception {
-        assertEquals("subgenus", Identifiable.makeIdFromURI(URI.create("http://id.ala.org.au/terms/subgenus#")));
+        assertEquals("subgenus", Identifiable.makeIdFromURI(URI.create("http://ala.org.au/terms/subgenus#")));
     }
 
     @Test

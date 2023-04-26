@@ -14,10 +14,11 @@
     <module>bayesian-builder</module>
     <module>bayesian-maven-plugin</module>
     <module>bayesian-lucene</module>
+    <module>taxonomic-tools</module>
+    <module>taxonomic-tools-builder</module>
     <module>ala-linnaean</module>
     <module>ala-linnaean-builder</module>
-    <module>taxonomic-tools</module>
-    <module>ala-namematching</module>
+    <module>ala-distribution</module>
   </modules>
 
   <name>Name Matching v2</name>
@@ -30,14 +31,19 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <com.fasterxml.jackson.version>2.10.0</com.fasterxml.jackson.version>
     <org.projectlombok.lombok.version>1.18.20</org.projectlombok.lombok.version>
-    <org.slf4j.version>1.7.30</org.slf4j.version>
+    <org.slf4j.version>1.7.36</org.slf4j.version>
     <maven.version>3.6.1</maven.version>
     <commons-lang3.version>3.11</commons-lang3.version>
     <commons-codec.version>1.14</commons-codec.version>
+    <commons-text.version>1.9</commons-text.version>
     <dwc-api.version>1.27</dwc-api.version>
-    <cache2k.version>1.2.4.Final</cache2k.version>
+    <cache2k.version>2.6.1.Final</cache2k.version>
+    <cache2k.version>2.6.1.Final</cache2k.version>
     <auto-service.version>1.0-rc7</auto-service.version>
     <junit.version>4.13.1</junit.version>
+    <opencsv.version>5.0</opencsv.version>
+    <jcommander.version>1.78</jcommander.version>
+    <jts.version>1.16.1</jts.version>
   </properties>
 
   <!-- Required because we use the GBIF Term system -->
@@ -74,7 +80,7 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>${org.slf4j.version}</version>
-      <scope>runtime</scope>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -125,6 +131,19 @@
         <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.2.1</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

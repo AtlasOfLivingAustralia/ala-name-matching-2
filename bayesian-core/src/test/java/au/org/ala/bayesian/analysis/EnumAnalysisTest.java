@@ -1,5 +1,6 @@
 package au.org.ala.bayesian.analysis;
 
+import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.Observable.Multiplicity;
 import org.junit.Before;
@@ -89,6 +90,29 @@ public class EnumAnalysisTest {
         assertFalse(this.analysis.equivalent(Multiplicity.REQUIRED, Multiplicity.MANY));
         assertNull(this.analysis.equivalent(Multiplicity.OPTIONAL, null));
         assertNull(this.analysis.equivalent(null,Multiplicity.REQUIRED_MANY));
+    }
+
+    public void testBuildFidelity1() throws Exception {
+        Fidelity<Multiplicity> fidelity = this.analysis.buildFidelity(Multiplicity.OPTIONAL, Multiplicity.OPTIONAL);
+        assertNotNull(fidelity);
+        assertEquals(1.0, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity2() throws Exception {
+        Fidelity<Multiplicity> fidelity = this.analysis.buildFidelity(Multiplicity.OPTIONAL, Multiplicity.MANY);
+        assertNotNull(fidelity);
+        assertEquals(0.0, fidelity.getFidelity(), 0.00001);
+    }
+
+    public void testBuildFidelity3() throws Exception {
+        Fidelity<Multiplicity> fidelity = this.analysis.buildFidelity(null, Multiplicity.OPTIONAL);
+        assertNull(fidelity);
+    }
+
+    public void testBuildFidelity4() throws Exception {
+        Fidelity<Multiplicity> fidelity = this.analysis.buildFidelity(Multiplicity.REQUIRED, null);
+        assertNotNull(fidelity);
+        assertEquals(0.0, fidelity.getFidelity(), 0.00001);
     }
 
 

@@ -15,10 +15,10 @@ import java.util.Objects;
 public class Contributor {
     /** The observable */
     @Getter
-    private Observable observable;
+    private final Observable observable;
     /** Whether the observable matches or not */
     @Getter
-    private boolean match;
+    private final boolean match;
 
     /**
      * Construct a contributor.

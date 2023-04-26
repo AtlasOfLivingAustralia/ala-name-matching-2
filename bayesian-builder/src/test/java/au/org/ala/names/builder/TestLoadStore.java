@@ -3,8 +3,10 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneClassifier;
+import au.org.ala.util.Metadata;
 import org.gbif.dwc.terms.Term;
 
+import java.io.Closeable;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -17,9 +19,29 @@ import static au.org.ala.bayesian.ExternalContext.LUCENE;
 public class TestLoadStore extends LoadStore<LuceneClassifier> {
     private Map<String, LuceneClassifier> store;
 
-    public TestLoadStore(Annotator annotator) throws StoreException {
-        super(annotator);
+    public TestLoadStore(String name, int cacheSize) throws StoreException {
+        super(name, cacheSize);
         this.store = new HashMap<>();
+    }
+
+    /**
+     * Is this a temporary store?
+     *
+     * @return Always true.
+     */
+    @Override
+    public boolean isTemporary() {
+        return true;
+    }
+
+    /**
+     * Get the store location
+     *
+     * @return This is an in-memory store
+     */
+    @Override
+    public String getLocation() {
+        return "memory";
     }
 
     /**
@@ -30,7 +52,7 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
      */
     @Override
     public Observation getAnnotationObservation(Term annotation) {
-        return new Observation(true, new Observable(LuceneClassifier.ANNOTATION_FIELD), annotation.qualifiedName());
+        return new Observation(true, Observable.string(LuceneClassifier.ANNOTATION_FIELD), annotation.qualifiedName());
     }
 
     /**
@@ -39,7 +61,7 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
      * @return The new classifier
      */
     @Override
-    public LuceneClassifier newClassifier() {
+    protected LuceneClassifier doNewClassifier() {
         return new LuceneClassifier();
     }
 
@@ -49,21 +71,20 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
 
 
     @Override
-    public void store(LuceneClassifier classifier) throws InferenceException, StoreException {
+    protected void doStore(LuceneClassifier classifier) {
         String id = classifier.identify();
         this.store.put(id, classifier);
     }
 
     @Override
-    public void store(LuceneClassifier classifier, Term type) throws InferenceException, StoreException {
+    protected void doStore(LuceneClassifier classifier, Term type) throws BayesianException {
         String id = classifier.identify();
         classifier.setType(type);
-        this.annotator.annotate(classifier);
         this.store.put(id, classifier);
     }
 
     @Override
-    public void update(LuceneClassifier classifier) throws StoreException {
+    protected void doUpdate(LuceneClassifier classifier) throws StoreException {
         String id = classifier.getIdentifier();
         if (id == null)
             throw new StoreException("No identifier for " + classifier);
@@ -79,7 +100,7 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
      * @return The parameter analyser
      */
     @Override
-    public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) throws InferenceException, StoreException {
+    public ParameterAnalyser getParameterAnalyser(Network network, Observable weight, double defaultWeight) {
         return new ParameterAnalyser() {
             @Override
             public double getTotalWeight() {
@@ -87,19 +108,23 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
             }
 
             @Override
-            public double computePrior(Observation observation) throws InferenceException {
+            public double computePrior(Observation observation) {
                 return 1.0;
             }
 
             @Override
-            public double computeConditional(Observation observation, Observation... inputs) throws InferenceException {
+            public double computeConditional(Observation observation, Observation... inputs) {
                 return 1.0;
+            }
+
+            @Override
+            public void close()  {
             }
         };
     }
 
     @Override
-    public LuceneClassifier get(Term type, Observable observable, String value) throws StoreException {
+    protected LuceneClassifier doGet(Term type, Observable observable, String value) throws StoreException {
         final String field = observable.getExternal(LUCENE);
         final String typeValue = type.qualifiedName();
         Predicate<LuceneClassifier> test = classifier -> Objects.equals(classifier.getDocument().get(LuceneClassifier.TYPE_FIELD), typeValue) && Objects.equals(classifier.getDocument().get(field), value);
@@ -107,7 +132,7 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
     }
 
     @Override
-    public Iterable<LuceneClassifier> getAll(Term type, Observation... values) throws StoreException {
+    protected Iterable<LuceneClassifier> doGetAll(Term type, Observation... values) throws StoreException {
         final String typeValue = type.qualifiedName();
         Predicate<LuceneClassifier> test = classifier -> Objects.equals(classifier.getDocument().get(LuceneClassifier.TYPE_FIELD), typeValue);
         for (Observation ob: values) {
@@ -118,6 +143,28 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
                 test = test.and(classifier -> !Objects.equals(classifier.getDocument().get(ob.getObservable().getExternal(LUCENE)), ob.getValue()));
         }
         return this.store.values().stream().filter(test).collect(Collectors.toList());
+    }
+
+     @Override
+    public int count(Term type, Observation... values) throws StoreException {
+         final String typeValue = type.qualifiedName();
+         Predicate<LuceneClassifier> test = classifier -> Objects.equals(classifier.getDocument().get(LuceneClassifier.TYPE_FIELD), typeValue);
+         for (Observation ob: values) {
+             String field = ob.getObservable().getExternal(LUCENE);
+             if (ob.isPositive())
+                 test = test.and(classifier -> Objects.equals(classifier.getDocument().get(field), ob.getValue()));
+             else
+                 test = test.and(classifier -> !Objects.equals(classifier.getDocument().get(ob.getObservable().getExternal(LUCENE)), ob.getValue()));
+         }
+         return (int) this.store.values().stream().filter(test).count();
+    }
+
+    @Override
+    public void store(Metadata metadata) throws StoreException {
+    }
+
+    @Override
+    public void store(Network network) throws StoreException {
     }
 
     @Override

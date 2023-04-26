@@ -1,0 +1,13 @@
+{
+  "identifier" : "Test-1",
+  "title" : "title 1",
+  "created" : "2023-10-06T01:00:00.000+0000",
+  "license" : "https://creativecommons.org/licenses/by/4.0/",
+  "sources" : [ {
+    "about" : "http://id.test.com/Test-2",
+    "identifier" : "Test-2"
+  }, {
+    "about" : "http://id.test.com/Test-3",
+    "identifier" : "Test-3"
+  } ]
+}
