@@ -194,7 +194,7 @@ In addition, observables have the following properties:
   Generally, a base consists of an object the implements the derivation, with a
   **@class** property that contains the type of derivation, a **sources** list
   that gives the observable to get the information from and a
-  **condition** that specifies which parent to derived the information from.
+  **condition** that specifies which parent to derive the information from.
 * **properties** Additional properties that provide information about nature of the observable.
   See [properties](#properties) for more information.
 
@@ -227,7 +227,9 @@ any type.
 * `http://ala.org.au/bayesian/1.0/name` This observable provides the name of the classifier.
 * `http://ala.org.au/bayesian/1.0/fullName` This observable provides the full, formal name of the classifier.
 * `http://ala.org.au/bayesian/1.0/altName` This observable holds alternative names for the classifier.
-* `http://ala.org.au/bayesian/1.0/additionalName` This observable holds additional, disambiguating information about a name. 
+* `http://ala.org.au/bayesian/1.0/synonymName` This observable holds synonym names for this classifier.
+* `http://ala.org.au/bayesian/1.0/broadSynonymName` This observable holds broadened alternative names for the classifier. See [Broadeners](#broadeners)
+* `http://ala.org.au/bayesian/1.0/disambiguator` This observable holds additional, disambiguating information about a name. 
   For example, the scientificNameAuthorship field holds additional information 
   about how the scientificName and taxonId should be interpreted.
 * `http://ala.org.au/bayesian/1.0/parent` This observable provides the reference identifier to the parent classifier.
@@ -385,6 +387,66 @@ An example edge is
 Where the **source** specifies the cause observable, the **target** the
 effect observable and the **edge** contains additional information (currently always empty).
 The above example is a statement that the genus name affects the genus identifier.
+
+### Broadeners
+
+Broadeners provide a mechanism for slipping a bit up and down the hierarchy
+when determining synonyms.
+Broadeners may be useful when the person supplying data for analysis might be
+using slightly different terms to the reference vocabulary.
+For example, a user might give *Lambeth* as a city where the reference vocabulary
+treats it as a municipality.
+As another example, *Hylidae* might be supplied as a family where a taxonomy regards it as a subfamily.
+
+Broadeners work during the synonym construction phase, pulling additional
+names and synonyms from parents or children and adding them to an observable
+marked with the `http://ala.org.au/bayesian/1.0/broadSynonymName` property.
+Names from this observable can then be pulled in when expanding the data
+in the hierarchy.
+
+A typical broadner looks like
+
+```json
+{
+  "broaden": {
+    "@class": "au.org.ala.bayesian.condition.ValueCondition",
+    "source": "taxonRank",
+    "value": "family"
+  },
+  "condition": {
+    "@class": "au.org.ala.bayesian.condition.CompositeCondition",
+    "all": false,
+    "conditions": [
+      {
+        "@class": "au.org.ala.bayesian.condition.ValueCondition",
+        "source": "taxonRank",
+        "value": "superfamily"
+      },
+      {
+        "@class": "au.org.ala.bayesian.condition.ValueCondition",
+        "source": "taxonRank",
+        "value": "subfamily"
+      }
+    ]
+  }
+}
+```
+
+The `broaden` entry gives a condition that descibes the concept that will
+be broadened.
+In the example above, anything with a taxon rank of family will be broadened.
+
+The `condition` entry gives a condition that determines which parents and children
+will be added as potential matches.
+In the example above, any parent or child with a superfamily or subfamily rank
+will be treated as "near-enough" for the purposes of matching a family name.
+
+The broadener will work up the parent chain and down through children until the
+condition is no longer satisfied.
+For example, if the concept tree had `family < subfamily < infrafamily` then the
+subfaimily would be included and the broadening would stop at infrafamiy.
+If the concept tree had `family < semifamily < subfamily < infrafamily` then the
+subfamily would not be included, since broadening would stop at semifamily.
 
 ### Issues
 
