@@ -75,7 +75,7 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
     @JsonProperty
     @Getter
     @Setter
-    private Analysis<T, ?, ?> analysis;
+    private Analysis<T, ?, ?, ?> analysis;
     /** Observables that provide additional matches, in addition to this match. See {@link BayesianTerm#name} and {@link BayesianTerm#altName} */
     @JsonProperty
     @Getter
@@ -107,7 +107,7 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
      * @param matchability The classification multiplicity
      * @param multiplicity The classifier multiplicity
      */
-    public Observable(String id, URI uri, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?> analysis, Multiplicity matchability, Multiplicity multiplicity) {
+    public Observable(String id, URI uri, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?, ?> analysis, Multiplicity matchability, Multiplicity multiplicity) {
         super(id, uri);
         this.type = type;
         this.style = style;
@@ -128,7 +128,7 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
      * @param matchability The classification multiplicity
      * @param multiplicity The classifier multiplicity
      */
-    public Observable(Term term, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?> analysis, Multiplicity matchability, Multiplicity multiplicity) {
+    public Observable(Term term, Class<T> type, Style style, Normaliser normaliser, Analysis<T, ?, ?, ?> analysis, Multiplicity matchability, Multiplicity multiplicity) {
         this(term.simpleName(), URI.create(term.qualifiedName()), type, style, normaliser, analysis, matchability, multiplicity);
     }
 
@@ -165,7 +165,7 @@ public class Observable<T> extends Identifiable implements Comparable<Observable
      *
      * @return The analysis object.
      */
-    public Analysis<T, ?, ?> getAnalysis() {
+    public Analysis<T, ?, ?, ?> getAnalysis() {
         if (this.analysis == null) {
             synchronized (this) {
                 if (this.analysis == null)

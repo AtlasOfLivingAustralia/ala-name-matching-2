@@ -21,7 +21,7 @@ public class VernacularNameFilter implements Predicate<Record> {
     public boolean test(Record record) {
         if (record == null)
             return false;
-        VernacularStatus status = STATUS_ANALYSIS.fromString(record.value(ALATerm.status));
+        VernacularStatus status = STATUS_ANALYSIS.fromString(record.value(ALATerm.status), null);
         return status == null || !status.isExclude();
     }
 }

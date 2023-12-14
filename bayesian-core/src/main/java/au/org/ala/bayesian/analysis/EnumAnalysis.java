@@ -7,7 +7,7 @@ import au.org.ala.bayesian.fidelity.SimpleFidelity;
 
 import java.util.Objects;
 
-public class EnumAnalysis<E extends Enum<E>> extends Analysis<E, String, String> {
+public class EnumAnalysis<E extends Enum<E>, Ctx> extends Analysis<E, String, String, Ctx> {
     private final Class<E> clazz;
 
     /**
@@ -92,7 +92,7 @@ public class EnumAnalysis<E extends Enum<E>> extends Analysis<E, String, String>
      */
     @Override
     public E fromStore(String value) {
-        return this.fromString(value);
+        return this.fromString(value, null);
     }
 
     /**
@@ -115,10 +115,11 @@ public class EnumAnalysis<E extends Enum<E>> extends Analysis<E, String, String>
      * </p>
      *
      * @param value The value
+     * @param context Unused context
      * @return The parsed value
      */
     @Override
-    public E fromString(String value) {
+    public E fromString(String value, Ctx context) {
         if (value == null || value.isEmpty())
             return null;
         try {
@@ -162,7 +163,7 @@ public class EnumAnalysis<E extends Enum<E>> extends Analysis<E, String, String>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        EnumAnalysis<?> that = (EnumAnalysis<?>) o;
+        EnumAnalysis<?, ?> that = (EnumAnalysis<?, ?>) o;
         return clazz.equals(that.clazz);
     }
 

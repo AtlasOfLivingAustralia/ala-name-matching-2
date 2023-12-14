@@ -6,7 +6,7 @@ import au.org.ala.vocab.VernacularStatus;
 /**
  * Analysis based on vernacular status.
  */
-public class VernacularStatusAnalysis extends EnumAnalysis<VernacularStatus> {
+public class VernacularStatusAnalysis extends EnumAnalysis<VernacularStatus, Object> {
     /**
      * Default constructor
      */

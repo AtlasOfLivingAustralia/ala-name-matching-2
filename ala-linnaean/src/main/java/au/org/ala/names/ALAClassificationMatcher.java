@@ -190,6 +190,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         results = results.stream().filter(m -> !this.isBadEvidence(m)).collect(Collectors.toList());
         if (results.isEmpty())
             return null;
+        // Choose a trial candidate
         final Match<AlaLinnaeanClassification, MatchMeasurement> trial = results.get(0);
         final AlaLinnaeanClassification tc = trial.getMatch();
         final String tn = tc.scientificName;
@@ -201,6 +202,9 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         Match<AlaLinnaeanClassification, MatchMeasurement> unresolvedHomonym = this.detectUnresolvableHomonym(classification, results);
         if (unresolvedHomonym != null)
             return unresolvedHomonym;
+        // If we have not miscellaneous/rest miscellaneous
+        if (!this.isMiscellaneous(trial) && results.stream().allMatch(m -> m == trial || this.isMiscellaneous(m)))
+            return trial.boost(results).with(AlaLinnaeanFactory.MULTIPLE_MATCHES);
         // See if we have a single accepted/variety of synonyms
         if (tts.isAcceptedFlag() && results.stream().allMatch(m -> m == trial || m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike() && m.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName)))
             return trial.boost(results).with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
@@ -424,6 +428,21 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
             logger.error("Unable to search for kingdom key " + key, ex);
             return null;
         }
+    }
+
+    /**
+     * Is this match a "miscellaneous" match?
+     * <p>
+     * Generally, this means something from miscellaneous literature.
+     * If we have this and more accepted values, then we drop the extras.
+     * </p>
+     *
+     * @param match The match to check
+     *
+     * @return True if the match is miscellaneous
+     */
+    protected boolean isMiscellaneous(Match<AlaLinnaeanClassification, MatchMeasurement> match) {
+        return match.getMatch().taxonomicStatus == TaxonomicStatus.miscellaneousLiterature;
     }
 
     /**

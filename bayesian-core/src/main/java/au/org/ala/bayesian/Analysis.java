@@ -19,10 +19,11 @@ import java.util.Set;
  * @param <C> The type of object this analyser handles.
  * @param <S> The type of object this analyser reads/writes.
  * @param <Q> The type of object this analyser uses to query the store
+ * @param <Ctx> The type of context parsing from this analysis needs
  */
 @Service
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
-abstract public class Analysis<C, S, Q> {
+abstract public class Analysis<C, S, Q, Ctx> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -89,12 +90,13 @@ abstract public class Analysis<C, S, Q> {
      * Parse this value from a string and return a suitably interpreted object.
      *
      * @param value The value
+     * @param context Any context object needed
      *
      * @return The parsed value
      *
      * @throws StoreException if unable to interpret the string
      */
-    abstract public C fromString(String value) throws StoreException;
+    abstract public C fromString(String value, Ctx context) throws StoreException;
 
     /**
      * Compute a fidelity measure for this type of object.
@@ -186,19 +188,19 @@ abstract public class Analysis<C, S, Q> {
      *
      * @param <C> The type of object this analyses
      */
-    public static <C, S, Q> Analysis<C, S, Q> defaultAnalyser(Class<C> clazz) throws IllegalArgumentException {
+    public static <C, S, Q, Ctx> Analysis<C, S, Q, Ctx> defaultAnalyser(Class<C> clazz) throws IllegalArgumentException {
         if (clazz == null)
-            return (Analysis<C, S, Q>) new StringAnalysis();
+            return (Analysis<C, S, Q, Ctx>) new StringAnalysis();
         if (clazz == LocalDateAnalysis.class)
-            return (Analysis<C, S, Q>) new LocalDateAnalysis();
+            return (Analysis<C, S, Q, Ctx>) new LocalDateAnalysis();
         if (clazz == Double.class)
-            return (Analysis<C, S, Q>) new DoubleAnalysis();
+            return (Analysis<C, S, Q, Ctx>) new DoubleAnalysis();
         if (clazz == Integer.class)
-            return (Analysis<C, S, Q>) new IntegerAnalysis();
+            return (Analysis<C, S, Q, Ctx>) new IntegerAnalysis();
         if (clazz == String.class)
-            return (Analysis<C, S, Q>) new StringAnalysis();
+            return (Analysis<C, S, Q, Ctx>) new StringAnalysis();
         if (Enum.class.isAssignableFrom(clazz))
-            return (Analysis<C, S, Q>) new EnumAnalysis(clazz);
+            return (Analysis<C, S, Q, Ctx>) new EnumAnalysis(clazz);
         throw new IllegalArgumentException("Unable to build default analysis object for " + clazz);
     }
 

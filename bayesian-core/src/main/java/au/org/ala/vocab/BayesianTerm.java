@@ -27,8 +27,10 @@ public enum BayesianTerm implements Term {
     altName,
     /** An synonym name for a category. (Ie. a name that comes from another category that explicitly references this category) */
     synonymName,
+    /** A broad synonym name for a category. This is derived from looking up-or down a range in the hierarchy for names that might be used instead of the one at the proper level */
+    broadSynonymName,
     /** Additional (disambiguating) name information */
-    additionalName,
+    disambiguator,
     /** This identifier navigates to the parent category */
     parent,
     /** This identifier navigates to the accepted category for synonyms */

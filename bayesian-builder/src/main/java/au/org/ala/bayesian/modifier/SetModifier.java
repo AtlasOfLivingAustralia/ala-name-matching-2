@@ -41,7 +41,7 @@ public class SetModifier extends BaseModifier {
         Object val = this.value;
         String setter = to + "." + this.observable.getJavaVariable();
         if (val instanceof String && this.observable.getType() != String.class)
-            val = this.observable.getAnalysis().fromString((String) val);
+            val = this.observable.getAnalysis().fromString((String) val, null);
         if (val == null) {
             statements.add(setter + " = null;");
         } else if (Number.class.isAssignableFrom(observable.getType())) {

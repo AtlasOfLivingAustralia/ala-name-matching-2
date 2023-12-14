@@ -244,7 +244,7 @@ public class LuceneClassifier implements Classifier {
                 IndexableField[] fields = this.document.getFields(observable.getExternal(variants && observable.getMultiplicity().isMany() ? LUCENE_VARIANT : LUCENE));
                 if (fields.length == 0)
                     continue;
-                Analysis<T, C, Q> analysis = observable.getAnalysis();
+                Analysis<T, C, Q, ?> analysis = observable.getAnalysis();
                 if (Number.class.isAssignableFrom(observable.getType())) {
                     if (!(value instanceof Number))
                         return false;
@@ -257,9 +257,15 @@ public class LuceneClassifier implements Classifier {
                     }
                 } else {
                     for (IndexableField field : fields) {
-                        String sv = field.stringValue();
-                        Object cv = analysis.fromString(sv);
-                        Boolean match = analysis.equivalent(value, (T) cv);
+                        C sv = null;
+                        if (analysis.getStoreType() == Integer.class)
+                            sv = (C) new Integer(field.numericValue().intValue());
+                        else if (analysis.getStoreType() == Double.class)
+                            sv = (C) new Double(field.numericValue().doubleValue());
+                        else
+                            sv = (C) field.stringValue();
+                        T cv = analysis.fromStore(sv);
+                        Boolean match = analysis.equivalent(value, cv);
                         if (match != null && match)
                             return true;
                         allNull = allNull && match == null;
@@ -654,7 +660,7 @@ public class LuceneClassifier implements Classifier {
         if (value == null || ((value instanceof String) && ((String) value).isEmpty()))
             return;
         String field = observable.getExternal(context);
-        Analysis<T, S, Q> analysis = (Analysis<T, S, Q>) observable.getAnalysis();
+        Analysis<T, S, Q, ?> analysis = (Analysis<T, S, Q, ?>) observable.getAnalysis();
         S val = analysis.toStore(value);
         if (val == null)
             return;
@@ -720,7 +726,7 @@ public class LuceneClassifier implements Classifier {
             return (T) Double.valueOf(number.doubleValue());
         }
         try {
-            return (T) observable.getAnalysis().fromString(field.stringValue());
+            return (T) observable.getAnalysis().fromStore(field.stringValue());
         } catch (StoreException ex) {
             log.error("Unable to convert " + field + " to " + observable + " returning null instead", ex);
             return null;

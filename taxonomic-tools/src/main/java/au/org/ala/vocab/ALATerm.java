@@ -32,6 +32,14 @@ public enum ALATerm implements Term, AlternativeNames {
     nameComplete,
     /** The name and authorship, formatted in some way, usually HTML */
     nameFormatted,
+    /** The canonical authorship (authorship without variations due to capitalisation and punctiation) */
+    canonicalAuthorship,
+    /** A synonym of the scientific nasme */
+    synonymScientificName,
+    /** The type of name (scientific, cultivate etc) @see org.gbif.nameparser.api.NameType */
+    nameType,
+    /** A broad synonym of the scientific name (one that ranges up and down the ranks a bit) */
+    broadSynonymScientificName,
     /** A soundex of the specific epithet */
     soundexSpecificEpithet,
     /** A numerical rank identifier for the taxon rank */
@@ -42,6 +50,8 @@ public enum ALATerm implements Term, AlternativeNames {
     altKingdom,
     /** A soundex of the kingdom */
     soundexKingdom,
+    /** The kingdom including possible alternatives where the exact kingdom in question is subjective  */
+    expandedKingdom,
     /** A taxon identifier for the phylum */
     phylumID,
     /** An alternate name for a phylum */

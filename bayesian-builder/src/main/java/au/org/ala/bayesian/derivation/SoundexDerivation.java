@@ -4,7 +4,6 @@ import au.org.ala.bayesian.Condition;
 import au.org.ala.bayesian.Observable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;

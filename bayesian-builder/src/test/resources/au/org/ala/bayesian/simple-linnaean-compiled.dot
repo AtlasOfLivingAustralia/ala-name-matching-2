@@ -6,6 +6,7 @@ strict digraph "simple-linnaean" {
     "scientificNameAuthorship" [ label = "scientificNameAuthorship"  ]
     "scientificName" [ label = "scientificName"  ]
     "soundexScientificName" [ label = "soundexScientificName"  ]
+    "prefixScientificName" [ label = "prefixScientificName"  ]
     "genus" [ label = "genus"  ]
     "family" [ label = "family"  ]
     "order" [ label = "order"  ]
@@ -18,9 +19,11 @@ strict digraph "simple-linnaean" {
     "taxonID" -> "scientificNameAuthorship"
     "scientificName" -> "genus"
     "scientificName" -> "soundexScientificName"
+    "scientificName" -> "prefixScientificName"
     "specificEpithet" -> "scientificName"
     "genus" -> "family"
     "soundexScientificName" -> "genus"
+    "prefixScientificName" -> "genus"
     "family" -> "order"
     "order" -> "class"
     "class" -> "phylum"

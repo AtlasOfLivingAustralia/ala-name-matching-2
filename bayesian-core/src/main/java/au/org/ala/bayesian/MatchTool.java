@@ -129,7 +129,7 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
                     final Field field = example.getClass().getField(observable.getJavaVariable());
                     input = (s, c) -> {
                         try {
-                            field.set(c.classification, observable.getAnalysis().fromString(StringUtils.trimToNull(s[index])));
+                            field.set(c.classification, observable.getAnalysis().fromString(StringUtils.trimToNull(s[index]), null));
                         } catch (Exception ex) {
                             logger.error("Unable to access " + name, ex);
                         }

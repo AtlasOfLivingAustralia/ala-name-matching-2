@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -90,7 +91,7 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         assertNotNull(doc);
         assertEquals("TTTTTTT", doc.getSignature());
         assertEquals("Melaleuca stipitata", doc.get(AlaLinnaeanFactory.scientificName));
-        assertEquals(new HashSet<String>(Arrays.asList("Melaleuca stipitata")), doc.getAll(AlaLinnaeanFactory.scientificName));
+        assertEquals(new LinkedHashSet<String>(Arrays.asList("Melaleuca stipitata")), doc.getAll(AlaLinnaeanFactory.scientificName));
         assertEquals(Rank.SPECIES, doc.get(AlaLinnaeanFactory.taxonRank));
         assertEquals("Craven", doc.get(AlaLinnaeanFactory.scientificNameAuthorship));
         assertEquals("Craven", doc.get(AlaLinnaeanFactory.canonicalAuthorship));
@@ -100,22 +101,22 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         assertNull(doc.get(AlaLinnaeanFactory.vernacularName));
         assertEquals(TaxonomicStatus.accepted, doc.get(AlaLinnaeanFactory.taxonomicStatus));
         assertEquals("Myrtaceae", doc.get(AlaLinnaeanFactory.family));
-        assertEquals(new HashSet<String>(Arrays.asList("Myrtaceae")), doc.getAll(AlaLinnaeanFactory.family));
+        assertEquals(new LinkedHashSet<String>(Arrays.asList("Myrtaceae")), doc.getAll(AlaLinnaeanFactory.family));
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51376810", doc.get(AlaLinnaeanFactory.familyId));
         assertEquals("Myrtales", doc.get(AlaLinnaeanFactory.order));
-        assertEquals(new HashSet<String>(Arrays.asList("Myrtales")), doc.getAll(AlaLinnaeanFactory.order));
+        assertEquals(new LinkedHashSet<String>(Arrays.asList("Myrtales", "Rosanae", "Rosanae Takht.")), doc.getAll(AlaLinnaeanFactory.order));
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51376809", doc.get(AlaLinnaeanFactory.orderId));
         assertEquals("Equisetopsida", doc.get(AlaLinnaeanFactory.class_));
-        assertEquals(new HashSet<String>(Arrays.asList("Equisetopsida")), doc.getAll(AlaLinnaeanFactory.class_));
+        assertEquals(new LinkedHashSet<String>(Arrays.asList("Equisetopsida","Ophioglossidae","Ophioglossidae Klinge","Psilotidae","Psilotidae Reveal","Marattiidae","Marattiidae Klinge","Cycadidae","Cycadidae Pax","Polypodiidae","Polypodiidae Cronquist, Takht. & W.Zimm.","Lycopodiidae","Lycopodiidae Bek.","Pinidae","Pinidae Cronquist, Takht. & W.Zimm.","Magnoliidae","Magnoliidae Novak ex Takht.")), doc.getAll(AlaLinnaeanFactory.class_));
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51414457", doc.get(AlaLinnaeanFactory.classId));
         assertEquals("Charophyta", doc.get(AlaLinnaeanFactory.phylum));
-        assertEquals(new HashSet<String>(Arrays.asList("Charophyta")), doc.getAll(AlaLinnaeanFactory.phylum));
+        assertEquals(new LinkedHashSet<String>(Arrays.asList("Charophyta")), doc.getAll(AlaLinnaeanFactory.phylum));
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51414458", doc.get(AlaLinnaeanFactory.phylumId));
         assertEquals("Plantae", doc.get(AlaLinnaeanFactory.kingdom));
-        assertEquals(new HashSet<String>(Arrays.asList("Plantae")), doc.getAll(AlaLinnaeanFactory.kingdom));
+        assertEquals(new LinkedHashSet<String>(Arrays.asList("Plantae", "Biliphyta", "Viridiplantae")), doc.getAll(AlaLinnaeanFactory.kingdom));
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51414459", doc.get(AlaLinnaeanFactory.kingdomId));
         assertEquals(Arrays.asList("Melaleuca stipitata"), doc.getNames());
-        assertEquals(new HashSet<String>(Arrays.asList("Melaleuca stipitata Craven")), doc.getAll(AlaLinnaeanFactory.altScientificName));
+        assertEquals(new LinkedHashSet<String>(Arrays.asList("Melaleuca stipitata Craven")), doc.getAll(AlaLinnaeanFactory.altScientificName));
         AlaLinnaeanParameters_TTTTTTT params = new AlaLinnaeanParameters_TTTTTTT();
         doc.loadParameters(params);
         AlaLinnaeanInferencer_TTTTTTT inference = new AlaLinnaeanInferencer_TTTTTTT();
@@ -239,7 +240,7 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
         assertEquals("Kuntze", doc.get(AlaLinnaeanFactory.canonicalAuthorship));
         assertEquals(TaxonomicStatus.inferredAccepted, doc.get(AlaLinnaeanFactory.taxonomicStatus));
         assertEquals("Plantae", doc.get(AlaLinnaeanFactory.kingdom));
-        assertEquals(Rank.SECTION, doc.get(AlaLinnaeanFactory.taxonRank));
+        assertEquals(Rank.SECTION_BOTANY, doc.get(AlaLinnaeanFactory.taxonRank));
         assertEquals(6300, doc.get(AlaLinnaeanFactory.rankId).intValue());
     }
 

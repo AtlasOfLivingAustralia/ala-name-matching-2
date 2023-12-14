@@ -3,6 +3,7 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.*;
 
 import java.util.Deque;
+import java.util.function.Function;
 
 /**
  * A null builder that does nothing in particular.
@@ -53,6 +54,20 @@ public class EmptyBuilder implements Builder {
      */
     @Override
     public void expand(Classifier classifier, Deque parents, Analyser analyser) {
+    }
+
+    /**
+     * Null boadener
+     *
+     * @param document The document to be broadened
+     * @param analyser An analyster
+     *
+     * @return
+     * @throws BayesianException
+     */
+    @Override
+    public Function<Classifier, Boolean> getBroadener(Classifier document, Analyser analyser) throws BayesianException {
+        return null;
     }
 
     /**

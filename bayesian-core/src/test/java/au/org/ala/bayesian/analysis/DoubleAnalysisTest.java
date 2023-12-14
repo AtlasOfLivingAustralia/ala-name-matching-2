@@ -35,10 +35,10 @@ public class DoubleAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertEquals(10.0, this.analysis.fromString("10.000"), 0.00001);
-        assertEquals(-150.0, this.analysis.fromString("-150.000"), 0.00001);
-        assertEquals(null, this.analysis.fromString(null));
-        assertEquals(null, this.analysis.fromString(""));
+        assertEquals(10.0, this.analysis.fromString("10.000", null), 0.00001);
+        assertEquals(-150.0, this.analysis.fromString("-150.000", null), 0.00001);
+        assertEquals(null, this.analysis.fromString(null, null));
+        assertEquals(null, this.analysis.fromString("", null));
     }
 
     @Test

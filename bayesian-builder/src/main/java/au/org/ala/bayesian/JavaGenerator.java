@@ -234,12 +234,12 @@ public class JavaGenerator extends Generator {
         JavaGeneratorSpecification.Context baseContext = spec.withContext(compiler, this.packageName);
         if (variables != null) {
             for (CompiledDerivation.Variable v: variables) {
-                baseContext.addImport(v.getClazz().getName(), imports);
+                baseContext.addImport(v.getImport(), imports);
             }
         }
         for (Observable observable: compiler.getNetwork().getObservables()) {
-            baseContext.addImport(observable.getType().getName(), imports);
-            baseContext.addImport(observable.getAnalysis().getClass().getName(), imports);
+            baseContext.addImport(observable.getType(), imports);
+            baseContext.addImport(observable.getAnalysis().getClass(), imports);
         }
         environment.setVariable("compiler", new BeanModel(compiler, this.wrapper));
         environment.setVariable("packageName", new StringModel(this.packageName, this.wrapper));

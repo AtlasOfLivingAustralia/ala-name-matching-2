@@ -211,7 +211,7 @@ public class DwCASource extends Source {
         final String aggregate = observable.getProperty(OptimisationTerm.aggregate, "all").toLowerCase();
         final Predicate<Record> filter = this.buildFilter(observable);
         final Comparator<Record> order = this.buildOrder(observable, aggregate);
-        final Analysis<?, ?, ?> analysis = observable.getAnalysis();
+        final Analysis<?, ?, ?, ?> analysis = observable.getAnalysis();
         if (terms.isEmpty())
             return (r, sr) -> Collections.emptySet();
         return (r, sr) -> {
@@ -222,7 +222,7 @@ public class DwCASource extends Source {
                     String value = null;
                     try {
                         value = r.value(term);
-                        Object a = analysis.fromString(value);
+                        Object a = analysis.fromString(value, null);
                         if (a != null)
                             values.add(a);
                     } catch (StoreException ex) {
@@ -234,7 +234,7 @@ public class DwCASource extends Source {
                     String value = null;
                     try {
                         value = sr.core().value(term);
-                        Object a = analysis.fromString(value);
+                        Object a = analysis.fromString(value, null);
                         if (a != null)
                             values.add(a);
                     } catch (StoreException ex) {
@@ -254,7 +254,7 @@ public class DwCASource extends Source {
                             es = es.sorted(order);
                         Stream<Object> os = es.map(er -> er.value(term)).filter(Objects::nonNull).map(v -> {
                             try {
-                                return analysis.fromString(v);
+                                return analysis.fromString(v, null);
                             } catch (StoreException ex) {
                                 throw new IllegalStateException("Unable to read " + v + " for " + observable, ex);
                             }
@@ -308,8 +308,8 @@ public class DwCASource extends Source {
         if (comparator == null && Comparable.class.isAssignableFrom(observable.getType())) {
             comparator = (r1, r2) -> {
                 try {
-                    Comparable v1 = (Comparable) observable.getAnalysis().fromString(r1.value(term));
-                    Comparable v2 = (Comparable) observable.getAnalysis().fromString(r2.value(term));
+                    Comparable v1 = (Comparable) observable.getAnalysis().fromString(r1.value(term), null);
+                    Comparable v2 = (Comparable) observable.getAnalysis().fromString(r2.value(term), null);
                     if (v1 == null && v2 == null)
                         return 0;
                     if (v1 == null)

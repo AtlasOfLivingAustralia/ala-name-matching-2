@@ -35,10 +35,10 @@ public class StringAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertEquals("BING", this.analysis.fromString("BING"));
-        assertEquals("bong", this.analysis.fromString("bong"));
-        assertEquals(null, this.analysis.fromString(null));
-        assertEquals(null, this.analysis.fromString(""));
+        assertEquals("BING", this.analysis.fromString("BING", null));
+        assertEquals("bong", this.analysis.fromString("bong", null));
+        assertEquals(null, this.analysis.fromString(null, null));
+        assertEquals(null, this.analysis.fromString("", null));
     }
 
     @Test

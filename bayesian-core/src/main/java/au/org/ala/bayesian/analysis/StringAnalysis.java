@@ -5,7 +5,7 @@ import au.org.ala.bayesian.Fidelity;
 import au.org.ala.bayesian.InferenceException;
 import au.org.ala.bayesian.fidelity.SimpleFidelity;
 
-public class StringAnalysis extends Analysis<String, String, String> {
+public class StringAnalysis extends Analysis<String, String, String, Object> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -119,10 +119,11 @@ public class StringAnalysis extends Analysis<String, String, String> {
      * This just returns the trimmed value
      * </p>
      * @param value The value
+     * @param context Unused context
      * @return The parsed value
      */
     @Override
-    public String fromString(String value) {
+    public String fromString(String value, Object context) {
         if (value == null)
             return null;
         value = value.trim();

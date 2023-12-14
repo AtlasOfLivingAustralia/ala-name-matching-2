@@ -77,6 +77,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   public java.lang.String scientificNameAuthorship;
   public java.lang.String scientificName;
   public java.lang.String soundexScientificName;
+  public java.lang.String prefixScientificName;
   public java.lang.String genus;
   public java.lang.String family;
   public java.lang.String order;
@@ -175,7 +176,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
 
   @Override
   public Collection<Observation<?>> toObservations() {
-    Collection<Observation<?>> obs = new ArrayList(12);
+    Collection<Observation<?>> obs = new ArrayList(13);
 
     if (this.taxonId != null)
       obs.add(new Observation(true, SimpleLinnaeanFactory.taxonId, this.taxonId));
@@ -189,6 +190,8 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       obs.add(new Observation(true, SimpleLinnaeanFactory.scientificName, this.scientificName));
     if (this.soundexScientificName != null)
       obs.add(new Observation(true, SimpleLinnaeanFactory.soundexScientificName, this.soundexScientificName));
+    if (this.prefixScientificName != null)
+      obs.add(new Observation(true, SimpleLinnaeanFactory.prefixScientificName, this.prefixScientificName));
     if (this.genus != null)
       obs.add(new Observation(true, SimpleLinnaeanFactory.genus, this.genus));
     if (this.family != null)
@@ -212,6 +215,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     this.scientificNameAuthorship = SimpleLinnaeanFactory.scientificNameAuthorship.analyse(this.scientificNameAuthorship);
     this.scientificName = SimpleLinnaeanFactory.scientificName.analyse(this.scientificName);
     this.soundexScientificName = SimpleLinnaeanFactory.soundexScientificName.analyse(this.soundexScientificName);
+    this.prefixScientificName = SimpleLinnaeanFactory.prefixScientificName.analyse(this.prefixScientificName);
     this.genus = SimpleLinnaeanFactory.genus.analyse(this.genus);
     this.family = SimpleLinnaeanFactory.family.analyse(this.family);
     this.order = SimpleLinnaeanFactory.order.analyse(this.order);
@@ -224,6 +228,9 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     analyser.analyseForSearch(this, options);
     if (this.soundexScientificName == null && options.isFuzzyDerivations()) {
       this.soundexScientificName = this.soundex.soundex(this.scientificName);
+    }
+    if (this.prefixScientificName == null) {
+      this.prefixScientificName = this.scientificName;
     }
   }
 
@@ -252,6 +259,8 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       fidelity.add(SimpleLinnaeanFactory.scientificName.getAnalysis().buildFidelity(this.scientificName, actual.scientificName));
     if (this.soundexScientificName != null)
       fidelity.add(SimpleLinnaeanFactory.soundexScientificName.getAnalysis().buildFidelity(this.soundexScientificName, actual.soundexScientificName));
+    if (this.prefixScientificName != null)
+      fidelity.add(SimpleLinnaeanFactory.prefixScientificName.getAnalysis().buildFidelity(this.prefixScientificName, actual.prefixScientificName));
     if (this.genus != null)
       fidelity.add(SimpleLinnaeanFactory.genus.getAnalysis().buildFidelity(this.genus, actual.genus));
     if (this.family != null)
@@ -312,6 +321,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     this.hints.buildModifications(SimpleLinnaeanFactory.scientificNameAuthorship, java.lang.String.class, (c, v) -> { c.scientificNameAuthorship = v; }, modifications);
     this.hints.buildModifications(SimpleLinnaeanFactory.scientificName, java.lang.String.class, (c, v) -> { c.scientificName = v; }, modifications);
     this.hints.buildModifications(SimpleLinnaeanFactory.soundexScientificName, java.lang.String.class, (c, v) -> { c.soundexScientificName = v; }, modifications);
+    this.hints.buildModifications(SimpleLinnaeanFactory.prefixScientificName, java.lang.String.class, (c, v) -> { c.prefixScientificName = v; }, modifications);
     this.hints.buildModifications(SimpleLinnaeanFactory.genus, java.lang.String.class, (c, v) -> { c.genus = v; }, modifications);
     this.hints.buildModifications(SimpleLinnaeanFactory.family, java.lang.String.class, (c, v) -> { c.family = v; }, modifications);
     this.hints.buildModifications(SimpleLinnaeanFactory.order, java.lang.String.class, (c, v) -> { c.order = v; }, modifications);
@@ -340,6 +350,9 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     }
     if (overwrite || this.soundexScientificName == null) {
       this.soundexScientificName = classifier.get(SimpleLinnaeanFactory.soundexScientificName);
+    }
+    if (overwrite || this.prefixScientificName == null) {
+      this.prefixScientificName = classifier.get(SimpleLinnaeanFactory.prefixScientificName);
     }
     if (overwrite || this.genus == null) {
       this.genus = classifier.get(SimpleLinnaeanFactory.genus);
@@ -379,6 +392,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
       classifier.clear(SimpleLinnaeanFactory.scientificNameAuthorship);
       classifier.clear(SimpleLinnaeanFactory.scientificName);
       classifier.clear(SimpleLinnaeanFactory.soundexScientificName);
+      classifier.clear(SimpleLinnaeanFactory.prefixScientificName);
       classifier.clear(SimpleLinnaeanFactory.genus);
       classifier.clear(SimpleLinnaeanFactory.family);
       classifier.clear(SimpleLinnaeanFactory.order);
@@ -395,6 +409,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     classifier.add(SimpleLinnaeanFactory.scientificNameAuthorship, this.scientificNameAuthorship, false, false);
     classifier.add(SimpleLinnaeanFactory.scientificName, this.scientificName, false, false);
     classifier.add(SimpleLinnaeanFactory.soundexScientificName, this.soundexScientificName, false, false);
+    classifier.add(SimpleLinnaeanFactory.prefixScientificName, this.prefixScientificName, false, false);
     classifier.add(SimpleLinnaeanFactory.genus, this.genus, false, false);
     classifier.add(SimpleLinnaeanFactory.family, this.family, false, false);
     classifier.add(SimpleLinnaeanFactory.order, this.order, false, false);
@@ -414,6 +429,7 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
     evidence.e$scientificNameAuthorship = classifier.match(this.scientificNameAuthorship, SimpleLinnaeanFactory.scientificNameAuthorship);
     evidence.e$scientificName = classifier.match(this.scientificName, SimpleLinnaeanFactory.scientificName, SimpleLinnaeanFactory.altScientificName);
     evidence.e$soundexScientificName = classifier.match(this.soundexScientificName, SimpleLinnaeanFactory.soundexScientificName);
+    evidence.e$prefixScientificName = classifier.match(this.prefixScientificName, SimpleLinnaeanFactory.prefixScientificName);
     evidence.e$genus = classifier.match(this.genus, SimpleLinnaeanFactory.genus);
     evidence.e$family = classifier.match(this.family, SimpleLinnaeanFactory.family);
     evidence.e$order = classifier.match(this.order, SimpleLinnaeanFactory.order);

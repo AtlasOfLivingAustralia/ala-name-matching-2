@@ -194,7 +194,7 @@ public class QueryUtils {
      *
      * @throws StoreException if unable to convert to a query
      */
-    public <C, S, Q> Query asQuery(String field, Observable.Style style, Normaliser normaliser, Analysis<C, S, Q> analysis, Object value) throws StoreException {
+    public <C, S, Q, Ctx> Query asQuery(String field, Observable.Style style, Normaliser normaliser, Analysis<C, S, Q, Ctx> analysis, Object value) throws StoreException {
         if (value instanceof Collection) {
             BooleanQuery.Builder all = new BooleanQuery.Builder();
             for (Object v: (Collection) value) {

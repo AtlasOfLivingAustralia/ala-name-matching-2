@@ -156,7 +156,7 @@ public class AuthorCanonicaliser {
                 sb.append(this.canonicaliseAuthor(parsed.getSanctioningAuthor()));
             }
             return sb.toString();
-        } catch (UnparsableNameException e) {
+        } catch (InterruptedException | UnparsableNameException e) {
             logger.warn("Unparseable author string \"{}\", leaving as-is", authorship);
             return authorship;
          }

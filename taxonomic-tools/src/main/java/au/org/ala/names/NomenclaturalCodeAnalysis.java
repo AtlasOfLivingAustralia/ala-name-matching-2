@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Analysis based on nomenclatural code.
  */
-public class NomenclaturalCodeAnalysis extends EnumAnalysis<NomenclaturalCode> {
+public class NomenclaturalCodeAnalysis extends EnumAnalysis<NomenclaturalCode, Object> {
     private static final Logger logger = LoggerFactory.getLogger(NomenclaturalCodeAnalysis.class);
     private static final Map<String, NomenclaturalCode> KINGDOM_CODE = Collections.synchronizedMap(buildInitialCodeMap());
 
@@ -69,10 +69,11 @@ public class NomenclaturalCodeAnalysis extends EnumAnalysis<NomenclaturalCode> {
      * Parse this value and return a suitably interpreted object.
      *
      * @param value The value
+     * @param context Unused context
      * @return The parsed value
      */
     @Override
-    public NomenclaturalCode fromString(String value) {
+    public NomenclaturalCode fromString(String value, Object context) {
         if (value == null)
             return null;
         value = value.trim();
@@ -80,7 +81,7 @@ public class NomenclaturalCodeAnalysis extends EnumAnalysis<NomenclaturalCode> {
             return null;
         if (value.equals("ICN")) // Grr
             return NomenclaturalCode.BOTANICAL;
-        NomenclaturalCode code = super.fromString(value);
+        NomenclaturalCode code = super.fromString(value, context);
         if (code == null)
             code = this.parser.parse(value).getPayload();
         return code;

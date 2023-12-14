@@ -48,38 +48,78 @@ public class SimpleLinnaeanParameters_TT implements Parameters {
   public double inf_soundexScientificName_f$f_t; // p(¬soundexScientificName | ¬taxonID, scientificName) =  1 - p(soundexScientificName | ¬taxonID, scientificName) conditional probability
   public double inf_soundexScientificName_t$f_f; // p(soundexScientificName | ¬taxonID, ¬scientificName) conditional probability
   public double inf_soundexScientificName_f$f_f; // p(¬soundexScientificName | ¬taxonID, ¬scientificName) =  1 - p(soundexScientificName | ¬taxonID, ¬scientificName) conditional probability
-  public double inf_genus_t$t_tt; // p(genus | taxonID, scientificName, soundexScientificName) conditional probability
-  public double inf_genus_f$t_tt; // p(¬genus | taxonID, scientificName, soundexScientificName) =  1 - p(genus | taxonID, scientificName, soundexScientificName) conditional probability
-  public double inf_genus_t$t_tf; // p(genus | taxonID, scientificName, ¬soundexScientificName) conditional probability
-  public double inf_genus_f$t_tf; // p(¬genus | taxonID, scientificName, ¬soundexScientificName) =  1 - p(genus | taxonID, scientificName, ¬soundexScientificName) conditional probability
-  public double inf_genus_t$t_ft; // p(genus | taxonID, ¬scientificName, soundexScientificName) conditional probability
-  public double inf_genus_f$t_ft; // p(¬genus | taxonID, ¬scientificName, soundexScientificName) =  1 - p(genus | taxonID, ¬scientificName, soundexScientificName) conditional probability
-  public double inf_genus_t$t_ff; // p(genus | taxonID, ¬scientificName, ¬soundexScientificName) conditional probability
-  public double inf_genus_f$t_ff; // p(¬genus | taxonID, ¬scientificName, ¬soundexScientificName) =  1 - p(genus | taxonID, ¬scientificName, ¬soundexScientificName) conditional probability
-  public double inf_genus_t$f_tt; // p(genus | ¬taxonID, scientificName, soundexScientificName) conditional probability
-  public double inf_genus_f$f_tt; // p(¬genus | ¬taxonID, scientificName, soundexScientificName) =  1 - p(genus | ¬taxonID, scientificName, soundexScientificName) conditional probability
-  public double inf_genus_t$f_tf; // p(genus | ¬taxonID, scientificName, ¬soundexScientificName) conditional probability
-  public double inf_genus_f$f_tf; // p(¬genus | ¬taxonID, scientificName, ¬soundexScientificName) =  1 - p(genus | ¬taxonID, scientificName, ¬soundexScientificName) conditional probability
-  public double inf_genus_t$f_ft; // p(genus | ¬taxonID, ¬scientificName, soundexScientificName) conditional probability
-  public double inf_genus_f$f_ft; // p(¬genus | ¬taxonID, ¬scientificName, soundexScientificName) =  1 - p(genus | ¬taxonID, ¬scientificName, soundexScientificName) conditional probability
-  public double inf_genus_t$f_ff; // p(genus | ¬taxonID, ¬scientificName, ¬soundexScientificName) conditional probability
-  public double inf_genus_f$f_ff; // p(¬genus | ¬taxonID, ¬scientificName, ¬soundexScientificName) =  1 - p(genus | ¬taxonID, ¬scientificName, ¬soundexScientificName) conditional probability
-  public double derived_genus_t$t_tt; // p(genus | taxonID, soundexScientificName, scientificName) = p(genus | taxonID, scientificName, soundexScientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
-  public double derived_genus_f$t_tt; // p(¬genus | taxonID, soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, soundexScientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
-  public double derived_genus_t$t_tf; // p(genus | taxonID, soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, soundexScientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
-  public double derived_genus_f$t_tf; // p(¬genus | taxonID, soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, soundexScientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
-  public double derived_genus_t$t_ft; // p(genus | taxonID, ¬soundexScientificName, scientificName) = p(genus | taxonID, scientificName, ¬soundexScientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
-  public double derived_genus_f$t_ft; // p(¬genus | taxonID, ¬soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, ¬soundexScientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
-  public double derived_genus_t$t_ff; // p(genus | taxonID, ¬soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, ¬soundexScientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
-  public double derived_genus_f$t_ff; // p(¬genus | taxonID, ¬soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, ¬soundexScientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
-  public double derived_genus_t$f_tt; // p(genus | ¬taxonID, soundexScientificName, scientificName) = p(genus | taxonID, scientificName, soundexScientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
-  public double derived_genus_f$f_tt; // p(¬genus | ¬taxonID, soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, soundexScientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
-  public double derived_genus_t$f_tf; // p(genus | ¬taxonID, soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, soundexScientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
-  public double derived_genus_f$f_tf; // p(¬genus | ¬taxonID, soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, soundexScientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
-  public double derived_genus_t$f_ft; // p(genus | ¬taxonID, ¬soundexScientificName, scientificName) = p(genus | taxonID, scientificName, ¬soundexScientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
-  public double derived_genus_f$f_ft; // p(¬genus | ¬taxonID, ¬soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, ¬soundexScientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
-  public double derived_genus_t$f_ff; // p(genus | ¬taxonID, ¬soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, ¬soundexScientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
-  public double derived_genus_f$f_ff; // p(¬genus | ¬taxonID, ¬soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, ¬soundexScientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double inf_prefixScientificName_t$t_t; // p(prefixScientificName | taxonID, scientificName) conditional probability
+  public double inf_prefixScientificName_f$t_t; // p(¬prefixScientificName | taxonID, scientificName) =  1 - p(prefixScientificName | taxonID, scientificName) conditional probability
+  public double inf_prefixScientificName_t$t_f; // p(prefixScientificName | taxonID, ¬scientificName) conditional probability
+  public double inf_prefixScientificName_f$t_f; // p(¬prefixScientificName | taxonID, ¬scientificName) =  1 - p(prefixScientificName | taxonID, ¬scientificName) conditional probability
+  public double inf_prefixScientificName_t$f_t; // p(prefixScientificName | ¬taxonID, scientificName) conditional probability
+  public double inf_prefixScientificName_f$f_t; // p(¬prefixScientificName | ¬taxonID, scientificName) =  1 - p(prefixScientificName | ¬taxonID, scientificName) conditional probability
+  public double inf_prefixScientificName_t$f_f; // p(prefixScientificName | ¬taxonID, ¬scientificName) conditional probability
+  public double inf_prefixScientificName_f$f_f; // p(¬prefixScientificName | ¬taxonID, ¬scientificName) =  1 - p(prefixScientificName | ¬taxonID, ¬scientificName) conditional probability
+  public double inf_genus_t$t_ttt; // p(genus | taxonID, scientificName, soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_f$t_ttt; // p(¬genus | taxonID, scientificName, soundexScientificName, prefixScientificName) =  1 - p(genus | taxonID, scientificName, soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_t$t_ttf; // p(genus | taxonID, scientificName, soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_f$t_ttf; // p(¬genus | taxonID, scientificName, soundexScientificName, ¬prefixScientificName) =  1 - p(genus | taxonID, scientificName, soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_t$t_tft; // p(genus | taxonID, scientificName, ¬soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_f$t_tft; // p(¬genus | taxonID, scientificName, ¬soundexScientificName, prefixScientificName) =  1 - p(genus | taxonID, scientificName, ¬soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_t$t_tff; // p(genus | taxonID, scientificName, ¬soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_f$t_tff; // p(¬genus | taxonID, scientificName, ¬soundexScientificName, ¬prefixScientificName) =  1 - p(genus | taxonID, scientificName, ¬soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_t$t_ftt; // p(genus | taxonID, ¬scientificName, soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_f$t_ftt; // p(¬genus | taxonID, ¬scientificName, soundexScientificName, prefixScientificName) =  1 - p(genus | taxonID, ¬scientificName, soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_t$t_ftf; // p(genus | taxonID, ¬scientificName, soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_f$t_ftf; // p(¬genus | taxonID, ¬scientificName, soundexScientificName, ¬prefixScientificName) =  1 - p(genus | taxonID, ¬scientificName, soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_t$t_fft; // p(genus | taxonID, ¬scientificName, ¬soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_f$t_fft; // p(¬genus | taxonID, ¬scientificName, ¬soundexScientificName, prefixScientificName) =  1 - p(genus | taxonID, ¬scientificName, ¬soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_t$t_fff; // p(genus | taxonID, ¬scientificName, ¬soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_f$t_fff; // p(¬genus | taxonID, ¬scientificName, ¬soundexScientificName, ¬prefixScientificName) =  1 - p(genus | taxonID, ¬scientificName, ¬soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_t$f_ttt; // p(genus | ¬taxonID, scientificName, soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_f$f_ttt; // p(¬genus | ¬taxonID, scientificName, soundexScientificName, prefixScientificName) =  1 - p(genus | ¬taxonID, scientificName, soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_t$f_ttf; // p(genus | ¬taxonID, scientificName, soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_f$f_ttf; // p(¬genus | ¬taxonID, scientificName, soundexScientificName, ¬prefixScientificName) =  1 - p(genus | ¬taxonID, scientificName, soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_t$f_tft; // p(genus | ¬taxonID, scientificName, ¬soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_f$f_tft; // p(¬genus | ¬taxonID, scientificName, ¬soundexScientificName, prefixScientificName) =  1 - p(genus | ¬taxonID, scientificName, ¬soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_t$f_tff; // p(genus | ¬taxonID, scientificName, ¬soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_f$f_tff; // p(¬genus | ¬taxonID, scientificName, ¬soundexScientificName, ¬prefixScientificName) =  1 - p(genus | ¬taxonID, scientificName, ¬soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_t$f_ftt; // p(genus | ¬taxonID, ¬scientificName, soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_f$f_ftt; // p(¬genus | ¬taxonID, ¬scientificName, soundexScientificName, prefixScientificName) =  1 - p(genus | ¬taxonID, ¬scientificName, soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_t$f_ftf; // p(genus | ¬taxonID, ¬scientificName, soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_f$f_ftf; // p(¬genus | ¬taxonID, ¬scientificName, soundexScientificName, ¬prefixScientificName) =  1 - p(genus | ¬taxonID, ¬scientificName, soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_t$f_fft; // p(genus | ¬taxonID, ¬scientificName, ¬soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_f$f_fft; // p(¬genus | ¬taxonID, ¬scientificName, ¬soundexScientificName, prefixScientificName) =  1 - p(genus | ¬taxonID, ¬scientificName, ¬soundexScientificName, prefixScientificName) conditional probability
+  public double inf_genus_t$f_fff; // p(genus | ¬taxonID, ¬scientificName, ¬soundexScientificName, ¬prefixScientificName) conditional probability
+  public double inf_genus_f$f_fff; // p(¬genus | ¬taxonID, ¬scientificName, ¬soundexScientificName, ¬prefixScientificName) =  1 - p(genus | ¬taxonID, ¬scientificName, ¬soundexScientificName, ¬prefixScientificName) conditional probability
+  public double derived_genus_t$t_ttt; // p(genus | taxonID, prefixScientificName, soundexScientificName, scientificName) = p(genus | taxonID, scientificName, soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, scientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_f$t_ttt; // p(¬genus | taxonID, prefixScientificName, soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, scientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_t$t_ttf; // p(genus | taxonID, prefixScientificName, soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, ¬scientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_f$t_ttf; // p(¬genus | taxonID, prefixScientificName, soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, ¬scientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_t$t_tft; // p(genus | taxonID, prefixScientificName, ¬soundexScientificName, scientificName) = p(genus | taxonID, scientificName, ¬soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, scientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_f$t_tft; // p(¬genus | taxonID, prefixScientificName, ¬soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, ¬soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, scientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_t$t_tff; // p(genus | taxonID, prefixScientificName, ¬soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, ¬soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, ¬scientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_f$t_tff; // p(¬genus | taxonID, prefixScientificName, ¬soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, ¬soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, ¬scientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_t$t_ftt; // p(genus | taxonID, ¬prefixScientificName, soundexScientificName, scientificName) = p(genus | taxonID, scientificName, soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, scientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_f$t_ftt; // p(¬genus | taxonID, ¬prefixScientificName, soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, scientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_t$t_ftf; // p(genus | taxonID, ¬prefixScientificName, soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, ¬scientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_f$t_ftf; // p(¬genus | taxonID, ¬prefixScientificName, soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, ¬scientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_t$t_fft; // p(genus | taxonID, ¬prefixScientificName, ¬soundexScientificName, scientificName) = p(genus | taxonID, scientificName, ¬soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, scientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_f$t_fft; // p(¬genus | taxonID, ¬prefixScientificName, ¬soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, ¬soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, scientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_t$t_fff; // p(genus | taxonID, ¬prefixScientificName, ¬soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, ¬soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, ¬scientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_f$t_fff; // p(¬genus | taxonID, ¬prefixScientificName, ¬soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, ¬soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, ¬scientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_t$f_ttt; // p(genus | ¬taxonID, prefixScientificName, soundexScientificName, scientificName) = p(genus | taxonID, scientificName, soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, scientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_f$f_ttt; // p(¬genus | ¬taxonID, prefixScientificName, soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, scientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_t$f_ttf; // p(genus | ¬taxonID, prefixScientificName, soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, ¬scientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_f$f_ttf; // p(¬genus | ¬taxonID, prefixScientificName, soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, ¬scientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_t$f_tft; // p(genus | ¬taxonID, prefixScientificName, ¬soundexScientificName, scientificName) = p(genus | taxonID, scientificName, ¬soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, scientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_f$f_tft; // p(¬genus | ¬taxonID, prefixScientificName, ¬soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, ¬soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, scientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_t$f_tff; // p(genus | ¬taxonID, prefixScientificName, ¬soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, ¬soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, ¬scientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_f$f_tff; // p(¬genus | ¬taxonID, prefixScientificName, ¬soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, ¬soundexScientificName, prefixScientificName).p(prefixScientificName | taxonID, ¬scientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_t$f_ftt; // p(genus | ¬taxonID, ¬prefixScientificName, soundexScientificName, scientificName) = p(genus | taxonID, scientificName, soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, scientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_f$f_ftt; // p(¬genus | ¬taxonID, ¬prefixScientificName, soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, scientificName).p(soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_t$f_ftf; // p(genus | ¬taxonID, ¬prefixScientificName, soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, ¬scientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_f$f_ftf; // p(¬genus | ¬taxonID, ¬prefixScientificName, soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, ¬scientificName).p(soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_t$f_fft; // p(genus | ¬taxonID, ¬prefixScientificName, ¬soundexScientificName, scientificName) = p(genus | taxonID, scientificName, ¬soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, scientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_f$f_fft; // p(¬genus | ¬taxonID, ¬prefixScientificName, ¬soundexScientificName, scientificName) = p(¬genus | taxonID, scientificName, ¬soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, scientificName).p(¬soundexScientificName | taxonID, scientificName)  derived conditional probability
+  public double derived_genus_t$f_fff; // p(genus | ¬taxonID, ¬prefixScientificName, ¬soundexScientificName, ¬scientificName) = p(genus | taxonID, ¬scientificName, ¬soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, ¬scientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
+  public double derived_genus_f$f_fff; // p(¬genus | ¬taxonID, ¬prefixScientificName, ¬soundexScientificName, ¬scientificName) = p(¬genus | taxonID, ¬scientificName, ¬soundexScientificName, ¬prefixScientificName).p(¬prefixScientificName | taxonID, ¬scientificName).p(¬soundexScientificName | taxonID, ¬scientificName)  derived conditional probability
   public double inf_family_t$t_t; // p(family | taxonID, genus) conditional probability
   public double inf_family_f$t_t; // p(¬family | taxonID, genus) =  1 - p(family | taxonID, genus) conditional probability
   public double inf_family_t$t_f; // p(family | taxonID, ¬genus) conditional probability
@@ -141,40 +181,52 @@ public class SimpleLinnaeanParameters_TT implements Parameters {
     this.inf_soundexScientificName_t$t_f = vector[12];
     this.inf_soundexScientificName_t$f_t = vector[13];
     this.inf_soundexScientificName_t$f_f = vector[14];
-    this.inf_genus_t$t_tt = vector[15];
-    this.inf_genus_t$t_tf = vector[16];
-    this.inf_genus_t$t_ft = vector[17];
-    this.inf_genus_t$t_ff = vector[18];
-    this.inf_genus_t$f_tt = vector[19];
-    this.inf_genus_t$f_tf = vector[20];
-    this.inf_genus_t$f_ft = vector[21];
-    this.inf_genus_t$f_ff = vector[22];
-    this.inf_family_t$t_t = vector[23];
-    this.inf_family_t$t_f = vector[24];
-    this.inf_family_t$f_t = vector[25];
-    this.inf_family_t$f_f = vector[26];
-    this.inf_order_t$t_t = vector[27];
-    this.inf_order_t$t_f = vector[28];
-    this.inf_order_t$f_t = vector[29];
-    this.inf_order_t$f_f = vector[30];
-    this.inf_class__t$t_t = vector[31];
-    this.inf_class__t$t_f = vector[32];
-    this.inf_class__t$f_t = vector[33];
-    this.inf_class__t$f_f = vector[34];
-    this.inf_phylum_t$t_t = vector[35];
-    this.inf_phylum_t$t_f = vector[36];
-    this.inf_phylum_t$f_t = vector[37];
-    this.inf_phylum_t$f_f = vector[38];
-    this.inf_kingdom_t$t_t = vector[39];
-    this.inf_kingdom_t$t_f = vector[40];
-    this.inf_kingdom_t$f_t = vector[41];
-    this.inf_kingdom_t$f_f = vector[42];
+    this.inf_prefixScientificName_t$t_t = vector[15];
+    this.inf_prefixScientificName_t$t_f = vector[16];
+    this.inf_prefixScientificName_t$f_t = vector[17];
+    this.inf_prefixScientificName_t$f_f = vector[18];
+    this.inf_genus_t$t_ttt = vector[19];
+    this.inf_genus_t$t_ttf = vector[20];
+    this.inf_genus_t$t_tft = vector[21];
+    this.inf_genus_t$t_tff = vector[22];
+    this.inf_genus_t$t_ftt = vector[23];
+    this.inf_genus_t$t_ftf = vector[24];
+    this.inf_genus_t$t_fft = vector[25];
+    this.inf_genus_t$t_fff = vector[26];
+    this.inf_genus_t$f_ttt = vector[27];
+    this.inf_genus_t$f_ttf = vector[28];
+    this.inf_genus_t$f_tft = vector[29];
+    this.inf_genus_t$f_tff = vector[30];
+    this.inf_genus_t$f_ftt = vector[31];
+    this.inf_genus_t$f_ftf = vector[32];
+    this.inf_genus_t$f_fft = vector[33];
+    this.inf_genus_t$f_fff = vector[34];
+    this.inf_family_t$t_t = vector[35];
+    this.inf_family_t$t_f = vector[36];
+    this.inf_family_t$f_t = vector[37];
+    this.inf_family_t$f_f = vector[38];
+    this.inf_order_t$t_t = vector[39];
+    this.inf_order_t$t_f = vector[40];
+    this.inf_order_t$f_t = vector[41];
+    this.inf_order_t$f_f = vector[42];
+    this.inf_class__t$t_t = vector[43];
+    this.inf_class__t$t_f = vector[44];
+    this.inf_class__t$f_t = vector[45];
+    this.inf_class__t$f_f = vector[46];
+    this.inf_phylum_t$t_t = vector[47];
+    this.inf_phylum_t$t_f = vector[48];
+    this.inf_phylum_t$f_t = vector[49];
+    this.inf_phylum_t$f_f = vector[50];
+    this.inf_kingdom_t$t_t = vector[51];
+    this.inf_kingdom_t$t_f = vector[52];
+    this.inf_kingdom_t$f_t = vector[53];
+    this.inf_kingdom_t$f_f = vector[54];
     this.build();
   }
 
   @Override
   public double[] store() {
-    double[] vector = new double[43];
+    double[] vector = new double[55];
 
     vector[0] = this.prior_taxonId_t;
     vector[1] = this.inf_taxonRank_t$t;
@@ -191,34 +243,46 @@ public class SimpleLinnaeanParameters_TT implements Parameters {
     vector[12] = this.inf_soundexScientificName_t$t_f;
     vector[13] = this.inf_soundexScientificName_t$f_t;
     vector[14] = this.inf_soundexScientificName_t$f_f;
-    vector[15] = this.inf_genus_t$t_tt;
-    vector[16] = this.inf_genus_t$t_tf;
-    vector[17] = this.inf_genus_t$t_ft;
-    vector[18] = this.inf_genus_t$t_ff;
-    vector[19] = this.inf_genus_t$f_tt;
-    vector[20] = this.inf_genus_t$f_tf;
-    vector[21] = this.inf_genus_t$f_ft;
-    vector[22] = this.inf_genus_t$f_ff;
-    vector[23] = this.inf_family_t$t_t;
-    vector[24] = this.inf_family_t$t_f;
-    vector[25] = this.inf_family_t$f_t;
-    vector[26] = this.inf_family_t$f_f;
-    vector[27] = this.inf_order_t$t_t;
-    vector[28] = this.inf_order_t$t_f;
-    vector[29] = this.inf_order_t$f_t;
-    vector[30] = this.inf_order_t$f_f;
-    vector[31] = this.inf_class__t$t_t;
-    vector[32] = this.inf_class__t$t_f;
-    vector[33] = this.inf_class__t$f_t;
-    vector[34] = this.inf_class__t$f_f;
-    vector[35] = this.inf_phylum_t$t_t;
-    vector[36] = this.inf_phylum_t$t_f;
-    vector[37] = this.inf_phylum_t$f_t;
-    vector[38] = this.inf_phylum_t$f_f;
-    vector[39] = this.inf_kingdom_t$t_t;
-    vector[40] = this.inf_kingdom_t$t_f;
-    vector[41] = this.inf_kingdom_t$f_t;
-    vector[42] = this.inf_kingdom_t$f_f;
+    vector[15] = this.inf_prefixScientificName_t$t_t;
+    vector[16] = this.inf_prefixScientificName_t$t_f;
+    vector[17] = this.inf_prefixScientificName_t$f_t;
+    vector[18] = this.inf_prefixScientificName_t$f_f;
+    vector[19] = this.inf_genus_t$t_ttt;
+    vector[20] = this.inf_genus_t$t_ttf;
+    vector[21] = this.inf_genus_t$t_tft;
+    vector[22] = this.inf_genus_t$t_tff;
+    vector[23] = this.inf_genus_t$t_ftt;
+    vector[24] = this.inf_genus_t$t_ftf;
+    vector[25] = this.inf_genus_t$t_fft;
+    vector[26] = this.inf_genus_t$t_fff;
+    vector[27] = this.inf_genus_t$f_ttt;
+    vector[28] = this.inf_genus_t$f_ttf;
+    vector[29] = this.inf_genus_t$f_tft;
+    vector[30] = this.inf_genus_t$f_tff;
+    vector[31] = this.inf_genus_t$f_ftt;
+    vector[32] = this.inf_genus_t$f_ftf;
+    vector[33] = this.inf_genus_t$f_fft;
+    vector[34] = this.inf_genus_t$f_fff;
+    vector[35] = this.inf_family_t$t_t;
+    vector[36] = this.inf_family_t$t_f;
+    vector[37] = this.inf_family_t$f_t;
+    vector[38] = this.inf_family_t$f_f;
+    vector[39] = this.inf_order_t$t_t;
+    vector[40] = this.inf_order_t$t_f;
+    vector[41] = this.inf_order_t$f_t;
+    vector[42] = this.inf_order_t$f_f;
+    vector[43] = this.inf_class__t$t_t;
+    vector[44] = this.inf_class__t$t_f;
+    vector[45] = this.inf_class__t$f_t;
+    vector[46] = this.inf_class__t$f_f;
+    vector[47] = this.inf_phylum_t$t_t;
+    vector[48] = this.inf_phylum_t$t_f;
+    vector[49] = this.inf_phylum_t$f_t;
+    vector[50] = this.inf_phylum_t$f_f;
+    vector[51] = this.inf_kingdom_t$t_t;
+    vector[52] = this.inf_kingdom_t$t_f;
+    vector[53] = this.inf_kingdom_t$f_t;
+    vector[54] = this.inf_kingdom_t$f_f;
     return vector;
   }
 
@@ -246,30 +310,58 @@ public class SimpleLinnaeanParameters_TT implements Parameters {
     this.inf_soundexScientificName_f$t_f = 1.0 - this.inf_soundexScientificName_t$t_f;
     this.inf_soundexScientificName_f$f_t = 1.0 - this.inf_soundexScientificName_t$f_t;
     this.inf_soundexScientificName_f$f_f = 1.0 - this.inf_soundexScientificName_t$f_f;
-    this.inf_genus_f$t_tt = 1.0 - this.inf_genus_t$t_tt;
-    this.inf_genus_f$t_tf = 1.0 - this.inf_genus_t$t_tf;
-    this.inf_genus_f$t_ft = 1.0 - this.inf_genus_t$t_ft;
-    this.inf_genus_f$t_ff = 1.0 - this.inf_genus_t$t_ff;
-    this.inf_genus_f$f_tt = 1.0 - this.inf_genus_t$f_tt;
-    this.inf_genus_f$f_tf = 1.0 - this.inf_genus_t$f_tf;
-    this.inf_genus_f$f_ft = 1.0 - this.inf_genus_t$f_ft;
-    this.inf_genus_f$f_ff = 1.0 - this.inf_genus_t$f_ff;
-    this.derived_genus_t$t_tt = this.inf_genus_t$t_tt * this.inf_soundexScientificName_t$t_t;
-    this.derived_genus_f$t_tt = this.inf_genus_f$t_tt * this.inf_soundexScientificName_t$t_t;
-    this.derived_genus_t$t_tf = this.inf_genus_t$t_ft * this.inf_soundexScientificName_t$t_f;
-    this.derived_genus_f$t_tf = this.inf_genus_f$t_ft * this.inf_soundexScientificName_t$t_f;
-    this.derived_genus_t$t_ft = this.inf_genus_t$t_tf * this.inf_soundexScientificName_f$t_t;
-    this.derived_genus_f$t_ft = this.inf_genus_f$t_tf * this.inf_soundexScientificName_f$t_t;
-    this.derived_genus_t$t_ff = this.inf_genus_t$t_ff * this.inf_soundexScientificName_f$t_f;
-    this.derived_genus_f$t_ff = this.inf_genus_f$t_ff * this.inf_soundexScientificName_f$t_f;
-    this.derived_genus_t$f_tt = this.inf_genus_t$t_tt * this.inf_soundexScientificName_t$t_t;
-    this.derived_genus_f$f_tt = this.inf_genus_f$t_tt * this.inf_soundexScientificName_t$t_t;
-    this.derived_genus_t$f_tf = this.inf_genus_t$t_ft * this.inf_soundexScientificName_t$t_f;
-    this.derived_genus_f$f_tf = this.inf_genus_f$t_ft * this.inf_soundexScientificName_t$t_f;
-    this.derived_genus_t$f_ft = this.inf_genus_t$t_tf * this.inf_soundexScientificName_f$t_t;
-    this.derived_genus_f$f_ft = this.inf_genus_f$t_tf * this.inf_soundexScientificName_f$t_t;
-    this.derived_genus_t$f_ff = this.inf_genus_t$t_ff * this.inf_soundexScientificName_f$t_f;
-    this.derived_genus_f$f_ff = this.inf_genus_f$t_ff * this.inf_soundexScientificName_f$t_f;
+    this.inf_prefixScientificName_f$t_t = 1.0 - this.inf_prefixScientificName_t$t_t;
+    this.inf_prefixScientificName_f$t_f = 1.0 - this.inf_prefixScientificName_t$t_f;
+    this.inf_prefixScientificName_f$f_t = 1.0 - this.inf_prefixScientificName_t$f_t;
+    this.inf_prefixScientificName_f$f_f = 1.0 - this.inf_prefixScientificName_t$f_f;
+    this.inf_genus_f$t_ttt = 1.0 - this.inf_genus_t$t_ttt;
+    this.inf_genus_f$t_ttf = 1.0 - this.inf_genus_t$t_ttf;
+    this.inf_genus_f$t_tft = 1.0 - this.inf_genus_t$t_tft;
+    this.inf_genus_f$t_tff = 1.0 - this.inf_genus_t$t_tff;
+    this.inf_genus_f$t_ftt = 1.0 - this.inf_genus_t$t_ftt;
+    this.inf_genus_f$t_ftf = 1.0 - this.inf_genus_t$t_ftf;
+    this.inf_genus_f$t_fft = 1.0 - this.inf_genus_t$t_fft;
+    this.inf_genus_f$t_fff = 1.0 - this.inf_genus_t$t_fff;
+    this.inf_genus_f$f_ttt = 1.0 - this.inf_genus_t$f_ttt;
+    this.inf_genus_f$f_ttf = 1.0 - this.inf_genus_t$f_ttf;
+    this.inf_genus_f$f_tft = 1.0 - this.inf_genus_t$f_tft;
+    this.inf_genus_f$f_tff = 1.0 - this.inf_genus_t$f_tff;
+    this.inf_genus_f$f_ftt = 1.0 - this.inf_genus_t$f_ftt;
+    this.inf_genus_f$f_ftf = 1.0 - this.inf_genus_t$f_ftf;
+    this.inf_genus_f$f_fft = 1.0 - this.inf_genus_t$f_fft;
+    this.inf_genus_f$f_fff = 1.0 - this.inf_genus_t$f_fff;
+    this.derived_genus_t$t_ttt = this.inf_genus_t$t_ttt * this.inf_prefixScientificName_t$t_t * this.inf_soundexScientificName_t$t_t;
+    this.derived_genus_f$t_ttt = this.inf_genus_f$t_ttt * this.inf_prefixScientificName_t$t_t * this.inf_soundexScientificName_t$t_t;
+    this.derived_genus_t$t_ttf = this.inf_genus_t$t_ftt * this.inf_prefixScientificName_t$t_f * this.inf_soundexScientificName_t$t_f;
+    this.derived_genus_f$t_ttf = this.inf_genus_f$t_ftt * this.inf_prefixScientificName_t$t_f * this.inf_soundexScientificName_t$t_f;
+    this.derived_genus_t$t_tft = this.inf_genus_t$t_tft * this.inf_prefixScientificName_t$t_t * this.inf_soundexScientificName_f$t_t;
+    this.derived_genus_f$t_tft = this.inf_genus_f$t_tft * this.inf_prefixScientificName_t$t_t * this.inf_soundexScientificName_f$t_t;
+    this.derived_genus_t$t_tff = this.inf_genus_t$t_fft * this.inf_prefixScientificName_t$t_f * this.inf_soundexScientificName_f$t_f;
+    this.derived_genus_f$t_tff = this.inf_genus_f$t_fft * this.inf_prefixScientificName_t$t_f * this.inf_soundexScientificName_f$t_f;
+    this.derived_genus_t$t_ftt = this.inf_genus_t$t_ttf * this.inf_prefixScientificName_f$t_t * this.inf_soundexScientificName_t$t_t;
+    this.derived_genus_f$t_ftt = this.inf_genus_f$t_ttf * this.inf_prefixScientificName_f$t_t * this.inf_soundexScientificName_t$t_t;
+    this.derived_genus_t$t_ftf = this.inf_genus_t$t_ftf * this.inf_prefixScientificName_f$t_f * this.inf_soundexScientificName_t$t_f;
+    this.derived_genus_f$t_ftf = this.inf_genus_f$t_ftf * this.inf_prefixScientificName_f$t_f * this.inf_soundexScientificName_t$t_f;
+    this.derived_genus_t$t_fft = this.inf_genus_t$t_tff * this.inf_prefixScientificName_f$t_t * this.inf_soundexScientificName_f$t_t;
+    this.derived_genus_f$t_fft = this.inf_genus_f$t_tff * this.inf_prefixScientificName_f$t_t * this.inf_soundexScientificName_f$t_t;
+    this.derived_genus_t$t_fff = this.inf_genus_t$t_fff * this.inf_prefixScientificName_f$t_f * this.inf_soundexScientificName_f$t_f;
+    this.derived_genus_f$t_fff = this.inf_genus_f$t_fff * this.inf_prefixScientificName_f$t_f * this.inf_soundexScientificName_f$t_f;
+    this.derived_genus_t$f_ttt = this.inf_genus_t$t_ttt * this.inf_prefixScientificName_t$t_t * this.inf_soundexScientificName_t$t_t;
+    this.derived_genus_f$f_ttt = this.inf_genus_f$t_ttt * this.inf_prefixScientificName_t$t_t * this.inf_soundexScientificName_t$t_t;
+    this.derived_genus_t$f_ttf = this.inf_genus_t$t_ftt * this.inf_prefixScientificName_t$t_f * this.inf_soundexScientificName_t$t_f;
+    this.derived_genus_f$f_ttf = this.inf_genus_f$t_ftt * this.inf_prefixScientificName_t$t_f * this.inf_soundexScientificName_t$t_f;
+    this.derived_genus_t$f_tft = this.inf_genus_t$t_tft * this.inf_prefixScientificName_t$t_t * this.inf_soundexScientificName_f$t_t;
+    this.derived_genus_f$f_tft = this.inf_genus_f$t_tft * this.inf_prefixScientificName_t$t_t * this.inf_soundexScientificName_f$t_t;
+    this.derived_genus_t$f_tff = this.inf_genus_t$t_fft * this.inf_prefixScientificName_t$t_f * this.inf_soundexScientificName_f$t_f;
+    this.derived_genus_f$f_tff = this.inf_genus_f$t_fft * this.inf_prefixScientificName_t$t_f * this.inf_soundexScientificName_f$t_f;
+    this.derived_genus_t$f_ftt = this.inf_genus_t$t_ttf * this.inf_prefixScientificName_f$t_t * this.inf_soundexScientificName_t$t_t;
+    this.derived_genus_f$f_ftt = this.inf_genus_f$t_ttf * this.inf_prefixScientificName_f$t_t * this.inf_soundexScientificName_t$t_t;
+    this.derived_genus_t$f_ftf = this.inf_genus_t$t_ftf * this.inf_prefixScientificName_f$t_f * this.inf_soundexScientificName_t$t_f;
+    this.derived_genus_f$f_ftf = this.inf_genus_f$t_ftf * this.inf_prefixScientificName_f$t_f * this.inf_soundexScientificName_t$t_f;
+    this.derived_genus_t$f_fft = this.inf_genus_t$t_tff * this.inf_prefixScientificName_f$t_t * this.inf_soundexScientificName_f$t_t;
+    this.derived_genus_f$f_fft = this.inf_genus_f$t_tff * this.inf_prefixScientificName_f$t_t * this.inf_soundexScientificName_f$t_t;
+    this.derived_genus_t$f_fff = this.inf_genus_t$t_fff * this.inf_prefixScientificName_f$t_f * this.inf_soundexScientificName_f$t_f;
+    this.derived_genus_f$f_fff = this.inf_genus_f$t_fff * this.inf_prefixScientificName_f$t_f * this.inf_soundexScientificName_f$t_f;
     this.inf_family_f$t_t = 1.0 - this.inf_family_t$t_t;
     this.inf_family_f$t_f = 1.0 - this.inf_family_t$t_f;
     this.inf_family_f$f_t = 1.0 - this.inf_family_t$f_t;

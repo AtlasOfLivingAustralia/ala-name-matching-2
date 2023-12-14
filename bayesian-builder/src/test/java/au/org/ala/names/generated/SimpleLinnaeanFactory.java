@@ -53,6 +53,16 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       Multiplicity.OPTIONAL,
       Multiplicity.OPTIONAL
     );
+  public static final Observable<String> broadSynonymScientificName = new Observable(
+      "broadSynonymScientificName",
+      URI.create("http://ala.org.au/terms/1.0/broadSynonymScientificName"),
+      String.class,
+      Observable.Style.CANONICAL,
+      null,
+      new StringAnalysis(),
+      Multiplicity.OPTIONAL,
+      Multiplicity.MANY
+    );
   public static final Observable<String> class_ = new Observable(
       "class",
       URI.create("http://rs.tdwg.org/dwc/terms/class"),
@@ -119,6 +129,16 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
       String.class,
       Observable.Style.CANONICAL,
       simpleNormaliser,
+      new StringAnalysis(),
+      Multiplicity.OPTIONAL,
+      Multiplicity.MANY
+    );
+  public static final Observable<String> prefixScientificName = new Observable(
+      "prefixScientificName",
+      URI.create("http://ala.org.au/terms/1.0/prefixScientificName"),
+      String.class,
+      Observable.Style.CANONICAL,
+      null,
       new StringAnalysis(),
       Multiplicity.OPTIONAL,
       Multiplicity.MANY
@@ -237,6 +257,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   public static List<Observable<?>> OBSERVABLES = Collections.unmodifiableList(Arrays.asList(
     acceptedNameUsageId,
     altScientificName,
+    broadSynonymScientificName,
     class_,
     family,
     genus,
@@ -244,6 +265,7 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     order,
     parentNameUsageId,
     phylum,
+    prefixScientificName,
     priority,
     scientificName,
     scientificNameAuthorship,
@@ -297,6 +319,9 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     acceptedNameUsageId.setProperty(au.org.ala.vocab.BayesianTerm.additional, true);
     altScientificName.setExternal(LUCENE, "altScientificName");
     altScientificName.setProperty(au.org.ala.vocab.BayesianTerm.altName, true);
+    broadSynonymScientificName.setExternal(LUCENE, "broadSynonymScientificName");
+    broadSynonymScientificName.setExternal(LUCENE_VARIANT, "broadSynonymScientificName_variant");
+    broadSynonymScientificName.setProperty(au.org.ala.vocab.BayesianTerm.broadSynonymName, true);
     class_.setExternal(LUCENE, "dwc_class");
     class_.setExternal(LUCENE_VARIANT, "dwc_class_variant");
     class_.setProperty(au.org.ala.vocab.BayesianTerm.copy, true);
@@ -324,6 +349,10 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
     phylum.setExternal(LUCENE_VARIANT, "dwc_phylum_variant");
     phylum.setProperty(au.org.ala.vocab.BayesianTerm.copy, true);
     phylum.setProperty(au.org.ala.vocab.OptimisationTerm.loadAsVariant, true);
+    prefixScientificName.setExternal(LUCENE, "prefixScientificName");
+    prefixScientificName.setExternal(LUCENE_VARIANT, "prefixScientificName_variant");
+    prefixScientificName.setProperty(au.org.ala.vocab.BayesianTerm.additional, true);
+    prefixScientificName.setProperty(au.org.ala.vocab.OptimisationTerm.load, false);
     priority.setExternal(LUCENE, "priority");
     priority.setProperty(au.org.ala.vocab.OptimisationTerm.aggregate, "max");
     priority.setProperty(au.org.ala.vocab.OptimisationTerm.loadFromClass, "http://ala.org.au/terms/1.0/TaxonVariant");

@@ -197,6 +197,7 @@ public class LuceneUtils {
      *
      * @param clazz The class to load the resource for
      * @param resource The resource path to the CSV fiel
+     * @param namer The obesvable that corressponds to names
      * @param ignoreDuplicates Ignore duplicate ids
      *
      * @throws Exception
@@ -224,7 +225,7 @@ public class LuceneUtils {
                     if (seen.contains(observable) && ignoreDuplicates)
                         continue;
                     seen.add(observable);
-                    Object v = observable.getAnalysis().fromString(value);
+                    Object v = observable.getAnalysis().fromString(value, null);
                     classifier.add(observable, v, false, false);
                     if (observable == namer && v != null)
                         classifier.setNames(Collections.singleton(v.toString()));

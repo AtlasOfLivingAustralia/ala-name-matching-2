@@ -499,7 +499,7 @@ public class AlaLinnaeanBuilderTest extends TestUtils {
         assertEquals(2, metadata.getSources().size());
         assertNotNull(metadata.getProperties());
         assertEquals("8.3.0", metadata.getProperties().get("luceneVersion"));
-        assertEquals("1.8", metadata.getProperties().get("javaVersion").substring(0, 3));
+        assertEquals("11.", metadata.getProperties().get("javaVersion").substring(0, 3));
         assertEquals("au.org.ala.names.AlaLinnaeanBuilder", metadata.getProperties().get("builderClass"));
         assertEquals("au.org.ala.names.AlaLinnaeanFactory", metadata.getProperties().get("factoryClass"));
         assertEquals("taxonID", metadata.getProperties().get("identifier"));

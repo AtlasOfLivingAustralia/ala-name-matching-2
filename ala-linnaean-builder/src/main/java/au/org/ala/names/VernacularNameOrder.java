@@ -31,10 +31,10 @@ public class VernacularNameOrder implements Comparator<Record> {
             return Integer.MAX_VALUE;
         if (!o1.rowType().equals(GbifTerm.VernacularName) || !o2.rowType().equals(GbifTerm.VernacularName))
             throw new IllegalArgumentException("Both records must be of type " + GbifTerm.VernacularName);
-        VernacularStatus s1 = STATUS_ANALYSIS.fromString(o1.value(ALATerm.status));
-        VernacularStatus s2 = STATUS_ANALYSIS.fromString(o2.value(ALATerm.status));
-        Boolean p1 = PREFERRED_ANALYSIS.fromString(o1.value(GbifTerm.isPreferredName));
-        Boolean p2 = PREFERRED_ANALYSIS.fromString(o2.value(GbifTerm.isPreferredName));
+        VernacularStatus s1 = STATUS_ANALYSIS.fromString(o1.value(ALATerm.status), null);
+        VernacularStatus s2 = STATUS_ANALYSIS.fromString(o2.value(ALATerm.status), null);
+        Boolean p1 = PREFERRED_ANALYSIS.fromString(o1.value(GbifTerm.isPreferredName), null);
+        Boolean p2 = PREFERRED_ANALYSIS.fromString(o2.value(GbifTerm.isPreferredName), null);
         int priority1 = s1 == null ? VernacularStatus.common.getPriority() : s1.getPriority();
         int priority2 = s2 == null ? VernacularStatus.common.getPriority() : s2.getPriority();
         if (p1 != null && p1.booleanValue())

@@ -12,8 +12,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.google.common.base.Enums;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
+import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.api.Rank;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
@@ -28,30 +30,32 @@ import java.util.Map;
 /**
  * Analysis based on taxonomic rank.
  */
-public class RankAnalysis extends EnumAnalysis<Rank> {
+public class RankAnalysis extends EnumAnalysis<Rank, NomenclaturalCode> {
     private static final Logger logger = LoggerFactory.getLogger(RankAnalysis.class);
 
-    private static final Map<String, Rank> RANK_MAP = Collections.unmodifiableMap(buildInitialRankMap());
+    private static final Map<String, Map<NomenclaturalCode, Rank>> RANK_MAP = Collections.unmodifiableMap(buildInitialRankMap());
 
     // Add a rank name
-    private static void addRank(String key, Rank value, Map<String, Rank> map) {
+    private static void addRank(String key, Rank value, NomenclaturalCode code, Map<String, Map<NomenclaturalCode, Rank>> map) {
         key = StringUtils.trimToNull(key);
         if (key == null)
             return;
         key = key.toUpperCase();
-        Rank existing = map.get(key);
+        Map<NomenclaturalCode, Rank> submap = map.computeIfAbsent(key, k -> new HashMap<>());
+        Rank existing = submap.get(code);
         if (existing != null) {
             if (existing != value) {
-                logger.info("Rank map already contains " + key + " for " + existing + ", ingnoring mapping to " + value);
+                logger.info("Rank map already contains " + key + " and " + code + " for " + existing + ", ingnoring mapping to " + value);
             }
             return;
         }
-        map.put(key, value);
+        submap.put(code, value);
     }
 
     // Initialise the rank names
-    private static Map<String, Rank> buildInitialRankMap() {
-        Map<String, Rank> rankMap = new HashMap<>();
+    private static Map<String, Map<NomenclaturalCode, Rank>> buildInitialRankMap() {
+        Map<String, Map<NomenclaturalCode, Rank>> rankMap = new HashMap<>();
+        NomenclaturalCodeAnalysis codeAnalysis = new NomenclaturalCodeAnalysis();
         try {
             CSVReader reader = CSVReaderFactory.build(RankAnalysis.class.getResourceAsStream("ranks.csv"), "UTF-8", ",", '"', 1);
             while (reader.hasNext()) {
@@ -63,14 +67,16 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
                     continue;
                 val = row[0].trim().toUpperCase();
                 Rank rank = Rank.valueOf(val);
-                addRank(val, rank, rankMap);
+                val = StringUtils.trimToNull(row[5]);
+                NomenclaturalCode code = codeAnalysis.fromString(val, null);
+                addRank(val, rank, code, rankMap);
                 val = StringUtils.trimToNull(row[4]);
-                addRank(val, rank, rankMap);
+                addRank(val, rank, code, rankMap);
                 if (val != null && val.endsWith(".")) {
-                    addRank(val.substring(0, val.length() - 1), rank, rankMap);
+                    addRank(val.substring(0, val.length() - 1), rank, code, rankMap);
                 }
                 for (int i = 6; i < row.length; i++)
-                    addRank(row[i], rank, rankMap);
+                    addRank(row[i], rank, code, rankMap);
             }
         } catch (IOException ex) {
             logger.error("Unable to read rank map", ex);
@@ -156,14 +162,27 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
      * Parse this value and return a suitably interpreted object.
      *
      * @param value The value
+     * @param context The nomenclatural code, if available, for disambiguation
      * @return The parsed value
      */
     @Override
-    public Rank fromString(String value) {
-        if (value == null || value.isEmpty())
+    public Rank fromString(String value, NomenclaturalCode context) {
+        Rank rank = null;
+
+        value = StringUtils.trimToNull(value);
+        if (value == null)
             return null;
-        Rank rank = RANK_MAP.get(value.trim().toUpperCase());
-        return this.tidy(rank);
+        value = value.toUpperCase();
+        rank = Enums.getIfPresent(Rank.class, value).orNull();
+        if (rank != null)
+            return rank;
+        Map<NomenclaturalCode, Rank> submap = RANK_MAP.get(value.toUpperCase());
+        if (submap == null)
+            return null;
+        rank = submap.get(context);
+        if (rank == null)
+            rank = submap.get(null);
+         return this.tidy(rank);
     }
 
     /**
@@ -213,7 +232,9 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
 
 
     /**
-     * Jackson deserializer for ranks
+     * Jackson deserializer for ranks.
+     *
+     * Assumes unambiguous rank name.
      */
     public static class Deserializer extends StdDeserializer<Rank> {
         private static final RankAnalysis ANALYSIS = new RankAnalysis();
@@ -228,7 +249,7 @@ public class RankAnalysis extends EnumAnalysis<Rank> {
 
             if (value == null || value.isEmpty())
                 return null;
-            Rank rank = ANALYSIS.fromString(value);
+            Rank rank = ANALYSIS.fromString(value, null);
             if (rank == null)
                 throw new JsonParseException(jsonParser, "Invalid rank " + value);
             return rank;

@@ -36,16 +36,16 @@ public class TaxonomicStatusAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertNull(analysis.fromString(null));
-        assertNull(analysis.fromString(""));
-        assertNull(analysis.fromString("  "));
-        assertEquals(TaxonomicStatus.accepted, analysis.fromString("accepted"));
-        assertEquals(TaxonomicStatus.accepted, analysis.fromString("ACCEPTED"));
-        assertEquals(TaxonomicStatus.accepted, analysis.fromString(" Accepted "));
-        assertEquals(TaxonomicStatus.heterotypicSynonym, analysis.fromString("heterotypicSynonym"));
-        assertEquals(TaxonomicStatus.heterotypicSynonym, analysis.fromString("HeterotypicSynonym"));
-        assertEquals(TaxonomicStatus.heterotypicSynonym, analysis.fromString("heterotypic synonym"));
-        assertEquals(TaxonomicStatus.heterotypicSynonym, analysis.fromString(" Heterotypic Synonym "));
+        assertNull(analysis.fromString(null, null));
+        assertNull(analysis.fromString("", null));
+        assertNull(analysis.fromString("  ", null));
+        assertEquals(TaxonomicStatus.accepted, analysis.fromString("accepted", null));
+        assertEquals(TaxonomicStatus.accepted, analysis.fromString("ACCEPTED", null));
+        assertEquals(TaxonomicStatus.accepted, analysis.fromString(" Accepted ", null));
+        assertEquals(TaxonomicStatus.heterotypicSynonym, analysis.fromString("heterotypicSynonym", null));
+        assertEquals(TaxonomicStatus.heterotypicSynonym, analysis.fromString("HeterotypicSynonym", null));
+        assertEquals(TaxonomicStatus.heterotypicSynonym, analysis.fromString("heterotypic synonym", null));
+        assertEquals(TaxonomicStatus.heterotypicSynonym, analysis.fromString(" Heterotypic Synonym ", null));
     }
 
     @Test

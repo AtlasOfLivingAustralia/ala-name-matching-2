@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * The default integer analysis
  */
-public class IntegerAnalysis extends Analysis<Integer, Integer, Integer> {
+public class IntegerAnalysis extends Analysis<Integer, Integer, Integer, Object> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -118,11 +118,12 @@ public class IntegerAnalysis extends Analysis<Integer, Integer, Integer> {
      * Parse this value and return a suitably interpreted object.
      *
      * @param value The value
-     * @return The parsed value
+     * @param context Unused context
+    * @return The parsed value
      * @throws StoreException if unable to interpret the string
      */
     @Override
-    public Integer fromString(String value) throws StoreException {
+    public Integer fromString(String value, Object context) throws StoreException {
         if (value == null || value.isEmpty())
             return null;
         try {

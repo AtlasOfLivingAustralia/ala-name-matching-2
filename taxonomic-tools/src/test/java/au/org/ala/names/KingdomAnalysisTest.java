@@ -34,11 +34,11 @@ public class KingdomAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertNull(analysis.fromString(null));
-        assertNull(analysis.fromString(""));
-        assertNull(analysis.fromString("  "));
-        assertEquals("Bacteria", analysis.fromString("Bacteria"));
-        assertEquals("ANIMALIA", analysis.fromString("ANIMALIA"));
+        assertNull(analysis.fromString(null, null));
+        assertNull(analysis.fromString("", null));
+        assertNull(analysis.fromString("  ", null));
+        assertEquals("Bacteria", analysis.fromString("Bacteria", null));
+        assertEquals("ANIMALIA", analysis.fromString("ANIMALIA", null));
     }
 
     @Test
@@ -56,12 +56,12 @@ public class KingdomAnalysisTest {
 
     @Test
     public void testEquivalent3() throws Exception {
-        assertTrue(analysis.equivalent("Chromista", "Protista"));
-        assertTrue(analysis.equivalent("plantae", "Viridiplantae"));
-        assertTrue(analysis.equivalent("Archaea", "bacteria"));
-        assertTrue(analysis.equivalent("Protozoa", "Chromista"));
-        assertTrue(analysis.equivalent("Plantae", "Chromista"));
-        assertTrue(analysis.equivalent("Fungi", "Chromista"));
+        assertFalse(analysis.equivalent("Chromista", "Protista"));
+        assertFalse(analysis.equivalent("plantae", "Viridiplantae"));
+        assertFalse(analysis.equivalent("Archaea", "bacteria"));
+        assertFalse(analysis.equivalent("Protozoa", "Chromista"));
+        assertFalse(analysis.equivalent("Plantae", "Chromista"));
+        assertFalse(analysis.equivalent("Fungi", "Chromista"));
     }
 
     @Test
@@ -74,11 +74,11 @@ public class KingdomAnalysisTest {
 
     @Test
     public void testEquivalent5() throws Exception {
-        assertTrue(analysis.equivalent("Fungi", "FINGI"));
-        assertTrue(analysis.equivalent("CRAMISTA", "Chromista"));
-        assertTrue(analysis.equivalent("PLANTI", "Chromista"));
-        assertTrue(analysis.equivalent("PLANTI", "PRATACA"));
-        assertTrue(analysis.equivalent("Virus", "Viruses"));
+        assertFalse(analysis.equivalent("Fungi", "FINGI"));
+        assertFalse(analysis.equivalent("CRAMISTA", "Chromista"));
+        assertFalse(analysis.equivalent("PLANTI", "Chromista"));
+        assertFalse(analysis.equivalent("PLANTI", "PRATACA"));
+        assertFalse(analysis.equivalent("Virus", "Viruses"));
     }
 
 

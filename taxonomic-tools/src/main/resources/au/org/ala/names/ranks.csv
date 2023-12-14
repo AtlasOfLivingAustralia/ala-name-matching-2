@@ -6,7 +6,7 @@ SUPERKINGDOM,900,1,1999, superreg.,,
 KINGDOM,1000,1,1999, reg.,,regnum
 SUBKINGDOM,1100,1,1999, subreg.,,subregnum
 INFRAKINGDOM,1200,1000,2999, infrareg.,,
-SUPERPHYLUM,1900,1001,2999, superphyl.,, superphyla
+SUPERPHYLUM,1900,1001,2999, superphyl.,, superphyla,,
 PHYLUM,2000,1001,2999, phyl.,, phyla, division|ICBN, divisio
 SUBPHYLUM,2100,1001,2999, subphyl.,, subphyla, subdivision|ICBN, subdivisio
 INFRAPHYLUM,2200,1001,3999, infraphyl.,, infraphyla
@@ -40,6 +40,9 @@ MINORDER,4060,3001,4999, minord.,,
 SUBORDER,4100,3001,4999, subord.,,subordo
 INFRAORDER,4200,4001,5999, infraord.,,infraordo
 PARVORDER,4300,4001,5999, parvord.,,
+SUPERSECTION_ZOOLOGY,4400,4001,5999, supersect.,ICZN,
+SECTION_ZOOLOGY,4500,4001,5999, sect.,ICZN,
+SUBSECTION_ZOOLOGY,4600,4001,5999, subsect.,ICZN,
 MEGAFAMILY,4800,4001,5999, megafam.,, megafamilies
 GRANDFAMILY,4820,4001,5999, grandfam.,, grandfamilies
 SUPERFAMILY,4900,4001,5999, superfam.,, superfamilies, superfamilia
@@ -55,9 +58,9 @@ SUPRAGENERIC_NAME,5900,5001,6999, supragen.,,
 GENUS,6000,5001,6999, gen.,, genera
 SUBGENUS,6100,5001,6999, subgen.,, subgenera
 INFRAGENUS,6200,6001,6999, infrag.,, infragenera
-SUPERSECTION,6280,6001,6999, supersect.,ICZN,
-SECTION,6300,6001,6999, sect.,ICZN,
-SUBSECTION,6320,6001,6999, subsect.,ICZN,
+SUPERSECTION_BOTANY,6280,6001,6999, supersect.,ICN,
+SECTION_BOTANY,6300,6001,6999, sect.,ICN,
+SUBSECTION_BOTANY,6320,6001,6999, subsect.,ICN,
 SUPERSERIES,6380,6001,6999, superser.,ICZN, superseries
 SERIES,6400,6001,6999, ser.,, series
 SUBSERIES,6420,6001,6999, subser.,, subseries

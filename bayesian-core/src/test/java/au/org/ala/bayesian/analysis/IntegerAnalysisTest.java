@@ -35,10 +35,10 @@ public class IntegerAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertEquals(10, this.analysis.fromString("10").intValue());
-        assertEquals(-150, this.analysis.fromString("-150").intValue());
-        assertEquals(null, this.analysis.fromString(null));
-        assertEquals(null, this.analysis.fromString(""));
+        assertEquals(10, this.analysis.fromString("10", null).intValue());
+        assertEquals(-150, this.analysis.fromString("-150", null).intValue());
+        assertEquals(null, this.analysis.fromString(null, null));
+        assertEquals(null, this.analysis.fromString("", null));
     }
 
     @Test

@@ -54,6 +54,7 @@ public class SimpleLinnaeanInferencer implements Inferencer<SimpleLinnaeanClassi
     public Boolean e$scientificNameAuthorship;
     public Boolean e$scientificName;
     public Boolean e$soundexScientificName;
+    public Boolean e$prefixScientificName;
     public Boolean e$genus;
     public Boolean e$family;
     public Boolean e$order;
@@ -119,6 +120,16 @@ public class SimpleLinnaeanInferencer implements Inferencer<SimpleLinnaeanClassi
     @JsonIgnore
     public boolean isF$e$soundexScientificName() {
       return this.e$soundexScientificName == null || !this.e$soundexScientificName;
+    }
+
+    @JsonIgnore
+    public boolean isT$e$prefixScientificName() {
+      return this.e$prefixScientificName == null || this.e$prefixScientificName;
+    }
+
+    @JsonIgnore
+    public boolean isF$e$prefixScientificName() {
+      return this.e$prefixScientificName == null || !this.e$prefixScientificName;
     }
 
     @JsonIgnore

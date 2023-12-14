@@ -23,7 +23,7 @@ public class NullAnalyser<C extends Classification<C>> implements Analyser<C> {
     }
 
     @Override
-    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) {
+    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> disambiguator, boolean canonical) {
         if (classifier.has(name))
             return Collections.singleton(classifier.get(name));
         return Collections.emptySet();

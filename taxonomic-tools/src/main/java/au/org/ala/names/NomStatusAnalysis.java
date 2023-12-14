@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * are not always parsed.
  * </p>
  */
-public class NomStatusAnalysis extends Analysis<NomStatus, String, String> {
+public class NomStatusAnalysis extends Analysis<NomStatus, String, String, Object> {
     private static final Logger logger = LoggerFactory.getLogger(NomStatusAnalysis.class);
 
     /**
@@ -90,7 +90,7 @@ public class NomStatusAnalysis extends Analysis<NomStatus, String, String> {
      */
     @Override
     public NomStatus fromStore(String value) throws StoreException {
-        return this.fromString(value);
+        return this.fromString(value, null);
     }
 
     /**
@@ -109,10 +109,11 @@ public class NomStatusAnalysis extends Analysis<NomStatus, String, String> {
      * Parse this value and return a suitably interpreted object.
      *
      * @param value The value
+     * @param context Unused context
      * @return The parsed value
      */
     @Override
-    public NomStatus fromString(String value) {
+    public NomStatus fromString(String value, Object context) {
         if (value == null || value.isEmpty())
             return null;
         NomStatus status = new NomStatus(value);

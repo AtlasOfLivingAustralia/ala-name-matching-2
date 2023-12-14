@@ -256,5 +256,19 @@ public class JavaGeneratorSpecification<I> {
                 return;
             imports.add(className);
         }
+
+        /**
+         * Conditionally add a class to the import set.
+         * <p>
+         * An import is added of it is not part of the supplied package.
+         * </p>
+         *
+         * @param clazz The class
+         * @param imports The current set of imports
+         */
+        public void addImport(Class clazz, Set<String> imports) {
+            String className = clazz.getName().replace('$', '.');
+            this.addImport(className, imports);
+        }
     }
 }

@@ -11,6 +11,7 @@ import au.org.ala.names.builder.Builder;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.Optional;
+import java.util.function.Function;
 
 <#list imports as import>
 import ${import};
@@ -44,6 +45,11 @@ public class ${className} implements Builder<${classificationClassName}> {
 
   @Override
   public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<${classificationClassName}> analyser) throws BayesianException {
+    throw new UnsupportedOperationException("Sub-builders do not support this operation");
+  }
+
+  @Override
+  public Function<Classifier, Boolean> getBroadener(Classifier document, Analyser<${classificationClassName}> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 

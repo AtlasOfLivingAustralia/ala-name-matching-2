@@ -92,7 +92,17 @@ public class TaxonNameSoundEx {
         return output;
     }
 
-    public static String treatWord(String str, Rank rank, NameType nameType, boolean epithet) {
+    public static String
+
+
+
+
+
+
+
+
+
+                      treatWord(String str, Rank rank, NameType nameType, boolean epithet) {
         char startLetter;
         str = normalize(str, nameType);
         if (StringUtils.isBlank(str))

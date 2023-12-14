@@ -39,11 +39,11 @@ public class TermAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertEquals(DcTerm.identifier, this.analysis.fromString("dcterms:identifier"));
-        assertEquals(BayesianTerm.altName, this.analysis.fromString("bayesian:altName"));
-        assertEquals(BayesianTerm.altName, this.analysis.fromString("http://ala.org.au/bayesian/1.0/altName"));
-        assertEquals(null, this.analysis.fromString(null));
-        assertEquals(null, this.analysis.fromString(""));
+        assertEquals(DcTerm.identifier, this.analysis.fromString("dcterms:identifier", null));
+        assertEquals(BayesianTerm.altName, this.analysis.fromString("bayesian:altName", null));
+        assertEquals(BayesianTerm.altName, this.analysis.fromString("http://ala.org.au/bayesian/1.0/altName", null));
+        assertEquals(null, this.analysis.fromString(null, null));
+        assertEquals(null, this.analysis.fromString("", null));
     }
 
     @Test

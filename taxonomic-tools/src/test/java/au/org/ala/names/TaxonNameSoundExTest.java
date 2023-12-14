@@ -119,4 +119,12 @@ public class TaxonNameSoundExTest {
         assertEquals("ACITIFALA", TaxonNameSoundEx.treatWord("acutifolium", Rank.SPECIES, NameType.SCIENTIFIC, true));
     }
 
+
+    @Test
+    public void testTreatWord10() throws Exception {
+        assertEquals("PLANTI", TaxonNameSoundEx.treatWord("Plantae", Rank.KINGDOM, NameType.SCIENTIFIC, false));
+        assertEquals("ANIMALA", TaxonNameSoundEx.treatWord("Animalia", Rank.KINGDOM, NameType.SCIENTIFIC, false));
+        assertEquals("FINGI", TaxonNameSoundEx.treatWord("Fungi", Rank.KINGDOM, NameType.SCIENTIFIC, false));
+    }
+
 }

@@ -46,29 +46,29 @@ public class NomStatusAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertNull(analysis.fromString(null));
-        assertNull(analysis.fromString(""));
-        assertNull(analysis.fromString("  "));
-        assertEquals(new NomStatus(CONSERVED), analysis.fromString("CONSERVED"));
-        assertEquals(new NomStatus(CONSERVED), analysis.fromString("conserved"));
+        assertNull(analysis.fromString(null, null));
+        assertNull(analysis.fromString("", null));
+        assertNull(analysis.fromString("  ", null));
+        assertEquals(new NomStatus(CONSERVED), analysis.fromString("CONSERVED", null));
+        assertEquals(new NomStatus(CONSERVED), analysis.fromString("conserved", null));
     }
 
     @Test
     public void testFromString2() throws Exception {
-        assertEquals(new NomStatus(NEW_SPECIES), analysis.fromString("sp. nov."));
-        assertEquals(new NomStatus(REPLACEMENT), analysis.fromString("nomen novum"));
-        assertEquals(new NomStatus(REPLACEMENT), analysis.fromString("nom. nov."));
-        assertEquals(new NomStatus(ILLEGITIMATE), analysis.fromString("nom. illeg."));
-        assertEquals(new NomStatus(ILLEGITIMATE), analysis.fromString(" nom. illeg. "));
-        assertEquals(new NomStatus(ILLEGITIMATE), analysis.fromString("Nom. Illeg."));
-        assertEquals(new NomStatus(ILLEGITIMATE), analysis.fromString(" Nom   Illeg "));
+        assertEquals(new NomStatus(NEW_SPECIES), analysis.fromString("sp. nov.", null));
+        assertEquals(new NomStatus(REPLACEMENT), analysis.fromString("nomen novum", null));
+        assertEquals(new NomStatus(REPLACEMENT), analysis.fromString("nom. nov.", null));
+        assertEquals(new NomStatus(ILLEGITIMATE), analysis.fromString("nom. illeg.", null));
+        assertEquals(new NomStatus(ILLEGITIMATE), analysis.fromString(" nom. illeg. ", null));
+        assertEquals(new NomStatus(ILLEGITIMATE), analysis.fromString("Nom. Illeg.", null));
+        assertEquals(new NomStatus(ILLEGITIMATE), analysis.fromString(" Nom   Illeg ", null));
     }
 
 
     @Test
     public void testFromString3() throws Exception {
-        assertEquals(new NomStatus(ALTERNATIVE, CONSERVED), analysis.fromString("nom. altern., nom. cons."));
-        assertEquals(new NomStatus(ILLEGITIMATE, SUPERFLUOUS), analysis.fromString("nom. illeg., nom. superfl."));
+        assertEquals(new NomStatus(ALTERNATIVE, CONSERVED), analysis.fromString("nom. altern., nom. cons.", null));
+        assertEquals(new NomStatus(ILLEGITIMATE, SUPERFLUOUS), analysis.fromString("nom. illeg., nom. superfl.", null));
     }
 
     @Test

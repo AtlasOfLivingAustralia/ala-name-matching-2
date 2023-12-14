@@ -33,20 +33,20 @@ public class NomenclauralCodeAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertNull(analysis.fromString(null));
-        assertNull(analysis.fromString(""));
-        assertNull(analysis.fromString("  "));
-        assertEquals(NomenclaturalCode.BOTANICAL, analysis.fromString("botanical"));
-        assertEquals(NomenclaturalCode.ZOOLOGICAL, analysis.fromString("ZOOLOGICAL"));
-        assertEquals(NomenclaturalCode.BACTERIAL, analysis.fromString("Bacterial"));
+        assertNull(analysis.fromString(null, null));
+        assertNull(analysis.fromString("", null));
+        assertNull(analysis.fromString("  ", null));
+        assertEquals(NomenclaturalCode.BOTANICAL, analysis.fromString("botanical", null));
+        assertEquals(NomenclaturalCode.ZOOLOGICAL, analysis.fromString("ZOOLOGICAL", null));
+        assertEquals(NomenclaturalCode.BACTERIAL, analysis.fromString("Bacterial", null));
     }
 
 
     @Test
     public void testFromString2() throws Exception {
-        assertEquals(NomenclaturalCode.BOTANICAL, analysis.fromString("ICN"));
-        assertEquals(NomenclaturalCode.ZOOLOGICAL, analysis.fromString("ICZN"));
-        assertEquals(NomenclaturalCode.BACTERIAL, analysis.fromString("ICNB"));
+        assertEquals(NomenclaturalCode.BOTANICAL, analysis.fromString("ICN", null));
+        assertEquals(NomenclaturalCode.ZOOLOGICAL, analysis.fromString("ICZN", null));
+        assertEquals(NomenclaturalCode.BACTERIAL, analysis.fromString("ICNB", null));
     }
 
     @Test

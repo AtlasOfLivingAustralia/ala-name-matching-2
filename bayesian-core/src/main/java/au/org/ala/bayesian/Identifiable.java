@@ -8,6 +8,7 @@ import org.gbif.dwc.terms.TermFactory;
 
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -87,7 +88,7 @@ abstract public class Identifiable {
         this.id = id;
         this.uri = uri;
         this.external = new HashMap<>();
-        this.externalCache = new HashMap<>();
+        this.externalCache = new ConcurrentHashMap<>();
         this.properties = new TreeMap<>(PROPERTY_ORDER);
     }
     /**
@@ -171,7 +172,7 @@ abstract public class Identifiable {
      * @return The external name of this thing
      */
     public String getExternal(ExternalContext context) {
-        return this.externalCache.computeIfAbsent(context, k -> k.getConverter().convert(this));
+        return this.externalCache.computeIfAbsent(context, k -> this.external.containsKey(k) ? this.external.get(k) : k.getConverter().convert(this));
     }
 
     /**
@@ -185,8 +186,8 @@ abstract public class Identifiable {
             this.external.remove(context);
             this.externalCache.remove(context);
         } else {
-            this.externalCache.put(context, external);
             this.external.put(context, external);
+            this.externalCache.remove(context);
         }
     }
 

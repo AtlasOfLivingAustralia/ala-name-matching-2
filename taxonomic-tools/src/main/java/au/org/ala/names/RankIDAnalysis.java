@@ -113,18 +113,19 @@ public class RankIDAnalysis extends RangeAnalysis {
      * Parse this value from a string and return a suitably interpreted object.
      *
      * @param value The value
+     * @param context Unused context
      * @return The parsed value
      * @throws StoreException if unable to interpret the string
      */
     @Override
-    public Integer fromString(String value) throws StoreException {
+    public Integer fromString(String value, Object context) throws StoreException {
         if (value == null)
             return null;
         try {
             int id = Integer.parseInt(value);
             return this.fromStore(id);
         } catch (NumberFormatException ex) {
-            Rank rank = this.rankAnalysis.fromString(value);
+            Rank rank = this.rankAnalysis.fromString(value, null);
             if (rank == null)
                 return null;
             Integer id = RANK_MAP.get(rank);

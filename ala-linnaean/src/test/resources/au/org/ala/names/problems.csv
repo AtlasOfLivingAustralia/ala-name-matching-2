@@ -1,6 +1,7 @@
 Common name,Status of emblems,Kingdom,Phylum,Class,Order,Family,Genus,Species,Subspecies,match vernacular
 # Entries that cause problems for debugging
 Scribbly Gum,,Plantae,Charophyta,Equisetopsida,MYRTALES,MYRTACEAE,Eucalyptus,rossii,,true
-Barn Owl,,Animalia,Chordata,Aves,,,Tyto,alba,,true
+#Tyto alba excluded with no vernacular name in 20230725-3
+# Barn Owl,,Animalia,Chordata,Aves,,,Tyto,alba,,true
 Brolga,,Animalia,Chordata,Aves,GRUIFORMES,GRUIDAE,Antigone,rubicunda,,true
 Black Swan,Official - Bird,Animalia,CHORDATA,AVES,ANSERIFORMES,ANATIDAE,Cygnus,atratus,,true

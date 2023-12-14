@@ -3,6 +3,8 @@ package au.org.ala.names.builder;
 import au.org.ala.bayesian.*;
 
 import java.util.Deque;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * A class that can be used to derive all the additional, inferred
@@ -38,7 +40,7 @@ public interface Builder<C extends Classification<C>> {
     /**
      * Interpret values in a classifier.
      * <p>
-     * Perform any immedidate derivations that can be collected from the classifier.
+     * Perform any immediate derivations that can be collected from the classifier.
      * </p>
      *
      * @param classifier The document
@@ -74,6 +76,18 @@ public interface Builder<C extends Classification<C>> {
      * @throws BayesianException if unable to calculate the expansion
     */
     void expand(Classifier document, Deque<Classifier> parents, Analyser<C> analyser) throws BayesianException;
+
+    /**
+     * Get any broadener for thisd classifier.
+     *
+     * @param document The document to be broadened
+     * @param analyser An analyster
+     *
+     * @return A function that takes another classification and determines whether to use it to broaden the original classifier
+     *
+     * @throws BayesianException if unable to determine the broadening.
+     */
+    Function<Classifier, Boolean> getBroadener(Classifier document, Analyser<C> analyser) throws BayesianException;
 
     /**
      * Build a signture for a classifier.

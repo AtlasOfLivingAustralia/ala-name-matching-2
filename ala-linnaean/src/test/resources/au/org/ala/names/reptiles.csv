@@ -8,7 +8,8 @@ White's Skink,,Animalia,Chordata,Reptilia,SQUAMATA,SCINCIDAE,Liopholis,whitii,,t
 Freshwater Crocodile,,Animalia,Chordata,Reptilia,CROCODYLIA,CROCODYLIDAE,Crocodylus,johnstoni,,true
 Saltwater Crocodile,,Animalia,Chordata,Reptilia,CROCODYLIA,CROCODYLIDAE,Crocodylus,porosus,,true
 Eastern Snake-necked Turtle,,Animalia,Chordata,Reptilia,,CHELIDAE,Chelodina,longicollis,,true
-Murray Turtle,,Animalia,Chordata,Reptilia,,CHELIDAE,Emydura,macquarii,,true
+# Vernacular name Murray Turtle not in 20230725-3
+# Murray Turtle,,Animalia,Chordata,Reptilia,,CHELIDAE,Emydura,macquarii,,false
 Loggerhead Turtle,,Animalia,Chordata,Reptilia,,CHELONIIDAE,Caretta,caretta,,true
 Hawksbill Turtle,,Animalia,Chordata,Reptilia,,CHELONIIDAE,Eretmochelys,imbricata,,true
 Children's Python,,Animalia,Chordata,Reptilia,SQUAMATA,Pythonidae,Antaresia,childreni,,true

@@ -15,42 +15,14 @@ import java.util.*;
 /**
  * Analysis for kingdoms.
  * <p>
- * Some kingdoms move about and need to be treated as equivalent when matching.
- * This also handles the soundex equivalents for kingdoms.
+ * Normalised kingdom names
  * </p>
  */
 public class KingdomAnalysis extends StringAnalysis {
     private static final Logger logger = LoggerFactory.getLogger(KingdomAnalysis.class);
-    private static final Map<String, String> KINGDOM_MAP = Collections.unmodifiableMap(buildInitialKingdomMap());
-    private static final Set<String> KINGDOM_CLASS = Collections.unmodifiableSet(buildInitialClassMap(KINGDOM_MAP));
+    protected static final Map<String, String> KINGDOM_MAP = Collections.unmodifiableMap(buildInitialKingdomMap());
+    protected static final Map<String, List<String>> KINGDOM_CLASS = Collections.unmodifiableMap(buildInitialClassMap());
 
-    // Initialise the classes of kingdom
-    private static Set<String> buildInitialClassMap(Map<String, String> kingdomMap) {
-        final Map<String, Set<String>> inverted = new HashMap<>();
-        final Set<String> classes = new HashSet<>();
-        kingdomMap.entrySet().forEach(e -> inverted.computeIfAbsent(e.getValue(), n -> new HashSet<>()).add(e.getKey()));
-        try {
-            CSVReader reader = CSVReaderFactory.build(KingdomAnalysis.class.getResourceAsStream("kingdoms.csv"), "UTF-8", ",", '"', 1);
-            while (reader.hasNext()) {
-                String[] row = reader.next();
-                if (row.length < 3)
-                    continue;
-                if (row[0].startsWith("#"))
-                    continue;
-                for (String value : inverted.getOrDefault(row[0], Collections.emptySet())) {
-                    for (String match : row[2].split("\\s*\\|\\s*")) {
-                        for (String match2 : inverted.getOrDefault(match, Collections.emptySet())) {
-                            classes.add(value + "|" + match2);
-                        }
-                    }
-                }
-            }
-        } catch (IOException ex) {
-            logger.error("Unable to read classes", ex);
-        }
-        logger.info("Initialised kingdom classes with " + classes.size() + " entries");
-        return classes;
-    }
 
 
     // Initialise the kingdom map
@@ -75,6 +47,26 @@ public class KingdomAnalysis extends StringAnalysis {
         return kingdomMap;
     }
 
+    // Initialise the classes of kingdom
+    private static Map<String, List<String>>  buildInitialClassMap() {
+        final Map<String, List<String>> classes = new HashMap<>();
+        try {
+            CSVReader reader = CSVReaderFactory.build(KingdomAnalysis.class.getResourceAsStream("kingdoms.csv"), "UTF-8", ",", '"', 1);
+            while (reader.hasNext()) {
+                String[] row = reader.next();
+                if (row.length < 3)
+                    continue;
+                if (row[0].startsWith("#"))
+                    continue;
+                classes.put(row[0].toUpperCase(), Arrays.asList(row[2].split("\\s*\\|\\s*")));
+             }
+        } catch (IOException ex) {
+            logger.error("Unable to read classes", ex);
+        }
+        logger.info("Initialised kingdom classes with " + classes.size() + " entries");
+        return classes;
+    }
+
     /**
      * Analyse this object, providing any special interpretation
      * required.
@@ -93,6 +85,7 @@ public class KingdomAnalysis extends StringAnalysis {
             return null;
         return KINGDOM_MAP.getOrDefault(value.toUpperCase(), value);
     }
+
     /**
      * Compute a fidelity measure for this type of object.
      * <p>
@@ -118,30 +111,6 @@ public class KingdomAnalysis extends StringAnalysis {
             }
         }
         return new SimpleFidelity<>(original, actual, fidelity);
-    }
-
-
-    /**
-     * Test for equivalence.
-     * <p>
-     * Kingdoms are tested to see if they are in equivalence classes.
-     * </p>
-     *
-     * @param value1 The first value to test
-     * @param value2 The second value to test
-     * @return Null if not comparable, true if equivalent, false otherwise.
-     * @throws InferenceException if unable to determine equivalence
-     */
-    @Override
-    public Boolean equivalent(String value1, String value2) throws InferenceException {
-        if (value1 == null || value2 == null)
-            return null;
-        if (value1.equalsIgnoreCase(value2))
-            return true;
-        value1 = value1.toUpperCase();
-        value2 = value2.toUpperCase();
-        String pattern = value1 + "|" + value2;
-        return KINGDOM_CLASS.contains(pattern);
     }
 
     /**

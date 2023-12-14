@@ -7,11 +7,14 @@ import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 import au.org.ala.names.builder.Builder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import au.org.ala.bayesian.analysis.StringAnalysis;
 
@@ -49,6 +52,12 @@ public class GrassBuilder implements Builder<GrassClassification> {
 
   @Override
   public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<GrassClassification> analyser) throws BayesianException {
+  }
+
+  @Override
+  public Function<Classifier, Boolean> getBroadener(Classifier document, Analyser<GrassClassification> analyser) throws BayesianException {
+    List<Function<Classifier, Boolean>> broadeners = new ArrayList<>();
+    return broadeners.isEmpty() ? null : (c -> broadeners.stream().anyMatch(b -> b.apply(c)));
   }
 
   @Override

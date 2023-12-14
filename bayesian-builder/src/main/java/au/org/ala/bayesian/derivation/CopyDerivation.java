@@ -23,6 +23,10 @@ public class CopyDerivation extends CompiledDerivation {
     @JsonProperty
     @Getter
     private List<Observable<?>> sources;
+    /** Overwrite an existing value. False by default */
+    @Getter
+    @JsonProperty
+    private boolean overwrite = false;
 
     /**
      * Empty constructor

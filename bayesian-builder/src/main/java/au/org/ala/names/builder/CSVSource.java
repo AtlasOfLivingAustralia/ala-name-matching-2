@@ -118,7 +118,7 @@ public class CSVSource extends Source {
                     if (accepted != null && !accepted.contains(header[i]))
                         continue;
                     String value = line[i];
-                    Object val = observable.getAnalysis().fromString(value);
+                    Object val = observable.getAnalysis().fromString(value, null);
                     if (val != null)
                         classifier.add(observable, val, observable.hasProperty(OptimisationTerm.loadAsVariant, true), false);
                 }

@@ -194,7 +194,7 @@ public class AlaNameAnalyserTest {
     public void testAnalyseForIndex14() throws Exception {
         Classifier classifier = new LuceneClassifier();
         classifier.add(AlaLinnaeanFactory.scientificName, "Arabella sp1", false, false);
-         this.analyser.analyseForIndex(classifier);
+        this.analyser.analyseForIndex(classifier);
         assertEquals("Arabella sp1", classifier.get(AlaLinnaeanFactory.scientificName));
         assertEquals(NameType.PLACEHOLDER, classifier.get(AlaLinnaeanFactory.nameType));
     }

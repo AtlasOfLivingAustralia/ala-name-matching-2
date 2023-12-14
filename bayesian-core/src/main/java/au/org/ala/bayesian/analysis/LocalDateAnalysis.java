@@ -15,7 +15,7 @@ import java.time.format.FormatStyle;
 /**
  * The default date analysis for a local date (no time part)
  */
-public class LocalDateAnalysis extends Analysis<LocalDate, String, String> {
+public class LocalDateAnalysis extends Analysis<LocalDate, String, String, Object> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -88,7 +88,7 @@ public class LocalDateAnalysis extends Analysis<LocalDate, String, String> {
      */
     @Override
     public LocalDate fromStore(String value) throws StoreException {
-        return this.fromString(value);
+        return this.fromString(value, null);
     }
     /**
      * Compute a fidelity measure for this type of object.
@@ -130,11 +130,12 @@ public class LocalDateAnalysis extends Analysis<LocalDate, String, String> {
      * </p>
      *
      * @param value The value
+     * @param context Unused context
      * @return The parsed value
      * @throws StoreException if unable to interpret the string
      */
     @Override
-    public LocalDate fromString(String value) throws StoreException {
+    public LocalDate fromString(String value, Object context) throws StoreException {
         if (value == null || value.isEmpty())
             return null;
         try {

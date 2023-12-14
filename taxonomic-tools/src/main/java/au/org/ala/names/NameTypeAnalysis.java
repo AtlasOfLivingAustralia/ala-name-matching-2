@@ -6,7 +6,7 @@ import org.gbif.nameparser.api.NameType;
 /**
  * Analysis based on parsed name type
  */
-public class NameTypeAnalysis extends EnumAnalysis<NameType> {
+public class NameTypeAnalysis extends EnumAnalysis<NameType, Object> {
     public NameTypeAnalysis() {
         super(NameType.class);
     }

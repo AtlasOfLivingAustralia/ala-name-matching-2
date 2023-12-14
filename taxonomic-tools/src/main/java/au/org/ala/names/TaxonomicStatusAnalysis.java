@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * Analysis based on taxonomic status.
  */
-public class TaxonomicStatusAnalysis extends EnumAnalysis<TaxonomicStatus> {
+public class TaxonomicStatusAnalysis extends EnumAnalysis<TaxonomicStatus, Object> {
     /** Taxonomic status to treat as equivalent */
     private static final List<List<TaxonomicStatus>> EQUIVALENCE_CLASSES = Arrays.asList(
             Arrays.asList(TaxonomicStatus.accepted, TaxonomicStatus.inferredAccepted),
@@ -89,10 +89,11 @@ public class TaxonomicStatusAnalysis extends EnumAnalysis<TaxonomicStatus> {
      * </p>
      *
      * @param value The value
+     * @param context Unused context
      * @return The parsed value
      */
     @Override
-    public TaxonomicStatus fromString(String value) {
+    public TaxonomicStatus fromString(String value, Object context) {
         if (value == null || value.isEmpty())
             return null;
         value = value.replaceAll("\\s", "").toLowerCase();

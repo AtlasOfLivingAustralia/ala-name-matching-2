@@ -38,6 +38,20 @@ abstract public class CompiledDerivation extends Derivation {
     }
 
     /**
+     * Does this derivation generate many possible results for an input?
+     * <p>
+     * This is usually only for classifier building.
+     * False by default, subclasses can override this to generate multiple values.
+     * </p>
+     *
+     * @return True if this is a multi-value dervation
+     */
+    @JsonIgnore
+    public boolean isMultiValued() {
+        return false;
+    }
+
+    /**
      * Is this dervivation optional
      *
      * @return True if there is a match option that can be applied
@@ -181,7 +195,7 @@ abstract public class CompiledDerivation extends Derivation {
                         !o.hasProperty(BayesianTerm.synonymName, true) &&
                         !o.hasProperty(BayesianTerm.altName, true) &&
                         !o.hasProperty(BayesianTerm.name, true) &&
-                        !o.hasProperty(BayesianTerm.additionalName, true) &&
+                        !o.hasProperty(BayesianTerm.disambiguator, true) &&
                         !o.hasProperty(BayesianTerm.fullName, true) &&
                         !o.hasProperty(BayesianTerm.copy, true) &&
                         (
@@ -314,6 +328,10 @@ abstract public class CompiledDerivation extends Derivation {
 
         public String getName() {
             return name;
+        }
+
+        public String getImport() {
+            return this.clazz.getName().replace('$', '.');
         }
 
         @Override

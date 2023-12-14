@@ -62,14 +62,14 @@ public interface Analyser<C extends Classification<C>> {
      * @param classifier The classification
      * @param name The observable that gives the name
      * @param complete The observable that gives the complete name
-     * @param additional The observable that gives additional disambiguation, geneerally complete = name + ' ' + additional
+     * @param disambiguator The observable that gives disambiguator disambiguation, geneerally complete = name + ' ' + disambiguator
      * @param canonical Only include canonical names
      *
      * @return All the names that refer to the classification
      *
      * @throws InferenceException if unable to analyuse the names
      */
-    Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) throws InferenceException;
+    Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> disambiguator, boolean canonical) throws InferenceException;
 
     /**
      * Decide whether to accept a synonym or not.

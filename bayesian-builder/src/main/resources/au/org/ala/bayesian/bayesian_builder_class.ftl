@@ -8,11 +8,14 @@ import au.org.ala.bayesian.ParameterAnalyser;
 import au.org.ala.bayesian.Parameters;
 import au.org.ala.names.builder.Builder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 <#list imports as import>
 import ${import};
@@ -82,26 +85,34 @@ public class ${className} implements Builder<${classificationClassName}> {
     if (${derivation.generateCondition(compiler, "classifier", factoryClassName)}) {
         </#if>
         <#if derivation.hasExtra()>
-    ${derivation.extra.type.name} e_${observable?index} = ${derivation.generateExtra("classifier", factoryClassName)};
+      ${derivation.extra.type.name} e_${observable?index} = ${derivation.generateExtra("classifier", factoryClassName)};
         </#if>
-     if (!classifier.has(${factoryClassName}.${observable.javaVariable})){
-      ${derivation.valueClass.name} i_${observable?index} = ${derivation.generateValue("classifier", factoryClassName)};
+      if (!classifier.has(${factoryClassName}.${observable.javaVariable})){
+        ${derivation.valueClass.name} i_${observable?index} = ${derivation.generateValue("classifier", factoryClassName)};
         <#if derivation.hasTransform()>
-      v_${observable?index} = ${factoryClassName}.${observable.javaVariable}.analyse(${derivation.generateBuilderTransform("v_${observable?index}", "e_${observable?index}", "classifier")});
-      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
+        v_${observable?index} = ${factoryClassName}.${observable.javaVariable}.analyse(${derivation.generateBuilderTransform("v_${observable?index}", "e_${observable?index}", "classifier")}<#if derivation.multiValued>.stream().findFirst().orElse(null)</#if>;
+        classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
         <#else>
-      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
+        classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
         </#if>
-    }
+      }
         <#if observable.multiplicity.many>
-    for (${derivation.valueClass.name} i_${observable?index}: ${derivation.generateVariants("classifier", factoryClassName)}){
+      for (${derivation.valueClass.name} i_${observable?index}: ${derivation.generateVariants("classifier", factoryClassName)}){
             <#if derivation.hasTransform()>
-      ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
-      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
+                <#if derivation.multiValued>
+        for (${observable.type.name} v_${observable?index}: ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")}) {
+          classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), true, false);
+        }
+                <#else>
+        ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
+        classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), true, false);
+                </#if>
+        ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
+        classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
             <#else>
-      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
+        classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
             </#if>
-    }
+      }
         </#if>
     </#if>
     <#if derivation.conditional>
@@ -119,26 +130,32 @@ public class ${className} implements Builder<${classificationClassName}> {
     if (${derivation.generateCondition(compiler, "classifier", factoryClassName)}) {
       </#if>
       <#if derivation.hasExtra()>
-    ${derivation.extra.type.name} e_${observable?index} = ${derivation.generateExtra("classifier", factoryClassName)};
+      ${derivation.extra.type.name} e_${observable?index} = ${derivation.generateExtra("classifier", factoryClassName)};
       </#if>
-     if (!classifier.has(${factoryClassName}.${observable.javaVariable})){
-       ${derivation.valueClass.name} i_${observable?index} = ${derivation.generateValue("classifier", factoryClassName)};
+      if (!classifier.has(${factoryClassName}.${observable.javaVariable})) {
+        ${derivation.valueClass.name} i_${observable?index} = ${derivation.generateValue("classifier", factoryClassName)};
       <#if derivation.hasTransform()>
-       ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
-       classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
+        ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")}<#if derivation.multiValued>.stream().findFirst().orElse(null)</#if>;
+        classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
       <#else>
-       classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
+        classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
       </#if>
-    }
+      }
       <#if observable.multiplicity.many>
-    for (${derivation.valueClass.name} i_${observable?index}: ${derivation.generateVariants("classifier", factoryClassName)}){
+      for (${derivation.valueClass.name} i_${observable?index}: ${derivation.generateVariants("classifier", factoryClassName)}){
           <#if derivation.hasTransform()>
-      ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
-      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), true, false);
+              <#if derivation.multiValued>
+        for (${observable.type.name} v_${observable?index}: ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")}) {
+          classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), true, false);
+        }
+              <#else>
+        ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
+        classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), true, false);
+              </#if>
           <#else>
-      classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), true, false);
+        classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), true, false);
           </#if>
-    }
+      }
       </#if>
     <#if derivation.conditional>
     }
@@ -170,22 +187,34 @@ public class ${className} implements Builder<${classificationClassName}> {
     <#if derivation.hasExtra()>
         ${derivation.extra.type.name} e_${observable?index} = ${derivation.generateExtra("classifier", factoryClassName)};
     </#if>
+    <#if derivation.overwrite>
+        ${derivation.valueClass.name} i_${observable?index} = ${derivation.generateValue(docVar, factoryClassName)};
+        if (i_${observable?index} != null) {
+      <#if derivation.hasTransform()>
+          ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
+          classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, true);
+      <#else>
+          classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, true);
+      </#if>
+        }
+    <#else>
         if (!classifier.has(${factoryClassName}.${observable.javaVariable})) {
           ${derivation.valueClass.name} i_${observable?index} = ${derivation.generateValue(docVar, factoryClassName)};
-    <#if derivation.hasTransform()>
+      <#if derivation.hasTransform()>
           ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
           classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}), false, false);
-    <#else>
+      <#else>
           classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}), false, false);
-    </#if>
         }
+      </#if>
+    </#if>
     <#if observable.multiplicity.many>
-        for(${derivation.valueClass.name} i_${observable?index}: ${derivation.generateVariants(docVar, factoryClassName)}) {
+        for(${derivation.valueClass.name} j_${observable?index}: ${derivation.generateVariants(docVar, factoryClassName)}) {
         <#if derivation.hasTransform()>
-          ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("i_${observable?index}", "e_${observable?index}", "classifier")};
+          ${observable.type.name} v_${observable?index} = ${derivation.generateBuilderTransform("j_${observable?index}", "e_${observable?index}", "classifier")};
           classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(v_${observable?index}),  true, false);
         <#else>
-          classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(i_${observable?index}),  true, false);
+          classifier.add(${factoryClassName}.${observable.javaVariable}, ${factoryClassName}.${observable.javaVariable}.analyse(j_${observable?index}),  true, false);
         </#if>
         }
     </#if>
@@ -194,6 +223,17 @@ public class ${className} implements Builder<${classificationClassName}> {
     }
     </#if>
 </#list>
+  }
+
+  @Override
+  public Function<Classifier, Boolean> getBroadener(Classifier document, Analyser<${classificationClassName}> analyser) throws BayesianException {
+    List<Function<Classifier, Boolean>> broadeners = new ArrayList<>();
+<#list network.broadeners as broadener>
+    if (${broadener.broaden.buildClassifierCheck(compiler, "document", factoryClassName)}) {
+      broadeners.add(c -> ${broadener.condition.buildClassifierCheck(compiler, "c", factoryClassName)});
+    }
+</#list>
+    return broadeners.isEmpty() ? null : (c -> broadeners.stream().anyMatch(b -> b.apply(c)));
   }
 
   @Override

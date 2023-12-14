@@ -6,7 +6,7 @@ import au.org.ala.names.builder.IndexBuilderConfiguration;
 import com.beust.jcommander.JCommander;
 
 <#list builderVariables as variable>
-import ${variable.clazz.name};
+import ${variable.import};
 </#list>
 
 <#if analyserClass??>

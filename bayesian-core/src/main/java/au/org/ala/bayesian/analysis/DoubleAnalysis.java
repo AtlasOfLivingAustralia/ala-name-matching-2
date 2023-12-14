@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * The default integer analysis
  */
-public class DoubleAnalysis extends Analysis<Double, Double, Double> {
+public class DoubleAnalysis extends Analysis<Double, Double, Double, Object> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -119,11 +119,11 @@ public class DoubleAnalysis extends Analysis<Double, Double, Double> {
      * Parse this value and return a suitably interpreted object.
      *
      * @param value The value
-     * @return The parsed value
+     * @param context Unused context
      * @throws StoreException if unable to interpret the string
      */
     @Override
-    public Double fromString(String value) throws StoreException {
+    public Double fromString(String value, Object context) throws StoreException {
         if (value == null || value.isEmpty())
             return null;
         try {

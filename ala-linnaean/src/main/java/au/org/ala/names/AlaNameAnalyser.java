@@ -4,6 +4,7 @@ import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
 import au.org.ala.vocab.BayesianTerm;
 import com.google.common.base.Enums;
+import org.apache.commons.text.StringEscapeUtils;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.api.NameType;
 import org.gbif.nameparser.api.ParsedName;
@@ -202,8 +203,8 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             if (classification.voucher == null && name.getVoucher() != null) {
                 classification.voucher = AlaLinnaeanFactory.voucher.getAnalysis().analyse(name.getVoucher());
             }
-            if (classification.phraseName == null && name.getStrain() != null) {
-                classification.phraseName = AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getStrain());
+            if (classification.phraseName == null && name.getPhrase() != null) {
+                classification.phraseName = AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getPhrase());
             }
         }
         if (name.getType() == NameType.SCIENTIFIC || name.getType() == NameType.INFORMAL || name.getType() == NameType.PLACEHOLDER) {
@@ -230,8 +231,8 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             if (!classifier.has(AlaLinnaeanFactory.voucher) && name.getVoucher() != null) {
                 classifier.add(AlaLinnaeanFactory.voucher, AlaLinnaeanFactory.voucher.getAnalysis().analyse(name.getVoucher()), false, true);
             }
-            if (!classifier.has(AlaLinnaeanFactory.phraseName) && name.getStrain() != null) {
-                classifier.add(AlaLinnaeanFactory.phraseName, AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getStrain()), false, true);
+            if (!classifier.has(AlaLinnaeanFactory.phraseName) && name.getPhrase() != null) {
+                classifier.add(AlaLinnaeanFactory.phraseName, AlaLinnaeanFactory.phraseName.getAnalysis().analyse(name.getPhrase()), false, true);
             }
         }
         if (name.getType() == NameType.SCIENTIFIC || name.getType() == NameType.INFORMAL || name.getType() == NameType.PLACEHOLDER) {
@@ -287,6 +288,8 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
     @Override
     public void analyseForIndex(Classifier classifier) throws InferenceException, StoreException {
         String id = classifier.get(AlaLinnaeanFactory.taxonId);
+        String scientificName = classifier.get(AlaLinnaeanFactory.scientificName);
+        String scientificNameAuthorshup = classifier.get(AlaLinnaeanFactory.scientificNameAuthorship);
         Analysis analysis = new Analysis(
                 classifier.get(AlaLinnaeanFactory.scientificName),
                 classifier.get(AlaLinnaeanFactory.scientificNameAuthorship),
@@ -294,11 +297,13 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
                 classifier.get(AlaLinnaeanFactory.nomenclaturalCode),
                 MatchOptions.ALL
         );
-        analysis.setKingdom(classifier.get(AlaLinnaeanFactory.kingdom));
-        if (!this.checkKingdom(analysis, KINGDOM_ISSUES, null))
-            logger.warn("Unrecognised kingdom " + analysis.getKingdom() + " on " + id);
+        String suppliedKingdom = classifier.get(AlaLinnaeanFactory.kingdom);
+        analysis.setKingdom(suppliedKingdom);
+        if (!this.checkKingdom(analysis, KINGDOM_ISSUES, null)) {
+            logger.warn("Unrecognised kingdom " + suppliedKingdom + " on " + id);
+        }
         if (this.replaceUnprintable(analysis, 'x', DATA_ISSUES, null))
-            throw new InferenceException("Replacement character in name while indexing for " + id + ": " + classifier.get(AlaLinnaeanFactory.scientificName) + " " + classifier.get(AlaLinnaeanFactory.scientificNameAuthorship));
+            throw new InferenceException("Replacement character in name while indexing for " + id + ": " + StringEscapeUtils.escapeJava(scientificName == null ? "" : scientificName) + " " + StringEscapeUtils.escapeJava(scientificNameAuthorshup == null ? "" : scientificNameAuthorshup));
         this.processIndeterminate(analysis, null, INDETERMINATE_ISSUES, null);
         this.processAffinitySpecies(analysis, " aff. ", AFFINTIY_ISSUES, null);
         this.processConferSpecies(analysis, " cf. ", CONFER_ISSUES, null);
@@ -396,10 +401,8 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             classification.scientificNameAuthorship = null;
             classification.addIssues(CANONICAL_MODIFICATION);
         }
-        if (classification.nomenclaturalCode == null && analysis.getNomCode() != null) {
-            NomenclaturalCode code = Enums.getIfPresent(NomenclaturalCode.class, analysis.getNomCode().name()).orNull();
-            if (code != null)
-                classification.addHint(AlaLinnaeanFactory.nomenclaturalCode, code);
+        if (classification.nomenclaturalCode == null && analysis.getNomenclaturalCode() != null) {
+            classification.addHint(AlaLinnaeanFactory.nomenclaturalCode, analysis.getNomenclaturalCode());
         }
     }
 
@@ -413,12 +416,12 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
      * @param classifier The classification
      * @param name       The observable that gives the name
      * @param complete   The observable that gives the complete name
-     * @param additional The observable that gives additional disambiguation, geneerally complete = name + ' ' + additional
+     * @param disambiguator The observable that gives additional disambiguation, geneerally complete = name + ' ' + disambiguator
      * @param canonical  Only include canonical names
      * @return All the names that refer to the classification
      */
     @Override
-    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) throws InferenceException {
+    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> disambiguator, boolean canonical) throws InferenceException {
         Rank rank = classifier.get(AlaLinnaeanFactory.taxonRank);
         NomenclaturalCode code = classifier.get(AlaLinnaeanFactory.nomenclaturalCode);
         String scientificName = classifier.get(name);
@@ -426,7 +429,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
 
         Analysis analysis = new Analysis(scientificName, scientificNameAuthorship, rank, code, MatchOptions.ALL);
 
-        Set<String> allScientificNameAuthorship = !canonical && additional.isPresent() ? classifier.getAll(additional.get()) : Collections.emptySet();
+        Set<String> allScientificNameAuthorship = !canonical && disambiguator.isPresent() ? classifier.getAll(disambiguator.get()) : Collections.emptySet();
         Set<String> allCompleteNames = !canonical && complete.isPresent() ? classifier.getAll(complete.get()) : Collections.emptySet();
         Set<String> allScientificNames = this.generateBaseNames(analysis, classifier, name);
 
@@ -490,7 +493,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             return true;
         Rank candidateRank = candidate.has(AlaLinnaeanFactory.taxonRank) ? candidate.get(AlaLinnaeanFactory.taxonRank) : Rank.UNRANKED;
         if (candidateRank.otherOrUnranked())
-            return false;
+            return true;
         if (baseRank.isSpeciesOrBelow() && candidateRank.isSpeciesOrBelow())
             return true;
         int classificationRankID = RankIDAnalysis.idFromRank(baseRank);

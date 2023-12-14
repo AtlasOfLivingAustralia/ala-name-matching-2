@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * Analysis based on taxonomic status.
  */
-public class GeographyTypeAnalysis extends EnumAnalysis<GeographyType> {
+public class GeographyTypeAnalysis extends EnumAnalysis<GeographyType, Object> {
     /** Geography types to treat as equivalent */
     private static final List<List<GeographyType>> EQUIVALENCE_CLASSES = Arrays.asList(
             Arrays.asList(GeographyType.municipality, GeographyType.county),
@@ -112,10 +112,11 @@ public class GeographyTypeAnalysis extends EnumAnalysis<GeographyType> {
      * </p>
      *
      * @param value The value
+     * @param context Unused context
      * @return The parsed value
      */
     @Override
-    public GeographyType fromString(String value) {
+    public GeographyType fromString(String value, Object context) {
         if (value == null || value.isEmpty())
             return null;
         GeographyType type = NAME_MAP.get(value);

@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * information to things like an index builder.
  * </p>
  */
-@JsonPropertyOrder({"id", "description", "uri", "concept", "vocabularies", "normalisers", "observables", "vertices", "edges", "issues", "modifications", "sourceModifiers", "matchModifiers" })
+@JsonPropertyOrder({"id", "description", "uri", "concept", "vocabularies", "normalisers", "observables", "vertices", "edges", "broadeners", "issues", "modifications", "sourceModifiers", "matchModifiers" })
 public class Network extends Identifiable {
     /** The vertex id map */
     private final SortedMap<String, Observable<?>> idMap;
@@ -51,6 +51,11 @@ public class Network extends Identifiable {
     @Getter
     @Setter
     private List<Class<?>> vocabularies;
+    /** The list of broadeners */
+    @JsonProperty
+    @Getter
+    @Setter
+    private List<Broadener> broadeners;
     /** The list of source modifiers */
     @JsonProperty
     @Getter
@@ -63,7 +68,7 @@ public class Network extends Identifiable {
     private List<List<Modifier>> matchModifiers;
     /** The erasure signature of this network.
      * If null, this is the original network.
-     * Otherwise it contains T/F elements corresponding to the presence or absence of erasable observable groups
+     * Otherwise, it contains T/F elements corresponding to the presence or absence of erasable observable groups
      */
     @JsonProperty
     @Getter
@@ -92,6 +97,7 @@ public class Network extends Identifiable {
         this.uriMap = new HashMap<>();
         this.issues = new ArrayList<>();
         this.vocabularies = new ArrayList<>();
+        this.broadeners = new ArrayList<>();
         this.sourceModifiers = new ArrayList<>();
         this.matchModifiers = new ArrayList<>();
         this.erasures = new ArrayList<>();
@@ -109,6 +115,7 @@ public class Network extends Identifiable {
         this.uriMap = new HashMap<>();
         this.issues = new ArrayList<>();
         this.vocabularies = new ArrayList<>();
+        this.broadeners = new ArrayList<>();
         this.sourceModifiers = new ArrayList<>();
         this.matchModifiers = new ArrayList<>();
         this.erasures = new ArrayList<>();
@@ -121,6 +128,7 @@ public class Network extends Identifiable {
         this.concept = source.concept;
         this.issues = new ArrayList<>(source.issues);
         this.vocabularies = new ArrayList<>(source.vocabularies);
+        this.broadeners = new ArrayList<>(source.broadeners);
         this.sourceModifiers = new ArrayList<>(source.sourceModifiers);
         this.matchModifiers = new ArrayList<>(source.matchModifiers);
         this.signature = source.signature;

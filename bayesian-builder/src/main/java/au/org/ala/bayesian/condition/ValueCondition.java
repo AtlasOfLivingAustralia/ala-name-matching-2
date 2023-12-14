@@ -52,7 +52,7 @@ public class ValueCondition extends Condition {
     protected String buildValueStatement(String var) {
         Object value = null;
         try {
-            value = this.source.getAnalysis().fromString(this.value);
+            value = this.source.getAnalysis().fromString(this.value, null);
         } catch (StoreException ex) {
             throw new IllegalStateException("Unable to generate condition", ex);
         }

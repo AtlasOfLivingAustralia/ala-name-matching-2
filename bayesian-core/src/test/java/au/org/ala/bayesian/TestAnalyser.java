@@ -22,7 +22,7 @@ public class TestAnalyser implements Analyser<TestClassification> {
      * Build a collection of base names for the classification.
      */
     @Override
-    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) throws InferenceException {
+    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> disambiguator, boolean canonical) throws InferenceException {
         return classifier.getAll(TestFactory.SCIENTIFIC_NAME);
     }
 

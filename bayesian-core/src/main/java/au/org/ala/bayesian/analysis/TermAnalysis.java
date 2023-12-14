@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Analysis for a GBIF term in a vocabulary.
  */
-public class TermAnalysis extends Analysis<Term, String, String> {
+public class TermAnalysis extends Analysis<Term, String, String, Object> {
     private static final Logger logger = LoggerFactory.getLogger(TermAnalysis.class);
 
     /**
@@ -88,7 +88,7 @@ public class TermAnalysis extends Analysis<Term, String, String> {
      */
     @Override
     public Term fromStore(String value) {
-        return this.fromString(value);
+        return this.fromString(value, null);
     }
 
     /**
@@ -110,10 +110,11 @@ public class TermAnalysis extends Analysis<Term, String, String> {
      * </p>
      *
      * @param value The value
+     * @param context Unused context
      * @return The parsed value
      */
     @Override
-    public Term fromString(String value) {
+    public Term fromString(String value, Object context) {
         if (value == null || value.isEmpty())
             return null;
         Term term =  TermFactory.instance().findTerm(value);

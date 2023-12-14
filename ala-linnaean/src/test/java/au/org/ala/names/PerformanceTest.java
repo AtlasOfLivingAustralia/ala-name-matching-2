@@ -181,7 +181,7 @@ public class PerformanceTest {
                     linnaean.order = this.getValue(row, headerMap, "order");
                     linnaean.family = this.getValue(row, headerMap, "family");
                     linnaean.genus = this.getValue(row, headerMap, "genus");
-                    linnaean.taxonRank = this.rankAnalysis.fromString(this.getValue(row, headerMap, "taxonRank"));
+                    linnaean.taxonRank = this.rankAnalysis.fromString(this.getValue(row, headerMap, "taxonRank"), null);
                     expectedScientificName = this.getValue(row, headerMap, "match");
                 } catch (Exception ex) {
                     throw new IllegalStateException("Error on line " + line, ex);

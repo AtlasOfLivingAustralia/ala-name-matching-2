@@ -169,7 +169,16 @@ public class IconicSpeciesTest {
                     classification.genus = StringUtils.trimToNull(row[7]);
                     species = StringUtils.trim(row[8]);
                     subspecies = StringUtils.trim(row[9]);
-                    scientificName = (classification.genus + " " + species + " " + subspecies).trim();
+                    if (classification.genus != null)
+                        scientificName = (classification.genus + " " + species + " " + subspecies).trim();
+                    else if (classification.family != null)
+                        scientificName = classification.family;
+                    else if (classification.order != null)
+                        scientificName = classification.order;
+                    else {
+                        logger.warn("No scientific name available on line " + line);
+                        scientificName = null;
+                    }
                     classification.scientificName = scientificName;
                 } catch (Exception ex) {
                     throw new IllegalStateException("Error on line " + line, ex);

@@ -110,6 +110,17 @@
       "multiplicity": "*"
     },
     {
+      "id": "broadSynonymScientificName",
+      "label": "bsSN",
+      "uri": "http://ala.org.au/terms/1.0/broadSynonymScientificName",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/broadSynonymName": true
+      },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE",
+      "multiplicity": "*"
+    },
+    {
       "id": "soundexScientificName",
       "label": "xSN",
       "uri": "http://ala.org.au/terms/1.0/soundexScientificName",
@@ -143,7 +154,7 @@
     {
       "id": "soundexSpecificEpithet",
       "label": "xsE",
-      "uri": "http://ala.org.au/terms/1.0/soundexSpecifcEpithet",
+      "uri": "http://ala.org.au/terms/1.0/soundexSpecificEpithet",
       "properties": {
         "http://ala.org.au/optimisation/1.0/load": false
       },
@@ -175,7 +186,8 @@
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "species"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -199,7 +211,8 @@
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "genus"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -238,7 +251,8 @@
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "genus"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -257,13 +271,15 @@
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "sources": [
           "scientificName",
-          "synonymScientificName"
+          "synonymScientificName",
+          "broadSynonymScientificName"
         ],
         "select": {
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "family"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -302,7 +318,8 @@
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "family"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -321,13 +338,15 @@
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "sources": [
           "scientificName",
-          "synonymScientificName"
+          "synonymScientificName",
+          "broadSynonymScientificName"
         ],
         "select": {
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "order"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -366,7 +385,8 @@
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "order"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -385,13 +405,15 @@
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "sources": [
           "scientificName",
-          "synonymScientificName"
+          "synonymScientificName",
+          "broadSynonymScientificName"
         ],
         "select": {
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "class"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -430,7 +452,8 @@
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "class"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -449,13 +472,15 @@
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "sources": [
           "scientificName",
-          "synonymScientificName"
+          "synonymScientificName",
+          "broadSynonymScientificName"
         ],
         "select": {
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "phylum"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -494,7 +519,8 @@
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "phylum"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -516,13 +542,15 @@
         "@class": "au.org.ala.bayesian.derivation.ParentDerivation",
         "sources": [
           "scientificName",
-          "synonymScientificName"
+          "synonymScientificName",
+          "broadSynonymScientificName"
         ],
         "select": {
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "kingdom"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -530,19 +558,16 @@
       "label": "xK",
       "uri": "http://ala.org.au/terms/1.0/soundexKingdom",
       "properties": {
-        "http://ala.org.au/optimisation/1.0/load": false
-      },
-      "analysis": {
-        "@class": "au.org.ala.names.KingdomAnalysis"
+        "http://ala.org.au/optimisation/1.0/load": false,
+        "http://ala.org.au/bayesian/1.0/copy": true
       },
       "group": "kingdom",
       "multiplicity": "*",
       "derivation": {
-        "@class": "au.org.ala.names.TaxonNameSoundexDerivation",
+        "@class": "au.org.ala.names.KingdomSoundexDerivation",
         "sources": [
           "kingdom"
-        ],
-        "rank": "KINGDOM"
+        ]
       }
     },
     {
@@ -564,7 +589,8 @@
           "@class": "au.org.ala.bayesian.condition.ValueCondition",
           "source": "taxonRank",
           "value": "kingdom"
-        }
+        },
+        "overwrite": true
       }
     },
     {
@@ -575,7 +601,7 @@
       "style": "PHRASE",
       "properties": {
         "http://ala.org.au/bayesian/1.0/additional": true,
-        "http://ala.org.au/bayesian/1.0/additionalName": true,
+        "http://ala.org.au/bayesian/1.0/disambiguator": true,
         "http://ala.org.au/optimisation/1.0/analysed": true
       }
     },
@@ -978,6 +1004,123 @@
       "edge": {}
     }
   ],
+  "broadeners": [
+    {
+      "broaden": {
+        "@class": "au.org.ala.bayesian.condition.ValueCondition",
+        "source": "taxonRank",
+        "value": "family"
+      },
+      "condition": {
+        "@class": "au.org.ala.bayesian.condition.CompositeCondition",
+        "all": false,
+        "conditions": [
+          {
+            "@class": "au.org.ala.bayesian.condition.ValueCondition",
+            "source": "taxonRank",
+            "value": "superfamily"
+          },
+          {
+            "@class": "au.org.ala.bayesian.condition.ValueCondition",
+            "source": "taxonRank",
+            "value": "subfamily"
+          }
+        ]
+      }
+    },
+    {
+      "broaden": {
+        "@class": "au.org.ala.bayesian.condition.ValueCondition",
+        "source": "taxonRank",
+        "value": "order"
+      },
+      "condition": {
+        "@class": "au.org.ala.bayesian.condition.CompositeCondition",
+        "all": false,
+        "conditions": [
+          {
+            "@class": "au.org.ala.bayesian.condition.ValueCondition",
+            "source": "taxonRank",
+            "value": "superorder"
+          },
+          {
+            "@class": "au.org.ala.bayesian.condition.ValueCondition",
+            "source": "taxonRank",
+            "value": "suborder"
+          }
+        ]
+      }
+    },
+    {
+      "broaden": {
+        "@class": "au.org.ala.bayesian.condition.ValueCondition",
+        "source": "taxonRank",
+        "value": "class"
+      },
+      "condition": {
+        "@class": "au.org.ala.bayesian.condition.CompositeCondition",
+        "all": false,
+        "conditions": [
+          {
+            "@class": "au.org.ala.bayesian.condition.ValueCondition",
+            "source": "taxonRank",
+            "value": "superclass"
+          },
+          {
+            "@class": "au.org.ala.bayesian.condition.ValueCondition",
+            "source": "taxonRank",
+            "value": "subclass"
+          }
+        ]
+      }
+    },
+    {
+      "broaden": {
+        "@class": "au.org.ala.bayesian.condition.ValueCondition",
+        "source": "taxonRank",
+        "value": "phylum"
+      },
+      "condition": {
+        "@class": "au.org.ala.bayesian.condition.CompositeCondition",
+        "all": false,
+        "conditions": [
+          {
+            "@class": "au.org.ala.bayesian.condition.ValueCondition",
+            "source": "taxonRank",
+            "value": "superphylum"
+          },
+          {
+            "@class": "au.org.ala.bayesian.condition.ValueCondition",
+            "source": "taxonRank",
+            "value": "subphylum"
+          }
+        ]
+      }
+    },
+    {
+      "broaden": {
+        "@class": "au.org.ala.bayesian.condition.ValueCondition",
+        "source": "taxonRank",
+        "value": "kingdom"
+      },
+      "condition": {
+        "@class": "au.org.ala.bayesian.condition.CompositeCondition",
+        "all": false,
+        "conditions": [
+           {
+            "@class": "au.org.ala.bayesian.condition.ValueCondition",
+            "source": "taxonRank",
+            "value": "superkingdom"
+          },
+          {
+            "@class": "au.org.ala.bayesian.condition.ValueCondition",
+            "source": "taxonRank",
+            "value": "subkingdom"
+          }
+        ]
+      }
+    }
+  ],
   "issues": [
     {
       "id": "removed_rank",
@@ -1028,6 +1171,11 @@
       "id": "invalid_kingdom",
       "uri": "http://ala.org.au/issues/1.0/invalidKingdom",
       "description": "The supplied kingdom is not a recognised kingdom."
+    },
+    {
+      "id": "expanded_kingdom",
+      "uri": "http://ala.org.au/issues/1.0/expandedKingdom",
+      "description": "The kingdom match may be derived from possible alternative kingdom names."
     },
     {
       "id": "removed_phylum",
@@ -1246,18 +1394,10 @@
     },
     {
       "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
-      "id": "remove_cultivar",
-      "issues": ["removed_cultivar"],
+      "id": "remove_location",
+      "issues": ["removed_location"],
       "observables": [
-        "cultivarEpithet"
-      ]
-    },
-    {
-      "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
-      "id": "remove_phrasename",
-      "issues": ["removed_phrasename"],
-      "observables": [
-        "phraseName"
+        "locationID"
       ]
     },
     {
@@ -1294,6 +1434,14 @@
       "observables": [
         "phylum",
         "soundexPhylum"
+      ]
+    },
+    {
+      "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
+      "id": "expand_kingdom",
+      "issues": [ "expanded_kingdom"],
+      "observables": [
+        "kingdom"
       ]
     },
     {
@@ -1359,6 +1507,7 @@
           "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
           "id": "higher_genus_1",
           "observables": [
+            "rankID",
             "scientificName",
             "scientificNameAuthorship",
             "cultivarEpithet",
@@ -1380,6 +1529,14 @@
           "id": "higher_genus_3",
           "observable": "taxonRank",
           "value": "genus"
+        },
+        {
+          "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
+          "id": "higher_genus_4",
+          "observables": [
+            "genus",
+            "genusID"
+          ]
         }
       ]
     },
@@ -1393,6 +1550,7 @@
           "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
           "id": "higher_family_1",
           "observables": [
+            "rankID",
             "scientificName",
             "scientificNameAuthorship",
             "cultivarEpithet",
@@ -1416,19 +1574,29 @@
           "id": "higher_family_3",
           "observable": "taxonRank",
           "value": "family"
+        },
+        {
+          "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
+          "id": "higher_family_4",
+          "observables": [
+            "family",
+            "familyID"
+          ]
         }
       ]
     },
     {
       "@class": "au.org.ala.bayesian.modifier.CompositeModifier",
       "id": "higher_order",
-      "issues": ["higher_order_match"],
+      "issues": ["higher_order_match", "removed_location"],
       "clearDerived": true,
       "modifiers": [
         {
           "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
           "id": "higher_order_1",
           "observables": [
+            "locationID",
+            "rankID",
             "scientificName",
             "scientificNameAuthorship",
             "cultivarEpithet",
@@ -1454,19 +1622,29 @@
           "id": "higher_order_3",
           "observable": "taxonRank",
           "value": "order"
+        },
+        {
+          "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
+          "id": "higher_order_4",
+          "observables": [
+            "order",
+            "orderID"
+          ]
         }
       ]
     },
     {
       "@class": "au.org.ala.bayesian.modifier.CompositeModifier",
       "id": "higher_class",
-      "issues": ["higher_order_match"],
+      "issues": ["higher_order_match", "removed_location"],
       "clearDerived": true,
       "modifiers": [
         {
           "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
           "id": "higher_class_1",
           "observables": [
+            "locationID",
+            "rankID",
             "scientificName",
             "scientificNameAuthorship",
             "cultivarEpithet",
@@ -1494,19 +1672,29 @@
           "id": "higher_class_3",
           "observable": "taxonRank",
           "value": "class"
+        },
+        {
+          "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
+          "id": "higher_class_4",
+          "observables": [
+            "class",
+            "classID"
+          ]
         }
       ]
     },
     {
       "@class": "au.org.ala.bayesian.modifier.CompositeModifier",
       "id": "higher_phylum",
-      "issues": ["higher_order_match"],
+      "issues": ["higher_order_match", "removed_location"],
       "clearDerived": true,
       "modifiers": [
         {
           "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
           "id": "higher_phylum_1",
           "observables": [
+            "locationID",
+            "rankID",
             "scientificName",
             "scientificNameAuthorship",
             "cultivarEpithet",
@@ -1536,19 +1724,29 @@
           "id": "higher_phylum_3",
           "observable": "taxonRank",
           "value": "phylum"
+        },
+        {
+          "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
+          "id": "higher_phylum_4",
+          "observables": [
+            "phylum",
+            "phylumID"
+          ]
         }
       ]
     },
     {
       "@class": "au.org.ala.bayesian.modifier.CompositeModifier",
       "id": "higher_kingdom",
-      "issues": ["higher_order_match"],
+      "issues": ["higher_order_match", "removed_location"],
       "clearDerived": true,
       "modifiers": [
         {
           "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
           "id": "higher_kingdom_1",
           "observables": [
+            "locationID",
+            "rankID",
             "scientificName",
             "scientificNameAuthorship",
             "cultivarEpithet",
@@ -1580,22 +1778,21 @@
           "id": "higher_kingdom_3",
           "observable": "taxonRank",
           "value": "kingdom"
+        },
+        {
+          "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
+          "id": "higher_kingdom_4",
+          "observables": [
+            "kingdom",
+            "kingdomID"
+          ]
         }
-      ]
-    },
-    {
-      "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
-      "id": "remove_location",
-      "issues": ["removed_location"],
-      "observables": [
-        "locationID"
       ]
     }
   ],
   "sourceModifiers": [
     [
       "higher_species",
-      "remove_location",
       "higher_genus",
       "higher_family",
       "higher_order",
@@ -1606,16 +1803,15 @@
   ],
   "matchModifiers": [
     [
-      "remove_cultivar",
-      "remove_phrasename"
-    ],
-    [
+      "remove_location",
       "remove_middle_ranks_1",
       "remove_middle_ranks_2",
       "misspelled_scientific_name_base",
       "misspelled_scientific_name_full",
-      "misspelled_everything",
-      "remove_kingdom"
+      "misspelled_everything"
+    ],
+    [
+      "expand_kingdom"
     ],
     [
       "remove_authorship"

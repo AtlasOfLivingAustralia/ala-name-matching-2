@@ -5,6 +5,7 @@ import au.org.ala.bayesian.NetworkCompiler;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.StoreException;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
 /**
  * Copy values from a parent source of information.

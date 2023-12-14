@@ -38,7 +38,7 @@ public class ScientificNameAnalyserTest {
             }
 
             @Override
-            public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) {
+            public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> disambiguator, boolean canonical) {
                 throw new UnsupportedOperationException();
             }
 
@@ -585,12 +585,21 @@ public class ScientificNameAnalyserTest {
         Analysis analysis = new Analysis("Poa sect. Atropis", null, null, null, MatchOptions.ALL);
         this.analyser.processRankMarker(analysis, true, DEFAULT_DETECTED_ISSUES, DEFAULT_MODIFIED_ISSUES);
         assertEquals("Poa sect. Atropis", analysis.getScientificName());
-        assertEquals(Rank.SECTION, analysis.getRank());
+        assertEquals(Rank.UNRANKED, analysis.getRank());
         assertEquals(DEFAULT_DETECTED_ISSUES, analysis.getIssues());
     }
 
     @Test
     public void processRankMarker5() {
+        Analysis analysis = new Analysis("Poa sect. Atropis", null, null, NomenclaturalCode.BOTANICAL, MatchOptions.ALL);
+        this.analyser.processRankMarker(analysis, true, DEFAULT_DETECTED_ISSUES, DEFAULT_MODIFIED_ISSUES);
+        assertEquals("Poa sect. Atropis", analysis.getScientificName());
+        assertEquals(Rank.SECTION_BOTANY, analysis.getRank());
+        assertEquals(DEFAULT_DETECTED_ISSUES, analysis.getIssues());
+    }
+
+    @Test
+    public void processRankMarker6() {
         Analysis analysis = new Analysis("Gymnothorax sp. javanicus", null, null, null, MatchOptions.NONE);
         this.analyser.processRankMarker(analysis, true, DEFAULT_DETECTED_ISSUES, DEFAULT_MODIFIED_ISSUES);
         assertEquals("Gymnothorax sp. javanicus", analysis.getScientificName());

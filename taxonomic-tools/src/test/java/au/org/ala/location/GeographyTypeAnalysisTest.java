@@ -33,24 +33,24 @@ public class GeographyTypeAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertNull(this.analysis.fromString(null));
-        assertNull(this.analysis.fromString(""));
-        assertNull(this.analysis.fromString("  "));
-        assertEquals(GeographyType.country, this.analysis.fromString("country"));
-        assertEquals(GeographyType.stateProvince, this.analysis.fromString("stateProvince"));
+        assertNull(this.analysis.fromString(null, null));
+        assertNull(this.analysis.fromString("", null));
+        assertNull(this.analysis.fromString("  ", null));
+        assertEquals(GeographyType.country, this.analysis.fromString("country", null));
+        assertEquals(GeographyType.stateProvince, this.analysis.fromString("stateProvince", null));
     }
 
     @Test
     public void testFromString2() throws Exception {
-        assertEquals(GeographyType.country, this.analysis.fromString("Country"));
-        assertEquals(GeographyType.stateProvince, this.analysis.fromString("STATEPROVINCE"));
-        assertEquals(GeographyType.waterBody, this.analysis.fromString("sea"));
+        assertEquals(GeographyType.country, this.analysis.fromString("Country", null));
+        assertEquals(GeographyType.stateProvince, this.analysis.fromString("STATEPROVINCE", null));
+        assertEquals(GeographyType.waterBody, this.analysis.fromString("sea", null));
     }
 
     @Test
     public void testFromString3() throws Exception {
-        assertEquals(GeographyType.country, analysis.fromString("http://ala.org.au/vocabulary/1.0/geographyType/country"));
-        assertNull(analysis.fromString("http://ala.org.au/vocabulary/1.0/geographyType/Country"));
+        assertEquals(GeographyType.country, analysis.fromString("http://ala.org.au/vocabulary/1.0/geographyType/country", null));
+        assertNull(analysis.fromString("http://ala.org.au/vocabulary/1.0/geographyType/Country", null));
     }
     
     @Test

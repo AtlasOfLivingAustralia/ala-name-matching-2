@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
  * Test case for {@EnumAnalysis}
  */
 public class EnumAnalysisTest {
-    private EnumAnalysis<Multiplicity> analysis;
+    private EnumAnalysis<Multiplicity, Object> analysis;
 
     @Before
     public void setUp() throws Exception {
@@ -37,10 +37,10 @@ public class EnumAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertEquals(Multiplicity.OPTIONAL, this.analysis.fromString("optional"));
-        assertEquals(Multiplicity.MANY, this.analysis.fromString("MANY"));
-        assertEquals(null, this.analysis.fromString(null));
-        assertEquals(null, this.analysis.fromString(""));
+        assertEquals(Multiplicity.OPTIONAL, this.analysis.fromString("optional", null));
+        assertEquals(Multiplicity.MANY, this.analysis.fromString("MANY", null));
+        assertEquals(null, this.analysis.fromString(null, null));
+        assertEquals(null, this.analysis.fromString("", null));
     }
 
     @Test

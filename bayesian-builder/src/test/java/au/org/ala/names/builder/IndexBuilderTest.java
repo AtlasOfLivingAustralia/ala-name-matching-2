@@ -173,8 +173,8 @@ public class IndexBuilderTest {
         classifier.loadParameters(parameters);
         assertEquals(0.0909, parameters.prior_taxonId_t, 0.0001);
         assertEquals(0.0, parameters.inf_kingdom_f$t_t, 0.0001);
-        assertEquals(0.0, parameters.inf_genus_t$t_ff, 0.0001);
-        assertEquals(0.0, parameters.inf_genus_t$f_ft, 0.0001);
+        assertEquals(0.0, parameters.inf_genus_t$t_fff, 0.0001);
+        assertEquals(0.0, parameters.inf_genus_t$f_ftf, 0.0001);
     }
 
     @Test

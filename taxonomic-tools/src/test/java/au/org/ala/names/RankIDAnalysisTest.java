@@ -39,13 +39,13 @@ public class RankIDAnalysisTest {
 
     @Test
     public void testFromString1() throws Exception {
-        assertNull(analysis.fromString(null));
-        assertNull(analysis.fromString(""));
-        assertNull(analysis.fromString("  "));
-        assertEquals(3000, (int) analysis.fromString("class"));
-        assertEquals(3000, (int) analysis.fromString("CLASS"));
-        assertEquals(5000, (int) analysis.fromString("Family"));
-        assertEquals(7000, (int) analysis.fromString("sp"));
+        assertNull(analysis.fromString(null, null));
+        assertNull(analysis.fromString("", null));
+        assertNull(analysis.fromString("  ", null));
+        assertEquals(3000, (int) analysis.fromString("class", null));
+        assertEquals(3000, (int) analysis.fromString("CLASS", null));
+        assertEquals(5000, (int) analysis.fromString("Family", null));
+        assertEquals(7000, (int) analysis.fromString("sp", null));
     }
 
     @Test

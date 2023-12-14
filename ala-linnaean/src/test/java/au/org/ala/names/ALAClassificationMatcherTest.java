@@ -17,7 +17,7 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 public class ALAClassificationMatcherTest {
-    public static final String INDEX = "/data/lucene/linnaean-20221005-1";
+    public static final String INDEX = "/data/lucene/linnaean-20230725-3";
 
     private LuceneClassifierSearcher searcher;
     private ALAClassificationMatcher matcher;
@@ -52,14 +52,14 @@ public class ALAClassificationMatcherTest {
     @Test
     public void testFindKingdom2() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
-        boolean match = this.matcher.findKingdom("Flammulina", Rank.GENUS, classification);
+        boolean match = this.matcher.findKingdom("Xenococcus", Rank.GENUS, classification);
         assertFalse(match); // Bare homonym
     }
 
     @Test
     public void testFindKingdom3() throws Exception {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
-        boolean match = this.matcher.findKingdom("Harpadontidae", Rank.FAMILY, classification);
+        boolean match = this.matcher.findKingdom("Zosteropidae", Rank.FAMILY, classification);
         assertTrue(match); // Synonym
         Hints<AlaLinnaeanClassification> hints = classification.getHints();
         assertNotNull(hints);

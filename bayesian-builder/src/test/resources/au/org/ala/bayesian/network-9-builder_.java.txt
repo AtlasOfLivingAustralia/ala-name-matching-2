@@ -10,6 +10,7 @@ import au.org.ala.names.builder.Builder;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.Optional;
+import java.util.function.Function;
 
 import au.org.ala.bayesian.analysis.StringAnalysis;
 import au.org.ala.bayesian.derivation.SoundexGenerator;
@@ -42,6 +43,11 @@ public class Network9Builder_ implements Builder<Network9Classification> {
 
   @Override
   public void expand(Classifier classifier, Deque<Classifier> parents, Analyser<Network9Classification> analyser) throws BayesianException {
+    throw new UnsupportedOperationException("Sub-builders do not support this operation");
+  }
+
+  @Override
+  public Function<Classifier, Boolean> getBroadener(Classifier document, Analyser<Network9Classification> analyser) throws BayesianException {
     throw new UnsupportedOperationException("Sub-builders do not support this operation");
   }
 

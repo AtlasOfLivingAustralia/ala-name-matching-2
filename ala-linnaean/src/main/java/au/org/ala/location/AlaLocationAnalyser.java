@@ -89,11 +89,11 @@ public class AlaLocationAnalyser implements Analyser<AlaLocationClassification> 
    }
 
     @Override
-    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> additional, boolean canonical) throws InferenceException {
+    public Set<String> analyseNames(Classifier classifier, Observable<String> name, Optional<Observable<String>> complete, Optional<Observable<String>> disambiguator, boolean canonical) throws InferenceException {
         final Set<String> names = new LinkedHashSet<>();
         this.addNames(names, classifier.getAll(name));
         complete.ifPresent(o -> this.addNames(names, classifier.getAll(o)));
-        additional.ifPresent(o -> this.addNames(names, classifier.getAll(o)));
+        disambiguator.ifPresent(o -> this.addNames(names, classifier.getAll(o)));
         return names;
     }
 

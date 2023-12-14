@@ -9,12 +9,8 @@ import au.org.ala.util.Metadata;
 import au.org.ala.vocab.BayesianTerm;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 import org.slf4j.Logger;
@@ -83,8 +79,10 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     protected Optional<Observable<String>> altName;
     /** The synonym concept name observable */
     protected Optional<Observable<String>> synonymName;
-    /** The concept name additional terms */
-    protected Optional<Observable<String>> additionalName;
+    /** A term that can distinguish between identical names */
+    protected Optional<Observable<String>> disabiguator;
+    /** The broad set of synonyms (names at other levels that might work) */
+    protected Optional<Observable<String>> broadSynonymName;
     /** The complete, propertly formatted concept name */
     protected Optional<Observable<String>> fullName;
     /** The set of terms to copy from an accepted taxon to a synonym */
@@ -133,10 +131,11 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.accepted = this.network.findObservable(BayesianTerm.accepted, String.class,true);
         this.identifier = this.network.findObservable(BayesianTerm.identifier, String.class,true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.identifier + ":true property"));
         this.name = this.network.findObservable(BayesianTerm.name, String.class,true).orElseThrow(() -> new BuilderException("Require observable " + BayesianTerm.name + ":true property"));
-        this.additionalName = this.network.findObservable(BayesianTerm.additionalName, String.class,true);
+        this.disabiguator = this.network.findObservable(BayesianTerm.disambiguator, String.class,true);
         this.fullName = this.network.findObservable(BayesianTerm.fullName, String.class,true);
         this.altName = this.network.findObservable(BayesianTerm.altName, String.class, true);
         this.synonymName = this.network.findObservable(BayesianTerm.synonymName, String.class,true);
+        this.broadSynonymName = this.network.findObservable(BayesianTerm.broadSynonymName, String.class,true);
         this.copy = new HashSet<>(this.network.findObservables(BayesianTerm.copy, true));
         this.stored = new HashSet<>(this.network.getObservables()); // The defined observables in the network
         this.stored.add(this.weight);
@@ -144,10 +143,11 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.accepted.ifPresent(o -> this.stored.add(o));
         this.stored.add(this.identifier);
         this.stored.add(this.name);
-        this.additionalName.ifPresent(o -> this.stored.add(o));
+        this.disabiguator.ifPresent(o -> this.stored.add(o));
         this.fullName.ifPresent(o -> this.stored.add(o));
         this.altName.ifPresent(o -> this.stored.add(o));
         this.synonymName.ifPresent(o -> this.stored.add(o));
+        this.broadSynonymName.ifPresent(o -> this.stored.add(o));
         this.stored.addAll(this.copy);
         this.identifiers = Collections.synchronizedSet(new HashSet<>());
         this.mbeans = new HashSet<>();
@@ -183,7 +183,8 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     public LoadStore<Cl> build() throws BayesianException {
         LoadStore<Cl> interpreted = this.interpret(this.loader);
         LoadStore<Cl> synonymised = this.synonymise(interpreted);
-        LoadStore<Cl> expanded = this.expand(synonymised);
+        LoadStore<Cl> broadened = this.broaden(synonymised);
+        LoadStore<Cl> expanded = this.expand(broadened);
         LoadStore<Cl> inferred = this.infer(expanded);
         LoadStore<Cl> weighted = this.weight(inferred);
         LoadStore<Cl> parameterised = this.parameterise(weighted);
@@ -261,12 +262,12 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         Set<String> altNames = new LinkedHashSet<>();
 
         // Add all possible names something could be seen as
-        names.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName, true));
+        names.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.disabiguator, true));
         classifier.setNames(names);
 
         // Add alternative names
         if (this.altName.isPresent()) {
-            altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.additionalName,false).stream()
+            altNames.addAll(this.analyser.analyseNames(classifier, this.name, this.fullName, this.disabiguator,false).stream()
                     .filter(n -> !names.contains(n))
                     .collect(Collectors.toSet()));
         }
@@ -328,7 +329,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         Iterable<Cl> synonyms = source.getAll(this.conceptTerm, new Observation(true, this.accepted.get(), id));
         for (Cl synonym : synonyms) {
             if (this.analyser.acceptSynonym(classifier, synonym)) {
-                synonymNames.addAll(this.analyser.analyseNames(synonym, this.name, this.fullName, this.additionalName, true));
+                synonymNames.addAll(this.analyser.analyseNames(synonym, this.name, this.fullName, this.disabiguator, true));
             }
         }
         if (!this.synonymName.get().getMultiplicity().isMany() && synonymNames.size() > 1) {
@@ -340,6 +341,94 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         }
         return classifier;
      }
+
+    /**
+     * Broaden the loaded data.
+     * <p>
+     * Move up and down the tree, if possible, looking for board names
+     * </p>
+     *
+     * @param source The source data store for synonyms
+     *
+     * @return The broadened data store
+     *
+     * @throws BayesianException if unable to interpret the data
+     */
+    public LoadStore<Cl> broaden(LoadStore<Cl> source) throws BayesianException {
+        if (!this.broadSynonymName.isPresent() || !this.parent.isPresent()) {
+            logger.info("No terms to boraded");
+            return source;
+        }
+        final LoadStore<Cl> target = this.createWorkStore("broadened");
+        this.process(
+                "broaden",
+                "Broadened {0} concepts, {2,number,0.0}/s, last {4}",
+                source,
+                target,
+                c -> this.broaden(c, source)
+        );
+        target.commit();
+        return target;
+    }
+
+    @SneakyThrows
+    public Cl broaden(Cl classifier, LoadStore<Cl> source) {
+        Function<Classifier, Boolean> broadener = this.builder.getBroadener(classifier, this.analyser);
+        if (broadener == null)
+            return classifier;
+        Set<String> broadenedNames = new LinkedHashSet<String>();
+        String id = classifier.get(this.identifier);
+        Set<String> seen = new HashSet<>();
+        seen.add(id);
+        this.broadenUp(classifier, broadener, source, broadenedNames, seen);
+        this.broadenDown(classifier, broadener, source, broadenedNames, seen);
+        if (!this.broadSynonymName.get().getMultiplicity().isMany() && broadenedNames.size() > 1) {
+            logger.warn("Classifier " + id + " with single value broadened name " + this.broadSynonymName.get().getId() + " has multiple names " + broadenedNames);
+        } else {
+            for (String nm : broadenedNames) {
+                classifier.add(this.broadSynonymName.get(), nm, true, false);
+            }
+        }
+        return classifier;
+    }
+
+    @SneakyThrows
+    public void broadenUp(Cl classifier, Function<Classifier, Boolean> broadener, LoadStore<Cl> source, Set<String> names, Set<String> seen) {
+        String id = classifier.get(this.identifier);
+        String pid = classifier.get(this.parent.get());
+        if (pid == null)
+            return;
+        if (seen.contains(pid))
+            throw new BuilderException("Loop in parents, already seen " + pid + " from immediate child " + id + " seen " + seen);
+        Cl p = source.get(this.conceptTerm, this.identifier, pid);
+        if (!broadener.apply(p))
+            return;
+        names.addAll(p.getAll(this.name));
+        this.fullName.ifPresent(n -> names.addAll(p.getAll(n)));
+        this.altName.ifPresent(n -> names.addAll(p.getAll(n)));
+        this.synonymName.ifPresent(n -> names.addAll(p.getAll(n)));
+        seen.add(pid);
+        this.broadenUp(p, broadener, source, names, seen);
+    }
+
+    @SneakyThrows
+    public void broadenDown(Cl classifier, Function<Classifier, Boolean> broadener, LoadStore<Cl> source, Set<String> names, Set<String> seen) {
+        String id = classifier.get(this.identifier);
+        Iterable<Cl> children = source.getAll(this.conceptTerm, new Observation(true, this.parent.get(), id));
+        for (Cl child: children) {
+            String cid = child.get(this.identifier);
+            if (seen.contains(cid))
+                throw new BuilderException("Loop in children, already seen " + cid + " from immediate parent " + id + " seen " + seen);
+            if (!broadener.apply(child))
+                continue;
+            names.addAll(child.getAll(this.name));
+            this.fullName.ifPresent(n -> names.addAll(child.getAll(n)));
+            this.altName.ifPresent(n -> names.addAll(child.getAll(n)));
+            this.synonymName.ifPresent(n -> names.addAll(child.getAll(n)));
+            seen.add(cid);
+            this.broadenDown(child, broadener, source, names, seen);
+        }
+    }
 
     /**
      * Expand the parent-child tree for accepted concepts and for synonyms.
@@ -723,7 +812,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         properties.put("builderClass", this.builder.getClass().getName());
         properties.put("factoryClass", this.factory.getClass().getName());
         properties.put("accepted", this.accepted.map(Observable::getId).orElse(null));
-        properties.put("additionalName", this.additionalName.map(Observable::getId).orElse(null));
+        properties.put("additionalName", this.disabiguator.map(Observable::getId).orElse(null));
         properties.put("altName", this.altName.map(Observable::getId).orElse(null));
         properties.put("fullName", this.fullName.map(Observable::getId).orElse(null));
         properties.put("parent", this.parent.map(Observable::getId).orElse(null));

@@ -311,7 +311,7 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
             analysis.addIssues(issues);
             Map<Rank, String> names = new HashMap<>();
             do {
-                Rank rank = this.rankAnalysis.fromString(matcher.group(1));
+                Rank rank = this.rankAnalysis.fromString(matcher.group(1), analysis.nomenclaturalCode);
                 String name = matcher.group(2);
                 if (rank != null)
                     names.put(rank, name);
@@ -480,7 +480,7 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
         analysis.addIssues(detectedIssues);
         analysis.flagPhraseName();
         analysis.setNameType(NameType.PLACEHOLDER);
-        analysis.estimateRank(this.rankAnalysis.fromString(matcher.group(1)));
+        analysis.estimateRank(this.rankAnalysis.fromString(matcher.group(1), analysis.nomenclaturalCode));
         return true;
      }
 
@@ -599,19 +599,19 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
             return false;
         matcher = CODE_PLACEHOLDER.matcher(analysis.getScientificName());
         if (matcher.matches()) {
-            analysis.estimateRank(this.rankAnalysis.fromString(matcher.group(1)));
+            analysis.estimateRank(this.rankAnalysis.fromString(matcher.group(1), analysis.nomenclaturalCode));
             analysis.addIssues(detectedIssues);
             return false;
         }
         matcher = INFRA_RANK_PATTERN.matcher(analysis.getScientificName());
         if (matcher.matches()) {
-            analysis.estimateRank(this.rankAnalysis.fromString(matcher.group(1)));
+            analysis.estimateRank(this.rankAnalysis.fromString(matcher.group(1), analysis.nomenclaturalCode));
             analysis.addIssues(detectedIssues);
             return false;
         }
         matcher = MARKER_INTERNAL.matcher(analysis.getScientificName());
         if (matcher.find()) {
-            analysis.estimateRank(this.rankAnalysis.fromString(matcher.group()));
+            analysis.estimateRank(this.rankAnalysis.fromString(matcher.group(), analysis.nomenclaturalCode));
             analysis.addIssues(detectedIssues);
             if (remove && analysis.isCanonicalDerivations()) {
                 analysis.setScientificName(matcher.replaceAll(" ").trim());
@@ -663,9 +663,10 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
         }
         try {
             NameParser parser = PARSER.get();
-            ParsedName name = parser.parse(analysis.scientificName, analysis.getRank(), analysis.getNomCode());
+            NomCode nomCode = analysis.nomenclaturalCode == null ? null : Enums.getIfPresent(NomCode.class, analysis.nomenclaturalCode.name()).orNull();
+            ParsedName name = parser.parse(analysis.scientificName, analysis.getRank(), nomCode);
             analysis.setParsedName(name);
-        } catch (UnparsableNameException e) {
+         } catch (InterruptedException | UnparsableNameException e) {
             analysis.setParsedName(null);
             analysis.addIssues(unparsable);
         }
@@ -705,9 +706,10 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
                     analysis.addIssues(modifiedIssues);
                 }
             }
-            analysis.estimateNomCode(name.getCode());
+            NomenclaturalCode code = name.getCode() == null ? null : Enums.getIfPresent(NomenclaturalCode.class, name.getCode().name()).orNull();
+            analysis.estimateNomenclaturalCode(code);
             if (analysis.getScientificNameAuthorship() != null && ZOOLOGICAL_AUTHOR.matcher(analysis.getScientificNameAuthorship()).matches())
-                analysis.estimateNomCode(NomCode.ZOOLOGICAL);
+                analysis.estimateNomenclaturalCode(NomenclaturalCode.ZOOLOGICAL);
         } else if (analysis.isPhraseName()) {
             String reducedName = this.reducedName(name);
             if (!reducedName.equals(analysis.getScientificName())) {
@@ -717,7 +719,7 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
                     analysis.setScientificName(this.reducedName(name));
                 }
             }
-            analysis.estimateNomCode(NomCode.BOTANICAL);
+            analysis.estimateNomenclaturalCode(NomenclaturalCode.BOTANICAL);
         }
         return true;
     }
@@ -758,7 +760,7 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
         }
         if (name.isPhraseName()) {
             // Add bare phrase name without voucher
-            analysis.addName(name.canonicalNameMinimal() + " " + name.getRank().getMarker() + " " + name.getStrain());
+            analysis.addName(name.canonicalNameMinimal() + " " + name.getRank().getMarker() + " " + name.getPhrase());
         }
         return true;
     }
@@ -829,7 +831,7 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
         private final MatchOptions options;
         @Getter
         @Setter
-        private NomCode nomCode;
+        private NomenclaturalCode nomenclaturalCode;
         @Getter
         @Setter
         private String kingdom;
@@ -873,7 +875,7 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
             this.scientificNameAuthorship = scientificNameAuthorship;
             this.rank = rank != null ? rank : Rank.UNRANKED;
             this.nameType = NameType.INFORMAL;
-            this.nomCode = nomenclaturalCode == null ? null : Enums.getIfPresent(NomCode.class, nomenclaturalCode.name()).orNull();
+            this.nomenclaturalCode = nomenclaturalCode;
             this.names = new LinkedHashSet<>(); // Keep order
             this.addName(scientificName);
             this.indeterminate = false;
@@ -901,9 +903,9 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
                 this.rank = rank;
         }
 
-        public void estimateNomCode(NomCode code) {
-            if (this.nomCode == null && code != null)
-                this.nomCode = code;
+        public void estimateNomenclaturalCode(NomenclaturalCode code) {
+            if (this.nomenclaturalCode == null && code != null)
+                this.nomenclaturalCode = code;
         }
 
         public boolean hasFullyParsedName() {

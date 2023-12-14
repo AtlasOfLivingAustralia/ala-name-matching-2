@@ -9,7 +9,7 @@ import au.org.ala.bayesian.fidelity.SimpleFidelity;
 /**
  * The default integer analysis
  */
-public class BooleanAnalysis extends Analysis<Boolean, Boolean, Boolean> {
+public class BooleanAnalysis extends Analysis<Boolean, Boolean, Boolean, Object> {
     /**
      * Get the class of object that this analyser handles.
      *
@@ -101,11 +101,12 @@ public class BooleanAnalysis extends Analysis<Boolean, Boolean, Boolean> {
      * </p>
      *
      * @param value The value
+     * @param context Unused context
      * @return The parsed value
      * @throws StoreException if unable to interpret the string
      */
     @Override
-    public Boolean fromString(String value) {
+    public Boolean fromString(String value, Object context) {
         if (value == null || value.isEmpty())
             return null;
         return value.equalsIgnoreCase("true") ||
