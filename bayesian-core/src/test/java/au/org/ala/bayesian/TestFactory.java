@@ -51,6 +51,8 @@ public class TestFactory implements NetworkFactory<TestClassification, TestInfer
         TEST_ENUM.setType(TestEnum.class);
     }
 
+    private static final List<Observable<?>> KEY = Arrays.asList(TAXON_ID);
+
     /**
      * Get the network identifier this factory is for.
      *
@@ -119,6 +121,11 @@ public class TestFactory implements NetworkFactory<TestClassification, TestInfer
     @Override
     public @NonNull Optional<Observable<String>> getAccepted() {
         return Optional.empty();
+    }
+
+    @Override
+    public List<Observable<?>> getKey() {
+        return KEY;
     }
 
     /**

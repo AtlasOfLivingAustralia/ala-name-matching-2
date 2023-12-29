@@ -289,6 +289,7 @@
       "bayesian:weight" : true
     }
   } ],
+  "key" : [ "taxonID" ],
   "vertices" : [ "taxonID", "taxonRank", "specificEpithet", "scientificNameAuthorship", "scientificName", "soundexScientificName", "prefixScientificName", "genus", "family", "order", "class", "phylum", "kingdom" ],
   "edges" : [ {
     "source" : "taxonID",

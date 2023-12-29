@@ -1,9 +1,12 @@
-package au.org.ala.names;
+package au.org.ala.names.tools;
 
 import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.MatchTool;
+import au.org.ala.names.AlaLinnaeanClassification;
+import au.org.ala.names.AlaLinnaeanFactory;
+import au.org.ala.names.AlaLinnaeanInferencer;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
 import com.beust.jcommander.JCommander;

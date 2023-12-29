@@ -283,6 +283,10 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
 
   public static final Term CONCEPT = TERM_FACTORY.findTerm("http://rs.tdwg.org/dwc/terms/Taxon");
 
+  public static final List<Observable<?>> KEY = Collections.unmodifiableList(Arrays.asList(
+        taxonId
+  ));
+
   /** Issue removed_rank 
       <p>Ignored supplied rank to find a match.</p>
   */
@@ -423,6 +427,11 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   @Override
   public Optional<Observable<String>> getAccepted() {
     return Optional.of(acceptedNameUsageId);
+  }
+
+  @Override
+  public List<Observable<?>> getKey() {
+    return KEY;
   }
 
   @Override

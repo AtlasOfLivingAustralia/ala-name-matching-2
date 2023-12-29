@@ -75,6 +75,8 @@
             "kingdom" : "Plantae",
             "soundexKingdom" : "PLANTI",
             "kingdomId" : "https://id.biodiversity.org.au/taxon/apni/51733999",
+            "altScientificName" : "Acacia dealbata Link",
+            "nameComplete" : "Acacia dealbata Link",
             "nameType" : "SCIENTIFIC",
             "parentNameUsageId" : "https://id.biodiversity.org.au/taxon/apni/51471290",
             "scientificNameAuthorship" : "Link",
@@ -85,14 +87,14 @@
           }
         },
         "probability" : {
-          "prior" : 3.2921604226030208E-6,
-          "evidence" : 3.260172499599752E-6,
+          "prior" : 3.292160422594043E-6,
+          "evidence" : 3.2601724995908614E-6,
           "conditional" : 0.9902833383716145,
           "posterior" : 0.9999997282813939
         },
         "fidelity" : null,
-        "left" : 281786,
-        "right" : 281790,
+        "left" : 280566,
+        "right" : 280570,
         "issues" : [ "http://ala.org.au/issues/1.0/acceptedAndSynonym", "http://ala.org.au/issues/1.0/removedFamily", "http://ala.org.au/issues/1.0/removedOrder" ]
       },
       "children" : [ {
