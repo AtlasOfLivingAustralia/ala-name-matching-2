@@ -52,6 +52,11 @@ public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyIn
         return Optional.empty();
     }
 
+    @Override
+    public List<Observable<?>> getKey() {
+        return null;
+    }
+
     /**
      * Create a new, empty classification
      *

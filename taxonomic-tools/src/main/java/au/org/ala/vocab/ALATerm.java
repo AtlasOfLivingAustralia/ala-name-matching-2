@@ -24,12 +24,16 @@ public enum ALATerm implements Term, AlternativeNames {
     verbatimNomenclaturalStatus,
     /** The supplied taxon remarks */
     verbatimTaxonRemarks,
-    /** An alternate scientific name (synonym) for a taxon */
-    altScientificName,
     /** A soundex of the scientific name */
     soundexScientificName,
+    /** An alternate scientific name (synonym) for a taxon */
+    altScientificName,
+    /** A soundex of an alternate scientific name */
+    soundexAltScientificName,
     /** The name and authorship, with the author correctly placed */
     nameComplete,
+    /** A soundex of the scientific name and authorship */
+    soundexNameComplete,
     /** The name and authorship, formatted in some way, usually HTML */
     nameFormatted,
     /** The canonical authorship (authorship without variations due to capitalisation and punctiation) */

@@ -429,7 +429,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
 
         Analysis analysis = new Analysis(scientificName, scientificNameAuthorship, rank, code, MatchOptions.ALL);
 
-        Set<String> allScientificNameAuthorship = !canonical && disambiguator.isPresent() ? classifier.getAll(disambiguator.get()) : Collections.emptySet();
+        Set<String> allDisambiguators = !canonical && disambiguator.isPresent() ? classifier.getAll(disambiguator.get()) : Collections.emptySet();
         Set<String> allCompleteNames = !canonical && complete.isPresent() ? classifier.getAll(complete.get()) : Collections.emptySet();
         Set<String> allScientificNames = this.generateBaseNames(analysis, classifier, name);
 
@@ -464,8 +464,8 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         }
 
         // Add name/author pairs
-        if (allCompleteNames.isEmpty() && !allScientificNameAuthorship.isEmpty()) {
-            allCompleteNames = allScientificNames.stream().flatMap(n -> allScientificNameAuthorship.stream().map(a -> n + " " + a)).collect(Collectors.toSet());
+        if (allCompleteNames.isEmpty() && !allDisambiguators.isEmpty()) {
+            allCompleteNames = allScientificNames.stream().flatMap(n -> allDisambiguators.stream().map(a -> n + " " + a)).collect(Collectors.toSet());
         }
         for (String nm : allCompleteNames) {
             analysis.addName(BASIC_NORMALISER.normalise(nm));

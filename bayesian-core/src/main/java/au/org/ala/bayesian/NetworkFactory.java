@@ -63,6 +63,13 @@ public interface NetworkFactory<C extends Classification<C>, I extends Inference
     @NonNull Optional<Observable<String>> getAccepted();
 
     /**
+     * Get the list of observables that forms a unique key for the classification
+     *
+     * @return The list of key observables, or null for none
+     */
+    List<Observable<?>> getKey();
+
+    /**
      * Get a list of all the issues that can be raised by this network.
      * <p>
      * The list should contain {@link au.org.ala.vocab.BayesianTerm#invalidMatch} and

@@ -27,8 +27,6 @@
             <directory>${project.build.scriptSourceDirectory}</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>generate-linnaean.sh</include>
-                <include>generate-vernacular.sh</include>
                 <include>match.sh</include>
             </includes>
         </fileSet>

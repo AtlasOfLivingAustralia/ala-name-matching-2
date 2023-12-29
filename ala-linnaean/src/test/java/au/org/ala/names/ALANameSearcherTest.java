@@ -1429,6 +1429,61 @@ public class ALANameSearcherTest {
         assertEquals(Issues.of(AlaLinnaeanFactory.HIGHER_ORDER_MATCH, AlaLinnaeanFactory.REMOVED_FAMILY, AlaLinnaeanFactory.REMOVED_ORDER), result.getIssues());
     }
 
+    // 20230725-3 Old index finds Acanthiza apicalis
+    // Caused by accepted/synonym issue
+    @Test
+    public void testProblemSearch65() throws Exception {
+        AlaLocationClassification loc = new AlaLocationClassification();
+        loc.country = "Australia";
+        loc.stateProvince = "South Australia";
+        Match<AlaLocationClassification, MatchMeasurement> location = this.searcher.search(loc);
+        assertTrue((location.isValid()));
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Acanthiza apicalis Gould, 1847";
+        template.genus = "Acanthiza";
+        template.family = "Acanthizidae";
+        template.order = "Passeriformes";
+        template.class_ = "Aves";
+        template.phylum = "Chordata";
+        template.locationId = location.getAllIdentifiers();
+        Match<AlaLinnaeanClassification, MatchMeasurement> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://biodiversity.org.au/afd/taxa/500e1350-1d00-4f1c-b9d3-d02b949cdd47", result.getMatch().taxonId);
+        assertEquals("https://biodiversity.org.au/afd/taxa/500e1350-1d00-4f1c-b9d3-d02b949cdd47", result.getAccepted().taxonId);
+        assertEquals("Acanthiza (Acanthiza) apicalis", result.getAccepted().scientificName);
+        assertEquals(Rank.SPECIES, result.getAccepted().taxonRank);
+        assertEquals(1.0, result.getProbability().getPosterior(), 0.001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.001);
+        assertEquals(Issues.of(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM, AlaLinnaeanFactory.CANONICAL_NAME), result.getIssues());
+    }
+
+
+    // 20230725-3 Old index finds Acacia adoxa var. adoxa
+    // Problems with parsing autonym with embedded author, ie Acacia adoxa Pedley var. adoxa
+    @Test
+    public void testProblemSearch66() throws Exception {
+        AlaLocationClassification loc = new AlaLocationClassification();
+        loc.country = "Australia";
+        loc.stateProvince = "Northern Territory";
+        Match<AlaLocationClassification, MatchMeasurement> location = this.searcher.search(loc);
+        assertTrue((location.isValid()));
+        AlaLinnaeanClassification template = new AlaLinnaeanClassification();
+        template.scientificName = "Acacia adoxa Pedley var. adoxa";
+        template.genus = "Acacia";
+        template.family = "Leguminosae"; // Should match as synonym
+        template.taxonRank = AlaLinnaeanFactory.taxonRank.getAnalysis().fromString("var.", null);
+        template.locationId = location.getAllIdentifiers();
+        Match<AlaLinnaeanClassification, MatchMeasurement> result = this.searcher.search(template);
+        assertTrue(result.isValid());
+        assertEquals("https://id.biodiversity.org.au/node/apni/2897166", result.getMatch().taxonId);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2897166", result.getAccepted().taxonId);
+        assertEquals("Acacia adoxa var. adoxa", result.getAccepted().scientificName);
+        assertEquals(Rank.VARIETY, result.getAccepted().taxonRank);
+        assertEquals(1.0, result.getProbability().getPosterior(), 0.001);
+        assertEquals(1.0, result.getFidelity().getFidelity(), 0.001);
+        assertEquals(Issues.of(), result.getIssues());
+    }
+
     @Test
     public void testMultipleMatches1() throws Exception {
         AlaLinnaeanClassification template = new AlaLinnaeanClassification();
@@ -1951,7 +2006,7 @@ public class ALANameSearcherTest {
         template.scientificName = "Elaeocarpus sp. Rocky Creek";
         Match<AlaLinnaeanClassification, MatchMeasurement> result = this.searcher.search(template);
         assertTrue(result.isValid());
-        assertEquals("https://id.biodiversity.org.au/instance/apni/871103", result.getMatch().taxonId); // Variable
+        assertEquals("https://id.biodiversity.org.au/instance/apni/871108", result.getMatch().taxonId); // Variable
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51435153", result.getAccepted().taxonId);
         assertEquals(Issues.of(AlaLinnaeanFactory.SYNTHETIC_MATCH, AlaLinnaeanFactory.BARE_PHRASE_NAME), result.getIssues());
     }
@@ -2316,7 +2371,7 @@ public class ALANameSearcherTest {
         template.scientificName = "Amphipogon brownii";
         Match<AlaLinnaeanClassification, MatchMeasurement> result = this.searcher.search(template);
         assertTrue(result.isValid());
-        assertEquals("https://id.biodiversity.org.au/instance/apni/51442466", result.getMatch().taxonId);
+        assertEquals("https://id.biodiversity.org.au/instance/apni/873865", result.getMatch().taxonId);
         assertEquals("https://id.biodiversity.org.au/taxon/apni/51442480", result.getAccepted().taxonId);
         assertEquals(Issues.of(AlaLinnaeanFactory.SYNTHETIC_MATCH), result.getIssues());
     }
@@ -2362,8 +2417,8 @@ public class ALANameSearcherTest {
         template.vernacularName = "Blue Gum"; // Multiple possibilities
         Match<AlaVernacularClassification, MatchMeasurement> result = this.searcher.search(template);
         assertTrue(result.isValid());
-        assertEquals("https://id.biodiversity.org.au/node/apni/2912252", result.getMatch().taxonId); // Variable
-        assertEquals("https://id.biodiversity.org.au/node/apni/2912252", result.getAccepted().taxonId);
+        assertEquals("https://id.biodiversity.org.au/node/apni/2886090", result.getMatch().taxonId); // Variable
+        assertEquals("https://id.biodiversity.org.au/node/apni/2886090", result.getAccepted().taxonId);
         assertEquals(Issues.of(), result.getIssues());
     }
 

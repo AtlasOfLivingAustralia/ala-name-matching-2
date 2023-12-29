@@ -64,6 +64,16 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
   public static final Term CONCEPT = TERM_FACTORY.findTerm("${network.concept!"http://ala.org.au/bayesian/1.0/Concept"}");
 
+<#if network.key??>
+  public static final List<Observable<?>> KEY = Collections.unmodifiableList(Arrays.asList(
+    <#list network.key as observable>
+        ${observable.javaVariable}<#if observable?has_next>,</#if>
+    </#list>
+  ));
+<#else>
+  public static final List<Observable<?>> KEY = null;
+</#if>
+
 <#list issues as issue>
   /** Issue ${issue.id} <#if issue.description??>
       <p>${issue.description}</p>
@@ -140,6 +150,11 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   @Override
   public Optional<Observable<String>> getAccepted() {
     return Optional.<#if network.acceptedObservable??>of(${network.acceptedObservable.javaVariable})<#else>empty()</#if>;
+  }
+
+  @Override
+  public List<Observable<?>> getKey() {
+    return KEY;
   }
 
   @Override

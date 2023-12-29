@@ -250,7 +250,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
     }
 
     /**
-     * Get the alternative name interretations for a classifier.
+     * Get the alternative name interpretations for a classifier.
      *
      * @param classifier The classifier to expand
      *
@@ -811,16 +811,17 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         properties.put("javaVersion", System.getProperty("java.version"));
         properties.put("builderClass", this.builder.getClass().getName());
         properties.put("factoryClass", this.factory.getClass().getName());
-        properties.put("accepted", this.accepted.map(Observable::getId).orElse(null));
-        properties.put("additionalName", this.disabiguator.map(Observable::getId).orElse(null));
-        properties.put("altName", this.altName.map(Observable::getId).orElse(null));
-        properties.put("fullName", this.fullName.map(Observable::getId).orElse(null));
-        properties.put("parent", this.parent.map(Observable::getId).orElse(null));
-        properties.put("synonymName", this.synonymName.map(Observable::getId).orElse(null));
+        properties.put("accepted", this.accepted.map(o -> o.getExternal(ExternalContext.LUCENE)).orElse(null));
+        properties.put("disambiguator", this.disabiguator.map(o -> o.getExternal(ExternalContext.LUCENE)).orElse(null));
+        properties.put("altName", this.altName.map(o -> o.getExternal(ExternalContext.LUCENE)).orElse(null));
+        properties.put("fullName", this.fullName.map(o -> o.getExternal(ExternalContext.LUCENE)).orElse(null));
+        properties.put("parent", this.parent.map(o -> o.getExternal(ExternalContext.LUCENE)).orElse(null));
+        properties.put("synonymName", this.synonymName.map(o -> o.getExternal(ExternalContext.LUCENE)).orElse(null));
+        properties.put("broadSynonymName", this.broadSynonymName.map(o -> o.getExternal(ExternalContext.LUCENE)).orElse(null));
         properties.put("concept", this.conceptTerm == null ? null : this.conceptTerm.qualifiedName());
         properties.put("identifier", this.identifier.getId());
-        properties.put("name", this.name.getId());
-        properties.put("weight", this.weight.getId());
+        properties.put("name", this.name.getExternal(ExternalContext.LUCENE));
+        properties.put("weight", this.weight.getExternal(ExternalContext.LUCENE));
         Metadata networkMetadata = Metadata.builder()
                 .about(this.config.getNetwork().toURI())
                 .identifier(this.network.getId())

@@ -73,6 +73,8 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
 
   public static final Term CONCEPT = TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/Concept");
 
+  public static final List<Observable<?>> KEY = null;
+
 
   public static final List<Term> ISSUES = Collections.unmodifiableList(Arrays.asList(
           BayesianTerm.illformedData,
@@ -127,6 +129,11 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
   @Override
   public Optional<Observable<String>> getAccepted() {
     return Optional.empty();
+  }
+
+  @Override
+  public List<Observable<?>> getKey() {
+    return KEY;
   }
 
   @Override
