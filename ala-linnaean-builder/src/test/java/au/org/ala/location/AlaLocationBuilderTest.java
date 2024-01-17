@@ -1,9 +1,6 @@
 package au.org.ala.location;
 
-import au.org.ala.bayesian.ClassificationMatcher;
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.Inference;
-import au.org.ala.bayesian.MatchMeasurement;
+import au.org.ala.bayesian.*;
 import au.org.ala.names.builder.IndexBuilder;
 import au.org.ala.names.builder.IndexBuilderConfiguration;
 import au.org.ala.names.builder.LoadStore;
@@ -62,7 +59,7 @@ public class AlaLocationBuilderTest extends TestUtils {
     public void setUp() throws Exception {
         this.factory = AlaLocationFactory.instance();
         this.searcher = new LuceneClassifierSearcher(output, null, this.factory.getIdentifier().get());
-        this.matcher = this.factory.createMatcher(this.searcher, null);
+        this.matcher = this.factory.createMatcher(this.searcher, null, AnalyserConfig.load(output));
     }
 
     @After

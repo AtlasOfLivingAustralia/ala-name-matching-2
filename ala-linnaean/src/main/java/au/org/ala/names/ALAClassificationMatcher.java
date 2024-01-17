@@ -30,8 +30,10 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     /** First four characters for valid checks */
     private static final int MIN_VALID_LENGTH = 4;
 
+    /** A match sorter that takes taxonomic status into account if the probabilities are close enough */
     private static final Comparator<Match<AlaLinnaeanClassification, MatchMeasurement>> MATCH_SORTER = new Comparator<Match<AlaLinnaeanClassification, MatchMeasurement>>() {
-        private static final double DISTANCE = 0.10;
+        private static final double DISTANCE = 0.10; // Point where other considerations take over
+        private static final double ACCURACY = 0.00001; // Limit of probability comparison
 
         @Override
         public int compare(Match<AlaLinnaeanClassification, MatchMeasurement> o1, Match<AlaLinnaeanClassification, MatchMeasurement> o2) {
@@ -45,6 +47,8 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
                 if (t1 != t2)
                     return t1.compareTo(t2);
             }
+            if (Math.abs(p1 - p2) < ACCURACY)
+                return Double.compare(m2.weight, m1.weight);
             return Double.compare(p2, p1);
         }
     };
@@ -60,10 +64,11 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
      * @param factory  The factory for creating objects for the matcher to work on
      * @param searcher The mechanism for getting candidiates
      * @param config The classification matcher configuration
+     * @param analyserConfig The analyser configyuation
      * @param localityScope The locality scope
      */
-    public ALAClassificationMatcher(AlaLinnaeanFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, Set<String> localityScope) {
-        super(factory, searcher, config);
+    public ALAClassificationMatcher(AlaLinnaeanFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig, Set<String> localityScope) {
+        super(factory, searcher, config, analyserConfig);
         Cache2kBuilder<KingdomKey, AlaLinnaeanClassification> builder = Cache2kBuilder.of(KingdomKey.class, AlaLinnaeanClassification.class)
                 .entryCapacity(this.getConfig().getSecondaryCacheSize())
                 .permitNullValues(true)
@@ -205,6 +210,9 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         // If we have not miscellaneous/rest miscellaneous
         if (!this.isMiscellaneous(trial) && results.stream().allMatch(m -> m == trial || this.isMiscellaneous(m)))
             return trial.boost(results).with(AlaLinnaeanFactory.MULTIPLE_MATCHES);
+        // If we have a vouchered name and the other names are not vouchered
+        if (trial.getMatch().voucher != null && results.stream().allMatch(m -> m == trial || m.getMatch().voucher == null))
+            return trial.boost(results).with(AlaLinnaeanFactory.MULTIPLE_MATCHES);
         // See if we have a single accepted/variety of synonyms
         if (tts.isAcceptedFlag() && results.stream().allMatch(m -> m == trial || m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike() && m.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName)))
             return trial.boost(results).with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
@@ -254,8 +262,8 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
                     return best.with(Issues.of(AlaLinnaeanFactory.MULTIPLE_MATCHES, AlaLinnaeanFactory.MISSPELLED_SCIENTIFIC_NAME));
             }
         }
-        // Look for a common parent if all synonyms
-        if (results.stream().allMatch(r -> r.getMatch().taxonomicStatus.isSynonymLike() && r.getMatch() != r.getAccepted())) {
+        // Look for a common parent if all synonym-like objects
+        if (results.stream().allMatch(r -> r.getMatch() != r.getAccepted())) {
             int limitRankID = this.limitRankID(classification);
             final Match<AlaLinnaeanClassification, MatchMeasurement> lub = this.lub(results);
             if (lub != null && lub.getAccepted().rankId != null && lub.getAccepted().rankId > limitRankID)

@@ -156,6 +156,17 @@
       "multiplicity": "*"
     },
     {
+      "id": "canonicalName",
+      "label": "CN",
+      "uri": "http://rs.gbif.org/terms/1.0/canonicalName",
+      "properties": {
+         "http://ala.org.au/bayesian/1.0/additional": true
+      },
+      "normaliser": "simple_normaliser",
+      "style": "PHRASE",
+      "multiplicity": "+"
+    },
+    {
       "id": "soundexScientificName",
       "label": "xSN",
       "uri": "http://ala.org.au/terms/1.0/soundexScientificName",
@@ -1335,6 +1346,30 @@
       ]
     },
     {
+      "@class": "au.org.ala.bayesian.modifier.CompositeModifier",
+      "id": "canonical_scientific_name",
+      "description": "See if doing things like matching on a normalised name helps deal with changed subgenus and the like",
+      "issues": ["canonical_name"],
+      "clearDerived": true,
+      "modifiers": [
+        {
+          "@class": "au.org.ala.bayesian.modifier.ChooseModifier",
+          "id": "canonical_scientific_name_1",
+          "sources": [
+            "canonicalName"
+          ],
+          "target": "scientificName"
+        },
+        {
+          "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
+          "id": "canonical_scientific_name_2",
+          "observables": [
+            "genus"
+          ]
+        }
+      ]
+    },
+    {
       "@class": "au.org.ala.bayesian.modifier.RemoveModifier",
       "id": "misspelled_scientific_name_base",
       "issues": ["misspelled_scientific_name"],
@@ -1377,7 +1412,8 @@
       "issues": ["removed_authorship"],
       "observables": [
         "scientificNameAuthorship",
-        "canonicalAuthorship"
+        "canonicalAuthorship",
+        "nominatingParty"
       ]
     },
     {
@@ -1512,6 +1548,7 @@
           "observables": [
             "rankID",
             "scientificNameAuthorship",
+            "canonicalName",
             "cultivarEpithet",
             "phraseName"
           ]
@@ -1546,6 +1583,7 @@
             "rankID",
             "scientificName",
             "scientificNameAuthorship",
+            "canonicalName",
             "cultivarEpithet",
             "phraseName",
             "specificEpithet",
@@ -1589,6 +1627,7 @@
             "rankID",
             "scientificName",
             "scientificNameAuthorship",
+            "canonicalName",
             "cultivarEpithet",
             "phraseName",
             "specificEpithet",
@@ -1635,6 +1674,7 @@
             "rankID",
             "scientificName",
             "scientificNameAuthorship",
+            "canonicalName",
             "cultivarEpithet",
             "phraseName",
             "specificEpithet",
@@ -1683,6 +1723,7 @@
             "rankID",
             "scientificName",
             "scientificNameAuthorship",
+            "canonicalName",
             "cultivarEpithet",
             "phraseName",
             "specificEpithet",
@@ -1733,6 +1774,7 @@
             "rankID",
             "scientificName",
             "scientificNameAuthorship",
+            "canonicalName",
             "cultivarEpithet",
             "phraseName",
             "specificEpithet",
@@ -1785,6 +1827,7 @@
             "rankID",
             "scientificName",
             "scientificNameAuthorship",
+            "canonicalName",
             "cultivarEpithet",
             "phraseName",
             "specificEpithet",
@@ -1839,6 +1882,7 @@
   ],
   "matchModifiers": [
     [
+      "canonical_scientific_name",
       "remove_location",
       "remove_middle_ranks_1",
       "remove_middle_ranks_2",

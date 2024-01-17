@@ -6,6 +6,7 @@ import au.org.ala.bayesian.ClassificationMatcher;
 import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.AnalyserConfig;
 import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
@@ -168,9 +169,9 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
   }
 
   @Override
-  public ${analyserType} createAnalyser() {
+  public ${analyserType} createAnalyser(AnalyserConfig config) {
 <#if analyserImplementationClassName??>
-        return new ${analyserImplementationClassName}();
+        return new ${analyserImplementationClassName}(config);
 <#else>
         return new au.org.ala.bayesian.NullAnalyser<>();
 </#if>
@@ -178,12 +179,12 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
 
   @Override
 <#if matcherImplementationClassName??>
-  public ${matcherImplementationClassName} createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config) {
-        return new ${matcherImplementationClassName}(this, searcher, config);
+  public ${matcherImplementationClassName} createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig) {
+        return new ${matcherImplementationClassName}(this, searcher, config, analyserConfig);
   }
 <#else>
-  public ClassificationMatcher<${classificationClassName}, ${inferencerClassName}, ${className}, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config){
-        return new ClassificationMatcher<>(this, searcher, config);
+  public ClassificationMatcher<${classificationClassName}, ${inferencerClassName}, ${className}, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig){
+        return new ClassificationMatcher<>(this, searcher, config, analyserConfig);
   }
 </#if>
 

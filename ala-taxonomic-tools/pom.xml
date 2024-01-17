@@ -53,7 +53,7 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>au.org.ala</groupId>
+            <groupId>au.org.ala.names</groupId>
             <artifactId>old-name-matching-shaded</artifactId>
             <version>${old-name-matching.version}</version>
         </dependency>

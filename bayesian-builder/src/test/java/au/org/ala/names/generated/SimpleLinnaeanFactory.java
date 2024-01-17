@@ -4,6 +4,7 @@ import au.org.ala.bayesian.ClassificationMatcher;
 import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.AnalyserConfig;
 import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
@@ -445,13 +446,13 @@ public class SimpleLinnaeanFactory implements NetworkFactory<SimpleLinnaeanClass
   }
 
   @Override
-  public Analyser<SimpleLinnaeanClassification> createAnalyser() {
+  public Analyser<SimpleLinnaeanClassification> createAnalyser(AnalyserConfig config) {
         return new au.org.ala.bayesian.NullAnalyser<>();
   }
 
   @Override
-  public ClassificationMatcher<SimpleLinnaeanClassification, SimpleLinnaeanInferencer, SimpleLinnaeanFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config){
-        return new ClassificationMatcher<>(this, searcher, config);
+  public ClassificationMatcher<SimpleLinnaeanClassification, SimpleLinnaeanInferencer, SimpleLinnaeanFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig){
+        return new ClassificationMatcher<>(this, searcher, config, analyserConfig);
   }
 
   public static SimpleLinnaeanFactory instance() {

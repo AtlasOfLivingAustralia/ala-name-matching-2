@@ -70,7 +70,7 @@ public class AlaLinnaeanBuilderProblemTest extends TestUtils {
 
     protected void makeSearcher() throws Exception {
         this.searcher = new LuceneClassifierSearcher(this.output, null, this.factory.getIdentifier().get());
-        this.matcher = this.factory.createMatcher(this.searcher, null);
+        this.matcher = this.factory.createMatcher(this.searcher, null, AnalyserConfig.load(this.output));
     }
 
     @Test

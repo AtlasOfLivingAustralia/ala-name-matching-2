@@ -168,7 +168,7 @@ public class TestFactory implements NetworkFactory<TestClassification, TestInfer
      * @return The analyser, or null for no analyser
      */
     @Override
-    public Analyser<TestClassification> createAnalyser() {
+    public Analyser<TestClassification> createAnalyser(AnalyserConfig config) {
         return new TestAnalyser();
     }
 
@@ -180,7 +180,7 @@ public class TestFactory implements NetworkFactory<TestClassification, TestInfer
      * @return The new matcher
      */
     @Override
-    public @NonNull <M extends MatchMeasurement> ClassificationMatcher<TestClassification, TestInferencer, TestFactory, M> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config) {
-        return new ClassificationMatcher<>(this, searcher, config);
+    public @NonNull <M extends MatchMeasurement> ClassificationMatcher<TestClassification, TestInferencer, TestFactory, M> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig) {
+        return new ClassificationMatcher<>(this, searcher, config, analyserConfig);
     }
 }

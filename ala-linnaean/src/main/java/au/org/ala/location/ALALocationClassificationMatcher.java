@@ -12,9 +12,10 @@ public class ALALocationClassificationMatcher extends ClassificationMatcher<AlaL
      * @param factory  The factory for creating objects for the matcher to work on
      * @param searcher The mechanism for getting candidiates
      * @param config The classificatio configuration
+     * @param analyserConfig The analyser configuration
      */
-    public ALALocationClassificationMatcher(AlaLocationFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config) {
-        super(factory, searcher, config);
+    public ALALocationClassificationMatcher(AlaLocationFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig) {
+        super(factory, searcher, config, analyserConfig);
     }
 
     /**

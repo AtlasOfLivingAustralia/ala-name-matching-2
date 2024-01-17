@@ -1,5 +1,6 @@
 package au.org.ala.names.builder;
 
+import au.org.ala.bayesian.AnalyserConfig;
 import au.org.ala.bayesian.Classification;
 import au.org.ala.bayesian.Inferencer;
 import au.org.ala.bayesian.NetworkFactory;
@@ -61,7 +62,10 @@ abstract public class AbstractCli<C extends Classification<C>, B extends Builder
     @Parameter(names = { "-p", "--parameter"}, splitter=NoSplitter.class, description = "Additional parameter settings for objects such as the weight analyser in term=value form. See individual classes for more information.")
     @Getter
     private List<String> parameters = new ArrayList<>();
-    /** The input sources */
+    @Parameter(names = { "--special"}, description = "The URL of an analyser-specific special cases file", converter = URLConverter.class)
+    @Getter
+    private URL specialCases;
+     /** The input sources */
     @Parameter(description = "The source DwCAs", listConverter = URLConverter.class, required = true)
     @Getter
     private List<URL> sources;
@@ -105,6 +109,10 @@ abstract public class AbstractCli<C extends Classification<C>, B extends Builder
             if (pkv.length < 2)
                 throw new IllegalStateException("Can't parse parameter value " + p);
             configuration.addParameter(pkv[0], pkv[1]);
+        }
+        if (this.specialCases != null) {
+            AnalyserConfig analyserConfig = AnalyserConfig.builder().specialCases(this.specialCases).build();
+            configuration.setAnalyserConfig(analyserConfig);
         }
         return configuration;
     }

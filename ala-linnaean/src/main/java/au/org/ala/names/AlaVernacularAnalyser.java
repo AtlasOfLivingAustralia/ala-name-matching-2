@@ -27,6 +27,15 @@ public class AlaVernacularAnalyser implements Analyser<AlaVernacularClassificati
         STATUS_WEIGHT_MAP.put(VernacularStatus.local, 5.0);
         STATUS_WEIGHT_MAP.put(VernacularStatus.deprecated, 1.0);
     }
+
+    /**
+     * Construct for am ignored configuration
+     *
+     * @param config The configuration
+     */
+    public AlaVernacularAnalyser(AnalyserConfig config) {
+    }
+
     /**
      * Analyse the information in a classifier and extend the classifier
      * as required for indexing.

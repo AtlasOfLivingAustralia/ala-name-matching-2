@@ -435,8 +435,11 @@ public class ALAComparisonTool {
                 return "same";
             if (lid != null && oid == null)
                 return "found";
-            if (lid == null && oid != null)
+            if (lid == null && oid != null) {
+                if (this.linnaeanNoLocation.isValid())
+                    return "location";
                 return "notFound";
+            }
             if (lid != null && oid != null) {
                 if (this.linnaean.getAcceptedCandidate().getTrail().contains(oid))
                     return "lowerRank";
@@ -446,14 +449,18 @@ public class ALAComparisonTool {
                     Match<AlaLinnaeanClassification, MatchMeasurement> old = ALAComparisonTool.this.newSearcher.search(oid);
                     if (this.original.getResult().getSynonymType() != null && old.getAccepted().parentNameUsageId.equals(lid))
                         return "parentChild";
+                    if (this.linnaeanNoLocation.isValid() && Objects.equals(this.linnaeanNoLocation.getAccepted().taxonId, oid))
+                        return "location";
                     if (old.getAcceptedCandidate().getTrail().contains(lid)) {
-                        if (this.location.isValid() && this.linnaeanNoLocation.isValid() && !this.location.getAllIdentifiers().stream().anyMatch(l -> this.linnaeanNoLocation.getMatch().locationId == null || this.linnaeanNoLocation.getMatch().locationId.contains(l)))
-                            return "locationHigherRank";
                         return "higherRank";
                     }
                 } catch (Exception ex) {
                 }
             }
+            String lk = this.linnaean.isValid() ? this.linnaean.getAccepted().kingdom : null;
+            String ok = this.original.getResult() != null ? this.original.getResult().getRankClassification().getKingdom() : null;
+            if (!Objects.equals(lk, ok))
+                return "kingdom";
             return "other";
          }
     }

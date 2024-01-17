@@ -168,6 +168,11 @@ public class TestLoadStore extends LoadStore<LuceneClassifier> {
     }
 
     @Override
+    public void store(Analyser<?> analyser) throws StoreException {
+    }
+
+
+    @Override
     public void commit() throws StoreException {
     }
 

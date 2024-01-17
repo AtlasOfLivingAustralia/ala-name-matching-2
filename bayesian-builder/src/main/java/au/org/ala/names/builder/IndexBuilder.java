@@ -121,7 +121,7 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         this.network = Network.read(this.config.getNetwork());
         this.factory = config.createFactory(this);
         this.builder = config.createBuilder(this.factory);
-        this.analyser = this.factory.createAnalyser();
+        this.analyser = this.factory.createAnalyser(this.config.getAnalyserConfig());
         this.weightAnalyser = config.createWeightAnalyser(this.network);
         if (this.network.getConcept() == null)
             throw new BuilderException("Network requires concept term");
@@ -783,7 +783,10 @@ public class IndexBuilder<C extends Classification<C>, I extends Inferencer<C>, 
         // Insert metadata document
         Metadata metadata = this.createMetadata();
         index.store(metadata);
+        // Add network description
         index.store(this.network);
+        // Add analyser configuration
+        index.store(this.analyser);
         index.commit();
         index.close();
     }

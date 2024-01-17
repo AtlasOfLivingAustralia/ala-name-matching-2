@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gbif.nameparser.api.Rank;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -28,7 +29,7 @@ public class ALAClassificationMatcherTest {
         if (!index.exists())
             throw new IllegalStateException("Index " + index + " not present");
         this.searcher = new LuceneClassifierSearcher(index, null, AlaLinnaeanFactory.taxonId);
-        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, null, null);
+        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, null, null, null);
     }
 
     @After

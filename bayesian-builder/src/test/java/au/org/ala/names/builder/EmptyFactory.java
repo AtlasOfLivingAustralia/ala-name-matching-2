@@ -83,7 +83,7 @@ public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyIn
      * @return The analyser, or null for no analyser
      */
     @Override
-    public Analyser<EmptyClassification> createAnalyser() {
+    public Analyser<EmptyClassification> createAnalyser(AnalyserConfig config) {
         return new NullAnalyser<>();
     }
 
@@ -94,7 +94,7 @@ public class EmptyFactory implements NetworkFactory<EmptyClassification, EmptyIn
      * @return The new matcher
      */
     @Override
-    public @NonNull ClassificationMatcher<EmptyClassification, EmptyInferencer, EmptyFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config) {
+    public @NonNull ClassificationMatcher<EmptyClassification, EmptyInferencer, EmptyFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig) {
         return null;
     }
 }

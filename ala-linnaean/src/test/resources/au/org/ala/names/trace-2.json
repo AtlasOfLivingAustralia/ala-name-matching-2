@@ -35,6 +35,7 @@
           "genus" : "Acacia",
           "soundexGenus" : "ACACA",
           "kingdom" : "Plantae",
+          "canonicalName" : "Acacia dealbata",
           "nameType" : "SCIENTIFIC",
           "taxonRank" : "SPECIES",
           "issues" : [ "http://ala.org.au/issues/1.0/removedFamily", "http://ala.org.au/issues/1.0/removedOrder" ]
@@ -87,14 +88,14 @@
           }
         },
         "probability" : {
-          "prior" : 3.292160422594043E-6,
-          "evidence" : 3.2601724995908614E-6,
-          "conditional" : 0.9902833383716145,
-          "posterior" : 0.9999997282813939
+          "prior" : 3.2921604225940676E-6,
+          "evidence" : 3.260172499590886E-6,
+          "conditional" : 0.9902833383716148,
+          "posterior" : 0.999999728281394
         },
         "fidelity" : null,
-        "left" : 280566,
-        "right" : 280570,
+        "left" : 280520,
+        "right" : 280524,
         "issues" : [ "http://ala.org.au/issues/1.0/acceptedAndSynonym", "http://ala.org.au/issues/1.0/removedFamily", "http://ala.org.au/issues/1.0/removedOrder" ]
       },
       "children" : [ {
@@ -109,6 +110,7 @@
           "soundexGenus" : "ACACA",
           "family" : "Rando",
           "soundexFamily" : "RANDA",
+          "canonicalName" : "Acacia dealbata",
           "nameType" : "SCIENTIFIC",
           "taxonRank" : "SPECIES"
         }

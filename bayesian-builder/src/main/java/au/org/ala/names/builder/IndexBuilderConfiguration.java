@@ -64,6 +64,11 @@ public class IndexBuilderConfiguration {
     @Getter
     @Setter
     private Class<? extends WeightAnalyser> weightAnalyserClass;
+    /** The analyzer configuration */
+    @JsonProperty
+    @Getter
+    @Setter
+    private AnalyserConfig analyserConfig;
     /** The default weight to use for an unweighted taxon */
     @JsonProperty
     @Getter
@@ -104,11 +109,16 @@ public class IndexBuilderConfiguration {
     @JsonProperty
     @Getter
     private Map<String, String> parameters;
+    /** Additional resource URLs for initialising various elements */
+    @JsonProperty
+    @Getter
+    private Map<String, URL> resources;
 
     public IndexBuilderConfiguration() {
         this.builderClass = EmptyBuilder.class;
         this.loadStoreClass = LuceneLoadStore.class;
         this.weightAnalyserClass = DefaultWeightAnalyser.class;
+        this.analyserConfig = AnalyserConfig.builder().build();
         this.defaultWeight = 1.0;
         this.logInterval = 10000;
         this.types = Arrays.asList(DwcTerm.Taxon);
@@ -117,6 +127,7 @@ public class IndexBuilderConfiguration {
         this.enableJmx = true;
         this.metadataTemplate = Metadata.builder().build();
         this.parameters = new HashMap<>();
+        this.resources = new HashMap<>();
     }
 
     /**

@@ -13,23 +13,23 @@ import java.net.URI;
 public enum TaxonomicStatus implements Term, AlternativeNames {
     accepted(true, false, false, false, false, false),
     inferredAccepted(true, true, false, false, false, true),
-    incertaeSedis(true, false, false, false, true, false),
-    speciesInquirenda(true, false, false, false, true, false),
-    synonym(false, true, false, false, false, false),
     homotypicSynonym(false, true, false, false, false, false),
     objectiveSynonym(false, true, false, false, false, false),
     heterotypicSynonym(false, true, false, false, false,false),
     subjectiveSynonym(false, true, false, false, false, false),
+    synonym(false, true, false, false, false, false),
     proParteSynonym(false, true, false, false, false, false),
     inferredSynonym(false, true, false, false, false, true),
     misapplied(false, false, true, false, false, false),
+    miscellaneousLiterature(false, false, false, false, false, false),
     excluded(false, false, false, true, false, false),
     inferredExcluded(false, false, false, true, false, true),
     invalid(false, false, false, false, true, true),
     inferredInvalid(false, false, false, false, true, true),
     unplaced(false, false, false, false, true, false),
     inferredUnplaced(false, false, false, false, true, true),
-    miscellaneousLiterature(false, false, false, false, false, false),
+    incertaeSedis(true, false, false, false, true, false),
+    speciesInquirenda(true, false, false, false, true, false),
     unknown(false, false, false, false, true, true);
 
     private static final String PREFIX = "ts";

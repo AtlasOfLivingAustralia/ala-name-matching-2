@@ -4,6 +4,8 @@ import au.org.ala.bayesian.*;
 import au.org.ala.util.BasicNormaliser;
 import au.org.ala.vocab.GeographyType;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -13,6 +15,14 @@ import java.util.stream.Collectors;
 public class AlaLocationAnalyser implements Analyser<AlaLocationClassification> {
     /** Unaccented version of the name */
     private static final BasicNormaliser CLEAN_NORMALISER = new BasicNormaliser("clean", true, true, false, false, true, false);
+
+    /**
+     * Create for a configuration.
+     *
+     * @param config The configuration (unused)
+     */
+    public AlaLocationAnalyser(AnalyserConfig config) {
+    }
 
     @Override
     public void analyseForIndex(Classifier classifier) throws InferenceException, StoreException {

@@ -97,19 +97,22 @@ public interface NetworkFactory<C extends Classification<C>, I extends Inference
     /**
      * Create an optional evidence analyser for this network.
      *
+     * @param config The configuration to use
+     *
      * @return The analyser, or null for no analyser
      */
-    Analyser<C> createAnalyser();
+    Analyser<C> createAnalyser(AnalyserConfig config);
 
     /**
      * Create a matcher for the network.
      *
      * @param searcher The underlying searcher that finds matching classifications
      * @param config The matcher configuration (null for a default configuration)
+     * @param analyserConfig The analyser configuration
      *
      * @return The new matcher
      */
-    @NonNull <M extends MatchMeasurement> ClassificationMatcher<C, I, F, M> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config);
+    @NonNull <M extends MatchMeasurement> ClassificationMatcher<C, I, F, M> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig);
 
     /**
      * Build a label for a classifier.
