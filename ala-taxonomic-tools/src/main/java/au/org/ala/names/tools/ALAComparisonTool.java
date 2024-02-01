@@ -198,7 +198,7 @@ public class ALAComparisonTool {
         this.createSearchers();
         this.parseSource();
         lines.start();
-        this.writeHeader();int i = 0;
+        this.writeHeader();
         for (String[] row: this.source) {
             this.processRow(row, lines.getCount());
             lines.increment(null);
@@ -461,6 +461,8 @@ public class ALAComparisonTool {
             String ok = this.original.getResult() != null ? this.original.getResult().getRankClassification().getKingdom() : null;
             if (!Objects.equals(lk, ok))
                 return "kingdom";
+            if (this.linnaean.isValid() && this.original.getResult() != null && Objects.equals(this.linnaean.getMatch().scientificName, this.original.getResult().getRankClassification().getScientificName()))
+                return "sameName";
             return "other";
          }
     }

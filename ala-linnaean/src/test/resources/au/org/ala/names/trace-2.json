@@ -69,13 +69,13 @@
             "orderId" : "https://id.biodiversity.org.au/taxon/apni/51702962",
             "class_" : "Equisetopsida",
             "soundexClass" : "EQISITAPSIDA",
-            "classId" : "https://id.biodiversity.org.au/taxon/apni/51733997",
+            "classId" : "https://id.biodiversity.org.au/taxon/apni/51744350",
             "phylum" : "Charophyta",
             "soundexPhylum" : "CARAPITA",
-            "phylumId" : "https://id.biodiversity.org.au/taxon/apni/51733998",
+            "phylumId" : "https://id.biodiversity.org.au/taxon/apni/51744351",
             "kingdom" : "Plantae",
             "soundexKingdom" : "PLANTI",
-            "kingdomId" : "https://id.biodiversity.org.au/taxon/apni/51733999",
+            "kingdomId" : "https://id.biodiversity.org.au/taxon/apni/51744352",
             "altScientificName" : "Acacia dealbata Link",
             "nameComplete" : "Acacia dealbata Link",
             "nameType" : "SCIENTIFIC",
@@ -88,14 +88,14 @@
           }
         },
         "probability" : {
-          "prior" : 3.2921604225940676E-6,
-          "evidence" : 3.260172499590886E-6,
-          "conditional" : 0.9902833383716148,
-          "posterior" : 0.999999728281394
+          "prior" : 3.2933261994276247E-6,
+          "evidence" : 3.2613269393971056E-6,
+          "conditional" : 0.990283338649932,
+          "posterior" : 0.9999997315924953
         },
         "fidelity" : null,
-        "left" : 280520,
-        "right" : 280524,
+        "left" : 293436,
+        "right" : 293440,
         "issues" : [ "http://ala.org.au/issues/1.0/acceptedAndSynonym", "http://ala.org.au/issues/1.0/removedFamily", "http://ala.org.au/issues/1.0/removedOrder" ]
       },
       "children" : [ {

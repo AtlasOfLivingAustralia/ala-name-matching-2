@@ -150,10 +150,12 @@ public class RankAnalysis extends EnumAnalysis<Rank, NomenclaturalCode> {
             return null;
         double fidelity = 0.0;
         if (actual != null) {
-            int oid = RankIDAnalysis.idFromRank(original);
-            int aid = RankIDAnalysis.idFromRank(actual);
-            double scale = oid > 7000 && aid > 7000 ? 4000.0 : 1000.0;
-            fidelity = 1.0 - Math.min(1.0, Math.abs(oid - aid) / scale);
+            Integer oid = RankIDAnalysis.idFromRank(original);
+            Integer aid = RankIDAnalysis.idFromRank(actual);
+            if (oid != null && aid != null) {
+                double scale = oid > 7000 && aid > 7000 ? 4000.0 : 1000.0;
+                fidelity = 1.0 - Math.min(1.0, Math.abs(oid - aid) / scale);
+            }
         }
         return new SimpleFidelity<>(original, actual, fidelity);
     }

@@ -214,8 +214,14 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
         if (trial.getMatch().voucher != null && results.stream().allMatch(m -> m == trial || m.getMatch().voucher == null))
             return trial.boost(results).with(AlaLinnaeanFactory.MULTIPLE_MATCHES);
         // See if we have a single accepted/variety of synonyms
-        if (tts.isAcceptedFlag() && results.stream().allMatch(m -> m == trial || m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike() && m.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName)))
-            return trial.boost(results).with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
+        if (tts.isAcceptedFlag() && results.stream().allMatch(m -> m == trial || m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isSynonymLike() && m.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName))) {
+            Match<AlaLinnaeanClassification, MatchMeasurement> base = trial.boost(results);
+            final String baseTaxonId = base.getAccepted().taxonId;
+            // Genuine synonym rather than all pointing to the same thing
+            if (baseTaxonId == null || results.stream().anyMatch(m -> !baseTaxonId.equals(m.getAccepted().taxonId)))
+                base = base.with(AlaLinnaeanFactory.ACCEPTED_AND_SYNONYM);
+            return base;
+        }
         // See if we have collection of misapplied results
         if (tts.isMisappliedFlag() && results.stream().allMatch(m -> m == trial || m.getMatch().taxonomicStatus != null && m.getMatch().taxonomicStatus.isMisappliedFlag() &&  m.getCandidate().matchClean(tn, AlaLinnaeanFactory.scientificName)))
             return trial.boost(results).with(AlaLinnaeanFactory.MISAPPLIED_NAME);
