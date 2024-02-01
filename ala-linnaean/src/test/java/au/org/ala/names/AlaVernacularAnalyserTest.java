@@ -1,5 +1,6 @@
 package au.org.ala.names;
 
+import au.org.ala.bayesian.AnalyserConfig;
 import au.org.ala.bayesian.Classifier;
 import au.org.ala.bayesian.MatchOptions;
 import au.org.ala.names.lucene.LuceneClassifier;
@@ -19,7 +20,8 @@ public class AlaVernacularAnalyserTest {
 
     @Before
     public void setUp() throws Exception {
-        this.analyser = new AlaVernacularAnalyser();
+        AnalyserConfig config = AnalyserConfig.builder().build();
+        this.analyser = new AlaVernacularAnalyser(config);
     }
 
     @Test

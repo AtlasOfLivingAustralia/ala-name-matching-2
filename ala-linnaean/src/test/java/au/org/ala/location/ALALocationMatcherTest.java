@@ -26,7 +26,7 @@ public class ALALocationMatcherTest {
         if (!index.exists())
             throw new IllegalStateException("Index " + index + " not present");
         this.searcher = new LuceneClassifierSearcher(index, null, AlaLocationFactory.locationId);
-        this.matcher = new ALALocationClassificationMatcher(AlaLocationFactory.instance(), this.searcher, null);
+        this.matcher = new ALALocationClassificationMatcher(AlaLocationFactory.instance(), this.searcher, null, null);
     }
 
     @After

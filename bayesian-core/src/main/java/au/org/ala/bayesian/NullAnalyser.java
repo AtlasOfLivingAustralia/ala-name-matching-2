@@ -1,5 +1,7 @@
 package au.org.ala.bayesian;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -14,6 +16,12 @@ import java.util.Set;
  * @param <C> The classification type.
  */
 public class NullAnalyser<C extends Classification<C>> implements Analyser<C> {
+    public NullAnalyser() {
+    }
+
+    public NullAnalyser(AnalyserConfig config) {
+    }
+
     @Override
     public void analyseForIndex(Classifier classifier) {
     }
@@ -32,5 +40,10 @@ public class NullAnalyser<C extends Classification<C>> implements Analyser<C> {
     @Override
     public boolean acceptSynonym(Classifier base, Classifier candidate) {
         return true;
+    }
+
+    @Override
+    public File writeConfiguration(File directory) throws IOException {
+        return null;
     }
 }

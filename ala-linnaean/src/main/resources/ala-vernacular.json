@@ -85,6 +85,20 @@
       }
     },
     {
+      "id": "scientificName",
+      "label": "SN",
+      "uri": "http://rs.tdwg.org/dwc/terms/scientificName",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/additional": true,
+        "http://ala.org.au/optimisation/1.0/loadFromClass": [
+          "http://rs.tdwg.org/dwc/terms/Taxon"
+        ]
+      },
+      "normaliser": "basic_normaliser",
+      "style": "PHRASE",
+      "multiplicity": "1"
+    },
+    {
       "id": "language",
       "label": "L",
       "uri": "http://purl.org/dc/terms/language",
@@ -147,6 +161,15 @@
          "http://ala.org.au/bayesian/1.0/additional": true
       },
       "style": "IDENTIFIER"
+    },
+    {
+      "id": "priority",
+      "label": "p",
+      "type": "java.lang.Integer",
+      "uri": "http://ala.org.au/terms/1.0/priority",
+      "properties": {
+        "http://ala.org.au/bayesian/1.0/additional": true
+       }
     },
     {
       "id": "weight",

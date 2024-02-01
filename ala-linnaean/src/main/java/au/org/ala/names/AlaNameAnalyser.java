@@ -2,6 +2,7 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.Observable;
 import au.org.ala.bayesian.*;
+import au.org.ala.vocab.ALATerm;
 import au.org.ala.vocab.BayesianTerm;
 import com.google.common.base.Enums;
 import org.apache.commons.text.StringEscapeUtils;
@@ -9,6 +10,7 @@ import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.nameparser.api.NameType;
 import org.gbif.nameparser.api.ParsedName;
 import org.gbif.nameparser.api.Rank;
+import org.gbif.nameparser.util.NameFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,15 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
      * A numeric or single letter placeholder name. We can extract the genus from this if we haven't already
      */
     public static final Pattern NUMERIC_PLACEHOLDER = Pattern.compile("^([A-Z][a-z]+)\\s(?:(?:" + RANK_MARKERS + ")\\.?\\s?)?(?:[A-Z]|\\d+)$");
+
+    /**
+     * Construct for a configuration
+     *
+     * @param config The configuration
+     */
+    public AlaNameAnalyser(AnalyserConfig config) {
+        super(config);
+    }
 
     /**
      * Remove any invalid entries from the classification before processing it.
@@ -217,6 +228,9 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
             classification.genus = name.getGenus();
         if (classification.cultivarEpithet == null && name.getCultivarEpithet() != null && !name.getCultivarEpithet().equals("?"))
             classification.cultivarEpithet = name.getCultivarEpithet();
+        if (classification.canonicalName == null) {
+            classification.canonicalName = name.canonicalNameWithoutAuthorship();
+        }
     }
 
 
@@ -312,6 +326,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         this.processEmbeddedAuthor(analysis, CANONICAL_MODIFICATION, null);
         this.parseName(analysis, UNPARSABLE_ISSUES);
         this.processParsedScientificName(analysis, CANONICAL_MODIFICATION, null);
+        this.processTrinomial(analysis, CANONICAL_MODIFICATION);
         this.fillOutClassifier(analysis, classifier);
         this.detectNumericPlaceholder(analysis, classifier);
         classifier.add(AlaLinnaeanFactory.scientificName, analysis.getScientificName(), false, true);
@@ -384,13 +399,18 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         };
         this.processRankEnding(analysis, true, INDETERMINATE_ISSUES, CANONICAL_MODIFICATION);
         this.processRankMarker(analysis, true, null, CANONICAL_MODIFICATION);
-        this.processEmbeddedAuthor(analysis, null, CANONICAL_MODIFICATION);
+        if (!analysis.isPhraseName())
+            this.processEmbeddedAuthor(analysis, null, CANONICAL_MODIFICATION);
         if (!phraseLike) {
             this.parseName(analysis, UNPARSABLE_ISSUES);
             this.processParsedScientificName(analysis, null, CANONICAL_MODIFICATION);
         }
+        this.processTrinomial(analysis, CANONICAL_MODIFICATION);
         this.fillOutClassification(analysis, classification);
         this.detectNumericPlaceholder(analysis, classification);
+        if (analysis.isPhraseName() && analysis.getParsedName() != null && classification.voucher != null) {
+            analysis.setScientificName(this.reducedPhraseName(analysis.getParsedName()));
+        }
         classification.scientificName = analysis.getScientificName();
         classification.scientificNameAuthorship = analysis.getScientificNameAuthorship();
         classification.taxonRank = analysis.isUnranked() ? null : analysis.getRank();
@@ -429,7 +449,7 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
 
         Analysis analysis = new Analysis(scientificName, scientificNameAuthorship, rank, code, MatchOptions.ALL);
 
-        Set<String> allScientificNameAuthorship = !canonical && disambiguator.isPresent() ? classifier.getAll(disambiguator.get()) : Collections.emptySet();
+        Set<String> allDisambiguators = !canonical && disambiguator.isPresent() ? classifier.getAll(disambiguator.get()) : Collections.emptySet();
         Set<String> allCompleteNames = !canonical && complete.isPresent() ? classifier.getAll(complete.get()) : Collections.emptySet();
         Set<String> allScientificNames = this.generateBaseNames(analysis, classifier, name);
 
@@ -464,8 +484,8 @@ public class AlaNameAnalyser extends ScientificNameAnalyser<AlaLinnaeanClassific
         }
 
         // Add name/author pairs
-        if (allCompleteNames.isEmpty() && !allScientificNameAuthorship.isEmpty()) {
-            allCompleteNames = allScientificNames.stream().flatMap(n -> allScientificNameAuthorship.stream().map(a -> n + " " + a)).collect(Collectors.toSet());
+        if (allCompleteNames.isEmpty() && !allDisambiguators.isEmpty()) {
+            allCompleteNames = allScientificNames.stream().flatMap(n -> allDisambiguators.stream().map(a -> n + " " + a)).collect(Collectors.toSet());
         }
         for (String nm : allCompleteNames) {
             analysis.addName(BASIC_NORMALISER.normalise(nm));

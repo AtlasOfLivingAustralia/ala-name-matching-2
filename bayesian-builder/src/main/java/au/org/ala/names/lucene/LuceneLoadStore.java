@@ -210,6 +210,13 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
         }
     }
 
+    /**
+     * Store the index metadata alongside the index.
+     *
+     * @param metadata The metadata
+     *
+     * @throws StoreException if unable to write the
+     */
     @Override
     public void store(Metadata metadata) throws StoreException {
         try {
@@ -227,6 +234,15 @@ public class LuceneLoadStore extends LoadStore<LuceneClassifier> {
             ObjectMapper mapper = JsonUtils.createMapper();
             File store = new File(this.dir.toFile(), NETWORK_FILE);
             mapper.writeValue(store, network);
+        } catch (Exception ex) {
+            throw new StoreException("Unable to write network", ex);
+        }
+    }
+
+    @Override
+    public void store(Analyser<?> analyser) throws StoreException {
+        try {
+            analyser.writeConfiguration(this.dir.toFile());
         } catch (Exception ex) {
             throw new StoreException("Unable to write network", ex);
         }

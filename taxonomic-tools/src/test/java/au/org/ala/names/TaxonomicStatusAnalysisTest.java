@@ -29,8 +29,9 @@ public class TaxonomicStatusAnalysisTest {
     public void testToStore1() throws Exception {
         assertNull(analysis.toStore(null));
         assertEquals("accepted", analysis.toStore(TaxonomicStatus.accepted));
+        assertEquals("unreviewed", analysis.toStore(TaxonomicStatus.unreviewed));
         assertEquals("inferredAccepted", analysis.toStore(TaxonomicStatus.inferredAccepted));
-        assertEquals("inferredAccepted", analysis.toStore(TaxonomicStatus.inferredAccepted));
+        assertEquals("synonym", analysis.toStore(TaxonomicStatus.synonym));
         assertEquals("homotypicSynonym", analysis.toStore(TaxonomicStatus.homotypicSynonym));
     }
 
@@ -60,6 +61,7 @@ public class TaxonomicStatusAnalysisTest {
         assertTrue(analysis.equivalent(TaxonomicStatus.objectiveSynonym, TaxonomicStatus.objectiveSynonym));
         assertTrue(analysis.equivalent(TaxonomicStatus.objectiveSynonym, TaxonomicStatus.homotypicSynonym));
         assertTrue(analysis.equivalent(TaxonomicStatus.accepted, TaxonomicStatus.inferredAccepted));
+        assertTrue(analysis.equivalent(TaxonomicStatus.unreviewed, TaxonomicStatus.inferredAccepted));
     }
 
     @Test

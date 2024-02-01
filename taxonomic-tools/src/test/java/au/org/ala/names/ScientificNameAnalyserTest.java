@@ -10,6 +10,7 @@ import org.gbif.nameparser.api.Rank;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -26,7 +27,9 @@ public class ScientificNameAnalyserTest {
 
     @Before
     public void setUp() throws Exception {
-        this.analyser = new ScientificNameAnalyser<TestClassification>() {
+        URL specialCases = this.getClass().getResource("special-case-1.csv");
+        AnalyserConfig config = AnalyserConfig.builder().specialCases(specialCases).build();
+        this.analyser = new ScientificNameAnalyser<TestClassification>(config) {
             @Override
             public void analyseForIndex(Classifier classifier) throws InferenceException {
                 throw new UnsupportedOperationException();
@@ -46,6 +49,7 @@ public class ScientificNameAnalyserTest {
             public boolean acceptSynonym(Classifier base, Classifier candidate) {
                 return true;
             }
+
         };
     }
 
@@ -702,6 +706,16 @@ public class ScientificNameAnalyserTest {
         assertEquals(DEFAULT_DETECTED_ISSUES, analysis.getIssues());
     }
 
+
+    // Make sure legit names are not removed
+    @Test
+    public void processCommentary6() {
+        Analysis analysis = new Analysis("Papaver hybridum L.", null, null, null, MatchOptions.ALL);
+        this.analyser.processCommentary(analysis, DEFAULT_DETECTED_ISSUES, DEFAULT_MODIFIED_ISSUES);
+        assertEquals("Papaver hybridum L.", analysis.getScientificName());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
     @Test
     public void parseName1() throws Exception {
         Analysis analysis = new Analysis("Toxotes chatareus", null, null, null, MatchOptions.ALL);
@@ -808,6 +822,18 @@ public class ScientificNameAnalyserTest {
         assertNotNull(analysis.getParsedName());
         assertEquals(ParsedName.State.COMPLETE, analysis.getParsedName().getState());
         assertEquals("Calyptorhynchus (Zanda) latirostris", analysis.getParsedName().canonicalNameComplete());
+        assertEquals(Issues.of(), analysis.getIssues());
+    }
+
+    @Test
+    public void parseName11() throws Exception {
+        Analysis analysis = new Analysis("Heliotropium sp. Ord River (W. Fitzgerald 1611) PN", null, null, null, MatchOptions.NONE);
+        this.analyser.parseName(analysis, DEFAULT_DETECTED_ISSUES);
+        assertNotNull(analysis.getParsedName());
+        assertTrue(analysis.getParsedName().isPhraseName());
+        assertEquals("Heliotropium sp. Ord River (W. Fitzgerald 1611) PN", analysis.getScientificName());
+        assertEquals(ParsedName.State.COMPLETE, analysis.getParsedName().getState());
+        assertEquals("Heliotropium sp. Ord River (W. Fitzgerald 1611) PN", analysis.getParsedName().canonicalName());
         assertEquals(Issues.of(), analysis.getIssues());
     }
 
@@ -1138,6 +1164,29 @@ public class ScientificNameAnalyserTest {
         Analysis analysis = new Analysis("Chromis hypsilepis", "(Günther, 1867)", Rank.SPECIES, NomenclaturalCode.ZOOLOGICAL, MatchOptions.ALL);
         assertNull(this.analyser.checkInvalid("*", analysis, DEFAULT_DETECTED_ISSUES, DEFAULT_MODIFIED_ISSUES));
         assertEquals(ALL_ISSUES, analysis.getIssues());
+    }
+
+    @Test
+    public void specialCases1() throws Exception {
+        Analysis analysis = new Analysis("Tephrosia rosea var. Fortescue creeks", null, null, null, MatchOptions.ALL);
+        this.analyser.parseName(analysis, DEFAULT_MODIFIED_ISSUES);
+        ParsedName name = analysis.getParsedName();
+        assertFalse(name.isCandidatus());
+        assertNull(name.getCultivarEpithet());
+        assertNull(name.getCode());
+        assertNull(name.getInfragenericEpithet());
+        assertNull(name.getInfraspecificEpithet());
+        assertNull(name.getNotho());
+        assertNull(name.getUninomial());
+        assertFalse(name.getBasionymAuthorship().exists());
+        assertFalse(name.getCombinationAuthorship().exists());
+        assertNull(name.getNominatingParty());
+        assertEquals("Tephrosia", name.getGenus());
+        assertEquals("rosea", name.getSpecificEpithet());
+        assertEquals("Fortescue creeks", name.getPhrase());
+        assertEquals(Rank.VARIETY, name.getRank());
+        assertNull(name.getVoucher());
+        assertEquals(NameType.INFORMAL, name.getType());
     }
 
     // Sort out type argument subtype problems

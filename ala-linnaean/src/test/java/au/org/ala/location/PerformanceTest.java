@@ -61,7 +61,7 @@ public class PerformanceTest {
                 .statistics(true)
                 .build();
         this.searcher = new LuceneClassifierSearcher(location, sConfig, AlaLocationFactory.locationId);
-        this.matcher = new ALALocationClassificationMatcher(AlaLocationFactory.instance(), this.searcher, cConfig);
+        this.matcher = new ALALocationClassificationMatcher(AlaLocationFactory.instance(), this.searcher, cConfig, null);
     }
 
     @After

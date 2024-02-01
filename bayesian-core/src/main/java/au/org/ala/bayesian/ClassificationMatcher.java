@@ -127,13 +127,14 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
      * @param factory  The factory for creating objects for the matcher to work on
      * @param searcher The mechanism for getting candidiates
      * @param config   The configuration. If null a default configuration is used.
+     * @param analyserConfig The analyser configuration
      */
-    public ClassificationMatcher(F factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config) {
+    public ClassificationMatcher(F factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig) {
         this.config = config != null ? config : ClassificationMatcherConfiguration.builder().build();
         this.factory = factory;
         this.searcher = searcher;
         this.inferencer = this.factory.createInferencer();
-        this.analyser = this.factory.createAnalyser();
+        this.analyser = this.factory.createAnalyser(analyserConfig);
         this.identifier = this.factory.getIdentifier();
         this.accepted = this.factory.getAccepted();
         if (this.config.isEnableJmx()) {

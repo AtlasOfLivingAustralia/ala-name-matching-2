@@ -204,9 +204,11 @@ public class ${className}<#if superClassName??> extends ${superClassName}</#if> 
     }
 </#list>
 <#list approximateNameNodes as node>
+    <#assign oType><#if node.observable.type??>${node.observable.type.simpleName}<#else>String</#if></#assign>
     if (this.${node.observable.javaVariable} != null) {
         final int maxLength = Math.min(this.${node.observable.javaVariable}.length(), MAX_VALID_LENGTH);
-        if (!candidate.getAll(${factoryClassName}.${node.observable.javaVariable}).stream().anyMatch(v -> this.${node.observable.javaVariable}.regionMatches(0, v.toString(), 0, maxLength)))
+        final Set<${oType}> matches = candidate.getAll(${factoryClassName}.${node.observable.javaVariable});
+        if (matches != null && !matches.isEmpty() && !matches.stream().anyMatch(v -> this.${node.observable.javaVariable}.regionMatches(0, v.toString(), 0, maxLength)))
           return false;
     }
 </#list>

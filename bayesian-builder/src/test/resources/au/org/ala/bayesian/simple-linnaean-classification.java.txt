@@ -238,7 +238,8 @@ public class SimpleLinnaeanClassification implements Classification<SimpleLinnae
   public boolean isValidCandidate(Classifier candidate) throws BayesianException {
     if (this.soundexScientificName != null) {
         final int maxLength = Math.min(this.soundexScientificName.length(), MAX_VALID_LENGTH);
-        if (!candidate.getAll(SimpleLinnaeanFactory.soundexScientificName).stream().anyMatch(v -> this.soundexScientificName.regionMatches(0, v.toString(), 0, maxLength)))
+        final Set<String> matches = candidate.getAll(SimpleLinnaeanFactory.soundexScientificName);
+        if (matches != null && !matches.isEmpty() && !matches.stream().anyMatch(v -> this.soundexScientificName.regionMatches(0, v.toString(), 0, maxLength)))
           return false;
     }
     return true;

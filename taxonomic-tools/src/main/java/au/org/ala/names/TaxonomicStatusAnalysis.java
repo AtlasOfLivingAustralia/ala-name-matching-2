@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 public class TaxonomicStatusAnalysis extends EnumAnalysis<TaxonomicStatus, Object> {
     /** Taxonomic status to treat as equivalent */
     private static final List<List<TaxonomicStatus>> EQUIVALENCE_CLASSES = Arrays.asList(
-            Arrays.asList(TaxonomicStatus.accepted, TaxonomicStatus.inferredAccepted),
+            Arrays.asList(TaxonomicStatus.accepted, TaxonomicStatus.unreviewed, TaxonomicStatus.inferredAccepted),
             // Don't really care what sort of synonym
-            Arrays.asList(TaxonomicStatus.synonym, TaxonomicStatus.inferredSynonym, TaxonomicStatus.heterotypicSynonym, TaxonomicStatus.homotypicSynonym, TaxonomicStatus.objectiveSynonym, TaxonomicStatus.subjectiveSynonym, TaxonomicStatus.proParteSynonym),
+            Arrays.asList(TaxonomicStatus.synonym, TaxonomicStatus.unreviewedSynonym, TaxonomicStatus.inferredSynonym, TaxonomicStatus.heterotypicSynonym, TaxonomicStatus.homotypicSynonym, TaxonomicStatus.objectiveSynonym, TaxonomicStatus.subjectiveSynonym, TaxonomicStatus.proParteSynonym),
             Arrays.asList(TaxonomicStatus.excluded, TaxonomicStatus.inferredExcluded),
             Arrays.asList(TaxonomicStatus.unplaced, TaxonomicStatus.inferredUnplaced, TaxonomicStatus.incertaeSedis, TaxonomicStatus.speciesInquirenda),
             Arrays.asList(TaxonomicStatus.invalid, TaxonomicStatus.inferredInvalid),

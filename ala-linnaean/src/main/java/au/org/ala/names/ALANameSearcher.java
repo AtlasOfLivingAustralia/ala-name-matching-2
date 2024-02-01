@@ -25,7 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -53,11 +55,10 @@ public class ALANameSearcher implements AutoCloseable {
     @Getter
     private final ALALocationClassificationMatcher locationMatcher;
     private final File suggesterDir;
-    @Getter(lazy = true)
-    private final LuceneClassifierSuggester suggester = buildSuggester();
+    private final AtomicReference<LuceneClassifierSuggester> suggester;
     private final RankAnalysis rankAnalysis;
 
-    public ALANameSearcher(ALANameSearcherConfiguration config) throws BayesianException {
+    public ALANameSearcher(ALANameSearcherConfiguration config) throws BayesianException, IOException {
         this.config = config;
         if (!this.config.getLinnaean().exists())
             throw new IllegalArgumentException("Can't find linnaean index " + this.config.getLinnaean());
@@ -66,14 +67,30 @@ public class ALANameSearcher implements AutoCloseable {
         if (!this.config.getLocation().exists())
             throw new IllegalArgumentException("Can't find location index " + this.config.getLocation());
         this.locationSearcher = new LuceneClassifierSearcher(this.config.getLocation(), this.config.getSearcherConfiguration(), AlaLocationFactory.locationId);
-        this.locationMatcher = new ALALocationClassificationMatcher(AlaLocationFactory.instance(), this.locationSearcher, this.config.getMatcherConfiguration());
+        this.locationMatcher = new ALALocationClassificationMatcher(AlaLocationFactory.instance(), this.locationSearcher, this.config.getMatcherConfiguration(), AnalyserConfig.load(this.config.getLocation()));
         Set<String> localities = this.buildLocalities(this.config.getLocalities());
         this.searcher = new LuceneClassifierSearcher(this.config.getLinnaean(), this.config.getSearcherConfiguration(), AlaLinnaeanFactory.taxonId);
-        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, this.config.getMatcherConfiguration(), localities);
+        this.matcher = new ALAClassificationMatcher(AlaLinnaeanFactory.instance(), this.searcher, this.config.getMatcherConfiguration(), AnalyserConfig.load(this.config.getLinnaean()), localities);
         this.vernacularSearcher = new LuceneClassifierSearcher(this.config.getVernacular(), this.config.getSearcherConfiguration(), AlaVernacularFactory.taxonId);
-        this.vernacularMatcher = new ALAVernacularClassificationMatcher(AlaVernacularFactory.instance(), this.vernacularSearcher, this.config.getMatcherConfiguration());
+        this.vernacularMatcher = new ALAVernacularClassificationMatcher(AlaVernacularFactory.instance(), this.vernacularSearcher, this.config.getMatcherConfiguration(), AnalyserConfig.load(this.config.getVernacular()));
         this.suggesterDir = this.config.getSuggester();
+        this.suggester = new AtomicReference<>();
         this.rankAnalysis = new RankAnalysis();
+     }
+
+    /**
+     * Get the suggester.
+     * <p>
+     * This is lazily built on first use
+     * </p>
+     *
+     * @return The suggester
+     */
+     public LuceneClassifierSuggester getSuggester() {
+        if (this.suggester.get() == null) {
+            this.suggester.compareAndSet(null, this.buildSuggester());
+        }
+        return this.suggester.get();
      }
 
     /**
@@ -106,8 +123,8 @@ public class ALANameSearcher implements AutoCloseable {
      */
     @Override
     public void close() throws Exception {
-        if (this.suggester != null)
-            this.getSuggester().close();
+        if (this.suggester.get() != null)
+            this.suggester.get().close();
         this.matcher.close();
         this.vernacularMatcher.close();
         this.locationMatcher.close();

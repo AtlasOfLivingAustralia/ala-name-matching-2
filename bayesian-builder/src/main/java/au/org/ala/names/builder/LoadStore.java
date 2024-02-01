@@ -230,6 +230,13 @@ abstract public class LoadStore<C extends Classifier> implements LoadStoreMXBean
     abstract public void store(Network network) throws StoreException;
 
     /**
+     * Store a name analyser configurayion
+     *
+     * @param analyser The analyser
+     */
+    abstract public void store(Analyser<?> analyser) throws StoreException;
+
+    /**
      * Get a parameter analyser for  this store.
      *
      * @param network The underlying network

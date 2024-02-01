@@ -28,8 +28,8 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>generate-linnaean.sh</include>
+                <include>generate-location.sh</include>
                 <include>generate-vernacular.sh</include>
-                <include>match.sh</include>
             </includes>
         </fileSet>
     </fileSets>

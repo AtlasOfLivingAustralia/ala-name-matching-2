@@ -329,7 +329,7 @@ public class NetworkCompiler {
      * @return The set of variables to use.
      */
     public Set<CompiledDerivation.Variable> getCompiledDerivationVariables(Function<CompiledDerivation, Collection<CompiledDerivation.Variable>> getter) {
-        Set<CompiledDerivation.Variable> variables = new HashSet<>();
+        Set<CompiledDerivation.Variable> variables = new LinkedHashSet<>(); // Ordered set to give consistency in code generation
 
         for (Observable observable: this.network.getVertices()) {
             if (observable.getDerivation() != null && observable.getDerivation().isCompiled()) {

@@ -1,7 +1,11 @@
 package au.org.ala.bayesian;
 
 import au.org.ala.util.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
@@ -18,9 +22,14 @@ import java.util.Set;
  * They can be used by multiple clients to analyse
  * </p>
  *
+ * @param <C> The classifier that this analyser handles
+ *
  */
 @Service
 public interface Analyser<C extends Classification<C>> {
+    /** The default name for the analyser configuration */
+    static final String CONFIG_FILE = "analyser-config.json";
+
     /**
      * Analyse the information in a classifier and extend the classifier
      * as required in preparation for building an index.
@@ -84,4 +93,21 @@ public interface Analyser<C extends Classification<C>> {
      * @return True if this is an acceptable synonym.
      */
     boolean acceptSynonym(Classifier base, Classifier candidate);
+
+    /**
+     * Write the configuration needed by this analyser into a directory.
+     * <p>
+     * This may include a {@link AnalyserConfig} and any ancillary files that may be needed.
+     * The default implementation returns null for no configuration needed.
+     * </p>
+     *
+     * @param directory The directory to write to
+     *
+     * @return The file the configuration has been written to, ot null for nothing written.
+     *
+     * @throws IOException if unable to write the configuration
+     */
+    default File writeConfiguration(File directory) throws IOException {
+        return null;
+    }
 }

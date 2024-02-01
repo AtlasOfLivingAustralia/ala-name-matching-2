@@ -4,6 +4,7 @@ import au.org.ala.bayesian.ClassificationMatcher;
 import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.ClassifierSearcher;
 import au.org.ala.bayesian.Analyser;
+import au.org.ala.bayesian.AnalyserConfig;
 import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.NetworkFactory;
 import au.org.ala.bayesian.Normaliser;
@@ -73,6 +74,8 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
 
   public static final Term CONCEPT = TERM_FACTORY.findTerm("http://ala.org.au/bayesian/1.0/Concept");
 
+  public static final List<Observable<?>> KEY = null;
+
 
   public static final List<Term> ISSUES = Collections.unmodifiableList(Arrays.asList(
           BayesianTerm.illformedData,
@@ -130,6 +133,11 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
   }
 
   @Override
+  public List<Observable<?>> getKey() {
+    return KEY;
+  }
+
+  @Override
   public GrassClassification createClassification() {
       return new GrassClassification();
   }
@@ -140,13 +148,13 @@ public class GrassFactory implements NetworkFactory<GrassClassification, GrassIn
   }
 
   @Override
-  public Analyser<GrassClassification> createAnalyser() {
+  public Analyser<GrassClassification> createAnalyser(AnalyserConfig config) {
         return new au.org.ala.bayesian.NullAnalyser<>();
   }
 
   @Override
-  public ClassificationMatcher<GrassClassification, GrassInferencer, GrassFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config){
-        return new ClassificationMatcher<>(this, searcher, config);
+  public ClassificationMatcher<GrassClassification, GrassInferencer, GrassFactory, MatchMeasurement> createMatcher(ClassifierSearcher searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig){
+        return new ClassificationMatcher<>(this, searcher, config, analyserConfig);
   }
 
   public static GrassFactory instance() {

@@ -19,6 +19,7 @@ import java.util.*;
 @TraceDescriptor(identify = true, description = "getFullDescription")
 public class Match<C extends Classification<C>, M extends MatchMeasurement> {
     private static final Match<?, ?> INVALID_MATCH = new Match<>(null, null, null, null, null, null, null, Issues.of(BayesianTerm.invalidMatch), null, null);
+    private static final Match<?, ?> EMPTY_MATCH = new Match<>(null, null, null, null, null, null, null, Issues.of(), null, null);
 
     /** The classification that was actually searched for */
     private C actual;
@@ -257,4 +258,15 @@ public class Match<C extends Classification<C>, M extends MatchMeasurement> {
     public static <T extends Classification<T>, M extends MatchMeasurement> Match<T, M> invalidMatch() {
         return (Match<T, M>) INVALID_MATCH;
     }
+
+
+    /**
+     * Create an empty match
+     *
+     * @return The empty match singleton
+     */
+    public static <T extends Classification<T>, M extends MatchMeasurement> Match<T, M> emptyMatch() {
+        return (Match<T, M>) EMPTY_MATCH;
+    }
+
 }

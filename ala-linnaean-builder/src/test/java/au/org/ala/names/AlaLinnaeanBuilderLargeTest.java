@@ -72,7 +72,7 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
     public void setUp() throws Exception {
         this.factory = AlaLinnaeanFactory.instance();
         this.searcher = new LuceneClassifierSearcher(this.output, null, this.factory.getIdentifier().get());
-        this.matcher = this.factory.createMatcher(this.searcher, null);
+        this.matcher = this.factory.createMatcher(this.searcher, null, AnalyserConfig.load(this.output));
     }
 
     @After

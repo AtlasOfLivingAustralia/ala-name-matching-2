@@ -33,12 +33,12 @@ public class SimpleLinnaeanBuilder implements Builder<SimpleLinnaeanClassificati
 
   private Map<String, Builder> subBuilders;
 
-  private PrefixGenerator prefixer;
   private SoundexGenerator soundex;
+  private PrefixGenerator prefixer;
 
   public SimpleLinnaeanBuilder() {
-    this.prefixer = new PrefixGenerator();
     this.soundex = new SoundexGenerator();
+    this.prefixer = new PrefixGenerator();
     this.subBuilders = new HashMap<>(BUILDERS.length);
     for (Builder b: BUILDERS)
       this.subBuilders.put(b.getSignature(), b);
