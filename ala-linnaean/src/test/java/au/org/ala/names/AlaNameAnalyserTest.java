@@ -1,9 +1,6 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.Classifier;
-import au.org.ala.bayesian.InferenceException;
-import au.org.ala.bayesian.Issues;
-import au.org.ala.bayesian.MatchOptions;
+import au.org.ala.bayesian.*;
 import au.org.ala.names.lucene.LuceneClassifier;
 import au.org.ala.vocab.BayesianTerm;
 import org.gbif.api.vocabulary.NomenclaturalCode;
@@ -14,6 +11,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,7 +26,9 @@ public class AlaNameAnalyserTest {
 
     @Before
     public void setUp() throws Exception {
-        this.analyser = new AlaNameAnalyser();
+        URL specialCases = this.getClass().getResource("name-analyser-special.csv");
+        AnalyserConfig config = AnalyserConfig.builder().specialCases(specialCases).build();
+        this.analyser = new AlaNameAnalyser(config);
     }
 
     @Test
@@ -141,23 +141,6 @@ public class AlaNameAnalyserTest {
         assertEquals(Rank.SERIES, classifier.get(AlaLinnaeanFactory.taxonRank));
         assertEquals(NameType.SCIENTIFIC, classifier.get(AlaLinnaeanFactory.nameType));
     }
-
-    @Test
-    public void testAnalyseForIndex10() throws Exception {
-        Classifier classifier = new LuceneClassifier();
-        classifier.add(AlaLinnaeanFactory.scientificName, "Goodenia sp. Bachsten Creek (M.D.Barrett 685) WA Herbarium", false, false);
-        this.analyser.analyseForIndex(classifier);
-        assertEquals("Goodenia sp. Bachsten Creek (M.D.Barrett 685)", classifier.get(AlaLinnaeanFactory.scientificName));
-        assertEquals("WA Herbarium", classifier.get(AlaLinnaeanFactory.nominatingParty));
-        assertEquals("Goodenia", classifier.get(AlaLinnaeanFactory.genus));
-        assertEquals("BACHSTENCREEK", classifier.get(AlaLinnaeanFactory.phraseName));
-        assertEquals("MDBARRETT685", classifier.get(AlaLinnaeanFactory.voucher));
-        assertNull(classifier.get(AlaLinnaeanFactory.specificEpithet));
-        assertNull(classifier.get(AlaLinnaeanFactory.scientificNameAuthorship));
-        assertEquals(Rank.SPECIES, classifier.get(AlaLinnaeanFactory.taxonRank));
-        assertEquals(NameType.INFORMAL, classifier.get(AlaLinnaeanFactory.nameType));
-    }
-
     @Test
     public void testAnalyseForIndex11() throws Exception {
         Classifier classifier = new LuceneClassifier();
@@ -329,8 +312,9 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Sida sp. Walhallow Station (C.Edgood 28/Oct/94)";
         this.analyser.analyseForSearch(classification, MatchOptions.ALL);
-        assertEquals("Sida sp. Walhallow Station (C.Edgood 28/Oct/94)", classification.scientificName);
+        assertEquals("Sida sp. Walhallow Station", classification.scientificName);
         assertEquals("Sida", classification.genus);
+        assertEquals("CEDGOOD28OCT94", classification.voucher);
         assertNull(classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
         assertEquals(NameType.INFORMAL, classification.nameType);
@@ -342,7 +326,7 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Goodenia sp. Bachsten Creek (M.D.Barrett 685) WA Herbarium";
         this.analyser.analyseForSearch(classification, MatchOptions.ALL);
-        assertEquals("Goodenia sp. Bachsten Creek (M.D.Barrett 685)", classification.scientificName);
+        assertEquals("Goodenia sp. Bachsten Creek", classification.scientificName);
         assertEquals("WA Herbarium", classification.nominatingParty);
         assertEquals("Goodenia", classification.genus);
         assertEquals("BACHSTENCREEK", classification.phraseName);
@@ -668,7 +652,9 @@ public class AlaNameAnalyserTest {
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Sida sp. Walhallow Station (C.Edgood 28/Oct/94)";
         this.analyser.analyseForSearch(classification, MatchOptions.NONE);
-        assertEquals("Sida sp. Walhallow Station (C.Edgood 28/Oct/94)", classification.scientificName);
+        assertEquals("Sida sp. Walhallow Station", classification.scientificName);
+        assertEquals("CEDGOOD28OCT94", classification.voucher);
+        assertEquals("WALHALLOWSTATION", classification.phraseName);
         assertEquals("Sida", classification.genus);
         assertNull(classification.specificEpithet);
         assertEquals(Rank.SPECIES, classification.taxonRank);
@@ -724,6 +710,21 @@ public class AlaNameAnalyserTest {
         assertEquals(Rank.SPECIES, classification.taxonRank);
         assertEquals(NameType.PLACEHOLDER, classification.nameType);
         assertEquals(Issues.of(AlaLinnaeanFactory.BARE_PHRASE_NAME), classification.getIssues());
+    }
+
+    @Test
+    public void testAnalyseForSearch40() throws Exception {
+        AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
+        classification.scientificName = "Grevillea brachystylis subsp. Busselton (G.J.Keighery s.n. 28/8/1985)";
+        this.analyser.analyseForSearch(classification, MatchOptions.NONE);
+        assertEquals("Grevillea brachystylis subsp. Busselton", classification.scientificName);
+        assertEquals("GJKEIGHERY2881985", classification.voucher);
+        assertEquals("BUSSELTON", classification.phraseName);
+        assertEquals("Grevillea", classification.genus);
+        assertEquals("brachystylis", classification.specificEpithet);
+        assertEquals(Rank.SUBSPECIES, classification.taxonRank);
+        assertEquals(NameType.INFORMAL, classification.nameType);
+        assertEquals(Issues.of(), classification.getIssues());
     }
 
     @Test
@@ -1094,6 +1095,33 @@ public class AlaNameAnalyserTest {
         assertTrue(names.contains("Corymbosae"));
     }
 
+    @Test
+    public void testAnalyseNames31() throws Exception {
+        Classifier classifier = new LuceneClassifier();
+        classifier.add(AlaLinnaeanFactory.nameComplete, "Goodenia sp. Bachsten Creek (M.D.Barrett 685) WA Herbarium", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Goodenia sp. Bachsten Creek (M.D.Barrett 685)", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "WA Herbarium", false, false);
+        Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.of(AlaLinnaeanFactory.nameComplete), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), false);
+        assertNotNull(names);
+        assertEquals(3, names.size());
+        assertTrue(names.contains("Goodenia sp. Bachsten Creek (M.D.Barrett 685)"));
+        assertTrue(names.contains("Goodenia sp. Bachsten Creek"));
+        assertTrue(names.contains("Goodenia sp. Bachsten Creek (M.D.Barrett 685) WA Herbarium"));
+    }
 
+    // Unconventional capitalisation stops detection of phrase name
+    @Test
+    public void testAnalyseNames32() throws Exception {
+        Classifier classifier = new LuceneClassifier();
+        classifier.add(AlaLinnaeanFactory.nameComplete, "Tephrosia rosea var. Fortescue creeks (M.I.H. Brooker 2186) Qld Herbarium", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificName, "Tephrosia rosea var. Fortescue creeks (M.I.H. Brooker 2186)", false, false);
+        classifier.add(AlaLinnaeanFactory.scientificNameAuthorship, "Qld Herbarium", false, false);
+        Set<String> names = this.analyser.analyseNames(classifier, AlaLinnaeanFactory.scientificName, Optional.of(AlaLinnaeanFactory.nameComplete), Optional.of(AlaLinnaeanFactory.scientificNameAuthorship), false);
+        assertNotNull(names);
+        assertEquals(3, names.size());
+        assertTrue(names.contains("Tephrosia rosea var. Fortescue creeks (M.I.H. Brooker 2186) Qld Herbarium"));
+        assertTrue(names.contains("Tephrosia rosea var. Fortescue creeks (M.I.H. Brooker 2186)"));
+        assertTrue(names.contains("Tephrosia rosea var. Fortescue creeks"));
+    }
 
 }

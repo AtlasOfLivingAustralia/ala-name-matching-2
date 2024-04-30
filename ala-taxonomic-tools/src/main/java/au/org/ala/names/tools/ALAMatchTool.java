@@ -1,9 +1,9 @@
-package au.org.ala.names;
+package au.org.ala.names.tools;
 
-import au.org.ala.bayesian.ClassificationMatcherConfiguration;
-import au.org.ala.bayesian.ClassifierSearcher;
-import au.org.ala.bayesian.MatchMeasurement;
-import au.org.ala.bayesian.MatchTool;
+import au.org.ala.bayesian.*;
+import au.org.ala.names.AlaLinnaeanClassification;
+import au.org.ala.names.AlaLinnaeanFactory;
+import au.org.ala.names.AlaLinnaeanInferencer;
 import au.org.ala.names.lucene.LuceneClassifierSearcher;
 import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
 import com.beust.jcommander.JCommander;
@@ -19,8 +19,8 @@ public class ALAMatchTool extends MatchTool<AlaLinnaeanClassification, AlaLinnae
     private final CSVReader source;
     private final CSVWriter report;
 
-    public ALAMatchTool(ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, boolean instrument, Reader input, Writer output) {
-        super(AlaLinnaeanFactory.instance(), searcher, config, instrument);
+    public ALAMatchTool(ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig, boolean instrument, Reader input, Writer output) {
+        super(AlaLinnaeanFactory.instance(), searcher, config, analyserConfig, instrument);
         this.source = new CSVReader(input);
         this.report = new CSVWriter(output);
     }
@@ -94,7 +94,8 @@ public class ALAMatchTool extends MatchTool<AlaLinnaeanClassification, AlaLinnae
         ClassificationMatcherConfiguration cConfig = ClassificationMatcherConfiguration.builder()
                 .statistics(args.statistics)
                 .build();
-        ALAMatchTool tool = new ALAMatchTool(searcher, cConfig, args.measure, input, output);
+        AnalyserConfig analyserConfig = AnalyserConfig.load(index);
+        ALAMatchTool tool = new ALAMatchTool(searcher, cConfig, analyserConfig, args.measure, input, output);
         tool.run();
     }
 

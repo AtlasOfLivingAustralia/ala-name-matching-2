@@ -19,9 +19,10 @@ public class ALAVernacularClassificationMatcher extends ClassificationMatcher<Al
      * @param factory  The factory for creating objects for the matcher to work on
      * @param searcher The mechanism for getting candidiates
      * @param config The classificatio configuration
+     * @param analyserConfig The analyser configuration
      */
-    public ALAVernacularClassificationMatcher(AlaVernacularFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config) {
-        super(factory, searcher, config);
+    public ALAVernacularClassificationMatcher(AlaVernacularFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig) {
+        super(factory, searcher, config, analyserConfig);
     }
 
     /**

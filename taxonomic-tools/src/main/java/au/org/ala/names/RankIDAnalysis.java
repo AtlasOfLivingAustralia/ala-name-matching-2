@@ -210,7 +210,11 @@ public class RankIDAnalysis extends RangeAnalysis {
     public static Integer idFromRank(Rank rank) {
         if (rank == null)
             return null;
-        return RANK_MAP.get(rank);
+        Integer id = RANK_MAP.get(rank);
+        if (id == null) {
+            logger.warn("Unable to find rank ID for " + rank);
+        }
+        return id;
     }
 
 }

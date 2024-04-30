@@ -2,6 +2,8 @@ package au.org.ala.names;
 
 import au.org.ala.bayesian.*;
 import au.org.ala.util.BasicNormaliser;
+import au.org.ala.util.JsonUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Enums;
 import lombok.Getter;
 import lombok.NonNull;
@@ -14,8 +16,15 @@ import org.gbif.nameparser.NameParserGBIF;
 import org.gbif.nameparser.api.*;
 import org.gbif.nameparser.util.NameFormatter;
 import org.gbif.nameparser.util.RankUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,8 +35,14 @@ import java.util.stream.Collectors;
  *
  * @param <C> The classification
  */
-abstract public class ScientificNameAnalyser<C extends Classification<C>> implements Analyser<C> {
+abstract public class ScientificNameAnalyser<C extends Classification<C>> implements Analyser<C>, Cloneable {
+    private static final Logger logger = LoggerFactory.getLogger(ScientificNameAnalyser.class);
+
     protected static final ThreadLocal<NameParser> PARSER = ThreadLocal.withInitial(NameParserGBIF::new);
+
+
+    /** The standard name to write this special case parser to */
+    public static final String SPECIAL_CASE_NAMES = "special-case-names.csv";
 
     /**
      * A string giving a regular expression for all rank markers
@@ -67,12 +82,13 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
             .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
             .collect(Collectors.joining("|"));
     /**
-     * A string giving a regular expression for rank markers with capitalised first letter
+     * A string giving a regular expression for rank markers with capitalised first letter.
+     * Keep any abbreviation markers so that place names with the same sort of structure pass through
      */
     public static final String CAPITALISED_RANK_MARKERS = Arrays.stream(org.gbif.nameparser.api.Rank.values())
             .map(Rank::getMarker)
             .filter(Objects::nonNull)
-            .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) : m)
+            .map(m -> m.endsWith(".") ? m.substring(0, m.length() - 1) + "\\." : m)
             .map(m -> m.substring(0, 1).toUpperCase() + m.substring(1))
             .collect(Collectors.joining("|"));
     /**
@@ -194,6 +210,29 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
      * Analyse rank names
      */
     protected final RankAnalysis rankAnalysis = new RankAnalysis();
+
+    /**
+     * Special case parsing
+     */
+    protected SpecialCaseNameParser special = null;
+
+    /**
+     * Construct for a configuration.
+     * <p>
+     * If a special case URL is specified, the special case data is read from
+     * the associated CSV file into a {@link SpecialCaseNameParser}
+     * </p>
+     * @param config The analyser configuration
+     */
+    public ScientificNameAnalyser(AnalyserConfig config) {
+        if (config != null && config.getSpecialCases() != null) {
+            try {
+                this.special = SpecialCaseNameParser.fromCSV(config.getSpecialCases());
+            } catch (Exception ex) {
+                logger.error("Unable to read special cases from " + config.getSpecialCases(), ex);
+            }
+        }
+    }
 
     /**
      * Normalse runs of spaces into a single space
@@ -652,7 +691,40 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
         );
     }
 
+
+    /**
+     * Generate a reduced version of a phrase name.
+     *
+     * @param name The name
+     * @return A name without weird additions
+     */
+    protected String reducedPhraseName(ParsedName name) {
+        if (!name.isPhraseName())
+            return this.reducedName(name);
+        StringBuilder reducedName = new StringBuilder(); // Can't use NameFormatter because subspecies-level phrase gets fubar'd
+        reducedName.append(name.getGenus());
+        if (name.getSpecificEpithet() != null) {
+            reducedName.append(" ");
+            reducedName.append(name.getSpecificEpithet());
+        }
+        if (name.getInfraspecificEpithet() != null) {
+            reducedName.append(" ");
+            reducedName.append(name.getInfraspecificEpithet());
+        }
+        reducedName.append(" ");
+        reducedName.append(name.getRank().getMarker());
+        reducedName.append(" ");
+        reducedName.append(name.getPhrase());
+        return reducedName.toString();
+    }
+
     protected void parseName(Analysis analysis, Issues unparsable) throws InferenceException {
+        // First look for pathological special cases
+        ParsedName name = this.special == null ? null : this.special.get(analysis.scientificName);
+        if (name != null) {
+            analysis.setParsedName(name);
+            return;
+        }
         // Skip cases which look like trouble
         Matcher matcher = UNPARSABLE_NAME.matcher(analysis.scientificName);
         if (matcher.find()) {
@@ -664,7 +736,7 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
         try {
             NameParser parser = PARSER.get();
             NomCode nomCode = analysis.nomenclaturalCode == null ? null : Enums.getIfPresent(NomCode.class, analysis.nomenclaturalCode.name()).orNull();
-            ParsedName name = parser.parse(analysis.scientificName, analysis.getRank(), nomCode);
+            name = parser.parse(analysis.scientificName, analysis.getRank(), nomCode);
             analysis.setParsedName(name);
          } catch (InterruptedException | UnparsableNameException e) {
             analysis.setParsedName(null);
@@ -716,13 +788,45 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
                 analysis.addIssues(detectedIssues);
                 if (analysis.isCanonicalDerivations()) {
                     analysis.addIssues(modifiedIssues);
-                    analysis.setScientificName(this.reducedName(name));
+                    analysis.setScientificName(reducedName);
                 }
+            }
+            reducedName = this.reducedPhraseName(name);
+            if (!reducedName.equals(analysis.getScientificName())) {
+                analysis.addName(this.reducedPhraseName(name));
             }
             analysis.estimateNomenclaturalCode(NomenclaturalCode.BOTANICAL);
         }
         return true;
     }
+
+    /**
+     * Process trinomial names
+     * <p>
+     * Trinomials, particularly autonyms, are constant problems with embedded authors and the like.
+     * So reduce to a canonical form.
+     * </p>
+     *
+     * @param analysis The current analysis
+     * @param issues The issues to add if detected
+     *
+     * @throws InferenceException if unable to handle the name
+     */
+    protected void processTrinomial(Analysis analysis, Issues issues) throws InferenceException {
+        ParsedName name = analysis.getParsedName();
+        if (name == null)
+            return;
+        if (name.isTrinomial() && name.getUnparsed() == null) { // Unparsed usually means some sort of mystery comment
+            String canonical = name.canonicalNameWithoutAuthorship();
+            String minimal = name.canonicalNameMinimal();
+            if (!analysis.getNames().contains(canonical) && !analysis.getNames().contains(minimal)) {
+                analysis.setScientificName(canonical);
+                analysis.addIssues(issues);
+            }
+            analysis.estimateRank(name.getRank());
+        }
+    }
+
 
     /**
      * Add variants of the parsed name.
@@ -824,6 +928,37 @@ abstract public class ScientificNameAnalyser<C extends Classification<C>> implem
             }
         }
         return name;
+    }
+
+    /**
+     * Store the analuster configuration, including special cases if required
+     *
+     * @param directory The directory to write to
+     *
+     * @return The path to the analyser configuration
+     *
+     * @throws IOException if unable to write the configuration
+     */
+    @Override
+    public File writeConfiguration(File directory) throws IOException {
+        File specialFile = null;
+        if (this.special != null) {
+            specialFile = new File(directory, SPECIAL_CASE_NAMES);
+            if (specialFile.exists())
+                throw new FileAlreadyExistsException("Special case file " + specialFile + " already exists");
+            FileWriter writer = new FileWriter(specialFile, Charset.forName("UTF-8"));
+            this.special.store(writer);
+        }
+        AnalyserConfig config = AnalyserConfig.builder()
+                .specialCases(specialFile == null ? null : specialFile.toURI().toURL())
+                .build();
+        File configFile = new File(directory, AnalyserConfig.DEFAULT_CONFIG_FILE_NAME);
+        if (configFile.exists())
+            throw new FileAlreadyExistsException("Configuration " + configFile + " already exists");
+        FileWriter writer = new FileWriter(configFile);
+        config.relative(directory).store(writer);
+        writer.close();
+        return configFile;
     }
 
     protected static class Analysis implements Cloneable {

@@ -5,8 +5,8 @@ import au.org.ala.names.builder.AbstractCli;
 import au.org.ala.names.builder.IndexBuilderConfiguration;
 import com.beust.jcommander.JCommander;
 
-import au.org.ala.bayesian.derivation.PrefixDerivation.PrefixGenerator;
 import au.org.ala.bayesian.derivation.SoundexGenerator;
+import au.org.ala.bayesian.derivation.PrefixDerivation.PrefixGenerator;
 
 
 public class SimpleLinnaeanCli extends AbstractCli<SimpleLinnaeanClassification, SimpleLinnaeanBuilder, SimpleLinnaeanInferencer, SimpleLinnaeanFactory> {

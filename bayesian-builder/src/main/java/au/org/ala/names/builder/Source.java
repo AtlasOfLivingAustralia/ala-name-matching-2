@@ -1,8 +1,6 @@
 package au.org.ala.names.builder;
 
-import au.org.ala.bayesian.BayesianException;
-import au.org.ala.bayesian.Classification;
-import au.org.ala.bayesian.NetworkFactory;
+import au.org.ala.bayesian.*;
 import au.org.ala.bayesian.Observable;
 import au.org.ala.util.Counter;
 import au.org.ala.util.Metadata;
@@ -37,6 +35,10 @@ abstract public class Source {
     private Metadata metadata;
     @Getter
     private final Counter counter;
+    @Getter
+    private final Counter rejected;
+    @Getter
+    private final Set<String> keys;
 
 
     /**
@@ -54,6 +56,8 @@ abstract public class Source {
         this.types = new HashSet<>(types);
         this.metadata = Metadata.builder().identifier(UUID.randomUUID().toString()).build();
         this.counter = new Counter("Loaded {0} records, {2,number,0.0}/s", log, 10000, -1);
+        this.rejected = new Counter("Rejected {0} records due to key collisions", log, 10000, -1);
+        this.keys = new HashSet<String>(10000);
     }
 
     /**
@@ -91,6 +95,32 @@ abstract public class Source {
     }
 
     /**
+     * Check to see whether a classifier should be loaded.
+     * <p>
+     * By default, this keeps track of keys and does not load a record with a duplicate key
+     * </p>
+     *
+     * @param classifier The classifier
+     *
+     * @return True if this record should be loaded
+     *
+     * @throws StoreException if unable to get the type of the classifier
+     */
+    synchronized public boolean isLoadable(Classifier classifier, Term type) throws StoreException {
+        if (type != this.factory.getConcept())
+            return true;
+        String key = this.buildKey(classifier);
+        if (key == null)
+            return true;
+        if (this.keys.contains(key)) {
+            this.rejected.increment(classifier.getIdentifier());
+            return false;
+        }
+        this.keys.add(key);
+        return true;
+    }
+
+    /**
      * Create a new, empty classification
      *
      * @return The classification
@@ -98,6 +128,34 @@ abstract public class Source {
     @NonNull
     public Classification createClassification() {
         return this.factory.createClassification();
+    }
+
+    /**
+     * Build a key for a classifier
+     *
+     * @param classifier The classifier
+     * @return The computed key, or null for no key
+     */
+    public String buildKey(Classifier classifier) {
+        List<Observable<?>> key = this.factory.getKey();
+        if (key == null)
+            return null;
+        return key.stream()
+                .map(o -> this.keyValue(classifier, (Observable<?>) o))
+                .collect(Collectors.joining("|"));
+    }
+
+    /**
+     * Convert the value in a classifier into a suitable string
+     *
+     * @param classifier The classifier
+     * @param observable The observale to get the key from
+     *
+     * @return The string representation of that value (an empty string if none)
+     */
+    private String keyValue(Classifier classifier, Observable<?> observable) {
+        Object v = classifier.get(observable);
+        return v == null ? "" : v.toString();
     }
 
     /**

@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * information to things like an index builder.
  * </p>
  */
-@JsonPropertyOrder({"id", "description", "uri", "concept", "vocabularies", "normalisers", "observables", "vertices", "edges", "broadeners", "issues", "modifications", "sourceModifiers", "matchModifiers" })
+@JsonPropertyOrder({"id", "description", "uri", "concept", "vocabularies", "normalisers", "observables", "key", "vertices", "edges", "broadeners", "issues", "modifications", "sourceModifiers", "matchModifiers" })
 public class Network extends Identifiable {
     /** The vertex id map */
     private final SortedMap<String, Observable<?>> idMap;
@@ -41,6 +41,12 @@ public class Network extends Identifiable {
     @Getter
     @Setter
     private URI concept;
+    /** The observables that make up a key for concepts. Multiple entries of the same key will be ignored. If null then no key is used */
+    @JsonProperty
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @Getter
+    @Setter
+    private List<Observable<?>> key;
     /** The list of issues */
     @JsonProperty
     @Getter
@@ -97,6 +103,7 @@ public class Network extends Identifiable {
         this.uriMap = new HashMap<>();
         this.issues = new ArrayList<>();
         this.vocabularies = new ArrayList<>();
+        this.key = null;
         this.broadeners = new ArrayList<>();
         this.sourceModifiers = new ArrayList<>();
         this.matchModifiers = new ArrayList<>();
@@ -115,6 +122,7 @@ public class Network extends Identifiable {
         this.uriMap = new HashMap<>();
         this.issues = new ArrayList<>();
         this.vocabularies = new ArrayList<>();
+        this.key = null;
         this.broadeners = new ArrayList<>();
         this.sourceModifiers = new ArrayList<>();
         this.matchModifiers = new ArrayList<>();
@@ -128,6 +136,7 @@ public class Network extends Identifiable {
         this.concept = source.concept;
         this.issues = new ArrayList<>(source.issues);
         this.vocabularies = new ArrayList<>(source.vocabularies);
+        this.key = null;
         this.broadeners = new ArrayList<>(source.broadeners);
         this.sourceModifiers = new ArrayList<>(source.sourceModifiers);
         this.matchModifiers = new ArrayList<>(source.matchModifiers);

@@ -49,11 +49,12 @@ abstract public class MatchTool<C extends Classification<C>, I extends Inference
      * @param factory    The factory
      * @param searcher   The classifier searcher
      * @param config     The configuration to use
+     * @param analyserConfig The analyser config to use
      * @param instrument Record instrumentation
      */
-    public MatchTool(F factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, boolean instrument) {
+    public MatchTool(F factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig, boolean instrument) {
         this.factory = factory;
-        this.matcher = this.factory.createMatcher(searcher, config);
+        this.matcher = this.factory.createMatcher(searcher, config, analyserConfig);
         this.instrument = instrument;
     }
 

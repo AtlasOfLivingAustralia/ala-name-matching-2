@@ -100,19 +100,24 @@ public class DwCASource extends Source {
     @Override
     public void load(LoadStore store, Collection<Observable> accepted) throws BayesianException {
         this.getCounter().start();
+        this.getRejected().start();
         Map<Term, Map<Observable, BiFunction<Record, StarRecord, Set<Object>>>> accessors = this.buildAccessors(accepted);
         for (StarRecord star: this.archive) {
+            boolean load = true;
             if (this.isLoadable(star.core().rowType()))
-                this.loadRecord(star.core(), star, store, accessors);
-            for (Map.Entry<Term, List<Record>> ext: star.extensions().entrySet()) {
-                if (this.isLoadable(ext.getKey())) {
-                    for (Record er: ext.getValue()) {
-                        this.loadRecord(er, star, store, accessors);
+                load = this.loadRecord(star.core(), star, store, accessors);
+            if (load) {
+                for (Map.Entry<Term, List<Record>> ext : star.extensions().entrySet()) {
+                    if (this.isLoadable(ext.getKey())) {
+                        for (Record er : ext.getValue()) {
+                            this.loadRecord(er, star, store, accessors);
+                        }
                     }
                 }
             }
         }
         this.getCounter().stop();
+        this.getRejected().stop();
     }
 
     /**
@@ -373,11 +378,13 @@ public class DwCASource extends Source {
      * @param record The main record
      * @param star The star record with core and all extensions
      * @param store The store to load to
-     * @param accessors The lobservables to load and how to access them.
+     * @param accessors The lobservables to load and how to access them
+     *
+     * @return True if the record was actually loaded
      *
      * @throws BayesianException if unable to store the resulting document
      */
-    protected void loadRecord(Record record, StarRecord star, LoadStore store, Map<Term, Map<Observable, BiFunction<Record, StarRecord, Set<Object>>>> accessors) throws BayesianException {
+    protected boolean loadRecord(Record record, StarRecord star, LoadStore store, Map<Term, Map<Observable, BiFunction<Record, StarRecord, Set<Object>>>> accessors) throws BayesianException {
         Term type = record.rowType();
         Classifier classifier = store.newClassifier();
         for (Map.Entry<Observable, BiFunction<Record, StarRecord, Set<Object>>> accessor: accessors.get(type).entrySet()) {
@@ -391,11 +398,15 @@ public class DwCASource extends Source {
             }
         }
         try {
-            store.store(classifier, type);
+            if (this.isLoadable(classifier, type)) {
+                store.store(classifier, type);
+                this.getCounter().increment(classifier.getIdentifier());
+                return true;
+            }
         } catch (Exception ex) {
             log.error("Skipping invalid classifier: " + ex.getMessage(), ex);
             log.info("Classifier " + classifier.getAllValues().stream().map(s -> s[0] + ": " + s[1]).sorted().collect(Collectors.joining(", ")));
         }
-        this.getCounter().increment(classifier.getIdentifier());
+        return false;
     }
 }

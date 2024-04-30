@@ -108,6 +108,8 @@ public class CSVSource extends Source {
     @Override
     public void load(LoadStore store, Collection<Observable> accepted) throws BuilderException {
         String[] line;
+        this.getCounter().start();
+        this.getRejected().start();
         try {
             while ((line = this.reader.readNext()) != null) {
                 Classifier classifier = store.newClassifier();
@@ -122,11 +124,16 @@ public class CSVSource extends Source {
                     if (val != null)
                         classifier.add(observable, val, observable.hasProperty(OptimisationTerm.loadAsVariant, true), false);
                 }
-                store.store(classifier, this.type);
+                if (this.isLoadable(classifier, this.type)) {
+                    store.store(classifier, this.type);
+                    this.getCounter().increment(classifier.getIdentifier());
+                }
             }
         } catch (Exception ex) {
             throw new BuilderException("Unable to read CSV file", ex);
         }
+        this.getCounter().stop();
+        this.getRejected().stop();
     }
 
     /**

@@ -1,0 +1,36 @@
+<assembly>
+    <id>distribution</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <moduleSets>
+        <moduleSet>
+            <useAllReactorProjects>true</useAllReactorProjects>
+            <includes>
+                <include>au.org.ala.names:bayesian-core:jar</include>
+                <include>au.org.ala.names:bayesian-lucene:jar</include>
+                <include>au.org.ala.names:bayesian-builder:jar</include>
+                <include>au.org.ala.names:taxonomic-tools:jar</include>
+                <include>au.org.ala.names:taxonomic-tools-builder:jar</include>
+                <include>au.org.ala.names:ala-linnaean:jar</include>
+                <include>au.org.ala.names:ala-linnaean-builder:jar</include>
+                <include>au.org.ala.names:ala-tools:jar</include>
+            </includes>
+            <binaries>
+                <outputDirectory>lib</outputDirectory>
+                <unpack>false</unpack>
+            </binaries>
+        </moduleSet>
+    </moduleSets>
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.scriptSourceDirectory}</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>compare.sh</include>
+                <include>match.sh</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
