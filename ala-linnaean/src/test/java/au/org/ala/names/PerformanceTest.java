@@ -1,11 +1,9 @@
 package au.org.ala.names;
 
-import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.bayesian.Match;
 import au.org.ala.bayesian.MatchMeasurement;
 import au.org.ala.bayesian.MatchOptions;
 import au.org.ala.location.AlaLocationClassification;
-import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
 import au.org.ala.util.JsonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -19,12 +17,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 

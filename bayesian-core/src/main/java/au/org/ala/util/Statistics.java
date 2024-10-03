@@ -4,11 +4,18 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.NumberFormat;
+
 /**
  * Summary statistics for some sort of element
  */
 public class Statistics {
     private static final Logger logger = LoggerFactory.getLogger(Statistics.class);
+
+    private static final NumberFormat PERCENTAGE = new DecimalFormat("0.00%");
+    private static final NumberFormat STATISTIC = new DecimalFormat("0.00");
 
     private static final String[] KEYS = new String[] { "name", "n", "total", "mean", "stddev", "min", "max" };
 
@@ -66,6 +73,50 @@ public class Statistics {
             return Double.NaN;
         double mean = this.getMean();
         return Math.sqrt(((double) this.sumSq / this.count - mean * mean));
+    }
+
+    /**
+     * Generate a report line
+     *
+     * @param full Include all values
+     * @param totalCount The total for reporting as a percentage. Less than zero to ignore
+     * @param totalSum The total for reporting as a percentage. Less than zero to ignore
+     * @return A report line
+     */
+    public String reportLine(boolean full, long totalCount, long totalSum) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.getName());
+        builder.append('\t');
+        builder.append(this.getCount());
+        if (totalCount >= 0) {
+            builder.append(" (");
+            if (totalCount == 0)
+                builder.append("-");
+            else
+                builder.append(PERCENTAGE.format(((double) this.getCount()) / ((double) totalCount)));
+            builder.append(")");
+        }
+        builder.append('\t');
+        builder.append(this.getSum());
+        if (totalSum >= 0) {
+            builder.append(" (");
+            if (totalSum == 0)
+                builder.append("-");
+            else
+                builder.append(PERCENTAGE.format(((double) this.getSum()) / ((double) totalSum)));
+            builder.append(")");
+        }
+        if (full) {
+            builder.append("\t");
+            builder.append(STATISTIC.format(this.getMean()));
+            builder.append("\t");
+            builder.append(STATISTIC.format(this.getStdDev()));
+            builder.append("\t");
+            builder.append(this.getMin());
+            builder.append("\t");
+            builder.append(this.getMax());
+       }
+        return builder.toString();
     }
 
     public String toString() {

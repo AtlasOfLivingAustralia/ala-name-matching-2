@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.management.ManagementFactory;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +37,11 @@ import java.util.stream.Collectors;
 @Service
 public class ClassificationMatcher<C extends Classification<C>, I extends Inferencer<C>, F extends NetworkFactory<C, I, F>, M extends MatchMeasurement> implements AutoCloseable, ClassificationMatcherMXBean {
     private static final Logger logger = LoggerFactory.getLogger(ClassificationMatcher.class);
+
+    /**
+     * A source of unique cache names
+     */
+    private static final AtomicInteger cacheIndex = new AtomicInteger();
 
     /**
      * The default possible theshold for something to be considered. @see #isPossible
@@ -831,5 +837,9 @@ public class ClassificationMatcher<C extends Classification<C>, I extends Infere
     @Override
     public String getMatchableStatistics() {
         return this.matchableStatistics.toString();
+    }
+
+    protected static String getCacheName(String field) {
+        return "MatcherCache" + "-" + field + "-" + cacheIndex.getAndIncrement();
     }
 }
