@@ -56,7 +56,7 @@ graph of cause and effect.
 These libraries are oriented towards handling  generic biological nomenclature,
 wihout insisting on a specific model.
 These libraries draw extensively on [Darwin Core](https://dwc.tdwg.org/terms/)
-and the [Global Biodiversity Information Framework](https://www.gbif.org/)
+and the [Global Biodiversity Information Facility](https://www.gbif.org/)
 suite of tools and software.
 
 * [Taxonomic Tools](taxonomic-tools/README.md)
@@ -94,4 +94,3 @@ There are three netorks:
   Useful tools for analysis and comparison
 * [ALA Distribution](ala-distribution/README.md)
   A packaged distribution of the name index builders and tools.
-
