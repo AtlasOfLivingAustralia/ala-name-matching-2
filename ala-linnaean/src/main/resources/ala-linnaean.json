@@ -1195,6 +1195,11 @@
       "description": "Ignored supplied location information to find a match."
     },
     {
+      "id": "invalid_location",
+      "uri": "http://ala.org.au/issues/1.0/invalidLocation",
+      "description": "The supplied location information is un-findable."
+    },
+    {
       "id": "removed_authorship",
       "uri": "http://ala.org.au/issues/1.0/removedAuthorship",
       "description": "Ignored supplied scientific name authorship to find a match."

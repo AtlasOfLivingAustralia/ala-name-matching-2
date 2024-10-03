@@ -7,6 +7,7 @@ import au.org.ala.location.AlaLocationFactory;
 import au.org.ala.names.*;
 import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
 import au.org.ala.util.Counter;
+import au.org.ala.util.Statistics;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.opencsv.CSVReader;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import old.au.org.ala.names.model.ErrorType;
 import old.au.org.ala.names.model.LinnaeanRankClassification;
 import old.au.org.ala.names.model.MetricsResultDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,7 @@ public class ALAComparisonTool {
 
     private CSVReader source;
     private CSVWriter report;
+    protected int countIndex;
     protected List<BiConsumer<String[], AlaLocationClassification>> locationInputs;
     protected List<BiConsumer<String[], AlaLinnaeanClassification>> classificationInputs;
     protected List<BiConsumer<String[], AlaVernacularClassification>> vernacularInputs;
@@ -67,6 +70,7 @@ public class ALAComparisonTool {
     protected List<String> outputHeaders;
     protected ALANameSearcher newSearcher;
     protected old.au.org.ala.names.search.ALANameSearcher oldSearcher;
+    protected Map<String, Statistics> comparisonStatistics;
 
     private static final List<Column<Object>> SUMMARY_OUTPUT_COLUMNS = Arrays.asList(
             new Column<>("comparison", null, r -> r.comparison())
@@ -190,6 +194,7 @@ public class ALAComparisonTool {
     }
 
     public void run() throws Exception {
+        this.comparisonStatistics = new HashMap<>();
         Reader r = this.input.equals("-") ? new InputStreamReader(System.in) : new FileReader(this.input);
         this.source = new CSVReader(r);
         Writer w = this.output.equals("-") ? new OutputStreamWriter(System.out) : new FileWriter(this.output);
@@ -204,12 +209,28 @@ public class ALAComparisonTool {
             lines.increment(null);
         }
         lines.stop();
+        long totalCount = this.comparisonStatistics.values().stream().mapToLong(Statistics::getCount).sum();
+        long totalSum = this.comparisonStatistics.values().stream().mapToLong(Statistics::getSum).sum();
+        for (String key: this.comparisonStatistics.keySet().stream().sorted().collect(Collectors.toList())) {
+            Statistics stats = this.comparisonStatistics.get(key);
+            System.err.println(stats.reportLine(false, totalCount, totalSum));
+        }
         this.closeSearchers();
     }
 
     protected void processRow(String[] row, int index) {
         Result result = new Result();
+        result.count = 1;
         result.input = row;
+        if (this.countIndex >= 0) {
+            String cv = StringUtils.trimToNull(row[this.countIndex]);
+            try {
+                if (cv != null)
+                    result.count = Integer.parseInt(cv);
+            } catch (NumberFormatException ex) {
+                logger.error("Unable to parse count of " + cv + " on line " + index);
+            }
+        }
         if (!this.locationInputs.isEmpty()) {
             AlaLocationClassification classification = AlaLocationFactory.instance().createClassification();
             for (BiConsumer<String[], AlaLocationClassification> c: this.locationInputs) {
@@ -295,6 +316,8 @@ public class ALAComparisonTool {
                 }
             }
         }
+        Statistics stats = this.comparisonStatistics.computeIfAbsent(result.comparison(), k -> new Statistics(k));
+        stats.add(result.count);
         List<String> res = this.outputs.stream().map(o -> o.apply(result)).map(v -> v == null ? null : v.toString()).collect(Collectors.toList());
         String[] out = res.toArray(new String[res.size()]);
         this.report.writeNext(out);
@@ -324,6 +347,7 @@ public class ALAComparisonTool {
 
     protected void parseSource() throws Exception {
         String[] header = source.readNext();
+        this.countIndex = -1;
         this.locationInputs = new ArrayList<>();
         this.classificationInputs = new ArrayList<>();
         this.vernacularInputs = new ArrayList<>();
@@ -336,6 +360,8 @@ public class ALAComparisonTool {
             final int index = i;
             this.outputs.add(r -> index < r.input.length ? r.input[index] : null);
             this.outputHeaders.add(name);
+            if (name.equals("count"))
+                this.countIndex = i;
         }
         this.addInputColumns(header, LOCATION_INPUT_COLUMNS, this.locationInputs);
         this.addOutputColumns(LOCATION_OUTPUT_COLUMNS, this.outputs, this.outputHeaders);
@@ -427,6 +453,7 @@ public class ALAComparisonTool {
         public Integer vernacularTime;
         public MetricsResultDTO original;
         public Integer originalTime;
+        public Integer count;
 
         public String comparison() {
             String lid = this.linnaean.isValid() ? this.linnaean.getAccepted().taxonId : null;

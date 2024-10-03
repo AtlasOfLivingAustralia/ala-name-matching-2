@@ -70,6 +70,7 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     public ALAClassificationMatcher(AlaLinnaeanFactory factory, ClassifierSearcher<?> searcher, ClassificationMatcherConfiguration config, AnalyserConfig analyserConfig, Set<String> localityScope) {
         super(factory, searcher, config, analyserConfig);
         Cache2kBuilder<KingdomKey, AlaLinnaeanClassification> builder = Cache2kBuilder.of(KingdomKey.class, AlaLinnaeanClassification.class)
+                .name(getCacheName("kingdomCache"))
                 .entryCapacity(this.getConfig().getSecondaryCacheSize())
                 .permitNullValues(true)
                 .loader(this::doFindKingdom);
@@ -486,8 +487,9 @@ public class ALAClassificationMatcher extends ClassificationMatcher<AlaLinnaeanC
     @Override
     public void close() throws Exception {
         super.close();
-        if (this.kingdomCache != null)
+        if (this.kingdomCache != null) {
             this.kingdomCache.close();
+        }
     }
 
     /**
