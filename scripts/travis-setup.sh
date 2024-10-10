@@ -8,7 +8,9 @@ else
   access=.ap-${AWS_AP}
 fi
 access=${AWS_AP:us-east-1}
-mkdir -p "$base"
+sudo mkdir -p "$base"
+sudo chown "$USER" "$base"
+sudo chmod ug+rwx "$base"
 for f in linnaean vernacular location
 do
   file="${f}-${version}.zip"
