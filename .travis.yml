@@ -1,0 +1,25 @@
+dist: trusty
+sudo: required
+language: java
+jdk:
+  - oraclejdk11
+branches:
+  only:
+    - master
+#    - develop
+
+before_install:
+  - mkdir -p ~/.m2; wget -q -O ~/.m2/settings.xml https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/travis_maven_settings_simple.xml
+  - chmod a+x scripts/travis-setup.sh
+  - scripts/travis-setup.sh
+  - cd $TRAVIS_BUILD_DIR
+
+script:
+  - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn -P travis clean install deploy; else mvn -P travis clean install; fi'
+
+env:
+  global:
+    INDEX_DIR=/data/lucene
+    INDEX_VERSION=20230725-5
+    DATA_BUCKET=ala-nameindexes
+    AWS_AP=
