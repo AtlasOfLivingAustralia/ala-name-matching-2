@@ -16,6 +16,15 @@
         A shaded version of the old name matching library, with classes and resources moved.
         This ensures that the old library's namespace does not collide with the new library.
     </description>
+
+    <!-- Required for other ALA libraries -->
+    <repositories>
+        <repository>
+            <id>ala-all</id>
+            <url>https://nexus.ala.org.au/content/groups/public/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>au.org.ala</groupId>
