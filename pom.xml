@@ -2,6 +2,12 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>au.org.ala</groupId>
+    <artifactId>ala-parent-pom</artifactId>
+    <version>14</version>
+  </parent>
+
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>au.org.ala.names</groupId>
@@ -44,6 +50,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <targetJdk>11</targetJdk>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <com.fasterxml.jackson.version>2.16.0</com.fasterxml.jackson.version>
@@ -110,6 +117,12 @@
   <build>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
+        <!-- Turn off animal sniffer, since we've gone to JDK 11 -->
+        <plugin>
+             <inherited>false</inherited>
+             <groupId>org.codehaus.mojo</groupId>
+             <artifactId>animal-sniffer-maven-plugin</artifactId>
+        </plugin>
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
