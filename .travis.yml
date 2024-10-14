@@ -12,8 +12,8 @@ before_install:
 - scripts/travis-setup.sh
 - cd $TRAVIS_BUILD_DIR
 script:
-- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn -P travis clean install deploy;
-  else mvn -P travis clean install; fi
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then travis_wait mvn -P travis clean install deploy;
+  else travis_wait mvn -P travis clean install; fi
 env:
   global:
   - TMP_DIR=/data/tmp INDEX_DIR=/data/lucene INDEX_VERSION=20230725-5 DATA_BUCKET=ala-nameindexes AWS_AP=
