@@ -24,8 +24,23 @@
   </modules>
 
   <name>Name Matching v2</name>
-  <!-- FIXME change it to the project's website -->
   <url>https://github.com/AtlasOfLivingAustralia/ala-name-matching-2</url>
+  <organization>
+    <name>Atlas of Living Australia</name>
+    <url>https://ala.org.au</url>
+  </organization>
+  <scm>
+    <connection>scm:git:git@github.com:AtlasOfLivingAustralia/ala-name-matching-2.git</connection>
+    <url>https://github.com/AtlasOfLivingAustralia/ala-name-matching-2</url>
+    <developerConnection>scm:git:git@github.com:AtlasOfLivingAustralia/ala-name-matching-2.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+  <licenses>
+    <license>
+      <name>Mozilla Public Licence 1.1</name>
+      <url>https://www.mozilla.org/en-US/MPL/1.1/</url>
+    </license>
+  </licenses>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -156,4 +171,14 @@
           </plugin>
       </plugins>
    </build>
+
+  <profiles>
+    <profile>
+      <!-- profile gets activated by travis and (crucially) skips the git-commit plugin -->
+      <id>travis</id>
+        <build>
+        </build>
+    </profile>
+  </profiles>
+
 </project>
