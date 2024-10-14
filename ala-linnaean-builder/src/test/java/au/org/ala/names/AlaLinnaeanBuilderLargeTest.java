@@ -41,6 +41,7 @@ public class AlaLinnaeanBuilderLargeTest extends TestUtils {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        TestUtils.assumeNotTravis(); // Avoid very long-running tests that cause travis to fail
         work = FileUtils.makeTmpDir("work");
         output = FileUtils.makeTmpDir("output");
         IndexBuilderConfiguration config = new IndexBuilderConfiguration();
