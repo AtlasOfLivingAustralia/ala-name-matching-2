@@ -41,7 +41,7 @@ public class PerformanceTest {
 
     public static final int SEARCH_QUERY_LIMIT = 15;
     public static final int SEARCH_CACHE_SIZE = 10000;
-    public static final String LOCATION_INDEX = "/data/lucene/location-20221005-1";
+    public static final String LOCATION_INDEX = "/data/lucene/location-20230725-5";
 
 
     private LuceneClassifierSearcher searcher;

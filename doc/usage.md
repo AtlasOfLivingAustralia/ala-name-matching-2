@@ -11,9 +11,9 @@ You will need to install the libraries and indexes before using them.
 ### Indexes
 
 You can access pre-built search indexes at
-https://archives.ala.org.au/archives/nameindexes/
-The current indexes are in `20221005-1`: 
-`index-20221005-1.zip` and `vernacular-20221005-1.zip`
+
+The current indexes are in `20230725-5`: 
+`index-20230725-5.zip` and `vernacular-20230725-5.zip`
 Generally, these are expected to be unzipped into the `/data/lucene` directory.
 
 #### Suggester Index
@@ -21,8 +21,8 @@ Generally, these are expected to be unzipped into the `/data/lucene` directory.
 The suggester index is used to provide auto-suggest options.
 If not present, the suggester i8ndex is built from search indexes
 on-demand, a process that can take 20 minutes or more.
-If the file `/data/tmp/suggest-20221005-1/suggester.bin` exists,
-then the already built index in `/data/tmp/suggest-20221005-1` is used.
+If the file `/data/tmp/suggest-20230725-5/suggester.bin` exists,
+then the already built index in `/data/tmp/suggest-20230725-5` is used.
 
 ### Building
 
@@ -64,9 +64,9 @@ import au.org.ala.bayesian.ClassificationMatcherConfiguration;
 import au.org.ala.names.ALANameSearcher;
 import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
 
-File index = new File("/data/lucene/index-20221005-1");
-File vernacular = new File("/data/lucene/vernacular-20221005-1");
-File suggester = new File("/data/tmp/suggest-20221005-1");
+File index = new File("/data/lucene/index-20230725-5");
+File vernacular = new File("/data/lucene/vernacular-20230725-5");
+File suggester = new File("/data/tmp/suggest-20230725-5");
 LuceneClassifierSearcherConfiguration sConfig = LuceneClassifierSearcherConfiguration.builder()
         .queryLimit(10)
         .cacheSize(20000)

@@ -37,10 +37,10 @@ public class PerformanceTest {
 
     public static final int SEARCH_QUERY_LIMIT = 15;
     public static final int SEARCH_CACHE_SIZE = 10000;
-    public static final String INDEX = "/data/lucene/index-20221005-1" ;
-    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20221005-1" ;
-    public static final String LOCATION_INDEX = "/data/lucene/location-20221005-1";
-    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20221005-1";
+    public static final String INDEX = "/data/lucene/index-20230725-5" ;
+    public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20230725-5" ;
+    public static final String LOCATION_INDEX = "/data/lucene/location-20230725-5";
+    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20230725-5";
 
     /**
      * The potential columns in the source data.

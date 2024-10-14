@@ -2,7 +2,7 @@
   "version" : "20230725-5",
   "index" : "/data/lucene",
   "work" : "/data/tmp",
-  "location": "location-20221005-1",
+  "location": "location-20230725-5",
   "searcherConfiguration" : {
     "queryLimit" : 15,
     "cacheSize" : 10000
