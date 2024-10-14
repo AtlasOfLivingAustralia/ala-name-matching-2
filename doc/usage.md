@@ -21,8 +21,8 @@ Generally, these are expected to be unzipped into the `/data/lucene` directory.
 The suggester index is used to provide auto-suggest options.
 If not present, the suggester i8ndex is built from search indexes
 on-demand, a process that can take 20 minutes or more.
-If the file `/data/tmp/suggest-20230725-5/suggester.bin` exists,
-then the already built index in `/data/tmp/suggest-20230725-5` is used.
+If the file `/data/tmp/suggester-20230725-5/suggester-metadata.json` exists and shows a later date than the source data,
+then the already built index in `/data/tmp/suggester-20230725-5` is used.
 
 ### Building
 
@@ -66,7 +66,7 @@ import au.org.ala.names.lucene.LuceneClassifierSearcherConfiguration;
 
 File index = new File("/data/lucene/index-20230725-5");
 File vernacular = new File("/data/lucene/vernacular-20230725-5");
-File suggester = new File("/data/tmp/suggest-20230725-5");
+File suggester = new File("/data/tmp/suggester-20230725-5");
 LuceneClassifierSearcherConfiguration sConfig = LuceneClassifierSearcherConfiguration.builder()
         .queryLimit(10)
         .cacheSize(20000)

@@ -26,7 +26,7 @@ public class ALANameSearcherTest {
     public static final String INDEX = "/data/lucene/linnaean-20230725-5";
     public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20230725-5";
     public static final String LOCATION_INDEX = "/data/lucene/location-20230725-5";
-    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20230725-5";
+    public static final String SUGGESTER_INDEX = "/data/tmp/suggester-20230725-5";
 
     private ALANameSearcher searcher;
 

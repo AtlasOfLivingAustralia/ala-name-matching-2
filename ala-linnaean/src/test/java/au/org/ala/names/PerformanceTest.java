@@ -40,7 +40,7 @@ public class PerformanceTest {
     public static final String INDEX = "/data/lucene/index-20230725-5" ;
     public static final String VERNACULAR_INDEX = "/data/lucene/vernacular-20230725-5" ;
     public static final String LOCATION_INDEX = "/data/lucene/location-20230725-5";
-    public static final String SUGGESTER_INDEX = "/data/tmp/suggest-20230725-5";
+    public static final String SUGGESTER_INDEX = "/data/tmp/suggester-20230725-5";
 
     /**
      * The potential columns in the source data.

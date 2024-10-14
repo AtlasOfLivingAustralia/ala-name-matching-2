@@ -21,3 +21,9 @@ do
   curl --output "${base}/${file}" "https://${bucket}.s3${access}.amazonaws.com/${version}/${file}"
   unzip -d "${base}" "${base}/${file}"
 done
+for f in suggester
+do
+  file="${f}-${version}.zip"
+  curl --output "${tmp}/${file}" "https://${bucket}.s3${access}.amazonaws.com/${version}/${file}"
+  unzip -d "${tmp]}" "${tmp}/${file}"
+done
