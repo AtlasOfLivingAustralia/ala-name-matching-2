@@ -9,7 +9,7 @@ else
   access=.ap-${AWS_AP}
 fi
 access=${AWS_AP:us-east-1}
-sudo mkdir -p "tmp"
+sudo mkdir -p "$tmp"
 sudo chown "$USER" "$tmp"
 sudo chmod ug+rwx "$tmp"
 sudo mkdir -p "$base"
