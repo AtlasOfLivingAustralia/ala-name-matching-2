@@ -1,0 +1,21 @@
+dist: trusty
+sudo: required
+language: java
+jdk:
+- oraclejdk11
+branches:
+  only:
+  - master
+before_install:
+- mkdir -p ~/.m2; wget -q -O ~/.m2/settings.xml https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/travis_maven_settings_simple.xml
+- chmod a+x scripts/travis-setup.sh
+- scripts/travis-setup.sh
+- cd $TRAVIS_BUILD_DIR
+script:
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn -DargLine="-DTRAVIS=yes" -P travis clean install deploy;
+  else travis_wait mvn -DargLine="-DTRAVIS=yes" -P travis clean install; fi
+env:
+  global:
+  - TMP_DIR=/data/tmp INDEX_DIR=/data/lucene INDEX_VERSION=20230725-5 DATA_BUCKET=ala-nameindexes AWS_AP=
+  - secure: LkMBSKpvSmJ7hO2sa3BuAqRWaJ+qghWD0EzHSWwm/Xzkw3bpOYo1NstgfHesS7eIzD2z7oih+7PWURgcOf608Z87TItjAOCOfqmjWKwJhLkMqdKy0pzmC1IRT0E+Sn+k2/Dd8y19ossHx4X3YkqD2eUVp9+9NityJMuc5oXfItSXcm76CUyo43NM5+smpHQDoIyMGuxjrOfWR4cY7/x1uPcIP9A1YFt2dH1uOXGN9Ht/UdK4kXtfAOAWZhuKt/ms69jonV5ZrpvErLPkYluGjSr208junY17sDbxPx2i3ML9peGK4Cc8Shdw+mqQpK7y6EyNmBhqPssFMZGVoDy16AfYeIDBY52ir8Szqz5fa0MfanMB4+ak6OqWZQhc3Tvvi8wgk2cvq/xB5QboV3arOh0HtIUb7aWqyKqg5YHPdRliPpOHgHuLoZTjMM64O8GhRqX9p9ViD/MWd0SiceiMhyGvgAiu1AFPSOrZnjU5iaKRtLGGppbP4DI/KczrJIi9QRXOYQtu4xeIIrB00qC7v2PcS9bkpI0SwZcVDVqe7vDuMw32RvzHPuO0EbOHfzr7gJVHpyVhZqrEKK2R58vardkyOBqcmGRT+GbjDjRiylFwvmqi5oOzGQg+19bq6IYJ5ZdXcs5DJr7Bp70zh5ou0FQXy6IJM1l/myoxsyh45/U=
+  - secure: rJSS7gM2O1Zf/LqvrO7yqa6trwAYd72EevNdCeM1dRVgpU125+y5DzBT6XDAVwHaac3tXQmgtJToNEnh+sC3UW2SHhGsWNU6YiFXCff8invUZmpk8cQtY396g2bv66INFWn1VENPBqdPBrEuM3Af2hJs0VKej/RmyNKX+PF3ef5m6Q1urhYsmC8FsnHa9bkEYAFU/EhZQKgiHPKQc18d6t6hLJdPg3wUYNKBUUBdrKyXDBIcybL0ScrYCZQA/oxyqYzW8xsE2uFy0YVTYzT3rUrH2+bUxMl6L6lAsWtlHqyVFw/2VU9WqHom+WfgxRor6BEnuS/24zP9GZzpY2FrWP8dRmEVqr1z/YFvdWf15lpArRZKOwQ1uXK11vy/BcDd8YGgVJW3+951lIXpOhfR8Dubg9M1F2RdAHGNsQjnNqHfLtTS6Ha7MNrg8k0o6lgE7FrT/kZGeDQpDHxscbYLdmce8N+On+vsoM/3VLFHxEJpKEOK3fYUFL3KePOiUCdk8OpKqz6rAlJAzypXwF4qU/jz/1jjuK3UkBdYfir2REv9xO5Dtot/lsPczAAADo1RpTp2f4moJUsIJ/F9HQ82H/lnE3oMl7/KDbFVIiDpWSti5Xj9XYGIWmbrwtSZ9STDP6JLXAP6xcALw+3NPn3S5bDLSug4vQDEb3Eeb7+Gw/g=

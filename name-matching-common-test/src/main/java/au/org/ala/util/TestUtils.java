@@ -2,10 +2,18 @@ package au.org.ala.util;
 
 import org.junit.Assert;
 import org.junit.ComparisonFailure;
-
+import static org.junit.Assume.*;
+import static org.hamcrest.core.Is.*;
 import java.io.*;
 
 public class TestUtils {
+    /**
+     *  The system property flagging that this is a travis build.
+     *
+     * @see #assumeNotTravis()
+     */
+    public static final String TRAVIS_FLAG = "TRAVIS";
+
     /**
      * Read a resource file.
      *
@@ -86,5 +94,21 @@ public class TestUtils {
         } catch (ComparisonFailure fail) {
             throw new ComparisonFailure(fail.getMessage(), expected, actual);
         }
+     }
+
+    /**
+     * A junit assume test that allows us to skip long-running tests when doing a travis build.
+     *
+     * The <code>TRAVIS</code> (see {@link #TRAVIS_FLAG}) property needs to be passed into the maven build
+     * using the <code>-DargLine</code> argument in maven.
+     * For example
+     *
+     * <pre>
+     *    mvn -DargLine="-DTRAVIS=yes" clean install
+     * </pre>
+     */
+    public static void assumeNotTravis() {
+        String flag = System.getProperty(TRAVIS_FLAG, "no");
+        assumeThat("Skipping test(s) in travis", flag, is("no"));
      }
 }

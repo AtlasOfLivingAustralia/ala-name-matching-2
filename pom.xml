@@ -19,6 +19,7 @@
     <module>ala-linnaean</module>
     <module>ala-linnaean-builder</module>
     <module>ala-distribution</module>
+    <module>shaded-old-name-matching</module>
     <module>ala-taxonomic-tools</module>
   </modules>
 

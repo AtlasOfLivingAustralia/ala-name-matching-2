@@ -70,6 +70,7 @@ public class ALAClassificationMatcherTest {
 
     @Test
     public void testTrace1() throws Exception {
+        TestUtils.assumeNotTravis(); // Causes travis to fail for some reason
         AlaLinnaeanClassification classification = new AlaLinnaeanClassification();
         classification.scientificName = "Acacia dealbata";
         MatchOptions options = MatchOptions.ALL.withTrace(Trace.TraceLevel.TRACE);

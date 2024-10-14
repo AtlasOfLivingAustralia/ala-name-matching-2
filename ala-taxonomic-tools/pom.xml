@@ -54,8 +54,8 @@
         </dependency>
         <dependency>
             <groupId>au.org.ala.names</groupId>
-            <artifactId>old-name-matching-shaded</artifactId>
-            <version>${old-name-matching.version}</version>
+            <artifactId>shaded-old-name-matching</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
