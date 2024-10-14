@@ -190,6 +190,7 @@ abstract public class Source {
      * @throws Exception for all kinds of reasons
      */
     public static Source create(URL source, NetworkFactory factory, Collection<Observable<?>> observables, Collection<Term> types) throws Exception {
+        log.info("Getting source data " + source + " factory=" + factory.getClass());
         if (source.getFile().endsWith(".csv")) {
             return new CSVSource(types.isEmpty() ? DwcTerm.Taxon : types.iterator().next(), source, factory, observables);
         }
