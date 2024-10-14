@@ -125,7 +125,7 @@ public class Counter implements CounterMXBean {
      *
      * @return The formatted message
      */
-    protected String buildMessgae(long now, Object last) {
+    protected String buildMessage(long now, Object last) {
         double elapsed = (now - this.start) * 0.001;
         double percentage = this.size <= 0 ? 0.0 : (100.0 * this.counter) / this.size;
         double speed = this.stop == 0 ? this.computeRate(this.current, this.segment, now) : this.computeRate(this.counter, this.start, this.stop);
@@ -140,7 +140,7 @@ public class Counter implements CounterMXBean {
      */
     private long report(Object last) {
         long now = this.stop != 0 ? this.stop : System.currentTimeMillis();
-        this.logger.info(this.buildMessgae(now, last));
+        this.logger.info(this.buildMessage(now, last));
         return now;
     }
 

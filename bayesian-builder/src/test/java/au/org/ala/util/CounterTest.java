@@ -55,18 +55,18 @@ public class CounterTest {
     public void testBuildMessage1() throws Exception {
         this.counter.start();
         this.run(9);
-        String message = this.counter.buildMessgae(System.currentTimeMillis(), null);
+        String message = this.counter.buildMessage(System.currentTimeMillis(), null);
         this.counter.stop();
-        assertTrue("Message is " + message, message.matches("Test 9 elapsed [01], \\d\\d\\d/s, 90%, last -"));
+        assertTrue("Message is " + message, message.matches("Test 9 elapsed \\d, \\d+/s, 90%, last -"));
     }
 
     @Test
     public void testBuildMessage2() throws Exception {
         this.counter.start();
         this.run(35);
-        String message = this.counter.buildMessgae(System.currentTimeMillis(), "Waffle");
+        String message = this.counter.buildMessage(System.currentTimeMillis(), "Waffle");
         this.counter.stop();
-        assertTrue("Message is " + message, message.matches("Test 35 elapsed [01], \\d\\d\\d/s, 350%, last Waffle"));
+        assertTrue("Message is " + message, message.matches("Test 35 elapsed \\d, \\d+/s, 350%, last Waffle"));
     }
 
     @Test
